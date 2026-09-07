@@ -28,6 +28,8 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 5000
 chain:
+  examples:
+  - skills/14-finance/forex-trader/examples/backtest
   type: symmetric
   consumes_from:
     - quantitative-analyst
@@ -42,7 +44,17 @@ chain:
   alternatives:
     - futures-trader
     - crypto-trader
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Forex Trader
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -192,6 +204,7 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
 ### Phase 0: Pair Analysis & Pip Value
 
 ```
+
 1. CATEGORIZE THE PAIR
 
    ├── MAJOR: EUR/USD, USD/JPY, GBP/USD, USD/CHF, AUD/USD, USD/CAD, NZD/USD
@@ -232,11 +245,13 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
 
    Complete when: Pair categorized, pip value computed [COMPUTED], notional computed [COMPUTED],
    leverage checked against account equity. Session identified.
+
 ```
 
 ### Phase 1: Carry Trade Analysis
 
 ```
+
 1. IDENTIFY INTEREST RATE DIFFERENTIAL
 
    Long Currency Rate - Short Currency Rate = Net Carry
@@ -281,11 +296,13 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
    Complete when: Rate differential computed [COMPUTED]. Annualized carry return computed [COMPUTED].
    Break-even days computed [COMPUTED]. Next CB meetings calendared [VERIFIED].
    Trade classified as: carry-favorable, carry-neutral, or carry-hostile.
+
 ```
 
 ### Phase 2: Session-Based Execution
 
 ```
+
 1. FX SESSION LIQUIDITY MAP
 
    | Session | GMT | Key Pairs Active | Spread Quality | Events |
@@ -317,11 +334,13 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
 
    Complete when: Current session identified. Pair-session match scored (optimal/acceptable/avoid).
    Order type selected per session rules. Spread estimate from broker [BROKER-VERIFIED].
+
 ```
 
 ### Phase 3: Correlation & Portfolio Construction
 
 ```
+
 1. CORRELATION MATRIX CHECK
 
    Before adding ANY new position, check correlation against existing positions.
@@ -361,6 +380,7 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
 
    Complete when: Correlation matrix checked [COMPUTED]. Net USD exposure computed [COMPUTED].
    Concentration alerts generated if thresholds exceeded.
+
 ```
 
 ## Decision Trees
@@ -368,6 +388,7 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
 ### Carry Trade Viability
 
 ```
+
                      ┌──────────────────────┐
                      │ Interest rate diff     │
                      │ identified             │
@@ -407,11 +428,13 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
                      │ with size  │ │ CB meeting. Binary  │
                      │ limit     │ │ event risk.         │
                      └──────────┘ └──────────────────┘
+
 ```
 
 ### Pair Selection by Session
 
 ```
+
                      ┌──────────────────────┐
                      │ Which pair to trade?    │
                      └──────────┬───────────┘
@@ -431,7 +454,12 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
        │ 3-5× wider│  │ spread    │ │ spreads   │  │ pairs     │
        │ spreads   │  │ <1 pip    │ │ <0.5 pip  │  │ <1 pip    │
        └──────────┘  └──────────┘ └──────────┘  └──────────┘
+
 ```
+
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
 
 ## Gotchas
 
@@ -490,6 +518,7 @@ You trade the world's most liquid market. $7.5 trillion turns over daily. That l
 A high-quality FX trade execution:
 
 ```
+
 Account: $25,000. Trade: Long 0.3 lots EUR/USD at 1.1050.
 Notional: $33,150 [COMPUTED]. Pip value: $3.00 [COMPUTED].
 Stop: 1.0990 (60 pips). Risk: $180 (0.72% of account). ✓
@@ -500,10 +529,14 @@ Carry: Long EUR (3.75%) / Short USD (5.25%) = -1.50% net carry = -$1.36/day.
   Holding: intraday only (no swap). ✓
 Correlation check: No other USD-short positions. Net USD: -$33,150. < 2× equity. ✓
 Next events: No FOMC/ECB/NFP within 48 hours. ✓
+
 ```
 
 The position is session-aware (overlap order), carry-aware (intraday avoids swap), correlation-checked, and sized for <1% risk. Every number is tagged.
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
 ## Verification Guardrails
 
 - [ ] **All rates from live broker feed:** No training-data FX rates. Every rate tagged [VERIFIED] or [BROKER-VERIFIED]
@@ -549,6 +582,39 @@ You want to enter EUR/USD at 03:00 GMT, USD/JPY at 14:00 GMT, AUD/USD at 20:00 G
 ### Exercise 5: Swap Cost Analysis (5 min)
 You plan to hold 0.5 lots long GBP/JPY for 30 days. GBP rate 5.00%, JPY rate 0.25%. Compute daily swap earned and total over 30 days. If the trade makes +2% (in pips) but swap earns $X, what's your total return?
 
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
 ## References
 - [pip-value-tables.md](references/pip-value-tables.md) — Pip value computation for all major/minor/exotic pairs at current rates
 - [central-bank-calendar.md](references/central-bank-calendar.md) — Meeting schedules, rate decisions, forward guidance frameworks for all G10 + key EM central banks
@@ -559,3 +625,20 @@ You plan to hold 0.5 lots long GBP/JPY for 30 days. GBP rate 5.00%, JPY rate 0.2
 - [broker-integration-forex.md](references/broker-integration-forex.md) — Broker API specifics for FX: OANDA, FXCM, IBKR, IG, Saxo — order types, leverage caps, swap rates
 - [exotic-pairs-risk.md](references/exotic-pairs-risk.md) — Exotic pair risk management: political risk, liquidity gaps, capital controls, crash risk sizing
 - [error-recovery.md](references/error-recovery.md) — FX-specific error patterns: news slippage, swap miscalculation, correlation breaks, margin close-out
+
+## Ground Rules — Read Before Anything Else
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
+- In-scope: proceed through Core Workflow.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify or escalate?
+- Verifiable locally: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.

@@ -27,6 +27,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 5000
 chain:
+  examples:
+  - skills/05-development/backend-developer/examples/backtest
   consumes_from:
     - using-agent-skills
     - supply-chain-security
@@ -132,6 +134,18 @@ chain:
     - staff-engineer
     - tdd-guide
     - technical-writer
+workflow:
+  artifacts:
+    inputs: [findings]
+    outputs: [change]
+  completion:
+    criteria:
+      - Every accepted finding addressed with a concrete diff
+      - No finding silently dropped
+      - Open items declared in open questions rather than hidden
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Backend Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -156,8 +170,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -172,8 +184,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -183,8 +198,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -222,6 +235,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ```
+
 What are you trying to do?
 ├── Design a new REST API or GraphQL service → Jump to "Core Workflow" — Phase 1 (API Design)
 ├── Implement authentication (JWT, OAuth) or RBAC → Go to "Decision Trees" — then Phase 2
@@ -453,6 +467,7 @@ hackathons Linkerd)?
 ### Language & Framework Selection
 
 ```
+
 Startup/Small team, rapid prototyping?
 ├── YES → Python/FastAPI or Node.js/Express
 │         Fastest dev speed, largest hiring pool, most libraries
@@ -471,6 +486,7 @@ Enterprise, Java ecosystem? → Kotlin/Spring Boot
 ### Caching Strategy Decision Tree
 
 ```
+
 Data freshness requirement?
 ├── < 1 second → In-memory cache (application-level, no network)
 ├── 1-60 seconds → Redis/Memcached (shared, TTL-based)
@@ -670,6 +686,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 Blocked by infrastructure? → DevOps Engineer → Cloud Architect
 Auth/security concern? → Security Engineer → Compliance Officer
 Data contract dispute? → System Architect → CTO Advisor
@@ -743,7 +760,25 @@ Cross-team dependency blocking? → System Architect → Project Manager
 **Cost:** $15,000-$75,000 in deployment outages, data corruption, and complex rollback procedures.
 **Fix:** Add columns as nullable first. Deploy code that writes to both old and new. Deploy code that reads from new only. Drop old column in a follow-up migration. Never rename/drop a column in the same migration that adds its replacement.
 
-## Error Decoder — War Stories from the Trenches
+## When NOT to Use
+
+- Do NOT use for architecture design or system-level decisions — route to `system-architect`
+  and `database-designer` before implementation starts.
+- Do NOT use to review other people's pull requests — that is `code-reviewer` work; this skill
+  owns building a change.
+- Do NOT use for large framework migrations or brownfield re-platforming without a migration
+  plan — route to `migration-architect`/`brownfield-adoption-planner` first.
+
+## Anti-Rationalization
+
+| # | Hard Rule |
+|---|-----------|
+| AR1 | "It compiles" is not done. Name the acceptance evidence or the feature is unfinished. |
+| AR2 | "I'll fix the tests later" is a schedule, not a plan. Tests travel with the change or the change is unverified. |
+| AR3 | "The pattern is fine because it's used elsewhere" ignores context. Copying a pattern is a decision, not an excuse. |
+| AR4 | "Out of scope" on a blocker you found is only valid if you recorded it. Unrecorded scope cuts are hidden risk. |
+
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -795,3 +830,15 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

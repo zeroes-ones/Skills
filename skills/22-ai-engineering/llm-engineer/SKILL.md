@@ -29,6 +29,8 @@ tags:
 - hallucination-detection
 token_budget: 5000
 chain:
+  examples:
+  - skills/22-ai-engineering/llm-engineer/examples/backtest
   consumes_from:
   - using-agent-skills
   - ml-ai-engineer
@@ -54,6 +56,18 @@ chain:
   - product-manager
   - token-efficiency
   - context-optimizer
+workflow:
+  artifacts:
+    inputs: [task-brief, context]
+    outputs: [prompt-design]
+  completion:
+    criteria:
+      - Prompt structure and versioning documented for the task
+      - Few-shot and system-prompt choices justified against the task brief
+      - Tool-use and output contract specified where the task needs them
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # LLM & AI Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -78,8 +92,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -94,8 +106,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -105,8 +119,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 
@@ -430,6 +442,7 @@ START: You need to adapt an LLM for a specific task or domain
   └─ Does the task require combining real-time data with domain expertise (e.g., "analyze today's market data using our proprietary framework")?
        ├─ YES → RAG + PROMPT ENGINEERING (hybrid). Retrieve fresh data, apply expertise via prompt.
        └─ NO → RAG for knowledge, FINE-TUNE for behavior. Most production systems use both.
+
 ```
 
 ### When to Use Embeddings vs Keyword Search vs Hybrid
@@ -461,6 +474,7 @@ START: Designing retrieval for a RAG pipeline
   └─ Is retrieval latency budget <50ms and corpus >10M documents?
        ├─ YES → KEYWORD SEARCH with semantic re-ranking (two-stage). Embeddings on 10M docs is too slow without approximate nearest neighbor (ANN), and ANN quality degrades at scale.
        └─ NO → HYBRID as default. Pure keyword fails on natural language. Pure embeddings fail on exact match. Hybrid covers both.
+
 ```
 
 ### Prompt Strategy: Zero-Shot → Few-Shot → Chain-of-Thought → Tree-of-Thought
@@ -497,6 +511,7 @@ START: Choosing a prompting strategy for your task
        ├─ YES → CONSTITUTIONAL CHAIN-OF-THOUGHT. Chain multiple CoT prompts, each constrained by a principle. Final answer must cite sources.
        │   Cost: 5-15× zero-shot tokens. Required for regulated industries — audit trail matters more than token savings.
        └─ NO → Start with zero-shot. Graduate to few-shot if accuracy insufficient. Add CoT if reasoning required. ToT only when no simpler strategy works.
+
 ```
 
 ### Model Selection for Production: Cost vs Quality vs Latency
@@ -546,6 +561,7 @@ COMPARISON TABLE (per 1M tokens, approximate as of mid-2025):
   Claude Haiku:      $0.25 input / $1.25 output — Fastest managed API, lowest cost
   Llama-3.1-8B (self-host): ~$0.01/1K tokens GPU-amortized — Cheapest for high volume
   Mistral-7B (self-host):  ~$0.008/1K tokens   — Lightweight, good multilingual
+
 ```
 
 ### Hallucination Mitigation Strategy
@@ -593,6 +609,7 @@ START: Detecting and reducing hallucinations in your LLM application
        └─ NO → Run continuous hallucination monitoring: daily automated eval on production sample. Alert on rate spike >2× baseline.
 
 CRITICAL: A single hallucinated medical/financial/legal answer costs $500K-$2M+ in liability. At 0.01% error rate on 100K requests/day = 10 incidents/day. This is the highest-ROI investment in your LLM pipeline.
+
 ```
 
 ## State Log
@@ -721,3 +738,18 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.

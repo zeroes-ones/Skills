@@ -25,6 +25,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/07-devops/ci-cd-builder/examples/backtest
   consumes_from:
   - website-builder
   - using-agent-skills
@@ -71,6 +73,18 @@ chain:
   - monorepo-manager
   - qa-engineer
   - release-manager
+workflow:
+  artifacts:
+    inputs: [delivery-pipeline, repository]
+    outputs: [ci-config]
+  completion:
+    criteria:
+      - Pipeline definitions are environment-independent and idempotent
+      - Quality gates and approvals enforced at the correct stages
+      - Secrets never embedded in pipeline configuration
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # CI/CD Pipeline Builder
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -102,8 +116,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -118,8 +130,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -129,8 +144,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -155,6 +168,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ```
+
 What are you trying to do?
 ├── Create a new CI/CD pipeline from scratch
 ├── Optimize slow builds (caching, parallelism, sharding)
@@ -268,6 +282,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 ### CI Platform Selection
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Choose CI platform  │
                      └────────────┬─────────────┘
@@ -288,6 +303,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                                       │         │ │ migrating   │
                                       └─────────┘ │ legacy      │
                                                   └────────────┘
+
 ```
 
 **When to choose GitHub Actions:** Code on GitHub, <50 engineers, <100 concurrent jobs, need OIDC to cloud, DORA-focused. **When to choose GitLab CI:** Self-hosted requirement, GitLab ecosystem, >100 concurrent jobs, need integrated container registry. **When to choose Jenkins:** Legacy migration path only — avoid for greenfield.
@@ -295,6 +311,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 ### Deployment Strategy Selection
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Production deploy   │
                      └────────────┬─────────────┘
@@ -317,6 +334,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                     │ rollback on  │
                     │ error spike) │
                     └──────────────┘
+
 ```
 
 **When to choose Canary:** >1000 concurrent users, need metrics-based rollback, error budget >0.1%, can afford 10 min observation windows. **When to choose Blue-Green:** Instant rollback needed, DB schema compatible with both versions, can afford 2× infrastructure during deploy. **When to choose Rolling:** Standard case — sequential pod replacement, simplest, works for 90% of services.
@@ -324,6 +342,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 ### Build Optimization Tactic
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: CI build >10 min    │
                      └────────────┬─────────────┘
@@ -344,6 +363,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                                        │ sharding │ │ jobs       │
                                        │ (2-4×)   │ │            │
                                        └──────────┘ └────────────┘
+
 ```
 
 **When to cache deps:** Dependencies stable, build time >5 min, cache hit rate >80% expected. **When to shard tests:** >200 test cases, tests CPU-bound, CI runner has 4+ cores. **When to split jobs:** Monorepo with independent modules, build >15 min, multiple teams.
@@ -351,6 +371,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 ### Supply Chain Security Depth
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Secure the pipeline │
                      └────────────┬─────────────┘
@@ -376,6 +397,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                     │  isolated, policy-
                     │  controlled)
                     └──────────────┘
+
 ```
 
 **When to target SLSA L1:** Internal tools, pre-production, non-critical services. **When to target SLSA L2:** All production services — signed provenance + hosted build platform + SBOM generation. **When to target SLSA L3:** Fintech, healthcare, gov — hermetic builds, isolated environments, policy-controlled deployments.
@@ -383,6 +405,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 ### Release Workflow Design
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Release strategy    │
                      └────────────┬─────────────┘
@@ -398,6 +421,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
                     │ flags       │   │ (simpler for     │
                     │ (DORA elite)│   │ single team)    │
                     └─────────────┘   └────────────────┘
+
 ```
 
 **When to choose Trunk-based:** >5 engineers, deploy >daily, DORA elite target, feature flag infrastructure in place. **When to choose GitFlow:** <5 engineers, deploy <weekly, no feature flag system, need explicit release stabilization window.
@@ -411,9 +435,11 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 1. **Standard Pipeline Stages**:
 
    ```
+
    Trigger → Lint → Unit Test → Build → Security Scan → Integration Test → Deploy (Dev) → Deploy (Staging) → Deploy (Prod) → Post-Deploy Verify
                 └───────────┬───────────┘
                        Quality Gates
+
    ```
 
 **What good looks like:** Pipeline completes in under 15 minutes for a full build-test-deploy cycle. All stages pass on every PR merge. Failed deploys auto-rollback within 2 minutes. Secrets are injected at runtime — zero plaintext in pipeline config.
@@ -421,6 +447,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 2. **Pipeline Topology Decision Tree**:
 
    ```
+
    Monorepo?
    ├─ YES → Path-filtered workflows + fan-out per service
    │   └─ pattern: on.push.paths: ['services/auth/**'] triggers only auth pipeline
@@ -429,11 +456,13 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
    │   └─ NO → Single build job, optimized caching
    └─ Multi-cloud deploy?
        └─ Sequential or fan-in: build once → parallel deploy to aws/gcp/azure
+
    ```
 
 3. **Fan-In/Fan-Out Pattern** (GitHub Actions):
 
    ```yaml
+
    # Fan-out: parallel test across platforms
    test:
      strategy:
@@ -454,6 +483,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 4. **Conditional Execution** — Don't run expensive steps unnecessarily:
 
    ```yaml
+
    - name: Build Docker image
      if: steps.cache-image.outputs.cache-hit != 'true'
 
@@ -462,6 +492,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 
    - name: Deploy to production
      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
    ```
 
   Complete when: pipeline topology is diagrammed with fan-in/fan-out, conditional execution gates are documented, and the pipeline completes a full build-test-deploy cycle in under 15 minutes.
@@ -471,6 +502,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 1. **Composite Actions** — Bundle reusable steps:
 
    ```yaml
+
    # .github/actions/setup-node-build/action.yml
    name: Setup Node & Build
    description: Checkout, install Node, restore cache, install deps, build
@@ -498,6 +530,7 @@ CI/CD skill scales from single-pipeline design to org-wide delivery platform arc
 2. **Reusable Workflows** — Share entire pipeline patterns:
 
    ```yaml
+
    # .github/workflows/_build-and-push.yml
    name: Build & Push
    on:
@@ -707,3 +740,38 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

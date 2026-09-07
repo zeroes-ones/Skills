@@ -21,6 +21,8 @@ version: 1.0.0
 updated: 2026-07-27
 token_budget: 3000
 chain:
+  examples:
+  - skills/00-framework/agent-persona-orchestrator/examples/backtest
   consumes_from:
   - cross-skill-communication
   feeds_into:
@@ -33,7 +35,17 @@ chain:
     - shipping-and-launch
     - release-manager
 output: "reference"
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
@@ -64,8 +76,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -80,8 +90,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -91,8 +103,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## <!-- QUICK: 30s --> Route the Request
 
@@ -106,6 +116,7 @@ What are you trying to do?
 ├── Wire a slash command to persona+skill combos → Jump to "Core Workflow"
 ├── Audit an existing persona configuration → Jump to "Production Checklist"
 └── Add a new persona to the registry → Jump to "Adding New Personas"
+
 ```
 
 ---
@@ -173,6 +184,7 @@ Personas are isolated execution contexts, not just prompt prefixes. The orchestr
 │  knowledge, workflows, and guidance         │
 │  code-reviewer  security-reviewer  ...      │
 └─────────────────────────────────────────────┘
+
 ```
 
 | Layer | What It Provides | Change Frequency | Examples |
@@ -201,6 +213,7 @@ default_skills: [<exactly one skill name>]
 orchestration:
   can_invoke: []   # MUST be empty — personas cannot invoke other personas
   parallelizable: <true|false>
+
 ```
 
 ### 1. code-reviewer
@@ -215,6 +228,7 @@ default_skills: [code-reviewer]
 orchestration:
   can_invoke: []
   parallelizable: true
+
 ```
 
 **When to use alone:** Standard PR review, pre-commit checks, architecture review of a single module.
@@ -232,6 +246,7 @@ default_skills: [security-reviewer]
 orchestration:
   can_invoke: []
   parallelizable: true
+
 ```
 
 **When to use alone:** Security audit of authentication flows, dependency vulnerability scan, secrets-in-code sweep.
@@ -249,6 +264,7 @@ default_skills: [tdd-guide]
 orchestration:
   can_invoke: []
   parallelizable: true
+
 ```
 
 **When to use alone:** Filling coverage gaps, writing tests for a new feature, regression test generation.
@@ -266,6 +282,7 @@ default_skills: [performance-engineer]
 orchestration:
   can_invoke: []
   parallelizable: true
+
 ```
 
 **When to use alone:** Performance audit of a page/component, bundle-size analysis, render-path review.
@@ -295,6 +312,7 @@ User/Slash Command (Orchestrator)
     │         │
     ▼         ▼
  Deploy    Report + Block
+
 ```
 
 ### Example: `/ship` Command
@@ -306,6 +324,7 @@ User/Slash Command (Orchestrator)
      → gate check:
          ├── all pass (no Critical/High findings) → proceed to deploy
          └── any fail → report findings, block deployment, surface actionable fixes
+
 ```
 
 ### Merge Strategies
@@ -340,6 +359,7 @@ What's the risk profile of this change?
 │   └── Fan-out: code-reviewer + security-auditor (minimum)
 └── Critical risk (crypto, compliance, financial settlement, auth infrastructure)
     └── Fan-out: code-reviewer + security-auditor + test-engineer (full suite)
+
 ```
 
 ```
@@ -348,6 +368,7 @@ How many personas can this workflow support?
 ├── 2-3 personas → Parallel fan-out with union merge
 ├── 4+ personas → Parallel fan-out with priority-only merge (reduce noise)
 └── N/A (sequential dependency required) → Redesign workflow. Sequential persona chains are unsupported.
+
 ```
 
 ---
@@ -401,6 +422,7 @@ else if medium_findings > threshold:
 else:
     PASS
     Proceed to deployment
+
 ```
 
 ---
@@ -490,6 +512,7 @@ Before deploying a persona-orchestrated workflow to production:
 [Proposed] → [Drafted] → [Tested] → [Active] → [Deprecated]
                                 │                    │
                                 └── [Degraded] ←─────┘
+
 ```
 
 | State | Meaning | Transition Trigger |
@@ -561,7 +584,12 @@ A world-class persona orchestration system produces:
 The persona orchestrator doesn't audit code — it makes audits trustworthy. Trust comes from isolation, reproducibility, and clear failure boundaries.
 
 ---
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
 ## Deliberate Practice
 
 To build persona orchestration instinct:
@@ -625,13 +653,27 @@ See the Gotchas section above for detailed failure modes with root causes and fi
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 
-* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
-* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
-* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+- Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+- Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+- Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 - [VERIFIED] — Confirmed against official documentation or published standards
 - [COMMON-PRACTICE] — Widely used in the industry
 - [INFERRED] — Reasonable extrapolation from general principles
 - [UNKNOWN] — Requires verification against specific context
+
+## Decision Trees
+
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+- Locally verifiable: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.
 
 ## References
 
@@ -640,3 +682,47 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Persona Registry Schema**: Full JSON Schema for persona definitions
 - **Merge Protocol Specification**: De-duplication algorithm, severity normalization tables, conflict resolution rules
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+
+## Production Checklist
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

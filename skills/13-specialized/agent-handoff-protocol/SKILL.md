@@ -21,6 +21,8 @@ tags:
 - multi-agent
 token_budget: 4000
 chain:
+  examples:
+  - skills/13-specialized/agent-handoff-protocol/examples/backtest
   consumes_from:
   - cross-skill-communication
   - senior-engineer-mode-router
@@ -28,6 +30,7 @@ chain:
   - multi-agent-orchestration
   - token-efficiency
   - context-engineering
+  - iterative-task-execution
   feeds_into:
   - multi-agent-orchestration
   - cross-skill-communication
@@ -37,7 +40,20 @@ chain:
   - system-architect
   - devops-engineer
   - security-engineer
+  - iterative-task-execution
+  - workflow-graph-authoring
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
+
 # Agent Handoff Protocol
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -67,8 +83,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -83,8 +97,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -94,8 +110,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -131,6 +145,7 @@ Incoming request
 ├─ Contains "corrupt" OR "stale" OR "drift" OR "rot"?
 │  └─ Yes → A8 (context rot defense)
 └─ No match → Escalate to human with suggested route
+
 ```
 
 ---
@@ -499,6 +514,8 @@ This skill has no upstream dependencies — it is a foundational framework that 
 | **backend-developer** | ADRs, API contracts, data models, tech constraints | Implements services, writes code, creates APIs | Full state with artifact paths, tech constraints |
 | **devops-engineer** | Runtime dependencies, env schema, resource requirements, health checks | Builds Dockerfiles, k8s manifests, CI/CD pipelines | Pruned to infrastructure-relevant state |
 | **security-engineer** | Auth flows, data classification, SBOM, network surface | Audits for vulnerabilities, validates compliance | Pruned to security surface area only |
+| **iterative-task-execution** | Handoff payload conventions + state-hash discipline | Runs nodes as bounded loops: verify against criteria, revise, escalate | Payload registry block (status/summary/artifacts/decisions/open_questions/verification_evidence/context/budget) |
+| **workflow-graph-authoring** | Payload registry + handoff contract format | Wires payloads onto manifest edges so handoffs are declared per transition | Registered payload names + edge payload assignments |
 
 ### Cross-Topology Coordination
 
@@ -668,6 +685,7 @@ This skill is supported by detailed reference specifications. Load these when de
 | 6 | [Cross-Agent Directory Conventions](references/cross-agent-directory-conventions.md) | `~/.agents/` directory structure, environment variables, naming conventions | When setting up a new agent workspace |
 | 7 | [Context Rotation Defense](references/context-rotation-defense.md) | 12 patterns to detect and prevent context degradation across handoffs | When pipeline exceeds 3 handoffs or corruption suspected |
 | 8 | [Progressive Disclosure Pipeline](references/progressive-disclosure-pipeline.md) | Tier 1/2/3 loading strategy with role-based filters | When optimizing token usage in multi-agent pipelines |
+| 9 | [Workflow Payload Registry](references/workflow-payload-registry.md) | Canonical nine-key handoff payload + enforcement in workflow manifests (WORKFLOW-SYSTEM.md §5) | When wiring manifest edges, writing handoff-out blocks, or linting payload keys |
 
 ### External References
 
@@ -706,3 +724,34 @@ This section documents every irreversible decision made during the session. It i
 - Append a new row for each irreversible or hard-to-reverse decision
 - Never modify past rows — only append
 - If revisiting a decision, add a NEW row (do not edit the old one)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness

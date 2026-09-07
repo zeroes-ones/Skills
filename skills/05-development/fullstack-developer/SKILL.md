@@ -23,6 +23,8 @@ tags:
 - postgresql
 token_budget: 4000
 chain:
+  examples:
+  - skills/05-development/fullstack-developer/examples/backtest
   consumes_from:
     - website-builder
     - using-agent-skills
@@ -57,6 +59,18 @@ chain:
     - qa-engineer
     - security-reviewer
     - tdd-guide
+workflow:
+  artifacts:
+    inputs: [product-spec, api-contract, design-system]
+    outputs: [fullstack-implementation]
+  completion:
+    criteria:
+      - Server and client changes satisfy the spec end to end
+      - Contract mismatches surfaced before integration
+      - Cross-layer error and auth flows exercised
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Fullstack Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -81,8 +95,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -97,8 +109,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -108,8 +123,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -147,6 +160,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ```
+
 What are you trying to do?
 ├── Build a full-stack feature end-to-end → Start at "Core Workflow" — follow all phases
 ├── Frontend-heavy task (UI, state, routing) → Invoke frontend-developer skill for deep patterns
@@ -282,6 +296,7 @@ Debugging issues that cross the frontend-backend boundary
 ### Monorepo vs Polyrepo
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: One repo or many? │
                      └───────────┬──────────────┘
@@ -306,6 +321,7 @@ Debugging issues that cross the frontend-backend boundary
                           │ published  │  │ simplifies   │
                           │ packages   │  │ coordination │
                           └────────────┘  └──────────────┘
+
 ```
 
 **When Monorepo:** Shared types/Zod schemas between frontend and backend. Single CI triggering. Atomic cross-cutting changes. Team < 30 engineers.
@@ -314,6 +330,7 @@ Debugging issues that cross the frontend-backend boundary
 ### API Architecture Decision
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: REST, GraphQL, tRPC?  │
                      └─────────────┬────────────────┘
@@ -337,6 +354,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ Relay/     │  │ generation   │
                             │ Apollo     │  └──────────────┘
                             └────────────┘
+
 ```
 
 **When tRPC:** TypeScript monorepo. Same team owns frontend + backend. No third-party API consumers. Prototype speed matters.
@@ -345,6 +363,7 @@ Debugging issues that cross the frontend-backend boundary
 ### Auth Strategy
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Auth approach?        │
                      └─────────────┬────────────────┘
@@ -367,6 +386,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ Auth0      │  │ Session-based│
                             │ (managed)  │  │ or JWT.      │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When NextAuth:** Next.js app. OAuth providers (Google, GitHub) needed. JWT sessions adequate. Team wants fast setup with configuration over code.
@@ -375,6 +395,7 @@ Debugging issues that cross the frontend-backend boundary
 ### Deployment Platform
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Where to deploy?      │
                      └─────────────┬────────────────┘
@@ -398,6 +419,7 @@ Debugging issues that cross the frontend-backend boundary
                             │ Docker on  │  │ or managed   │
                             │ ECS        │  │ container    │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When Vercel:** Next.js/SvelteKit app. Edge functions useful. Preview deployments needed. Team < 10. Don't want to manage infrastructure.
@@ -412,6 +434,7 @@ Debugging issues that cross the frontend-backend boundary
 2. **Monorepo structure**:
 
    ```
+
    /apps
      /web        — Next.js frontend
      /api        — Express/Fastify/Hono backend (if separate)
@@ -420,6 +443,7 @@ Debugging issues that cross the frontend-backend boundary
      /ui         — Shared React/Vue component library
      /config     — ESLint, TypeScript, Tailwind configs
      /database   — Prisma/Drizzle schema, migrations
+
    ```
 
 3. **Shared types**: Single source of truth for API contracts. `packages/shared` exports DTOs, Zod validation schemas, TypeScript interfaces. Imported by both frontend and backend.
@@ -536,6 +560,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 Database migration failure? → Database Designer → DevOps Engineer
 Auth vulnerability discovered? → Security Engineer → CTO Advisor
 Cross-service integration broken? → Backend Developer → System Architect
@@ -727,3 +752,38 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

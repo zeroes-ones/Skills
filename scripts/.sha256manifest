@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-07T18:08:30Z
+# Generated: 2026-09-07T19:15:30Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    a20a35e2eef7136945ce72e79af2b83a3193b59f
+# Commit:    5fd371bee0df70608d6d0124874b841b2e3080cf
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -63,9 +63,11 @@ c74bde423ccadafcd78579625e11291289e19f52ba0ec4d992dc0d7e6d58f718  scripts/valida
 c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 9b1cfd9cefac76fc38e6a8d7657d3aec128410d6b2b07ed8b6ce94809bdebc8f  scripts/workflow-runner.py
+176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/00-framework/agent-persona-orchestrator/scripts/verify-skill.sh
 0d0e277f8dbc788d3c564ed6c8238635dab3cbc4c8f8c826762d9331171d738f  skills/00-framework/cross-skill-communication/scripts/verify-skill.sh
 1f5d7e04ad9be786253c37133933083bc4669ee54846860b85697d057c8b6553  skills/00-framework/senior-engineer-mode-router/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/00-framework/skill-levels/scripts/verify-skill.sh
+176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/00-framework/using-agent-skills/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/00-framework/writing-great-skills/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/business-strategist/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/01-strategy/ceo-strategist/scripts/verify-skill.sh
@@ -225,11 +227,20 @@ fc8479400bf4176b902a6126a1f767977f625ac9ab25f6c9f6f720d580e14e3b  skills/13-spec
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/multirepo-designer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/performance-engineer/scripts/verify-skill.sh
 6ff106754d150332391f0836000bbfc841cffbe5f51fbeced2740d74969edfa8  skills/13-specialized/workflow-graph-authoring/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/advanced-options-structures/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/algorithmic-trader/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/commodities-analyst/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/crypto-trader/scripts/verify-skill.sh
 896942676ebfd76016722947a75ab63821647e181dcf3dc488cc3324086b3d1a  skills/14-finance/financial-security/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/fixed-income-analyst/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/forex-trader/scripts/verify-skill.sh
 1ec13f8140c5631462d6549852b6d8a986cfdc74b411381b03e1ffd7ebbcd0f6  skills/14-finance/fundamental-analyst/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/home-buying/scripts/verify-skill.sh
-ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/market-data-engineer/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/intraday-options-trader/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/leaps-strategist/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/macro-strategist/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/market-data-engineer/scripts/verify-skill.sh
+176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/14-finance/options-automation-engineer/scripts/verify-skill.sh
 4e73c72d7d4836b217a57853380d7d0b7fc21697edf7886e484c4a7180fa8d0e  skills/14-finance/options-risk-engineer/scripts/verify-skill.sh
 3bf8221130818a327efad2c4c9886b4c19541caa6ed944fb688d8923b7e26093  skills/14-finance/options-risk-engineer/verify-skill.sh
 9f28a53f3cc6173d457b7ac4a1ccff6f07dbabdaa12744e71a831a15be3e3189  skills/14-finance/options-strategist/scripts/verify-skill.sh
@@ -240,8 +251,11 @@ a445cdb8cbbccb98cdd07ff8530f1ccd14f5c8d44b0b222350e68af8772cb790  skills/14-fina
 302977648be7db2f938c7321ebf177f0cf9ed649fbaad0e72bb13b900aac6441  skills/14-finance/personal-finance/scripts/retirement_projector.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/personal-finance/scripts/verify-skill.sh
 aac623f3872c26d2ae2832b49795ba0733ff5c566a306c907714f3d3b55ad3df  skills/14-finance/portfolio-signal-manager/scripts/verify-skill.sh
-ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/quantitative-analyst/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/quantitative-analyst/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/swing-options-trader/scripts/verify-skill.sh
 8e7f307c4fef18f2806164d89b945be7992458204dfddb7ef2781eb8357d8762  skills/14-finance/technical-signals-engineer/scripts/verify-skill.sh
+2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/trade-performance-analyst/scripts/verify-skill.sh
+176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/14-finance/volatility-arbitrage-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/bizdev-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/demand-generation/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/marketing-manager/scripts/verify-skill.sh

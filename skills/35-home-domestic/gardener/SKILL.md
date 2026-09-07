@@ -15,11 +15,12 @@ tags:
 - water-wise
 - compost
 chain:
-  consumes_from: []
+  consumes_from: [home-chef]
   examples:
   - skills/35-home-domestic/gardener/examples/backtest
-  feeds_into: []
+  feeds_into: [home-chef]
 token_budget: 9000
+
 ---
 #
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -545,3 +546,10 @@ After implementation, verify:
 - [ ] Complete when: Monitoring system with measurable checkpoints has been established
 - [ ] Complete when: State log has been updated for session continuity
 - [ ] Complete when: Verification checklist (V1-V8) has been completed and all items pass
+
+## Ground Rules — Read Before Anything Else
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |

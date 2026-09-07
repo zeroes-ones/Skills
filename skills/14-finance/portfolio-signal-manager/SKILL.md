@@ -29,6 +29,8 @@ version: 1.0.0
 updated: 2026-07-30
 token_budget: 4500
 chain:
+  examples:
+  - skills/14-finance/portfolio-signal-manager/examples/backtest
   type: downstream
   consumes_from:
     - options-strategist
@@ -57,6 +59,7 @@ chain:
     - trade-performance-analyst
   alternatives:
     - data-scientist
+
 ---
 
 # Portfolio Signal Manager
@@ -98,8 +101,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -290,7 +295,7 @@ World-class portfolio management requires seeing the entire system, not individu
    |-- Reconcile: post-execution slippage, T+2 settlement, daily full reconciliation.
 
    Complete when: MCP in READY state. Portfolio synced. Idempotency keys configured.
-   Full state machine + MCP contract → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-0-mcp-broker-connection-state-machine)
+   Full state machine + MCP contract → [portfolio-engine-computations.md](references/portfolio-engine-computations.md)
 
 ### Phase 1: Signal Ingestion & Conflict Resolution
 
@@ -311,7 +316,7 @@ World-class portfolio management requires seeing the entire system, not individu
 4. DOCUMENT: Every resolution has ticker, conflict_type, decision_score, breakdown, rationale, risk_constraints.
 
    Complete when: All signals resolved (AGREE/CONFLICT_RESOLVED). Decision_Score + rationale for every conflict.
-   Full JSON contracts + decision matrix → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-1-signal-ingestion--conflict-resolution)
+   Full JSON contracts + decision matrix → [portfolio-engine-computations.md](references/portfolio-engine-computations.md)
 
 ### Phase 2: Position Sizing
 
@@ -326,7 +331,7 @@ World-class portfolio management requires seeing the entire system, not individu
 4. OVERRIDES: Earnings ±5d→50% cut, Caution→50% cut, sector>25%→reduce, VIX>35→40% cut, drawdown>15%→HALT.
 
    Complete when: Every selected signal sized within capital. No position >10% cap. Sectors checked.
-   Full formulas + output schema → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-2-position-sizing)
+   Full formulas + output schema → [portfolio-engine-computations.md](references/portfolio-engine-computations.md)
 
 ### Phase 3: Portfolio Risk Monitoring
 
@@ -337,7 +342,7 @@ World-class portfolio management requires seeing the entire system, not individu
 3. STRESS TEST (weekly): 2008, 2020-COVID, 2022-rate-hike, Tech-crash, Liquidity-crisis, Flash-crash. Any >40% drawdown → REDUCE LEVERAGE.
 
    Complete when: Dashboard populated. Thresholds configured. Worst-case drawdown known.
-   Full dashboard + responses + scenarios → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-3-portfolio-risk-monitoring)
+   Full dashboard + responses + scenarios → [portfolio-engine-computations.md](references/portfolio-engine-computations.md)
 
 ### Phase 4: Correlation-Aware Portfolio Construction
 
@@ -351,7 +356,7 @@ World-class portfolio management requires seeing the entire system, not individu
    Tax-aware: prefer loss lots, prefer >1yr held, defer if >80% short-term gains.
 
    Complete when: Correlation checked. N_effective computed. Sector limits enforced. Rebalance triggers set.
-   Full checks + tax-aware logic → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-4-correlation-aware-portfolio-construction)
+   Full checks + tax-aware logic → [portfolio-engine-computations.md](references/portfolio-engine-computations.md)
 
 ### Phase 5: Signal-to-Execution Pipeline
 
@@ -364,34 +369,42 @@ World-class portfolio management requires seeing the entire system, not individu
 4. COMPLETION: [VERIFIED] broker READY, conflicts resolved, positions ≤10%, sectors ≤25%, N_effective >3, stops set, idempotency keys active, circuits armed, stress tests run.
 
    Complete when: All VERIFIED items checked. Circuit breakers armed. Pipeline ready.
-   Full protocol + breakers → [portfolio-engine-computations.md](references/portfolio-engine-computations.md#phase-5-signal-to-execution-pipeline)
+   Full protocol + breakers → [portfolio-engine-computations.md](references/portfolio-engine-computations.md)
 
 ## Decision Trees
 
 ### DT1: Signal Source Credibility
+
 ```
 Sources AGREE → full confidence. CONFLICT → Weighted Decision Matrix (Tre:65%, Ran:65% fund, Earn:75% fund, VIX>30:50/50).
 Single source → cap confidence 40%, min 55% to act, size 50%. Neither → wait.
+
 ```
 
 ### DT2: Position Size Decision
+
 ```
 Capital>K → method: >50 trades+win>0.45→Kelly | else→1/N. Conf<55%→skip. Caution→50% cut. Earn±5d→50% cut.
 Sector>25%→reduce/skip. Size<K→skip. Capital depleted→queue.
+
 ```
 
 ### DT3: When to Override a Signal
+
 ```
 External event (news, downgrade, FDA) → OVERRIDE. Liquidity crisis (spread>5×, no L2) → OVERRIDE.
 Personal conviction → REJECT. Similar failed setup → INVESTIGATE (find trade, check match).
 Unverified headline → HOLD, VERIFY, THEN DECIDE.
+
 ```
 
 ### DT4: Portfolio in Distress
+
 ```
 Drawdown<10%→normal. 10-15%→ORANGE: halt buys, 1.5× ATR stops, sector→exit 50%, market-wide→reduce 25%.
 15-20%→RED: liquidate newest 5d, reduce rest 50%, cancel orders, 48h cool-off.
 >20%→EMERGENCY: liquidate all, post-mortem, 5-day lockout.
+
 ```
 
 ## Cross-Skill Coordination
@@ -411,15 +424,23 @@ Drawdown<10%→normal. 10-15%→ORANGE: halt buys, 1.5× ATR stops, sector→exi
 | `algorithmic-trader` | Sized, risk-managed order queue [{ticker, direction, qty, limit, stop, tp, idemp_key}] | PUSH: queue ready (Phase 2), emergency close (circuit breaker) |
 
 ### Escalation
+
 ```
 Minor (confidence change) → Log + next rebalance
 Moderate (regime change, conflict) → Recalculate, document
 Major (red flag, data degraded) → HALT affected, notify human
 Critical (broker disconnect, margin call) → EMERGENCY shutdown
+
 ```
 
 ### Communication Contract
 Every message: {message_id, source_skill, target_skill, message_type, timestamp, correlation_id, payload, expected_response_type, timeout_seconds}. Timeout <5s=normal, 5-30s=flag slow, >30s=proceed without source.
+
+| Upstream Skill | What You Receive | When to Involve |
+|----------------|------------------|-----------------|
+| `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
+| `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
+| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
 
 ## Production Checklist
 - [ ] CR1: All data sources verified and updated within last trading day
@@ -530,6 +551,40 @@ A world-class portfolio signal management system:
 - **You know the worst-case scenario before it happens.** Stress tests cover 2008, 2020, 2022, and flash-crash scenarios. Worst-case drawdown is known and accepted (or mitigated) before the first dollar is deployed.
 - **Conflict resolution is documented, not assumed.** When technicals say BUY and fundamentals say SELL, the weighted decision matrix produces a documented resolution with rationale. Six months later, you can audit whether the resolution was right.
 - **Position sizing is mechanical, not emotional.** No "conviction sizing." No "I really like this one" double-size. Every position is sized by formula, with caps that prevent any single position from dominating the portfolio.
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
 
 ## References
 

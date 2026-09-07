@@ -23,6 +23,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/09-data/analytics-engineer/examples/backtest
   consumes_from:
   - using-agent-skills
   - product-analyst
@@ -49,6 +51,18 @@ chain:
   - product-manager
   - revops-manager
   - seo-specialist
+workflow:
+  artifacts:
+    inputs: [source-systems, metric-definitions]
+    outputs: [analytics-models]
+  completion:
+    criteria:
+      - Models map to metric definitions with lineage
+      - Data quality checks defined per pipeline stage
+      - Consumers can self-serve without the author present
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Analytics Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -81,8 +95,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -97,8 +109,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -108,8 +122,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -146,6 +158,7 @@ What are you trying to do?
 ├── Need growth experiments → Invoke `growth-engineer` skill instead
 ├── Need product metrics framework → Invoke `product-manager` skill instead
 └── Not sure where to start? → Start at "Core Workflow > Phase 1 (Data Modeling Foundation)"
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -260,6 +273,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                               │+ insert│ │+ insert    │
                                               │overwrite│ │overwrite   │
                                               └──────┘ └────────────┘
+
 ```
 
 **When to choose Snapshot:** Historical tracking needed (SCD Type 2), audit trail required, or regulatory timestamp tracking.
@@ -292,6 +306,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                   │ single  │ │ (LookML, DAX) │
                                   │ source  │ │ simple formula │
                                   └─────────┘ └──────────────┘
+
 ```
 
 **When to choose Semantic Layer:** Multi-tool consumption (Looker + Metabase + embedded), need centralized governance, access control per metric.
@@ -333,6 +348,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
               │continuous │     └────────────────┘
               │monitoring │
               └───────────┘
+
 ```
 
 **When to use CUPED:** Small effects (<5%), want to reduce variance using pre-experiment covariates, increase statistical power without bigger sample.
@@ -368,6 +384,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                                │or mat│ │pruning    │
                                                │CTE   │ └───────────┘
                                                └──────┘
+
 ```
 
 **When to add partitioning/clustering:** Full scans on tables >10GB — partition by date, cluster by frequent filter columns.
@@ -401,6 +418,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                    │trends   │ │drill-down,    │
                                    │MoM/YoY  │ │ad-hoc analysis│
                                    └─────────┘ └───────────────┘
+
 ```
 
 **When to build Operational:** Real-time monitoring, alerting, on-call response — use streaming data, auto-refresh, threshold alerts.
@@ -425,6 +443,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    │                   #   Config: materialized='table' or 'ephemeral' (CTE)
    └── marts/          # fct_orders.sql — business-facing, single source of truth
                        #   Config: materialized='table' or 'incremental'
+
    ```
 
 **What good looks like:** dbt project with model documentation, tests, and lineage. BI dashboard loads in under 5 seconds. All metrics have definitions documented in a shared glossary. Data freshness meets SLA for every report. No hard-coded table references in SQL — all ref()'d.
@@ -465,6 +484,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
    SELECT * FROM {{ ref('stg_customers') }}
    {% endsnapshot %}
    -- dbt automatically adds: dbt_valid_from, dbt_valid_to, dbt_scd_id
+
    ```
 
 5. **dbt Tests — The Minimum Viable Suite**:
@@ -583,6 +603,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 # Product requirements → Analytics design → Growth experiments
 /product-manager && /analytics-engineer && /growth-engineer
 # Data engineers deliver clean datasets. Analytics engineers model for consumption. Data scientists run experiments.
+
 ```
 
 ## Deliberate Practice
@@ -676,3 +697,26 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |

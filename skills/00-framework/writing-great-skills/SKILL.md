@@ -29,6 +29,8 @@ tags:
   - anti-rationalization
 token_budget: 4000
 chain:
+  examples:
+  - skills/00-framework/writing-great-skills/examples/backtest
   consumes_from:
     - using-agent-skills
     - teach
@@ -38,7 +40,17 @@ chain:
     - documentation-engineer
   feeds_into: [cross-skill-communication, dynamic-skill-creator]
   alternatives: []
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Writing Great Skills
 
@@ -114,6 +126,7 @@ What skill authoring task are you working on?
 |-- Designing how skills compose together → Jump to "Decision Trees: Composition"
 |-- Debugging a skill that fires wrong → Jump to "Decision Trees: Description Debugging"
 |-- Pruning a skill that's over token budget → Jump to "Decision Trees: Pruning Strategy"
+
 ```
 
 ## <!-- STANDARD: 3min --> Core Workflow
@@ -138,6 +151,7 @@ Define what the skill does before writing a single line.
 
 4. DRAFT THE DESCRIPTION (one paragraph)
    |-- Format: "Use when [triggers]. Handles [capabilities]. Do NOT use for [boundaries]."
+
 ```
 
   Complete when: Triggers are external situations recognizable by the user without knowing how the skill works, capabilities list covers what the skill handles with clear boundaries, and "Do NOT use for" exclusions are specific enough to prevent misrouting.
@@ -159,6 +173,7 @@ Structure the skill for progressive disclosure.
 3. EXTERNAL (out-of-skill, loaded only when explicitly referenced)
    |-- Linked reference files in references/ directory
    |-- Detailed guides, templates, examples, calculators
+
 ```
 
   Complete when: Information hierarchy designed with steps for primary workflow (procedural/checkable), reference for lookup data, templates for scaffolding, and resources for external links — each tier positioned correctly per progressive disclosure priority.
@@ -179,6 +194,7 @@ Structure the skill for progressive disclosure.
 3. ADD ROUTING LOGIC (Route the Request section)
    |-- Auto-Route: filesystem condition → immediate action
    |-- Intent Route: user question → directed jump to section
+
 ```
 
   Complete when: Primary workflow has ordered phases with numbered steps, each step includes a checkable completion criterion, and 3+ decision trees cover all common branching decisions with ASCII-art format.
@@ -202,6 +218,7 @@ Preempt the model's tendency to rationalize away constraints.
 3. PROACTIVE TRIGGERS TABLE
    |-- Conditions that fire automatically
    |-- Each trigger: detectable condition → automatic response
+
 ```
 
   Complete when: 5-7 ground rules in table format with negative constraints, mechanical (grep-able) triggers, and violation responses; "There Is No Step 5" section with 3+ priority rules; and HARD GATE checklist with minimum 4 pre-delivery checks.
@@ -242,6 +259,7 @@ Preempt the model's tendency to rationalize away constraints.
                                                               │ Prune,    │ │ Unknown  │
                                                               │ add scope │ │ mode     │
                                                               └──────────┘ └──────────┘
+
 ```
 
 ### Pruning Strategy
@@ -266,6 +284,7 @@ Preempt the model's tendency to rationalize away constraints.
                      → Identify sediment: definitions in steps
                      → Move to references/
                      → Still over? Merge similar Ground Rules
+
 ```
 
 ### Description Debugging
@@ -298,6 +317,7 @@ Preempt the model's tendency to rationalize away constraints.
                                                 │ Widen     │ │ ADD      │
                                                 │ boundaries│ │ boundaries│
                                                 └──────────┘ └──────────┘
+
 ```
 
 ### Composition Audit
@@ -336,6 +356,7 @@ Preempt the model's tendency to rationalize away constraints.
          │ ration    │ └──────────┘ │          │ │ user-     │
          └──────────┘              └──────────┘ │ invoked   │
                                                 └──────────┘
+
 ```
 
 ### Quality Audit
@@ -357,6 +378,7 @@ Score each skill 0-1 on 12 dimensions:
 [ ] REFERENCES: 8 linked reference files, all links resolve.
 
 Target: 10+ for "great", 8+ for "good", <8 needs work.
+
 ```
 
 ## Cross-Skill Coordination
@@ -420,7 +442,7 @@ This skill maintains a **decision ledger** for skill authoring sessions.
 ```markdown
 # My Skill
 This skill helps you do things.
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
 ## How to Use
 1. Figure out the problem
 2. Solve it
@@ -429,6 +451,7 @@ This skill helps you do things.
 ## Tips
 * Write clean code
 * Remember to test
+
 ```
 
 Problems: No triggers, no boundaries, no completion criteria, no-op tips, no ground rules, no gotchas, no decision trees, no references.
@@ -487,6 +510,13 @@ Each loop re-verifies ALL RP steps against current state. A decision made in Loo
 ## Decision Trees
 ### [Tree Name]
 [ASCII tree with leaf actions]
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+- Locally verifiable: run the check and record the result.
+- Blocked externally: escalate once with full context.
 
 ## Gotchas
 
@@ -511,6 +541,7 @@ If any checkbox fails, revise before delivering. When all pass, add to the state
 
 ## References (example)
 * ref-example.md
+
 ```
 
 ## Deliberate Practice
@@ -570,10 +601,10 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 * Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
 * Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
 * Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
-- [VERIFIED] — Confirmed against official documentation or published standards
-- [COMMON-PRACTICE] — Widely used in the industry
-- [INFERRED] — Reasonable extrapolation from general principles
-- [UNKNOWN] — Requires verification against specific context
+* [VERIFIED] — Confirmed against official documentation or published standards
+* [COMMON-PRACTICE] — Widely used in the industry
+* [INFERRED] — Reasonable extrapolation from general principles
+* [UNKNOWN] — Requires verification against specific context
 
 ## References
 
@@ -585,3 +616,57 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 * [invocation-strategy.md](references/invocation-strategy.md) — User-invoked vs model-invoked: cost tradeoffs, orchestration patterns, invocation conditions
 * [description-design.md](references/description-design.md) — Writing descriptions that are triggers-only with boundary specification and routing
 * [anti-rationalization-tables.md](references/anti-rationalization-tables.md) — Designing anti-rationalization tables with excuse-reality pairs that preempt model rationalizations
+
+## Anti-Rationalization
+
+* ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+* ❌ "It works because it must" — assert only what you can demonstrate.
+* ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+* ❌ "The output looks plausible" — plausible is not verified; run the check.
+* ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+* The task needs judgment or authority this skill does not own.
+* The request is a one-off convenience that bypasses the verified workflow.
+* A specialized peer skill owns the exact scenario — route there instead.
+* There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+* ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+* ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+* ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+* ❌ Hiding a limitation until review | ✅ Naming limitations up front
+* ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+
+## Production Checklist
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |
+* In-scope: proceed through Core Workflow.
+* Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify or escalate?
+* Verifiable locally: run the check and record the result.
+* Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+* Meets What Good Looks Like: deliver with evidence.
+* Gaps found: revise before delivering.

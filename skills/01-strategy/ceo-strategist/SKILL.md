@@ -23,6 +23,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 3285
 chain:
+  examples:
+  - skills/01-strategy/ceo-strategist/examples/backtest
   consumes_from:
   - using-agent-skills
   - threat-intelligence
@@ -48,6 +50,18 @@ chain:
   - investor-relations
   - treasury-manager
   - vp-engineering
+workflow:
+  artifacts:
+    inputs: [market-context, investor-context]
+    outputs: [strategy-memo]
+  completion:
+    criteria:
+      - Strategy position grounded in market and company evidence
+      - Options compared with explicit trade-offs and assumptions
+      - Risks and unknowns declared rather than hidden
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # CEO Strategist — The Operator's Field Manual
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -74,8 +88,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -90,8 +102,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -101,8 +115,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -178,6 +190,7 @@ What are you trying to do?
 ├── Need technology strategy or build-vs-buy analysis? → Invoke `cto-advisor` skill
 ├── Need board governance or investor updates? → Invoke `board-manager` skill
 └── Don't know where to start? → Run "Core Workflow > Phase 1: Strategic Alignment and Vision"
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -271,6 +284,7 @@ Are you solving a venture-scale problem? (TAM > $1B?)
     └── YES → Is the market timing right? (category is hot?)
         ├── NO → Wait. Raise when you have momentum.
         └── YES → Raise. But only what you need for 18-24 months.
+
 ```
 
 **What good looks like:** An investor or new hire reads the strategy document and can explain the company's core thesis, target market, and 12-month priorities in under 60 seconds. Cap table is clean with 18-month runway across 3 funding scenarios. Every key role has a named owner and the next 2 hires are budgeted. Board meeting produces decisions, not debate.
@@ -423,6 +437,7 @@ Executive level (strategic: pivot, fundraising, major customer loss)
 
 Functional level (tactical: org change, process issue, vendor decision)
   └── Functional lead handles. `ceo-strategist` informed via weekly sync. No escalation needed.
+
 ```
 
 ## Proactive Triggers
@@ -612,8 +627,56 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 | Public crisis — data breach leaked to press before internal response started | No crisis playbook. CEO spent 4 hours deciding who should do what while Twitter narrative spiraled. | Pre-assign crisis roles (incident commander, communications, legal, technical). Pre-draft holding statements. Run a crisis simulation quarterly. The first 60 minutes determine the next 60 days of coverage. | Crisis speed beats crisis perfection. |
 | Hired VP Sales who crushed it at $5M but flamed out at $50M | Hired for current-stage competence, not next-stage experience. Pattern-matched to "built from scratch" story without verifying "scaled to enterprise" experience. | When hiring executives, ask "Have you done this at our NEXT stage?" Reference-check specifically for scale transitions. The best startup VP may not be the best growth-stage VP. | Hire for the stage you're entering, not the stage you're leaving. |
 
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
 ## References
 <!-- STANDARD: 3min -->
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)
 - **Fundraising Cost by Round**: See [fundraising-cost-by-round.md](references/fundraising-cost-by-round.md)
 - **MVP-to-Scale Progression**: See [mvp-to-scale-progression.md](references/mvp-to-scale-progression.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.

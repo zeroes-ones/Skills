@@ -29,6 +29,8 @@ output:
   type: "protocol-spec, implementation, migration-plan"
   path_hint: "cryptographic-engineer/"
 chain:
+  examples:
+  - skills/26-web3/cryptographic-engineer/examples/backtest
   consumes_from:
     - cryptography
     - blockchain-developer
@@ -45,6 +47,7 @@ chain:
   alternatives:
     - security-engineer
     - devops-engineer
+
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 
@@ -70,8 +73,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -86,8 +87,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -97,7 +101,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
 
 ## Anti-Hallucination
 
@@ -109,6 +112,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 ## Route the Request
 
 ```
+
 Cryptographic requirement identified
 ├─ Need encryption at rest/in-transit with known primitives
 │  └─ Route to: security-engineer (basic crypto handled downstream)
@@ -131,6 +135,7 @@ Cryptographic requirement identified
 │
 └─ Need compliance certification (FIPS 140, Common Criteria)?
    └─ Route to: compliance-officer
+
 ```
 
 <!-- STANDARD: 3min -->
@@ -185,6 +190,7 @@ The cryptographic engineer's job is not to implement algorithms from scratch —
 ### Tree 1: MPC Protocol Selection
 
 ```
+
 MPC needed for N parties
 ├─ All parties may be malicious?
 │  ├─ YES → Dishonest majority protocol (SPDZ2k, MASCOT)
@@ -202,11 +208,13 @@ MPC needed for N parties
    ├─ < 1s latency → Garbled Circuits or honest-majority Shamir
    ├─ < 1min → SPDZ with offline preprocessing
    └─ > 1min acceptable → Any protocol; choose by security model
+
 ```
 
 ### Tree 2: FHE Scheme Selection
 
 ```
+
 FHE needed for computation on encrypted data
 ├─ Computation type:
 │  ├─ Bitwise operations (comparison, equality, bit extraction)
@@ -227,11 +235,13 @@ FHE needed for computation on encrypted data
    ├─ Interactive (< 100ms) → TFHE only (programmable bootstrap)
    ├─ Batch (seconds) → CKKS/BGV with SIMD packing
    └─ Offline (minutes+) → Any scheme; optimize for throughput
+
 ```
 
 ### Tree 3: Threshold Signature Architecture
 
 ```
+
 Threshold signing required for t-of-n key shares
 ├─ Interaction model:
 │  ├─ Two-round signing acceptable → FROST (RFC 9591)
@@ -250,11 +260,13 @@ Threshold signing required for t-of-n key shares
 └─ Curve requirements:
    ├─ Pairing-friendly → BLS (BLS12-381, BN254)
    └─ Non-pairing → FROST (secp256k1, P-256 via frost-secp256k1)
+
 ```
 
 ### Tree 4: Post-Quantum Migration Path
 
 ```
+
 PQC migration triggered: assess current crypto inventory
 ├─ TLS termination → Hybrid key exchange (ML-KEM + X25519)
 │  └─ Use TLS 1.3 hybrid ciphersuites (draft-ietf-tls-hybrid-design)
@@ -269,6 +281,7 @@ PQC migration triggered: assess current crypto inventory
    ├─ Data must survive 10+ years → Migrate now (harvest-now-decrypt-later)
    ├─ High-value assets → Hybrid mode: classical + PQC dual agreement
    └─ Low-risk → Monitor, plan migration within 2 years
+
 ```
 
 <!-- STANDARD: 3min -->
@@ -472,6 +485,7 @@ This skill maintains a **decision ledger** to prevent context drift across sessi
 2. **After each major decision:** Append to the ledger:
 
    ```json
+
    {
      "timestamp": "ISO-8601",
      "skill": "cryptographic-engineer",
@@ -576,6 +590,39 @@ Before deploying or delivering work from this skill, verify:
 4. **[Formal verification accuracy]** — Verify that any `[VERIFIED]` claim about formal verification (e.g., EasyCrypt, F*) references an actual published proof; no "formally verified" assertions without a citation
 
 **Pass criteria:** All checks pass before delivering output.
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+* Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+* Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+* Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+* Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+* Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+* Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+* Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+* Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+* Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+* Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+* Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+* Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+* Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+* Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+* Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+* Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+* Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+* [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+* [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+* [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+* [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+* [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+* [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
 ## References
 
 ### Inline Reference Files in `references/`
@@ -620,3 +667,32 @@ This skill is supported by 27 reference files. Key reference documents:
 | frost-secp256k1 | 2.0+ | Threshold Schnorr |
 | Intel SGX SDK | 2.23+ | TEE enclave |
 | PyKCS11 | 1.5+ | HSM interface |
+
+## Ground Rules — Read Before Anything Else
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
+
+## Anti-Rationalization
+
+* ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+* ❌ "It works because it must" — assert only what you can demonstrate.
+* ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+* ❌ "The output looks plausible" — plausible is not verified; run the check.
+* ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+* The task needs judgment or authority this skill does not own.
+* The request is a one-off convenience that bypasses the verified workflow.
+* A specialized peer skill owns the exact scenario — route there instead.
+* There is no way to verify the output against a source of truth.
+
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |

@@ -23,6 +23,8 @@ tags:
 - pull-request
 token_budget: 3000
 chain:
+  examples:
+  - skills/06-quality/code-reviewer/examples/backtest
   consumes_from:
     - using-agent-skills
     - source-driven-development
@@ -59,6 +61,18 @@ chain:
     - security-reviewer
     - staff-engineer
     - tdd-guide
+workflow:
+  artifacts:
+    inputs: [change]
+    outputs: [review-report]
+  completion:
+    criteria:
+      - Findings reference concrete files and lines
+      - Verdict states pass or changes_requested with rationale
+      - Severity grading matches the six-dimension severity model
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Code Reviewer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -85,8 +99,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -101,8 +113,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -112,8 +127,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -131,7 +144,9 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | A7 | `file_contains("diff", ".tsx\|.jsx\|.vue\|<.*>")` | **UI/FRONTEND** — accessibility check (axe-core), bundle-size impact, visual regression diff, semantic HTML validation. |
 | A8 | `file_contains("diff", "Dockerfile\|docker-compose\|.tf\|.k8s")` | **INFRA** — Specialized IaC review path. Container scan, secret detection, non-root user verification. |
 | A9 | None of the above — general change | **STANDARD** — 6-dimension review (Security → Correctness → Performance → Error Handling → Testing → Documentation). |
+
 ```
+
 What are you trying to do?
 ├── Review a pull request (PR) → Start at "Core Workflow > Phase 1"
 │   ├── Quick sanity check (<200 lines, low risk) → Jump to "Core Workflow > Phase 2", then approve or flag
@@ -334,6 +349,7 @@ for regressions   specific files   → security
 ### Review Depth Decision
 
 ```
+
 Change type and risk?
 ├── Trivial (typo, comment, formatting) → Light review: correctness only. Approve in <1 hour.
 ├── Standard (feature, bug fix, <200 lines) → Full 6-dimension review. <4 hour SLA.
@@ -342,6 +358,7 @@ Change type and risk?
       All dimensions mandatory. Critical/High findings block merge.
 
 PR > 400 lines? → Request author to split into smaller PRs. If not possible, schedule live review session.
+
 ```
 
 **What good looks like:** Review covers all 6 dimensions (correctness, security, performance, maintainability, style, testing). Every finding has a severity, rationale, and suggested fix. Author can address all changes in under 2 hours. No critical or high findings remain.
@@ -349,11 +366,13 @@ PR > 400 lines? → Request author to split into smaller PRs. If not possible, s
 ### When Automated Tools Suffice
 
 ```
+
 Change type?
 ├── Dependency update (patch)? → CI passes + changelog reviewed. Auto-merge if safe.
 ├── Configuration change? → Lint + validate config schema. Human review only for production values.
 ├── Documentation only? → Spell check + link check. Human review for accuracy and tone.
 └── Generated code? → Review the generator/template, not the generated output.
+
 ```
 
 ## Core Workflow **(STANDARD)**
@@ -462,6 +481,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 Security finding (Critical/High)? → Security Engineer → Compliance Officer
 Architecture dispute? → System Architect → CTO Advisor
 Repeated quality issues from same author? → Engineering Manager
@@ -512,6 +532,7 @@ Reviewing is a skill separate from coding — it requires different mental muscl
 ### The Review Improvement Loop
 
 ```
+
 REVIEW → RECEIVE FEEDBACK ON YOUR REVIEW → CALIBRATE → repeat
 
 ```
@@ -644,7 +665,27 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[CR13]** No "LGTM" with zero comments — at minimum, one specific verification mentioned (e.g., "verified auth checks on all new endpoints")
 - [ ] **[CR14]** Review recorded in state log with PR number, findings count, severity distribution, and reviewer name
 
-## Error Decoder — War Stories from the Trenches
+## When NOT to Use
+
+- Do NOT use for automated linting or CI gate enforcement — pipeline checks belong to
+  `ci-cd-builder` and your CI config; this skill adds human-level, severity-graded review.
+- Do NOT use as a substitute for dedicated security testing (`security-reviewer`,
+  offensive-security), performance profiling (`performance-engineer`), or automated
+  accessibility audits (`accessibility-auditor`) — coverage claims must map to the right
+  specialist.
+- Do NOT use to rubber-stamp mechanical diffs (deps bumps, formatting) — route those to the
+  pipeline and save review attention for design surface.
+
+## Anti-Rationalization
+
+| # | Hard Rule |
+|---|-----------|
+| AR1 | "It's a small change, no review needed" is a scope decision, not a fact. State why the diff is exempt or review it. |
+| AR2 | "The author said it works" is not evidence. Run or read the check that proves it, or mark the finding open. |
+| AR3 | "I found enough issues" without severity grading hides the risk profile. Grade every finding or say the review was cursory. |
+| AR4 | "Style nits only" is a verdict, not a review. If style is all you found, say what you actually checked. |
+
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -672,3 +713,15 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

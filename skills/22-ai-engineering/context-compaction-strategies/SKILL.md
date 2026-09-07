@@ -11,6 +11,8 @@ updated: 2026-07-24
 tags: [context-management, token-optimization, progressive-disclosure, attention-patterns, dual-representation, prompt-compression]
 token_budget: 4500
 chain:
+  examples:
+  - skills/22-ai-engineering/context-compaction-strategies/examples/backtest
   consumes_from:
     - llm-engineer
     - system-architect
@@ -23,6 +25,8 @@ chain:
     - token-efficiency
     - context-engineering
     - context-optimizer
+    - iterative-task-execution
+
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 <!-- QUICK: 30s -->
@@ -63,7 +67,9 @@ Before you act, you MUST execute every applicable research step. Research-before
 Every decision point in a skill's Core Workflow must be marked with:
 
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -172,6 +178,7 @@ Do **NOT** use this skill when the problem is not compaction:
 <!-- STANDARD: 3min -->
 
 ```
+
                     ┌─────────────────────────────────┐
                     │    What artifact is present?      │
                     └─────────────┬───────────────────┘
@@ -186,6 +193,7 @@ Do **NOT** use this skill when the problem is not compaction:
           ▼                     ▼                       ▼
    Tier Architecture      Saturation Response    Loop Diagnosis
    (→ Decision Tree 2)    (→ Decision Tree 1)    (→ Decision Tree 6)
+
 ```
 
 **Intent-based routing (no artifacts):**
@@ -221,6 +229,7 @@ Do **NOT** use this skill when the problem is not compaction:
 Design the three-tier loading system for every skill:
 
 ```
+
 ...
 > 📎 **Full content (213 lines):** [references/core-workflow.md](references/core-workflow.md)
 
@@ -238,11 +247,13 @@ Design the three-tier loading system for every skill:
  "impact":"System inconsistency",
  "cost":"$10K-$50K","mitigation":"State ledger
  checkpoint before pruning"}]</gotchas_json>
+
 ```
 
 **Compilation pipeline:**
 
 ```
+
 1. EXTRACT frontmatter → JSON-LD structured metadata
 2. PARSE decision trees → nested <branch> XML elements
 3. CONVERT gotchas → JSON-LD array with id, impact, cost, mitigation
@@ -251,6 +262,7 @@ Design the three-tier loading system for every skill:
 6. COMPRESS prose — remove filler phrases ("In this section we will...")
 7. COMBINE into minified single-line format (no newlines, minimal whitespace)
 8. VALIDATE semantic equivalence via eval suite (target: 97%+ behavioral match)
+
 ```
 
 **Token reduction targets:**
@@ -263,6 +275,7 @@ Design the three-tier loading system for every skill:
 Position content for maximum model attention:
 
 ```
+
 POSITION      EFFECT          CONTENT TYPE              REASON
 ──────────────────────────────────────────────────────────────────
 First 200     Primacy         Ground Rules, "NEVER"     Model attends most
@@ -279,6 +292,7 @@ tokens                        required structure,       shapes its response
 
 Tier 2/3      Lazy-loaded     Detailed examples,        Only loaded when
 references                    gotchas, reference docs   specifically needed
+
 ```
 
 ### Step 7: Skill Creation on Handoff — Fill Missing-Skill Gaps Autonomously
@@ -317,6 +331,7 @@ references                    gotchas, reference docs   specifically needed
 **Phase 2 — Decide:**
 
 ```
+
 Saturation level?
 ├── < 70% → HEALTHY — no action needed
 │
@@ -339,6 +354,7 @@ Saturation level?
     ├── Remove all but 1 example per concept
     ├── Drop deliberate practice, references, verification sections
     └── Log complete eviction manifest for recovery
+
 ```
 
 ### Decision Tree 2: Progressive Disclosure Tier Assignment
@@ -352,6 +368,7 @@ Saturation level?
 **Phase 2 — Decide:**
 
 ```
+
 For each section in skill:
 ├── Section is "Route the Request" or headline description?
 │   └── TIER 1 (150 tokens) — always loaded for intent matching
@@ -370,11 +387,13 @@ For each section in skill:
 │
 └── Section is "Anti-Rationalization" or "Expert's Mindset"?
     └── TIER 3 — motivational/contextual, not operational
+
 ```
 
 ### Decision Tree 3: Pruning Algorithm Selection
 
 ```
+
 Content type to prune?
 ├── Conversation history (turns 1-N)
 │   └── ALGORITHM: Summarization-based (LLM compression to 20%)
@@ -404,11 +423,13 @@ Content type to prune?
         ├── Priority 1: keep 1 canonical example per concept
         ├── Priority 2+: drop; note "N examples available at [ref]"
         └── If 0 examples remain: flag for human review
+
 ```
 
 ### Decision Tree 4: Context Rotation Defense Activation
 
 ```
+
 What pattern is triggered?
 ├── Redundancy detected? (Pattern 1, similarity > 0.92)
 │   └── DEDUPLICATE: keep latest, drop older, log duplicate
@@ -439,6 +460,7 @@ What pattern is triggered?
 │
 └── Major decision completed? (Pattern 12)
     └── CHECKPOINT: serialize to state ledger; prune decision context
+
 ```
 
 ### Decision Tree 5: Context Fragmentation Prevention
@@ -452,6 +474,7 @@ What pattern is triggered?
 **Phase 2 — Decide:**
 
 ```
+
 How many skills have Tier 2+ content loaded?
 ├── 1-3 → HEALTHY — no fragmentation risk
 │
@@ -473,11 +496,13 @@ Attention distribution check:
 │
 └── All skills < 10% of context each?
     └── Context too fragmented — agent lacks depth on any single domain
+
 ```
 
 ### Decision Tree 6: Unproductive-Loop Diagnosis
 
 ```
+
 Agent appears stuck in loop
 ├── STEP 1: Hash last 5 (action, outcome) pairs
 │
@@ -506,6 +531,7 @@ Agent appears stuck in loop
     ├── Simple tasks: > 2 identical = halt
     ├── Standard tasks: > 3 identical = halt
     └── Complex tasks: > 4 identical = halt (allow more exploration)
+
 ```
 
 ## Error Decoder
@@ -748,3 +774,23 @@ This section documents every irreversible decision made during the session. It i
 - Append a new row for each irreversible or hard-to-reverse decision
 - Never modify past rows — only append
 - If revisiting a decision, add a NEW row (do not edit the old one)
+
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness

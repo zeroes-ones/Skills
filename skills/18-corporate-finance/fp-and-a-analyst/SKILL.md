@@ -22,6 +22,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 3420
 chain:
+  examples:
+  - skills/18-corporate-finance/fp-and-a-analyst/examples/backtest
   consumes_from:
   - saas-monetization-strategist
   - personal-finance
@@ -48,6 +50,18 @@ chain:
   - revops-manager
   - treasury-manager
   - vp-engineering
+workflow:
+  artifacts:
+    inputs: [financial-statements]
+    outputs: [fp-a-analysis]
+  completion:
+    criteria:
+      - Variances and drivers reconciled to the source statements
+      - Forecast assumptions stated with sensitivity ranges
+      - Recommendations separated from the underlying numbers
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # FP&A Analyst — The Startup Finance Engine
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -74,8 +88,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -90,8 +102,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -101,8 +115,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Ground Rules — Read Before Anything Else
 
@@ -321,6 +333,7 @@ What's your stage?
 └── $50M+ ARR (enterprise)
     └── Use: Driver-based + department bottoms-up + rolling forecast.
         Model: FP&A system (Adaptive/Anaplan/Pigment), not spreadsheets.
+
 ```
 
 ### SaaS Metric Diagnosis
@@ -337,6 +350,7 @@ ARR growth < 30% YoY?
     └── NO  → Rule of 40 < 40%?
         ├── YES → Growth + profitability below threshold. Investors will discount valuation.
         └── NO  → Healthy. Monitor Magic Number (> 0.8) and months to recover CAC (< 18).
+
 ```
 
 **What good looks like:** A 3-statement model where changing any driver automatically updates P&L, balance sheet, and cash flow. Board financials show revenue waterfall, cohort retention curves, and scenario comparison on one page. SaaS metrics page passes investor scrutiny — every number is formula-traced to source data.
@@ -633,6 +647,39 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
 ## References
 
 Detailed reference material loaded on demand:
@@ -643,3 +690,18 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.

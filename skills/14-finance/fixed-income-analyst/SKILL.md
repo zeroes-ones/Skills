@@ -1,5 +1,7 @@
 ---
 name: fixed-income-analyst
+license: MIT
+author: Sandeep Kumar Penchala
 description: >
   Use when analyzing bonds, yield curves, duration/convexity, credit spreads,
   fixed income ETFs, sovereign debt, TIPS breakevens, bond futures, OIS curves,
@@ -11,6 +13,8 @@ description: >
   (route to financial-security).
 token_budget: 6000
 chain:
+  examples:
+  - skills/14-finance/fixed-income-analyst/examples/backtest
   consumes_from:
   - macro-strategist
   - market-data-engineer
@@ -19,7 +23,17 @@ chain:
   - portfolio-signal-manager
   - algorithmic-trader
   - macro-strategist
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Fixed Income Analyst
 
@@ -156,13 +170,17 @@ Do NOT use fixed-income-analyst for:
 ## State Log
 
 Maintain a fixed income session log:
+
 ```
 Position, CUSIP/ISIN, Notional, Entry Yield, Entry Spread, Current Yield, Current Spread, DV01, Convexity, Carry, Financing Rate, Unrealized P&L
+
 ```
 
 For each curve trade:
+
 ```
 Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Day, Days Held, P&L
+
 ```
 
 ## Core Workflow
@@ -193,6 +211,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
 
    Complete when: DV01 computed [COMPUTED]. Convexity computed [COMPUTED].
    Scenario table shows P&L at ±25bp, ±50bp, ±100bp. Convexity cross-over point identified.
+
 ```
 
 ### Phase 1: Curve Trade Construction
@@ -224,6 +243,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
 
    Complete when: Duration-neutral weights computed [COMPUTED].
    Carry $/day computed [COMPUTED]. Scenario P&L table: 3 curve + 3 parallel scenarios.
+
 ```
 
 ### Phase 2: Credit Analysis
@@ -254,6 +274,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
 
    Complete when: Credit metrics compiled [VERIFIED for market data, AS OF for fundamentals].
    Spread duration computed. Stress test scenarios P&L quantified.
+
 ```
 
 ### Phase 3: Inflation-Linked Products
@@ -282,6 +303,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
 
    Complete when: Breakeven computed and decomposed [COMPUTED].
    Real DV01 + Inflation DV01 computed. Index ratio verified from Treasury.gov.
+
 ```
 
 ### Phase 4: Bond Futures
@@ -310,6 +332,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
 
    Complete when: CTD identified [VERIFIED from CME/Eurex daily].
    Futures DV01 computed [COMPUTED]. Hedge ratio computed and rounded.
+
 ```
 
 ### Phase 5: Carry & Roll-Down
@@ -341,6 +364,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
 
    Complete when: Roll-down computed [COMPUTED]. Net carry computed [COMPUTED].
    Breakeven yield and spread moves computed. State: is net carry positive or negative?
+
 ```
 
 ## Decision Trees
@@ -374,6 +398,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
                           │ negative │ │ the carry     │
                           │ → wait   │ └──────────────┘
                           └──────────┘
+
 ```
 
 ### Duration Hedge Method Selection
@@ -409,6 +434,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
                    │ USE      │ │ USE swaps│
                    │ futures  │ │ or cash  │
                    └──────────┘ └──────────┘
+
 ```
 
 ### Credit: Long or Pass?
@@ -447,6 +473,7 @@ Trade, Legs, Duration Neutral? (Y/N), Entry Curve Slope, Current Slope, Carry/Da
         │ SIZE FULL│ │ SIZE ½ or│
         │ position │ │ PASS     │
         └──────────┘ └──────────┘
+
 ```
 
 ## Gotchas
@@ -533,10 +560,12 @@ Scenario P&L (per $1M face):
   | Rally    | -50bp     | -10bp    | +$3,190  | +$650      | +$3,840 |
   | Sell-off | +50bp     | +25bp    | -$3,190  | -$1,620    | -$4,810 |
   | Recession| -100bp    | +100bp   | +$6,380  | -$6,480    | -$100  |
+
 ```
 
 Every metric tagged. P&L decomposed into rate and spread components. Convexity quantified. CDS basis investigated, not just quoted.
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
 ## Verification Guardrails
 
 - [ ] **All yields and prices from live source** — tagged [VERIFIED] with timestamp
@@ -583,6 +612,39 @@ Bond Z-spread = 180bp. 5yr CDS = 150bp. Basis = +30bp. Propose 3 possible explan
 ### Exercise 5: Futures Hedge Ratio (5 min)
 Portfolio DV01 = $45,000. CTD of ZN futures (10yr): DV01 = $78 per $100K, conversion factor = 0.85. Compute number of ZN contracts to hedge. If CTD switches and new CF = 0.92, how many contracts to adjust?
 
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
 ## References
 - [treasury-yield-curves.md](references/treasury-yield-curves.md) — Treasury curve construction, key rates, on-the-run vs off-the-run, STRIPS
 - [duration-convexity-formulas.md](references/duration-convexity-formulas.md) — All duration types: formulas, use cases, DV01, convexity, key rate duration
@@ -593,3 +655,11 @@ Portfolio DV01 = $45,000. CTD of ZN futures (10yr): DV01 = $78 per $100K, conver
 - [carry-rolldown-strategies.md](references/carry-rolldown-strategies.md) — Carry decomposition, roll-down computation, break-even, horizon returns
 - [global-rates-linkages.md](references/global-rates-linkages.md) — Cross-currency basis, hedged yield computation, global FI allocation, central bank divergence
 - [error-recovery.md](references/error-recovery.md) — Error recovery: duration type confusion, CTD switch, special repo, basis investigation, key rate attribution
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.

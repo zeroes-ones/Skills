@@ -1,5 +1,7 @@
 ---
 name: commodities-analyst
+license: MIT
+author: Sandeep Kumar Penchala
 description: >
   Use when analyzing physical commodities (energy, metals, agriculture),
   supply-demand balances, inventory cycles, contango/backwardation in futures
@@ -11,6 +13,8 @@ description: >
   (route to quantitative-analyst).
 token_budget: 5500
 chain:
+  examples:
+  - skills/14-finance/commodities-analyst/examples/backtest
   consumes_from:
   - fundamental-analyst
   - macro-strategist
@@ -20,7 +24,17 @@ chain:
   - futures-trader
   - portfolio-signal-manager
   - algorithmic-trader
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Commodities Analyst
 
@@ -88,6 +102,7 @@ Before delivering any commodity analysis, the agent MUST:
 ### Phase 0: Energy Complex
 
 ```
+
 1. IDENTIFY the energy commodity
    |-- Crude oil: WTI (Cushing, OK), Brent (North Sea, waterborne), Dubai/Oman (Middle East benchmark)
    |-- Natural gas: Henry Hub (US), TTF (Europe), JKM (Asia). DIFFERENT MARKETS — not substitutes
@@ -112,11 +127,13 @@ Before delivering any commodity analysis, the agent MUST:
 
    Complete when: Supply, demand, inventory [VERIFIED]. Curve structure computed.
    Days of forward demand cover: Total_Inventory / Daily_Demand = X days.
+
 ```
 
 ### Phase 1: Metals
 
 ```
+
 1. CLASSIFY the metal
    |-- Precious: gold, silver, platinum, palladium. Store of value + industrial
    |-- Base/Industrial: copper, aluminum, zinc, nickel, lead, tin. Economic cycle exposure
@@ -144,11 +161,13 @@ Before delivering any commodity analysis, the agent MUST:
 
    Complete when: Real yields and USD indexed [VERIFIED]. LME/SHFE/COMEX inventory [VERIFIED].
    Curve structure computed. China demand drivers identified.
+
 ```
 
 ### Phase 2: Agricultural
 
 ```
+
 1. IDENTIFY the commodity and current crop year
    |-- Grains: corn, wheat (HRW, SRW, HRS), soybeans, rice
    |-- Softs: coffee (Arabica/Robusta), sugar (#11 raw, #5 white), cocoa, cotton, OJ
@@ -175,11 +194,13 @@ Before delivering any commodity analysis, the agent MUST:
 
    Complete when: WASDE supply-demand table [VERIFIED or AS OF latest report].
    Stocks-to-use ratio computed. Seasonal position identified.
+
 ```
 
 ### Phase 3: Curve Structure
 
 ```
+
 1. READ the futures curve
    |-- Contango: Futures > Spot. Normal for storable commodities. Futures = Spot + Storage + Interest - Convenience Yield
    |-- Backwardation: Spot > Futures. Tight nearby supply. Convenience yield > storage + interest
@@ -204,11 +225,13 @@ Before delivering any commodity analysis, the agent MUST:
 
    Complete when: Curve structure characterized. Roll return computed.
    Inventory level consistent with curve shape (contango should = ample inventory, backwardation = tight).
+
 ```
 
 ### Phase 4: Processing Spreads
 
 ```
+
 1. IDENTIFY the processing spread
    |-- Crack spread: Refinery margin. 3-2-1 crack = 3 crude → 2 gasoline + 1 distillate
    |-- Crush spread: Soybean processing. 1 soybeans → soybean meal + soybean oil
@@ -226,11 +249,13 @@ Before delivering any commodity analysis, the agent MUST:
 
    Complete when: Spread computed [COMPUTED]. Seasonal position identified.
    Capacity utilization checked [VERIFIED from EIA]. Spread vs 5yr range.
+
 ```
 
 ### Phase 5: Macro Commodity
 
 ```
+
 1. ASSESS commodity cycle position
    |-- Super-cycle (10-30yr): structural demand shift (China 2000s, energy transition 2020s)
    |-- Business cycle (3-7yr): GDP-driven demand across industrial commodities
@@ -250,6 +275,7 @@ Before delivering any commodity analysis, the agent MUST:
 
    Complete when: Cycle position assessed. Key inter-commodity ratios computed.
    Cross-asset regime identified (risk-on/risk-off for commodities).
+
 ```
 
 ## Decision Trees
@@ -257,6 +283,7 @@ Before delivering any commodity analysis, the agent MUST:
 ### Inventory-Curve Diagnosis
 
 ```
+
                      ┌──────────────────────┐
                      │ Commodity curve shape     │
                      └──────────┬───────────┘
@@ -288,11 +315,13 @@ Before delivering any commodity analysis, the agent MUST:
            │SHORT  ││unwinds    ││SUPPLY  ││BUY spot  │
            └──────┘└──────────┘│short fts││sell fwds  │
                                └────────┘└──────────┘
+
 ```
 
 ### Commodity Type Router
 
 ```
+
                      ┌──────────────────────┐
                      │ "Analyze [commodity]"    │
                      └──────────┬───────────┘
@@ -315,7 +344,12 @@ Before delivering any commodity analysis, the agent MUST:
     │ Curve + EIA     │    │ + exchange      │    │ Weather +       │
     │                 │    │ inventories     │    │ Stocks-to-use   │
     └────────────────┘    └────────────────┘    └───────────────┘
+
 ```
+
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
 
 ## Gotchas
 
@@ -368,6 +402,7 @@ Before delivering any commodity analysis, the agent MUST:
 ## What Good Looks Like
 
 ```
+
 Commodity: WTI Crude Oil (CL futures, CME)
 Price: $78.50/bbl [VERIFIED from CME, timestamp]. M1-M6 spread: -$2.10 (contango, 5.4% annualized) [COMPUTED]
 
@@ -391,10 +426,12 @@ Trade Implications:
   But contango means long futures positions lose 5.4%/year rolling.
   → Best expression: bull calendar spread (long front month, short deferred)
     captures spot tightness without paying roll cost.
+
 ```
 
 Every data point tagged. Supply-demand balanced. Inventories in context. Curve structure consistent with inventory signal. Trade expression accounts for curve costs.
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
 ## Verification Guardrails
 
 - [ ] **All commodity prices from live source** — EIA, CME, ICE, LME, broker terminal. [VERIFIED] timestamp
@@ -434,8 +471,43 @@ US corn: beginning stocks 2.2B bu, production 15.0B bu, domestic use 12.5B bu, e
 
 - [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
 
-
 <!-- DEEP: 10+min — extended deep-dive patterns live in this skill's references/ -->
+
+## State Log
+All material decisions, regime/calibration changes, and escalations are appended to the decision ledger ({at, what, by}); version bumps are recorded in the repository changelog so context is recoverable without replaying prior sessions.
+
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
 
 ## References
 - [energy-complex.md](references/energy-complex.md) — Crude oil benchmarks, natural gas markets, refined products, EIA data guide
@@ -447,3 +519,52 @@ US corn: beginning stocks 2.2B bu, production 15.0B bu, domestic use 12.5B bu, e
 - [geopolitical-risk.md](references/geopolitical-risk.md) — Strait of Hormuz, Russia/Ukraine grain corridor, OPEC+ politics, sanctions frameworks
 - [seasonality-calendar.md](references/seasonality-calendar.md) — Crop calendars, heating/cooling seasons, refinery turnaround schedules, hurricane season
 - [error-recovery.md](references/error-recovery.md) — Error recovery: weather premium, global vs local balance, secular mean-reversion, curve misunderstanding
+
+## The Expert's Mindset
+
+Treat every claim as needing evidence, every recommendation as carrying declared assumptions, and every limitation as something to name rather than hide.
+
+## Operating at Different Levels
+
+| Level | Scope | Autonomy | Impact |
+|-------|-------|----------|--------|
+| L1 | Single task execution | Follows this skill's workflow | Reliable single outputs |
+| L2 | Multi-step work | Chooses approach within this domain | Consistent, reusable results |
+| L3 | Cross-skill flows | Coordinates with upstream/downstream skills | Whole-workflow correctness |
+
+## When to Use
+
+Use this skill when the task matches the description's trigger conditions. When it does not, route to the owning skill instead.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+- In-scope: proceed through Core Workflow.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify or escalate?
+- Verifiable locally: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.

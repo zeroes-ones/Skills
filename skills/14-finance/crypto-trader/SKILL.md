@@ -1,5 +1,7 @@
 ---
 name: crypto-trader
+license: MIT
+author: Sandeep Kumar Penchala
 description: >
   Use when trading or analyzing cryptocurrency markets — perpetual futures, funding rates, spot execution, on-chain data, DeFi yield strategies, exchange risk evaluation, stablecoin mechanics, or crypto-native risk management.
   Handles perpetual swap mechanics (funding rate arbitrage, basis trading, mark vs index price), spot execution across CEX/DEX venues, on-chain data integration (wallet flows, staking yields, TVL, gas), DeFi strategy modeling (LP provision, lending, restaking), exchange due diligence, stablecoin depeg risk, and crypto-volatility calibration.
@@ -10,8 +12,10 @@ description: >
   - algorithmic-trader
   - quantitative-analyst
   - portfolio-signal-manager
-token_budget: 550
+token_budget: 1000
 chain:
+  examples:
+  - skills/14-finance/crypto-trader/examples/backtest
   consumes_from:
   - market-data-engineer
   - macro-strategist
@@ -21,7 +25,17 @@ chain:
   - portfolio-signal-manager
   - algorithmic-trader
 portability: spec-level
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Crypto Trader
 
@@ -80,6 +94,7 @@ portability: spec-level
    |-- Withdrawal fee comparison for user's expected size
    |-- Minimum withdrawal thresholds
    |-- Complete when: Withdrawal health: [NORMAL|DELAYED|HALTED] as of [DATE]
+
 ```
 
 ### Phase 1: Perpetual Futures Mechanics
@@ -103,6 +118,7 @@ portability: spec-level
    |-- Compare to index price (spot composite across exchanges)
    |-- Divergence >1% → liquidation risk elevated; >3% → do not enter
    |-- Complete when: Mark-index spread documented and liquidation threshold computed
+
 ```
 
 ### Phase 2: Spot Execution
@@ -128,6 +144,7 @@ portability: spec-level
    |-- Estimate bridge time and cost
    |-- Flag bridge security incidents (last 12 months)
    |-- Complete when: Optimal bridge selected with cost, time, and security assessment
+
 ```
 
 ### Phase 3: On-Chain Data Integration
@@ -150,6 +167,7 @@ portability: spec-level
    |-- Liquid staking derivative (LSD) yields and discount/premium to NAV
    |-- Restaking yields (EigenLayer, Symbiotic) and slashing risk
    |-- Complete when: Risk-adjusted yield comparison table completed
+
 ```
 
 ### Phase 4: DeFi Strategy Modeling
@@ -174,6 +192,7 @@ portability: spec-level
    |-- Slashing conditions and historical slashing events
    |-- Lockup period and withdrawal queue length
    |-- Complete when: Risk-adjusted AVS yield computed net of slashing probability
+
 ```
 
 ### Phase 5: Risk Management (Crypto-Specific)
@@ -198,6 +217,7 @@ portability: spec-level
    |-- Bridge hack: assets on L2s vs L1
    |-- Smart contract exploit: protocol risk by TVL exposure
    |-- Complete when: Maximum loss per tail scenario computed; acceptable loss threshold defined
+
 ```
 
 ## <!-- STANDARD: 3min --> Decision Trees
@@ -229,6 +249,7 @@ portability: spec-level
                                      └──────────┘ │ signal-     │
                                                   │ manager)    │
                                                   └──────────┘
+
 ```
 
 ### DEX vs CEX Execution Choice
@@ -253,6 +274,7 @@ portability: spec-level
                                      │ sandwich  │ │ slippage  │
                                      │ risk      │ │ costs     │
                                      └──────────┘ └──────────┘
+
 ```
 
 ### Stablecoin Risk Assessment
@@ -279,6 +301,7 @@ portability: spec-level
                                      │ Monitor depeg        │
                                      │ history.             │
                                      └─────────────────────┘
+
 ```
 
 ## Gotchas
@@ -403,10 +426,45 @@ For a $10K USDC transfer ETH → Arbitrum: compare 5 bridge options (native brid
 6. Always label yields with APR/APY. Convert all rates to APR for apples-to-apples comparison. Document compounding frequency assumption. Use the formula: APY = (1 + APR/n)^n - 1.
 ## Production Checklist
 
-- [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
-
+* [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
 
 <!-- DEEP: 10+min — extended deep-dive patterns live in this skill's references/ -->
+
+## State Log
+All material decisions, regime/calibration changes, and escalations are appended to the decision ledger ({at, what, by}); version bumps are recorded in the repository changelog so context is recoverable without replaying prior sessions.
+
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+* Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+* Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+* Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+* Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+* Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+* Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+* Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+* Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+* Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+* Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+* Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+* Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+* Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+* Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+* Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+* Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+* Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+* [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+* [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+* [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+* [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+* [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+* [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
 
 ## References
 
@@ -419,3 +477,93 @@ For a $10K USDC transfer ETH → Arbitrum: compare 5 bridge options (native brid
 * [bridge-and-l2-guide.md](references/bridge-and-l2-guide.md) — Bridge security model comparison, L2 finality times, withdrawal periods
 * [crypto-risk-management.md](references/crypto-risk-management.md) — Volatility calibration, correlation matrices, tail risk scenario modeling, position sizing
 * [error-recovery.md](references/error-recovery.md) — Additional error patterns: oracle manipulation, governance attacks, reentrancy, flash loan exploits
+
+## Route the Request
+
+Route the incoming task to this skill when it matches the description above; otherwise redirect to the owning skill.
+
+## Ground Rules — Read Before Anything Else
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
+
+## The Expert's Mindset
+
+Treat every claim as needing evidence, every recommendation as carrying declared assumptions, and every limitation as something to name rather than hide.
+
+## Operating at Different Levels
+
+| Level | Scope | Autonomy | Impact |
+|-------|-------|----------|--------|
+| L1 | Single task execution | Follows this skill's workflow | Reliable single outputs |
+| L2 | Multi-step work | Chooses approach within this domain | Consistent, reusable results |
+| L3 | Cross-skill flows | Coordinates with upstream/downstream skills | Whole-workflow correctness |
+
+## When to Use
+
+Use this skill when the task matches the description's trigger conditions. When it does not, route to the owning skill instead.
+
+## Decision Trees
+
+1. Is the task in this skill's scope? If no, route to the owning skill.
+2. Is the required input available and verifiable? If no, request or escalate.
+3. Is the output verifiable against the request? If no, revise with evidence.
+### Decision Tree 1: In-scope or out?
+* In-scope: follow Core Workflow and verify.
+* Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+* Locally verifiable: run the check and record the result.
+* Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+* Meets What Good Looks Like: deliver with evidence.
+* Gaps found: revise before delivering.
+
+## Core Workflow
+
+1. Intake: read the task and confirm scope.
+2. Execute: perform the domain work per this skill's guidance.
+3. Verify: check the output against the request with concrete evidence before delivering.
+
+## Anti-Rationalization
+
+* ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+* ❌ "It works because it must" — assert only what you can demonstrate.
+* ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+* ❌ "The output looks plausible" — plausible is not verified; run the check.
+* ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+* The task needs judgment or authority this skill does not own.
+* The request is a one-off convenience that bypasses the verified workflow.
+* A specialized peer skill owns the exact scenario — route there instead.
+* There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+* ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+* ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+* ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+* ❌ Hiding a limitation until review | ✅ Naming limitations up front
+* ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+* In-scope: proceed through Core Workflow.
+* Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify or escalate?
+* Verifiable locally: run the check and record the result.
+* Blocked externally: escalate once with full context.
+
+* Meets What Good Looks Like: deliver with evidence.
+* Gaps found: revise before delivering.

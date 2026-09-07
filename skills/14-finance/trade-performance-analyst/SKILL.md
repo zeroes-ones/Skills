@@ -13,13 +13,25 @@ description: >
   algorithmic-trader), strategy design (route to quantitative-analyst), or macro
   regime analysis (route to macro-strategist).
 license: MIT
-token_budget: 500
+token_budget: 1000
 chain:
+  examples:
+  - skills/14-finance/trade-performance-analyst/examples/backtest
   type: symmetric
   consumes_from: [portfolio-signal-manager, algorithmic-trader, intraday-options-trader, swing-options-trader, options-automation-engineer]
   feeds_into: [portfolio-signal-manager, quantitative-analyst]
 portability: spec-level
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Trade Performance Analyst
 
@@ -77,6 +89,7 @@ portability: spec-level
    |-- Match benchmark frequency to trade data frequency
    |-- Load benchmark returns for the exact date range
    |-- Complete when: Benchmark assigned and returns aligned to trade date range
+
 ```
 
 ### Phase 1: Absolute Performance Measurement
@@ -102,6 +115,7 @@ portability: spec-level
    |-- MAR Ratio: CAGR / |Max Drawdown| (same formula, different convention)
    |-- Omega Ratio: probability-weighted gain / probability-weighted loss
    |-- Complete when: All risk-adjusted metrics computed with confidence intervals
+
 ```
 
 ### Phase 2: Attribution Analysis
@@ -131,6 +145,7 @@ portability: spec-level
    |-- Market impact cost estimate (Almgren-Chriss or arrival price)
    |-- VWAP comparison: executed vs VWAP over execution window
    |-- Complete when: Execution cost summary with total slippage drag on returns
+
 ```
 
 ### Phase 3: Behavioral Analysis
@@ -160,6 +175,7 @@ portability: spec-level
    |-- High-conviction win rate vs low-conviction win rate
    |-- Size vs conviction: are larger positions more profitable?
    |-- Complete when: Conviction calibration report with recommendation for sizing adjustment
+
 ```
 
 ### Phase 4: Drawdown & Risk Analysis
@@ -184,6 +200,7 @@ portability: spec-level
    |-- Compute: crisis beta, crisis alpha, crisis max drawdown
    |-- Compare crisis performance to: (a) non-crisis performance, (b) benchmark crisis performance
    |-- Complete when: Crisis-period performance table populated
+
 ```
 
 ## <!-- STANDARD: 3min --> Decision Trees
@@ -212,6 +229,7 @@ portability: spec-level
              │ exposure   │ │           │    │           │ │ Fix root  │
              └──────────┘ └──────────┘    └──────────┘ │ cause     │
                                                        └──────────┘
+
 ```
 
 ### Behavioral Bias Investigation
@@ -239,6 +257,7 @@ portability: spec-level
                                        └──────────┘       │ SHYNESS
                                                           │ (underrrading)
                                                           └──────────────┘
+
 ```
 
 ### Annualization Appropriateness Gate
@@ -259,6 +278,7 @@ portability: spec-level
               └──────────────────┘    │ - [WARNING: <=N-month     │
                                      │  track record]            │
                                      └──────────────────────┘
+
 ```
 
 ## Gotchas
@@ -378,10 +398,47 @@ A global macro strategy trades equities, bonds, currencies, and commodities. Wha
 5. Always report expectancy alongside win rate. If win rate >60% and expectancy <0, flag: [NEGATIVE EXPECTANCY — STRATEGY LOSES MONEY]. Train the user to ask "what's my expectancy?" not "what's my win rate?"
 ## Production Checklist
 
-- [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
-
+* [ ] **Run the domain checklist** — execute `references/checklist.md` items before any deliverable is final.
 
 <!-- DEEP: 10+min — extended deep-dive patterns live in this skill's references/ -->
+
+## State Log
+All material decisions, regime/calibration changes, and escalations are appended to the decision ledger ({at, what, by}); version bumps are recorded in the repository changelog so context is recoverable without replaying prior sessions.
+
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+* Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+* Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+* Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+* Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+* Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+* Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+* Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+* Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+* Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+* Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+* Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+* Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+* Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+* Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+* Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+* Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+* Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+* [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+* [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+* [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+* [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+* [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+* [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
+* [COMMON-PRACTICE] Exit-rule tiers and regime states follow standard risk practice; they are guidance, not broker-specific data.
 
 ## References
 
@@ -394,3 +451,93 @@ A global macro strategy trades equities, bonds, currencies, and commodities. Wha
 * [risk-metrics-guide.md](references/risk-metrics-guide.md) — VaR, CVaR, tail risk, EVT for extreme losses, stress testing methodology
 * [small-sample-statistics.md](references/small-sample-statistics.md) — Confidence intervals for performance metrics, minimum sample sizes, statistical power
 * [error-recovery.md](references/error-recovery.md) — Additional patterns: look-ahead bias, data snooping, selection bias, benchmark mismatch
+
+## Route the Request
+
+Route the incoming task to this skill when it matches the description above; otherwise redirect to the owning skill.
+
+## Ground Rules — Read Before Anything Else
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
+
+## The Expert's Mindset
+
+Treat every claim as needing evidence, every recommendation as carrying declared assumptions, and every limitation as something to name rather than hide.
+
+## Operating at Different Levels
+
+| Level | Scope | Autonomy | Impact |
+|-------|-------|----------|--------|
+| L1 | Single task execution | Follows this skill's workflow | Reliable single outputs |
+| L2 | Multi-step work | Chooses approach within this domain | Consistent, reusable results |
+| L3 | Cross-skill flows | Coordinates with upstream/downstream skills | Whole-workflow correctness |
+
+## When to Use
+
+Use this skill when the task matches the description's trigger conditions. When it does not, route to the owning skill instead.
+
+## Decision Trees
+
+1. Is the task in this skill's scope? If no, route to the owning skill.
+2. Is the required input available and verifiable? If no, request or escalate.
+3. Is the output verifiable against the request? If no, revise with evidence.
+### Decision Tree 1: In-scope or out?
+* In-scope: follow Core Workflow and verify.
+* Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+* Locally verifiable: run the check and record the result.
+* Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+* Meets What Good Looks Like: deliver with evidence.
+* Gaps found: revise before delivering.
+
+## Core Workflow
+
+1. Intake: read the task and confirm scope.
+2. Execute: perform the domain work per this skill's guidance.
+3. Verify: check the output against the request with concrete evidence before delivering.
+
+## Anti-Rationalization
+
+* ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+* ❌ "It works because it must" — assert only what you can demonstrate.
+* ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+* ❌ "The output looks plausible" — plausible is not verified; run the check.
+* ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+* The task needs judgment or authority this skill does not own.
+* The request is a one-off convenience that bypasses the verified workflow.
+* A specialized peer skill owns the exact scenario — route there instead.
+* There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+* ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+* ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+* ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+* ❌ Hiding a limitation until review | ✅ Naming limitations up front
+* ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+* In-scope: proceed through Core Workflow.
+* Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify or escalate?
+* Verifiable locally: run the check and record the result.
+* Blocked externally: escalate once with full context.
+
+* Meets What Good Looks Like: deliver with evidence.
+* Gaps found: revise before delivering.

@@ -23,6 +23,8 @@ tags:
 - app-store
 token_budget: 4000
 chain:
+  examples:
+  - skills/05-development/mobile-developer/examples/backtest
   consumes_from:
     - using-agent-skills
     - skill-levels
@@ -72,6 +74,18 @@ chain:
     - react-native-developer
     - security-reviewer
     - translation-manager
+workflow:
+  artifacts:
+    inputs: [product-spec, design-system, api-contract]
+    outputs: [mobile-implementation]
+  completion:
+    criteria:
+      - Core flows implemented for the target platforms
+      - Offline, push, and permissions handled per product-spec
+      - Store and update pipeline plus platform guidelines considered
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Mobile Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -96,8 +110,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -112,8 +124,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -123,8 +138,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -165,6 +178,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ```
+
 What are you trying to do?
 ├── Choose a mobile tech stack → Start at "Decision Trees" — Native vs React Native vs Flutter vs PWA
 ├── Build a specific screen or UI flow → Jump to "Core Workflow > Phase 2 (UI Implementation)"
@@ -306,6 +320,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 ### Offline-First Strategy
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Offline support level?│
                      └─────────────┬────────────────┘
@@ -329,6 +344,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                              │ local DB + │  │ responses │
                              │ sync queue │  │ + assets  │
                              └────────────┘  └───────────┘
+
 ```
 
 **When full offline-first:** Field workers, travelers, areas with unreliable connectivity. Users must create/edit data offline. Conflict resolution needed.
@@ -337,6 +353,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 ### Navigation Architecture
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Navigation pattern?   │
                      └─────────────┬────────────────┘
@@ -360,6 +377,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                             │ with deep  │  │ Full deep    │
                             │ linking    │  │ link support │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When Tab + Stack:** Instagram/YouTube pattern. 3-5 top-level sections. Each tab has its own navigation history. Deep linking into nested screens required.
@@ -368,6 +386,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 ### Push Notification Strategy
 
 ```
+
                      ┌───────────────────────────────┐
                      │ START: Notification approach? │
                      └──────────────┬────────────────┘
@@ -392,6 +411,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                              │ rich media │  │ Scheduled    │
                              │ + analytics│  │ reminders.   │
                              └────────────┘  └──────────────┘
+
 ```
 
 **When data-only + WebSocket:** Real-time chat/messaging. Push delivers wake-up signal; actual content fetched via persistent connection. Avoids 4KB APNs limit.
@@ -400,6 +420,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
 ### State Management
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: State solution?   │
                      └───────────┬──────────────┘
@@ -422,6 +443,7 @@ Mobile development spans platform-specific concerns (app stores, device capabili
                           │ (global)   │  │ BLoC /       │
                           │            │  │ Provider     │
                           └────────────┘  └──────────────┘
+
 ```
 
 **When TanStack Query:** API-driven data that needs caching, pagination, and optimistic updates. Server is source of truth. Background refetch on focus.
@@ -541,6 +563,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 App Store rejection? → DevOps Engineer → Legal Advisor
 Security vulnerability? → Security Engineer → Compliance Officer
 API breaking change? → Backend Developer lead → System Architect
@@ -739,3 +762,38 @@ Detailed reference material loaded on demand:
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 - **Library Freshness Policy**: See [library-freshness-policy.md](../../scripts/references/library-freshness-policy.md) — canonical "always use updated libraries" rule + shared checker `scripts/lib/library-version-check.sh` (all mobile stacks enforce this; run it before emitting library references)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

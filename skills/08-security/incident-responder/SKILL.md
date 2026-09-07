@@ -25,6 +25,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/08-security/incident-responder/examples/backtest
   consumes_from:
   - vulnerability-management
   - verification-before-completion
@@ -56,6 +58,18 @@ chain:
   - code-reviewer
   - devops-engineer
   - security-engineer
+workflow:
+  artifacts:
+    inputs: [incident-context]
+    outputs: [incident-report]
+  completion:
+    criteria:
+      - Timeline reconstructed with evidence artifacts
+      - Root cause stated or explicitly marked unknown
+      - Action items carry owners and follow-up dates
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Incident Responder
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -85,8 +99,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -101,8 +113,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -112,8 +126,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -270,6 +282,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
       └────────┘ └──────────┘ └────────┘  │business   │
                                           │day        │
                                           └───────────┘
+
 ```
 
 **When to declare SEV1:** Complete outage of core product. Data loss or corruption confirmed. Security breach with active exploitation. PagerDuty alerts all engineering.
@@ -299,6 +312,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
     │ Director   │ │ Escalate if  │
     │ → VP → CTO │ │ still stale. │
     └────────────┘ └──────────────┘
+
 ```
 
 **When to escalate:** SEV1 not contained within 30 minutes. Customer data potentially exposed. Decision needed beyond IC authority (external comms, legal exposure).
@@ -323,6 +337,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
         │ readout to execs │  │ No exec readout.     │
         │ within 48 hours  │  └──────────────────────┘
         └──────────────────┘
+
 ```
 
 **When full postmortem required:** Customer data loss or exposure. Revenue loss > $10K. Regulatory notification triggered. Mean time to resolve > 4 hours.
@@ -354,6 +369,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                             │ within 2   │  │ review       │
                             │ sprints    │  │ quarterly    │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When to automate immediately:** Recurring incident (> 2x/quarter). Resolution requires > 10 minutes of human time. Error rate in manual resolution > 10%.
@@ -620,3 +636,18 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.

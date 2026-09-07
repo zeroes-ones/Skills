@@ -23,18 +23,34 @@ updated: 2026-07-24
 tags: [multi-agent, orchestration, langgraph, crewai, autogen, state-synchronization, topology]
 token_budget: 4700
 chain:
+  examples:
+  - skills/13-specialized/multi-agent-orchestration/examples/backtest
   consumes_from:
     - agent-handoff-protocol
     - system-architect
     - llm-engineer
     - context-engineering
+    - workflow-graph-authoring
   feeds_into:
     - agent-handoff-protocol
     - cross-skill-communication
     - agent-eval-pipeline
     - backend-developer
     - platform-engineer
+    - iterative-task-execution
+    - workflow-graph-authoring
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
+
 # Multi-Agent Orchestration
 <!-- QUICK: 30s -->
 ## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
@@ -58,8 +74,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -74,8 +88,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -85,8 +101,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -149,6 +163,7 @@ HIERARCHICAL                 SWARM / PEER-TO-PEER
    │  with conditional edges  │  (3, 5, 7) — avoid 2
    └─ Risk: supervisor         └─ Risk: deadlock on
       bottleneck                 consensus failure
+
 ```
 
 ### Decision Tree 2: State Management Strategy
@@ -175,6 +190,7 @@ Message-bus dict             TypedDict + Pydantic
    │                    ▼         ▼
    │               Field ownership Immutable snapshots
    │               + write guard   + merge-after-complete
+
 ```
 
 ### Decision Tree 3: Delegation Mode Selection
@@ -198,6 +214,7 @@ Direct delegation           Conversation loop
    │  delegation chains      │  detector
    └─ Structured output      └─ Tiebreaker: supervisor
       required                  or human escalation
+
 ```
 
 ### Decision Tree 4: Cost Optimization Strategy
@@ -219,6 +236,7 @@ AUDIT delegation chains     RIGHT-SIZE agent model
    │  pass-through protocol  ├─ Idle agents → spin down
    └─ Reduce max_turns       └─ Track tokens-per-task
                               as primary KPI
+
 ```
 
 ## Core Workflow
@@ -773,3 +791,34 @@ Detailed patterns in **references/**:
 ---
 
 *Version 1.0.0 | Author: Sandeep Kumar Penchala | License: MIT | Built on LangGraph 0.2+, CrewAI 0.30+, AutoGen 0.4+*
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness

@@ -22,6 +22,8 @@ updated: 2026-07-24
 tags: [agent-evaluation, behavioral-testing, llm-as-judge, statistical-evals, ci-cd-gates, drift-detection]
 token_budget: 4500
 chain:
+  examples:
+  - skills/22-ai-engineering/agent-eval-pipeline/examples/backtest
   consumes_from:
     - multi-agent-orchestration
     - dynamic-skill-creator
@@ -30,12 +32,25 @@ chain:
     - qa-engineer
     - ci-cd-builder
     - llm-engineer
+    - iterative-task-execution
+    - workflow-graph-authoring
   feeds_into:
     - agent-handoff-protocol
     - devops-engineer
     - platform-engineer
     - staff-engineer
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
+
 # Agent Evaluation Pipeline
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 <!-- QUICK: 30s -->
@@ -60,8 +75,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -76,8 +89,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -87,8 +102,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 
@@ -230,6 +243,7 @@ New agent version (vX.Y.Z)
 │       │       │   └── NO → Continue
 │       │       │
 │       │       └── ALL gates green → ✅ DEPLOY with canary monitoring
+
 ```
 
 **Expected outcome:** ~75% of version bumps pass first try. Most common block: L2 SPRT detect regression at test 18/200 (early stop saves 91% of eval cost).
@@ -265,6 +279,7 @@ New PR changes agent behavior
 │   └── NO → Continue
 │
 └── Default: Add at least 1 L2 scenario → ⏱️ 15 min
+
 ```
 
 **Expected outcome:** 60% of PRs need 1 scenario; 25% need 2+; 15% skip entirely (docs/config). Average scenario author time: 12 min.
@@ -298,6 +313,7 @@ New judge rubric dimension
 │   └── YES → Continue
 │
 └── ✅ Dimension is PRODUCTION READY → monthly recalibration
+
 ```
 
 **Expected outcome:** 6 of 8 proposed dimensions pass calibration. Common failures: "creativity" (kappa=0.35), "helpfulness" (kappa=0.52). Both dropped.
@@ -338,6 +354,7 @@ Golden baseline drift alert fires (daily CI)
 └── Tool usage drift (> 10pp change)?
     ├── New tool added → ⚠️ REBASELINE (expected)
     └── Existing tools used differently → ❌ BLOCK (behavioral regression)
+
 ```
 
 **Expected outcome:** ~70% of drift alerts are false positives (rebaseline); ~25% detect real regressions; ~5% detect improvements. Median investigation time: 12 min.
@@ -375,6 +392,7 @@ Monthly eval spend hits $400 (80% warn threshold)
 │   └── Action: Reduce golden baseline tests to weekly → Saves $20/mo
 │
 └── Final: $500/mo budget locked → hard stop on L3; L1+L2 continue
+
 ```
 
 **Expected outcome:** Budget reached 80% within 10-21 days of active development. Most common fix: limit L3 to merge + daily (saves ~$120/mo). Least common: request more budget (only when team doubles in size).
@@ -630,6 +648,7 @@ python scripts/detect_drift.py --baseline baselines/golden_v3.1.0.json
 # Phase 6: Verify CI/CD gate behavior
 python scripts/simulate_pr.py --pr-type "tool_change" --agent-version ${CANDIDATE_VERSION}
 # Expected: L1 blocks on failure, L2 blocks on regression, L3 produces Slack alert
+
 ```
 
 **Portability target:** The eval harness container runs on any Docker host with >= 16GB RAM. Judge model requires OpenAI-compatible API. Statistical methods use pure Python (numpy + scipy). CI/CD integration supports GitHub Actions, GitLab CI, and Jenkins (adapters in `references/ci-cd-eval-gates.md`).
@@ -650,3 +669,18 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 * [Eval Harness Architecture](references/eval-harness-architecture.md) — Containerized Docker runner, 10-dimension scenario generator, mock project environment, gotcha injection, variance analysis.
 * [Prompt Injection Testing](references/prompt-injection-testing.md) — Direct and indirect injection taxonomy, 6 test categories, safety signal detection, CI integration patterns.
 * [Evaluation Metrics Dashboard](references/eval-metrics-dashboard.md) — Six-tier metrics (KPIs, quality, safety, cost, drift, pipeline health), Prometheus/Grafana integration, alert rules.
+
+## Anti-Rationalization
+
+* ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+* ❌ "It works because it must" — assert only what you can demonstrate.
+* ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+* ❌ "The output looks plausible" — plausible is not verified; run the check.
+* ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+* The task needs judgment or authority this skill does not own.
+* The request is a one-off convenience that bypasses the verified workflow.
+* A specialized peer skill owns the exact scenario — route there instead.
+* There is no way to verify the output against a source of truth.

@@ -19,6 +19,8 @@ version: 1.0.0
 updated: 2026-07-24
 token_budget: 4000
 chain:
+  examples:
+  - skills/02-product/product-analyst/examples/backtest
   consumes_from:
   - customer-onboarding-specialist
   - ab-testing-specialist
@@ -32,11 +34,21 @@ chain:
   - data-visualization-engineer
   - growth-engineer
   - product-manager
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
+
 # Product Analyst
 
 > **Quality Standards:** This skill follows the [SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md) framework for consistent quality, research rigor, and structured decision-making.
-
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -63,8 +75,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -79,8 +89,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -91,11 +103,8 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
-
 ## Route the Request
 <!-- STANDARD: 3min -->
-
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -110,7 +119,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | A6 | User asks about tooling (Amplitude, Mixpanel, PostHog, GA4) | Go to "Decision Trees > Tooling Selection" |
 | A7 | No analytics infrastructure exists | Jump to "Core Workflow > Phase 1" — start with metric definition |
 
-
 ## Intent Route
 <!-- STANDARD: 3min -->
 
@@ -124,6 +132,7 @@ What are you trying to do?
 ├── Choose or set up product analytics tooling
 ├── Instrument feature tracking and event taxonomy
 └── Not sure? -> Describe your product and I will route you
+
 ```
 
 ## Anti-Hallucination
@@ -168,16 +177,13 @@ The best analysis does not answer "what happened?" — it answers **"what should
 ## Deliberate Practice
 <!-- STANDARD: 3min -->
 
-
 ## Beginner: Metric Traceability Audit
 <!-- STANDARD: 3min -->
 Take one product metric from your analytics dashboard (e.g., "7-day retention rate"). Trace it all the way back to the raw tracking event — find the exact event name, the property used for the calculation, and the precise SQL or tool configuration that computes it. Then trace it forward again: how does that raw event become the number on the dashboard? Now find **3 ways the metric could be misleading**: (a) Does the event fire reliably on all platforms? (b) Are there sampling or identity-resolution gaps? (c) Does the definition match what stakeholders think it means? Document each gap with a concrete example.
 
-
 ## Intermediate: A/B Test Design from Scratch
 <!-- STANDARD: 3min -->
 Pick a real feature change in your product (e.g., redesigning the signup flow). Design the full experiment: (1) Define the primary metric and the exact tracking event. (2) Calculate required sample size per variant given baseline conversion rate, minimum detectable effect (MDE), α=0.05, and power=0.80. (3) Compute the minimum experiment duration based on your daily traffic. (4) Identify the **counter-metric** — what could break if this feature succeeds? (5) Define the stopping rule: fixed-horizon or sequential testing with adjusted α. (6) Write the launch checklist: A/A validation, ramp plan, guardrail alert thresholds.
-
 
 ## Advanced: Reverse-Engineer a Public Company's Metric Tree
 <!-- STANDARD: 3min -->
@@ -298,7 +304,6 @@ NO  → Check error             + user interviews
                                when degradation
                                started
 
-
 ## North Star Metric Selection
 <!-- STANDARD: 3min -->
 
@@ -323,6 +328,7 @@ NO  → Check error             + user interviews
                                     |  bookings,| |  completed,|
                                     |  revenue) | |  time saved)|
                                     +----------+ +-----------+
+
 ```
 
 | Product Type | North Star Examples | Counter-Metric |
@@ -334,7 +340,6 @@ NO  → Check error             + user interviews
 | E-commerce | Repeat purchase rate, AOV | Return rate, customer acquisition cost |
 | Developer Tools | Weekly active repositories, API calls | Time to first API call |
 | Fintech | Monthly transacting users, Volume | Fraud rate, support contacts |
-
 
 ## Tooling Selection
 <!-- STANDARD: 3min -->
@@ -360,6 +365,7 @@ NO  → Check error             + user interviews
                                     |  ance,    | | (auto-   |
                                     |  scaling) | | capture) |
                                     +----------+ +---------+
+
 ```
 
 | Tool | Best For | Starting Price | Weakness |
@@ -370,7 +376,6 @@ NO  → Check error             + user interviews
 | **Heap** | Auto-capture (no manual instrumentation), retroactive analysis | Free (<10K sessions/mo) | Limited customization, noisy data |
 | **Pendo** | In-app guides + analytics, product-led adoption | Contact sales (~$1000+/mo) | Expensive for small teams |
 | **GA4** | Web-focused, marketing attribution, free at any scale | Free | Not built for product analytics (no user profiles, limited cohorts) |
-
 
 ## Experiment Design Flow
 <!-- STANDARD: 3min -->
@@ -398,8 +403,8 @@ NO  → Check error             + user interviews
                                       | diff)     | | usability  |
                                       +----------+ | testing    |
                                                    +-----------+
-```
 
+```
 
 ## Retention Diagnosis
 <!-- STANDARD: 3min -->
@@ -429,8 +434,8 @@ NO  → Check error             + user interviews
                                           | quality  | | support   |
                                           +---------+ | quality   |
                                                      +----------+
-```
 
+```
 
 ## User Segmentation Strategy
 <!-- STANDARD: 3min -->
@@ -464,12 +469,12 @@ NO  → Check error             + user interviews
                 | Frequency,  |    | conversion/   |
                 | Monetary)   |    | churn risk    |
                 +------------+    +--------------+
+
 ```
 
 ## Core Workflow
 <!-- STANDARD: 3min -->
 <!-- Full 112 lines extracted to references/core-workflow.md -->
-
 
 ## Phase 1: Metric Definition & Framework (~45 min)
 <!-- STANDARD: 3min -->
@@ -514,7 +519,7 @@ NO  → Check error             + user interviews
 | "Funnel shows 50% drop at step 3 but no clue why" | Quantitative funnel tells you WHERE, not WHY. | Add qualitative: session recordings (Hotjar, FullStory), user interviews, exit surveys at funnel step. | Funnels + recordings + interviews = complete picture. Funnels alone = half the answer. |
 | "Dashboard shows metrics but nobody looks at it" | Dashboard measures activity, not outcomes. | Redesign: every tile answers "should we do X?" Add annotations (launches, incidents). Weekly review ritual. | Dashboards without decisions are decoration. Kill or redesign them quarterly. |
 
-## Error Decoder
+## Error Decoder — Extended Failure Library
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
 
@@ -533,7 +538,6 @@ If a command or approach fails, follow this escalation path before giving up:
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 
-
 ## Upstream
 <!-- STANDARD: 3min -->
 
@@ -544,7 +548,6 @@ If a command or approach fails, follow this escalation path before giving up:
 | `data-engineer` | Data models, ETL pipelines, event tables | Clean, reliable data to query |
 | `ab-testing-specialist` | Experiment platform, randomization setup | Infrastructure to run experiments correctly |
 | `analytics-engineer` | Transformed datasets, dbt models | Analysis-ready tables (not raw events) |
-
 
 ## Downstream
 <!-- STANDARD: 3min -->
@@ -592,7 +595,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-
 ## How the State Log Works
 <!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
@@ -611,11 +613,11 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
      "alternatives_considered": ["alt-1", "alt-2"],
      "reversible": true
    }
+
    ```
 
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
-
 
 ## State Log Schema
 <!-- STANDARD: 3min -->
@@ -630,7 +632,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
-
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -668,6 +669,14 @@ Every product decision traces to data: an experiment result with confidence inte
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
 
+## Error Recovery
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Output disagrees with the source of truth | Re-validate inputs and reproduce the check | Cross-check against a second source and narrow scope | Escalate with both artifacts attached; do not proceed on the disagreement |
+| Repeated identical failure across attempts | Compare last two diagnostics sets | Change one lever (approach, inputs, scope) | Escalate with full attempt evidence instead of retrying |
+| External blocker (missing data/access/decision) | Escalate immediately with the blocker and the unblock path | Confirm ownership of the blocker | Human gate with full context; never loop on an external blocker |
+
 ## References
 <!-- STANDARD: 3min -->
 
@@ -683,7 +692,6 @@ Detailed reference material loaded on demand:
 - **State Log**: See [state-log.md](references/state-log.md)
 - **Verification**: See [verification.md](references/verification.md)
 - **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
-
 
 ## Cross-Skill References
 <!-- STANDARD: 3min -->
@@ -725,3 +733,18 @@ Detailed reference material loaded on demand:
 | ☐ | Complete when User segmentation uses behavior-based criteria (usage frequency + recency) rather than demographics alone | At minimum: power, core, casual, and at-risk segments are defined with event-based scoring in the last 28 days |
 | ☐ | Complete when Experiment results are reported with confidence intervals, not just point estimates, and novelty effects are ruled out | Experiment report includes CI bounds and a decay trend check over minimum 2-week duration |
 | ☐ | Complete when Quarterly analytics audit completed: unused dashboards archived, event taxonomy validated, tracking gaps closed | `find dashboards/ -mtime +90` returns zero active dashboards without a documented decision trace |
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.

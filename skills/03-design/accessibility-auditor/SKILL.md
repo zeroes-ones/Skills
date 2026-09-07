@@ -23,6 +23,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/03-design/accessibility-auditor/examples/backtest
   consumes_from:
   - using-agent-skills
   - skill-levels
@@ -50,6 +52,18 @@ chain:
   - material-design-expert
   - qa-engineer
   - ui-ux-designer
+workflow:
+  artifacts:
+    inputs: [design-assets]
+    outputs: [accessibility-audit]
+  completion:
+    criteria:
+      - Audit mapped to the applicable accessibility standard
+      - Findings graded with severity and concrete remediation
+      - Verified states and assistive-tech coverage declared
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Accessibility Auditor
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -76,8 +90,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -92,8 +104,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -103,8 +117,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -264,6 +276,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                             │ risk       │  │ Internal tool│
                             │ mitigation │  │ or MVP.      │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When AA required:** Government, healthcare, education, financial services. Public-facing with > 10K users. Legal department advises or ADA litigation risk exists.
@@ -296,6 +309,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                             │ (VoiceOver,│  │ test. Cannot │
                             │ NVDA, JAWS)│  │ automate.    │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When automated suffices:** ~30% of WCAG criteria are machine-testable. Color contrast, heading structure, ARIA validity, alt text presence. Run in CI on every PR.
@@ -326,6 +340,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                              │ within 4   │  │ within 3  │
                              │ weeks.     │  │ months.   │
                              └────────────┘  └───────────┘
+
 ```
 
 **When P0 (Critical):** Task-blocking for any disability group. Login, checkout, core navigation not operable. Legal exposure from ADA lawsuit precedent.
@@ -356,6 +371,7 @@ Accessibility auditing scales from single-page audits to org-wide accessibility 
                              │ AA required│  │ regulatory│
                              └────────────┘  │ changes.  │
                                              └───────────┘
+
 ```
 
 **When HIGH risk:** US consumer-facing website/app. > 10K monthly visitors. E-commerce, education, healthcare, employment, or financial services.
@@ -662,3 +678,18 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Feedback**: See [feedback.md](references/feedback.md)
 - **Known Limitations**: See [known-limitations.md](references/known-limitations.md)
 - **Preparation**: See [preparation.md](references/preparation.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.

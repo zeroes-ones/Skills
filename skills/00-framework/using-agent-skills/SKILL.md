@@ -20,7 +20,7 @@ tags:
   - skill-library
 token_budget: 5500
 chain:
-  consumes_from: [cross-skill-communication]
+  consumes_from: [cross-skill-communication, parenting-strategist]
   feeds_into:
     - cross-skill-communication
     - senior-engineer-mode-router
@@ -85,13 +85,24 @@ chain:
     - writing-great-skills
     - roi-gate
     - grilling
-  examples: []
+    - iterative-task-execution
+    - workflow-graph-authoring
+  examples: [skills/00-framework/using-agent-skills/examples/backtest]
   alternatives:
     - wayfinder
 license: MIT
 output: router
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Using Agent Skills — Library Router
 
@@ -121,7 +132,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -139,6 +149,7 @@ Every decision point in a skill's Core Workflow must be marked with:
 
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -148,7 +159,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
 
 ## <!-- STANDARD: 3min --> Ground Rules — Read Before Anything Else
 
@@ -335,6 +345,7 @@ What are you trying to do?
 │
 └── NO MATCH → "Restate as [verb] [noun]? (e.g., 'build backend,' 'review code')"
     Still unmatched → "No matching skill. Route to `writing-great-skills`."
+
 ```
 
 ---
@@ -371,6 +382,7 @@ Every agent invoking skills in this library must follow these.
        ├── "Building or reviewing?"
        ├── "Design or development?"
        └── "Infrastructure or application?"
+
 ```
 
 Complete when: One category identified. If >1 genuinely needed, note chaining required.
@@ -394,6 +406,7 @@ Complete when: One category identified. If >1 genuinely needed, note chaining re
    ├── "Review bugs + security" → chain: code-reviewer → security-reviewer
    ├── "Build backend with tests" → single: backend-developer
    └── "CI/CD + deploy + monitor" → chain: ci-cd-builder → shipping-and-launch → observability-engineer
+
 ```
 
 Complete when: Specific skill or ordered chain (≤3) recommended with handoff artifacts.
@@ -411,6 +424,7 @@ Task needs one skill or multiple?
     ├── Natural sequence? (design→build, review→security) → Chain
     ├── ≥4 domains? → Too broad. Break into sessions.
     └── No clear sequence? → Pick primary domain; handle others as follow-ups
+
 ```
 
 ### Canonical Chain Patterns
@@ -426,6 +440,7 @@ ci-cd-builder → shipping-and-launch Pipeline → Deploy strategy
 system-architect → platform-engineer Architecture → Platform design
 migration-architect → code-simplification Plan → Cleanup
 prototype → fullstack-developer    PoC → Production build
+
 ```
 
 ### No-Match Fallback
@@ -435,6 +450,7 @@ No match → DO NOT invent a skill
 ├── Too vague → "Restate as [verb] [noun]?"
 ├── Too broad → "What's the first concrete step?"
 └── Genuinely novel → Route to `writing-great-skills` + log gap
+
 ```
 
 ---
@@ -548,7 +564,12 @@ No match → DO NOT invent a skill
 Problem: Three skills instead of one. api-designer designs contracts, not implements. security-engineer is overkill. Keyword routing, not category routing.
 
 ---
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
 ## <!-- STANDARD: 2min --> Deliberate Practice
 
 1. **Walk blind:** Have someone describe 10 tasks. Route each. Compare expectations.
@@ -568,6 +589,20 @@ Problem: Three skills instead of one. api-designer designs contracts, not implem
 
 **Pass criteria:** All checks pass before delivering output.
 
+## Decision Trees
+
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+- Locally verifiable: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.
+
 ## References
 
 - **Library root:** `skills/` — 210+ skills by domain
@@ -575,3 +610,47 @@ Problem: Three skills instead of one. api-designer designs contracts, not implem
 - **Level calibration:** `skills/00-framework/skill-levels/SKILL.md`
 - **ROI gate:** `skills/01-strategy/roi-gate/SKILL.md`
 - **Wayfinder:** `skills/00-framework/wayfinder/SKILL.md` — cross-library routing
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+
+## Production Checklist
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

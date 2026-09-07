@@ -22,6 +22,8 @@ tags:
 - e2e
 token_budget: 4000
 chain:
+  examples:
+  - skills/06-quality/qa-engineer/examples/backtest
   consumes_from:
   - verification-before-completion
   - using-agent-skills
@@ -125,6 +127,18 @@ chain:
   - security-reviewer
   - tdd-guide
   - website-builder
+workflow:
+  artifacts:
+    inputs: [change]
+    outputs: [qa-report]
+  completion:
+    criteria:
+      - Acceptance criteria executed against the change
+      - Suite results recorded with concrete evidence
+      - Verdict pass only when the suite is green or gaps are declared
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # QA Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -151,8 +165,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -167,8 +179,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -178,8 +193,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -197,7 +210,9 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | A7 | `file_exists("**/openapi.*\|**/swagger.*\|**/contract")` OR `file_contains("diff", "openapi\|swagger\|pact\|json schema")` | **CONTRACT** — OpenAPI schema validation. Pact consumer-driven contracts. Snapshot testing for backward compatibility. |
 | A8 | `file_contains("diff", "migration\|schema\.sql\|alembic\|prisma")` OR `file_contains("diff", "testcontainers\|docker-compose.*test")` | **TEST DATA** — Testcontainers for real DB engine. Transactional rollback. Factory-based data. Never SQLite-as-Postgres. Data obfuscation for production-like data. |
 | A9 | None of the above — general QA | **STANDARD** — Test pyramid audit, flaky test check, coverage gap analysis, CI quality gate review. |
+
 ```
+
 What are you trying to do?
 ├── Design a test strategy for a new project → Start at "Decision Trees > Test Pyramid Distribution"
 │   ├── Greenfield project → Jump to "Core Workflow > Phase 1" (Test Strategy Design)
@@ -349,6 +364,7 @@ Debugging flaky tests and improving test stability
 ### Test Type Selection
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: What kind of test? │
                      └───────────┬──────────────┘
@@ -371,6 +387,7 @@ Debugging flaky tests and improving test stability
       │wright) │ │(Supertest)│ │test       │ │(Vitest/  │
       └────────┘ └──────────┘ └──────────┘ │Jest)     │
                                            └──────────┘
+
 ```
 
 **When to choose E2E:** Covers signup → purchase → fulfillment. Revenue-impacting. Used by > 80% of users. Run on every merge to main.
@@ -379,6 +396,7 @@ Debugging flaky tests and improving test stability
 ### Performance Test Depth
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: What perf test level? │
                      └─────────────┬────────────────┘
@@ -401,6 +419,7 @@ Debugging flaky tests and improving test stability
     │ Stress +   │ │ Load test    │
     │ Soak test  │ │ (p95 < 500ms)│
     └────────────┘ └──────────────┘
+
 ```
 
 **When to run full suite:** Major version release, infrastructure migration, expected traffic surge (Black Friday, launch event).
@@ -409,6 +428,7 @@ Debugging flaky tests and improving test stability
 ### Coverage Strategy
 
 ```
+
                      ┌─────────────────────────────┐
                      │ START: Coverage targets?    │
                      └─────────────┬───────────────┘
@@ -424,6 +444,7 @@ Debugging flaky tests and improving test stability
         │ required. Block  │    │ below threshold.     │
         │ merge on < 90%.  │    └──────────────────────┘
         └──────────────────┘
+
 ```
 
 **When 90%+ is required:** Auth, billing, data export, permission systems. Any code where a bug = money lost or data breached.
@@ -432,6 +453,7 @@ Debugging flaky tests and improving test stability
 ### Flaky Test Response
 
 ```
+
                      ┌───────────────────────────┐
                      │ START: Test is flaky      │
                      └───────────┬───────────────┘
@@ -447,6 +469,7 @@ Debugging flaky tests and improving test stability
         │ suite. Create    │  │ time dependency, or  │
         │ fix ticket (P1). │  │ shared state leak?   │
         └──────────────────┘  └──────────────────────┘
+
 ```
 
 **When to quarantine immediately:** CI reliability dropping below 90%. Flaky test blocking > 3 PRs in a week. Root cause unknown and fix estimate > 1 day.
@@ -555,6 +578,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 Release-blocking bug found? → Product Strategist → CTO Advisor
 Security vulnerability in testing? → Security Reviewer → Security Engineer
 Infrastructure blocking testing? → DevOps Engineer → Cloud Architect
@@ -608,6 +632,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 QA mastery comes from developing an instinct for where bugs hide. This instinct is built through deliberate exposure to failures — studying real bugs and the conditions that created them.
 
 ```mermaid
+
 graph LR
     A[Study a real production bug] --> B[Write a test that catches it]
     B --> C[Analyze: what test gap allowed this?]
@@ -685,7 +710,26 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - [ ] **[QA13]** Exploratory testing sessions scheduled weekly — time-boxed, charter-driven, findings logged as bug reports
 - [ ] **[QA14]** Daily load/soak tests in staging with production-like data volumes — regression alert if p99 latency degrades >50%
 
-## Error Decoder — War Stories from the Trenches
+## When NOT to Use
+
+- Do NOT use for pure unit-test authoring sprints where no acceptance criteria exist — define
+  what "pass" means first or this skill has nothing to verify.
+- Do NOT use for security penetration testing (route to `security-reviewer`/offensive-security),
+  performance/load engineering (`performance-engineer`), or accessibility-only audits
+  (`accessibility-auditor`) — those need their own specialists.
+- Do NOT use to "just run the tests" without recording evidence — an unrecorded run is not a QA
+  result.
+
+## Anti-Rationalization
+
+| # | Hard Rule |
+|---|-----------|
+| AR1 | "Tests passed" without the run output is a rumor. Attach the evidence or the run did not happen. |
+| AR2 | "Good enough for now" on a failing criterion hides debt. Escalate or scope it explicitly. |
+| AR3 | Coverage percentage without behavior checks is theater. Show which acceptance criteria the coverage corresponds to. |
+| AR4 | "The dev said it's fixed" is not a regression result. Re-run the failing case and record it. |
+
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -714,3 +758,15 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

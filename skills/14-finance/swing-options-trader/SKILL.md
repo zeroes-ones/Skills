@@ -24,6 +24,8 @@ tags:
   - earnings-rules
   - risk-management
 chain:
+  examples:
+  - skills/14-finance/swing-options-trader/examples/backtest
   consumes_from: [technical-signals-engineer, options-strategist, fundamental-analyst, quantitative-analyst, leaps-strategist]
   feeds_into: [portfolio-signal-manager, algorithmic-trader, trade-performance-analyst, leaps-strategist, options-automation-engineer]
 version: 1.0.0
@@ -32,7 +34,17 @@ author: Skills Library
 created: "2026-07-16"
 category: "14-finance"
 token_budget: 4000
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 # Swing Options Trader
 
@@ -98,6 +110,7 @@ Swing options request received
    ├─ Stop loss: Strategy-specific. (§8.5)
    ├─ Time stop: Exit at DTE threshold. (§8.6)
    └─ Thesis invalidation: What would prove the trade wrong? (§8.3)
+
 ```
 
 ## Core Workflow
@@ -209,6 +222,11 @@ Half-Kelly sizing with volatility + regime adjustments. 4-exit system. Weekend g
 
 **Kelly sizing depends on accurate inputs.** Win rate and win/loss ratio estimates from small samples (< 50 trades) are unreliable. Use conservative defaults when historical data is sparse.
 
+- **Admit uncertainty**: if a claim cannot be verified, say so and open the question rather than asserting.
+- **Flag your knowledge cutoff**: "My training data ends in [date] — verify current market/spec data before treating it as fact."
+- **Never guess security**: if a config or exposure question touches security, refuse to guess and point to official guidance.
+- **[VERIFIED]**: mark definitive claims [VERIFIED] only when confirmed against a source; otherwise mark [BEST-KNOWN].
+
 ## Cross-Skill Coordination
 
 ### Upstream
@@ -229,6 +247,12 @@ Half-Kelly sizing with volatility + regime adjustments. 4-exit system. Weekend g
 | `trade-performance-analyst` | Swing trades completed — journal | "Swing closed: [strategy], [entry/exit], [P&L], [MAE/MFE], [bias flags], [attribution]" |
 | `leaps-strategist` | Swing timeframe extending → consider LEAPS as core position | "LEAPS evaluation: [ticker], [long-term view], [capital available], [swing history]" |
 
+| Upstream Skill | What You Receive | When to Involve |
+|----------------|------------------|-----------------|
+| `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
+| `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
+| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+
 ## What Good Looks Like
 
 **Bull Put Spread Pullback (GOOD):** SPY uptrend confirmed (weekly: price > 20SMA, 20SMA > 50SMA). Daily: price pulled back to 20SMA. RSI = 45 (reset). Volume < average on pullback. Entry: Sell $495/$490 bull put spread, 35 DTE, $1.20 credit. Target: close at $0.60 (50% profit). Stop: $2.40 (2× credit). Time stop: 14 DTE. Result: Target hit in 12 days. P&L: +$120/contract.
@@ -236,7 +260,14 @@ Half-Kelly sizing with volatility + regime adjustments. 4-exit system. Weekend g
 **Earnings PEAD (GOOD):** Stock beat EPS by 8%, gapped up 4%, held gap for 3 days, above-average volume. Entry: Buy ATM $105/$110 call spread, 40 DTE, $2.50 debit. Target: $5.00 (100%). Stop: $1.25 (50% loss). Time stop: 14 DTE. Result: Target hit in 15 days as drift continued. P&L: +$250/contract.
 
 **Sector Pair Trade (GOOD):** XLK RS rising 6 weeks. XLE RS falling 6 weeks. Entry: Sell XLK $210/$205 bull put + sell XLE $95/$100 bear call. Net credit: $1.80. Combined delta: ~0.02 (market-neutral). Target: 50% ($0.90). Stop: 2× credit ($3.60). Result: Both expired OTM. Full credit collected. P&L: +$180/contract pair.
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
 ## Operating at Different Levels
 
 | Level | Scope | Key Capability |
@@ -301,6 +332,55 @@ Before ANY swing options trade:
 7. Max 5% per trade regardless of Kelly output. Apply half-Kelly as standard. Quarter-Kelly for accounts < $25K. Kelly constraints are survival mechanisms
 <!-- DEEP: 10+min — extended deep-dive patterns and automation details live in this skill's references/ -->
 
+## State Log
+All material decisions, regime/calibration changes, and escalations are appended to the decision ledger ({at, what, by}); version bumps are recorded in the repository changelog so context is recoverable without replaying prior sessions.
+
+## Error Recovery
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Model/backtest disagrees with live market | Re-validate inputs and data source; reproduce the signal | Cross-check against a second data vendor and regime filter | Escalate with both datasets attached; do not trade on the disagreement |
+| Strategy underperforms its backtest | Check regime drift, slippage, and position sizing assumptions | Recalibrate parameters against the current regime | Mark the strategy suspended until recalibration is verified |
+| Data feed gap or stale quote | Confirm feed status and timestamp freshness | Fail over to the secondary feed; widen execution guards | Halt automated flow; escalate with the incident record |
+| Unexpected risk/limit breach | Freeze position growth; recompute exposure | Reduce size to within limits | Escalate with full P&L and exposure evidence |
+
+## Verification Guardrails
+- Verify output against the strategy specification and current market data before acting.
+- Confirm risk limits, position sizing, and kill-switch states are within bounds.
+- Flag knowledge cutoff: re-verify model parameters and market structure against live sources.
+
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
 ## References
 
 | Reference | Covers | When to Read |
@@ -319,3 +399,71 @@ Before ANY swing options trade:
 ---
 
 *Skill complete. Route same-day trading to `intraday-options-trader`. Route multi-year to `leaps-strategist`. Route complex multi-leg to `advanced-options-structures`.*
+
+## Ground Rules — Read Before Anything Else
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
+
+## The Expert's Mindset
+
+Treat every claim as needing evidence, every recommendation as carrying declared assumptions, and every limitation as something to name rather than hide.
+
+## When to Use
+
+Use this skill when the task matches the description's trigger conditions. When it does not, route to the owning skill instead.
+
+## Decision Trees
+
+1. Is the task in this skill's scope? If no, route to the owning skill.
+2. Is the required input available and verifiable? If no, request or escalate.
+3. Is the output verifiable against the request? If no, revise with evidence.
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+- Locally verifiable: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.
+
+## Proactive Triggers
+
+- New task arrives that matches the description: invoke this skill's workflow.
+- Existing output needs re-verification: re-run the verify step rather than assuming.
+- A claim lacks a source: flag it instead of passing it forward.
+
+## Deliberate Practice
+
+- Run the workflow on a real task and compare output against the request.
+- Review where verification caught an error and encode that check into the routine.
+- Calibrate: adjust approach based on what the last N outputs revealed.
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+- In-scope: proceed through Core Workflow.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify or escalate?
+- Verifiable locally: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.

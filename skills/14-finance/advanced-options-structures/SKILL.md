@@ -35,6 +35,8 @@ version: 1.0.0
 updated: 2026-07-31
 token_budget: 4000
 chain:
+  examples:
+  - skills/14-finance/advanced-options-structures/examples/backtest
   type: symmetric
   consumes_from:
     - options-strategist
@@ -47,7 +49,18 @@ chain:
     - options-automation-engineer
   alternatives:
     - options-strategist
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
+
 # Advanced Options Structures
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
@@ -138,6 +151,7 @@ User has a market view that options-strategist can't fully address
     ├─ Cash account ($2K-$10K) → Debit zebra, call-based seagulls (§5)
     ├─ Reg T margin → Most debit spreads, some credit (§5)
     └─ Portfolio margin → Full advanced structures unlocked (§5)
+
 ```
 
 ---
@@ -162,6 +176,7 @@ User has a market view that options-strategist can't fully address
    └─ Account type known: Cash / Reg T / PM
 
 3. Pre-filter strategies by account viability (§5)
+
 ```
 
 ### Phase 2: Construction & Greek Validation (10 min)
@@ -174,6 +189,7 @@ For the selected structure:
 4. Calculate breakeven points
 5. Verify all legs meet liquidity requirements (R4)
 6. Calculate margin requirement (R5)
+
 ```
 
 ### Phase 3: Risk Assessment (5 min)
@@ -188,6 +204,7 @@ For the selected structure:
    - Stop loss: ___% of max loss
    - Time stop: exit at ___ DTE regardless
    - Greeks-based stop: exit if |Δ| exceeds ___ or Θ flips sign
+
 ```
 
 ### Phase 4: Execution (ongoing)
@@ -201,6 +218,7 @@ For the selected structure:
    - Dividend dates for short calls
 4. Roll or close per adjustment rules in reference docs
 5. Log trade with strategy type, Greeks at entry, and exit reason
+
 ```
 
 ---
@@ -219,11 +237,13 @@ For the selected structure:
 > → `references/zebra-and-zero-extrinsic.md`
 
 **Quick construction:**
+
 ```
 Long:  2 calls at 0.75+ delta (verify extrinsic < 2% of premium)
 Short: 1 call at 0.50 delta (ATM)
 Net:   ~0.90 delta, θ ≈ 0, ν ≈ 0
 Cost:  (2 × L_premium - S_premium) × 100
+
 ```
 
 **Best for:** High-conviction directional, 30-60 DTE, accounts where stock is too capital-intensive.
@@ -282,12 +302,14 @@ Cost:  (2 × L_premium - S_premium) × 100
 > → `references/ratio-diagonals-and-custom-structures.md`
 
 **When to build custom vs. use standard:**
+
 ```
 Custom justified when:               Standard when:
 - Specific Δ/Θ/V targets needed     - Approximate profile is fine
 - Different IV views per strike      - Uniform IV environment view
 - PM account (margin nets correctly)  - Reg T (margin punishes complexity)
 - You can model Greeks over time      - Set-and-forget monitoring
+
 ```
 
 ---
@@ -363,6 +385,11 @@ Always tag information sources so the user knows what's verified vs. calculated:
 
 ---
 
+- **Admit uncertainty**: if a claim cannot be verified, say so and open the question rather than asserting.
+- **Flag your knowledge cutoff**: "My training data ends in [date] — verify current market/spec data before treating it as fact."
+- **Never guess security**: if a config or exposure question touches security, refuse to guess and point to official guidance.
+- **[VERIFIED]**: mark definitive claims [VERIFIED] only when confirmed against a source; otherwise mark [BEST-KNOWN].
+
 ## Cross-Skill Coordination
 
 ### Upstream (Skills That Feed Into This One)
@@ -390,6 +417,12 @@ Always tag information sources so the user knows what's verified vs. calculated:
 
 ---
 
+| Upstream Skill | What You Receive | When to Involve |
+|----------------|------------------|-----------------|
+| `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
+| `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
+| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+
 ## What Good Looks Like
 
 A successful advanced options structure recommendation:
@@ -406,7 +439,14 @@ A successful advanced options structure recommendation:
 10. **Documentation is tagged** — all claims are `[VERIFIED]`, `[COMPUTED]`, `[ESTIMATED]`, or `[COMMON-PRACTICE]`
 
 ---
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
 ## Operating at Different Levels
 
 | Level | Capability | Scope | What Changes |
@@ -480,6 +520,55 @@ Before executing ANY advanced options structure, verify:
 
 > Full depth: strategy references in this skill's `references/` directory.
 
+## State Log
+All material decisions, regime/calibration changes, and escalations are appended to the decision ledger ({at, what, by}); version bumps are recorded in the repository changelog so context is recoverable without replaying prior sessions.
+
+## Error Recovery
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Model/backtest disagrees with live market | Re-validate inputs and data source; reproduce the signal | Cross-check against a second data vendor and regime filter | Escalate with both datasets attached; do not trade on the disagreement |
+| Strategy underperforms its backtest | Check regime drift, slippage, and position sizing assumptions | Recalibrate parameters against the current regime | Mark the strategy suspended until recalibration is verified |
+| Data feed gap or stale quote | Confirm feed status and timestamp freshness | Fail over to the secondary feed; widen execution guards | Halt automated flow; escalate with the incident record |
+| Unexpected risk/limit breach | Freeze position growth; recompute exposure | Reduce size to within limits | Escalate with full P&L and exposure evidence |
+
+## Verification Guardrails
+- Verify output against the strategy specification and current market data before acting.
+- Confirm risk limits, position sizing, and kill-switch states are within bounds.
+- Flag knowledge cutoff: re-verify model parameters and market structure against live sources.
+
+## Failure Modes & Exit Rules
+
+**Failure modes and known limitations** (what can go wrong, when it breaks):
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
+- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
+- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
+- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
+- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
+- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
+- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
+- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
+- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+
+**Exit conditions / stop-loss rules:**
+- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
+- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
+- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
+- Exit plan: scale out into strength and never add to a losing position beyond plan.
+
+**Regime notes (bull / correction / bear / crash):**
+- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
+- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
+- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
+- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+
+**Provenance of this guidance:**
+- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
+- [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
+- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
+- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
+
 ## References
 
 | Reference | Covers | Use When |
@@ -500,3 +589,71 @@ Before executing ANY advanced options structure, verify:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0.0 | 2026-07-31 | Initial release. 6 advanced structures + custom composition framework + margin guide. 10 ground rules, 7 error patterns, 15-point production checklist |
+
+## Ground Rules — Read Before Anything Else
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
+
+## The Expert's Mindset
+
+Treat every claim as needing evidence, every recommendation as carrying declared assumptions, and every limitation as something to name rather than hide.
+
+## When to Use
+
+Use this skill when the task matches the description's trigger conditions. When it does not, route to the owning skill instead.
+
+## Decision Trees
+
+1. Is the task in this skill's scope? If no, route to the owning skill.
+2. Is the required input available and verifiable? If no, request or escalate.
+3. Is the output verifiable against the request? If no, revise with evidence.
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+- Locally verifiable: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.
+
+## Proactive Triggers
+
+- New task arrives that matches the description: invoke this skill's workflow.
+- Existing output needs re-verification: re-run the verify step rather than assuming.
+- A claim lacks a source: flag it instead of passing it forward.
+
+## Deliberate Practice
+
+- Run the workflow on a real task and compare output against the request.
+- Review where verification caught an error and encode that check into the routine.
+- Calibrate: adjust approach based on what the last N outputs revealed.
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+- In-scope: proceed through Core Workflow.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify or escalate?
+- Verifiable locally: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.

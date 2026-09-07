@@ -49,6 +49,9 @@ chain:
     - portfolio-signal-manager
   examples:
     - examples/uoa-options-trading/07-risk-validation/
+  examples:
+  - skills/14-finance/options-risk-engineer/examples/backtest
+
 ---
 
 # Options Risk Engineer
@@ -90,8 +93,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -330,56 +336,56 @@ World-class options risk management is about understanding what kills you — an
 1. **Aggregate all Greeks** from quantitative-analyst output per position. Compute net Delta, Gamma, Theta, Vega, Vanna, Charm. Normalize to NAV. Profile GEX at ±1%, ±2%, ±5% underlying moves.
 2. **Enforce Greek limits**: Net Delta ±50% NAV, Net Gamma ±5% NAV/1%, Net Vega ±5% NAV/1pt IV, Min Theta (positive preferred).
 3. Complete when: All portfolio Greeks computed [COMPUTED] with NAV normalization. Greek limits checked. GEX profile charted.
-   - Full formulas and examples → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-0-portfolio-greek-snapshot--full-detail)
+   - Full formulas and examples → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 1: Pin Risk & Assignment Detection (5min)
 
 1. **Compute Pin Risk Score** for all short options with DTE ≤ 7: `distance_component × dte_multiplier × position_factor`. Score ≥60 = close/roll immediately. Score 40-59 = close at next opportunity.
 2. **Check assignment triggers**: Dividend arbitrage on calls, deep ITM puts with <$0.05 time premium, ITM >$2.00 near expiration. Apply pre-close rules.
 3. Complete when: All short options ≤5 DTE scored. ITM shorts have assignment probability [ESTIMATED] with error bounds. Pre-close recommendations for scores ≥40.
-   - Full scoring matrices and triggers → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-1-pin-risk--assignment-detection--full-detail)
+   - Full scoring matrices and triggers → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 2: Expiration Risk Management (3min)
 
 1. **Classify positions by DTE zone**: >21 (normal), 14-21 (plan), 7-14 (gamma acceleration), 3-7 (active), 0-3 (critical), 0 DTE (continuous). Apply DTE-appropriate actions.
 2. **Classify by settlement type**: Physical delivery (most equity) vs cash-settled (SPX/NDX/VIX). Apply Friday expiration protocol. Enforce 0DTE rules (max 2% NAV, continuous monitoring, hard stops).
 3. Complete when: DTE calendar populated. Settlement classification complete. All ≤3 DTE positions have close/roll/expire decision documented.
-   - Full DTE rules, settlement guide, 0DTE rules → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-2-expiration-risk-management--full-detail)
+   - Full DTE rules, settlement guide, 0DTE rules → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 3: Margin & Capital Efficiency (5min)
 
 1. **Detect margin regime**: Reg T (standard), Portfolio Margin (≥$110K), SPAN (futures). Compute margin per strategy. Calculate margin call distance = (NAV - maintenance) / NAV.
 2. **Compute Buying Power Reduction**: BPR = margin_required / buying_power_total. Green <30%, Yellow 30-50%, Orange 50-70%, Red >70%.
 3. Complete when: Margin computed [COMPUTED] and verified [BROKER-VERIFIED]. Margin call distance known. BPR known. For PM: stress scenarios simulated.
-   - Full margin tables, formulas, examples → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-3-margin--capital-efficiency--full-detail)
+   - Full margin tables, formulas, examples → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 4: Liquidity & Slippage Assessment (3min)
 
 1. **Score liquidity** per position: bid-ask spread (% of mid), open interest, position size vs OI. Estimate entry/exit slippage [ESTIMATED].
 2. **Enforce position size caps**: `min(Kelly_vol_size, 5% of 20d dollar volume, 5% of OI)`. Flag illiquid positions (spread >10% or OI <100) — DO NOT TRADE.
 3. Complete when: Liquidity score per position. Slippage estimated [ESTIMATED]. Positions adjusted for OI limits. Illiquid positions flagged.
-   - Full scoring matrices, slippage tables → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-4-liquidity--slippage--full-detail)
+   - Full scoring matrices, slippage tables → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 5: Options as Hedging Instruments (5min)
 
 1. **Match hedge to risk**: Single-stock downside → protective puts/collars. Portfolio decline → index puts. Tail risk → deep OTM puts/VIX calls. Calculate annual hedge cost as % NAV.
 2. **Evaluate delta hedging**: Hedge when net delta > ±50% NAV. Choose frequency (daily/weekly/threshold) and instrument (shares/futures/options).
 3. Complete when: Hedge strategy selected and sized. Annual cost quantified [COMPUTED]. Delta hedging frequency determined.
-   - Full hedge comparison, cost examples, delta hedge guide → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-5-options-as-hedging-instruments--full-detail)
+   - Full hedge comparison, cost examples, delta hedge guide → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 6: Correlation & Concentration Risk (3min)
 
 1. **Compute ticker-level notional**: Sum long + |short| option notional + stock value per ticker. Limit: <10% NAV per ticker.
 2. **Check concentration**: Expiration week (<30% of positions), sector (<25% NAV). Simulate crash correlation (r → 1.0) — VaR increases 2-3×.
 3. Complete when: Ticker notional computed. Expiration and sector concentration checked. Crash correlation scenario simulated.
-   - Full concentration rules, crash correlation analysis → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-6-correlation--concentration--full-detail)
+   - Full concentration rules, crash correlation analysis → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 7: Event Risk Assessment (3min)
 
 1. **Map event calendar**: Earnings (±10 days), FDA decisions, FOMC, merger close dates. For each event on positions >2% NAV: compute implied move (straddle price / underlying) and event P&L impact = delta + gamma + vega + theta.
 2. **Apply event responses**: Earnings >15% NAV → close/hedge. FDA on any position >2% NAV → close. FOMC → cut delta 50%, close short gamma.
 3. Complete when: Event calendar populated. P&L impact computed [COMPUTED] for all material events. Response actions documented.
-   - Full event calendar, P&L formula, response matrix → [portfolio-risk-computations.md](references/portfolio-risk-computations.md#phase-7-event-risk-assessment--full-detail)
+   - Full event calendar, P&L formula, response matrix → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ## Decision Trees
 
@@ -388,6 +394,7 @@ World-class options risk management is about understanding what kills you — an
 ### DT1: Should I Close This Position Before Expiration?
 
 ```
+
 DTE ≤ 5?
 ├── NO → Normal monitoring. Revisit at 7 DTE.
 └── YES → Short option?
@@ -395,11 +402,13 @@ DTE ≤ 5?
     └── YES (short) → Within 1% of strike?
         ├── YES → Pin Risk ≥60? YES→close market | NO→close limit, market if unfilled
         └── NO → ITM? NO→alert at strike-1% | YES→cash-settled? let expire | physical? want stock? YES→accept | NO→close 3PM Fri
+
 ```
 
 ### DT2: Margin Call Risk — Immediate Action Required
 
 ```
+
 Margin utilization?
 ├── <50% → Normal.
 ├── 50-70% → Caution. Rank positions for liquidation priority.
@@ -407,20 +416,24 @@ Margin utilization?
 └── >85% → IMMINENT CALL. PM available? YES→switch to PM (20-50% relief) | NO→LIQUIDATE:
     DTE<7 first → naked shorts → concentrated ticker → all >5% NAV until <50%.
     Call distance: <2% move=critical | 2-5%=dangerous | 5-10%=manageable | >10%=comfortable
+
 ```
 
 ### DT3: Is My Hedge Working?
 
 ```
+
 Hedge appreciated vs expected (0.8 × hedge_delta × portfolio_decline)?
 ├── >0.8× → WORKING. Maintain. Rebalance if delta drift >20%.
 ├── 0.3-0.8× → PARTIAL. Diagnose: correlation breakdown? vol regime change? theta decay? Adjust.
 └── <0.3× → FAILURE. Post-mortem: correlation→1.0 event? too far OTM? Document and fix.
+
 ```
 
 ### DT4: Volatility Regime — Should I Change Risk Limits?
 
 ```
+
 VIX level?
 ├── <15 (Complacent) → Reduce short vega. Buy tail hedges (cheap). Normal sizing.
 ├── 15-25 (Normal) → Standard limits. Monitor VIX term structure.
@@ -430,11 +443,13 @@ VIX level?
 ### DT5: Which Margin Regime?
 
 ```
+
 Account equity?
 ├── <$110K → Reg T only. Defined-risk strategies preferred.
 ├── ≥$110K, PM enabled → Use PM. Compare PM vs RegT: PM<70% RegT=good relief | >90%=doesn't help
 ├── ≥$110K, PM not enabled → Request PM. Use Reg T until approved.
 └── Futures account → SPAN (16 scenarios). Cross-margining with futures.
+
 ```
 
 ## Cross-Skill Coordination
@@ -459,15 +474,23 @@ Account equity?
 ### Escalation
 
 ```
+
 LOW (near threshold) → Log + flag report
 MODERATE (pin 40-59, margin>60%) → Notify portfolio-signal-manager
 HIGH (pin≥60, margin call<5%, event risk>15% NAV) → Close/roll to algorithmic-trader. Notify human.
 CRITICAL (call imminent, hedge failure, liquidation) → Liquidate per priority. Halt trading. Post-mortem required.
+
 ```
 
 ### Communication Contract
 
 Every inter-skill message: `{message_id, source_skill, target_skill, message_type, timestamp, correlation_id, payload: {risk_level, risk_numbers: [{value, unit, description, provenance}, ...], recommended_action, urgency}, expected_response_type, timeout_seconds}`
+
+| Upstream Skill | What You Receive | When to Involve |
+|----------------|------------------|-----------------|
+| `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
+| `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
+| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
 
 ## Production Checklist
 

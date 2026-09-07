@@ -26,6 +26,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 2625
 chain:
+  examples:
+  - skills/08-security/compliance-officer/examples/backtest
   consumes_from:
   - vulnerability-management
   - using-agent-skills
@@ -67,6 +69,18 @@ chain:
   - privacy-engineer
   - regulatory-specialist
   - security-engineer
+workflow:
+  artifacts:
+    inputs: [system-description, jurisdiction-list]
+    outputs: [compliance-map]
+  completion:
+    criteria:
+      - Regulatory obligations enumerated per jurisdiction
+      - Evidence mapped to each obligation with named owners
+      - Gaps escalated with a remediation plan
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Compliance Officer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -95,8 +109,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -111,8 +123,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -122,8 +137,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -223,6 +236,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 ### Framework Selection
 
 ```
+
 Business model and geography?
 ├── B2B SaaS selling to enterprise (US) → SOC 2 Type II
 │     Start with Security criteria. Add Availability/Confidentiality as needed.
@@ -236,11 +250,13 @@ Business model and geography?
 │     Internationally recognized. Builds on SOC 2 controls with ISMS governance.
 └── Startup, no enterprise deals yet → SOC 2 Type I (point-in-time)
       Quickest path to sellable compliance. Upgrade to Type II within 12 months.
+
 ```
 
 ### Audit Readiness Depth
 
 ```
+
 Time to audit?
 ├── 12+ months out → Build GRC program. Unified Control Framework. Tool selection. Policy drafting.
 ├── 6-12 months → Framework mapping. Policy implementation. Evidence collection pipeline.
@@ -254,6 +270,7 @@ Time to audit?
 ### Evidence Collection Strategy
 
 ```
+
 How should you collect and manage audit evidence?
 ├── Startup / Pre-audit (0-5 employees, no dedicated compliance) → Manual + screenshots in shared drive
 │   ├── Organize by control ID: one folder per control, screenshots with visible timestamps.
@@ -275,6 +292,7 @@ How should you collect and manage audit evidence?
     ├── Week 2-4: Collect evidence for those 20 controls first — they're 80% of audit pass/fail.
     ├── Week 5-8: Collect evidence for remaining controls. Accept that some will have gaps.
     └── Week 9-12: Pre-audit readiness assessment. Fix gaps. Practice auditor walkthroughs.
+
 ```
 
 ### Vendor Risk Assessment Strategy
@@ -282,6 +300,7 @@ How should you collect and manage audit evidence?
 Vendor risk management is the most overlooked compliance surface area. Every vendor that processes, stores, or transmits your regulated data extends your compliance boundary — their control failures become your audit findings, their breaches become your regulatory notifications. The tiered approach below matches assessment depth to risk exposure, preventing the two most common failures: under-investigating high-risk vendors (regulatory exposure) and over-investigating low-risk vendors (compliance team burnout).
 
 ```
+
 How should you assess third-party vendor risk?
 ├── Low-risk vendor (no data access, e.g., conference registration tool) → Questionnaire only
 │   ├── Send: lightweight security questionnaire (10-15 questions, 15 min to complete)
@@ -305,6 +324,7 @@ How should you assess third-party vendor risk?
     ├── Continuous: security monitoring feed, breach notification monitoring, SLA tracking
     ├── Contingency: documented exit plan — can you migrate off this vendor within 30 days if they lose certification?
     └── Governance: quarterly business review includes security posture. Vendor security incidents trigger immediate review.
+
 ```
 
 > **Key principle:** Vendor risk tier is determined by data access, not contract value. A $50/month SaaS tool that processes customer PII is high-risk. A $500K/year office furniture supplier that touches no data is low-risk. Classification by spend produces dangerous blind spots.
@@ -371,10 +391,12 @@ Complete when: Quality gates passed: peer review completed, automated checks gre
 ### Cross-skills Integration
 
 ```bash
+
 # Security implementation → Compliance mapping → Legal review → Executive strategy → Regulatory filing
 /security-engineer && /compliance-officer && /legal-advisor
 /cto-advisor && /compliance-officer && /regulatory-specialist
 # Map controls from security implementations. Coordinate with legal for regulatory interpretation and filing.
+
 ```
 
 ## Error Decoder — War Stories from the Trenches
@@ -607,3 +629,38 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

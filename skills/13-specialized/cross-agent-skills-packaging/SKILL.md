@@ -21,6 +21,8 @@ updated: 2026-07-24
 tags: [cross-agent, skills-packaging, manifest, symbolic-links, compatibility, multi-platform]
 token_budget: 4500
 chain:
+  examples:
+  - skills/13-specialized/cross-agent-skills-packaging/examples/backtest
   consumes_from:
     - dynamic-skill-creator
     - agent-handoff-protocol
@@ -28,9 +30,12 @@ chain:
     - devops-engineer
     - token-efficiency
     - context-engineering
+    - iterative-task-execution
+    - workflow-graph-authoring
   feeds_into:
     - agent-eval-pipeline
     - ci-cd-builder
+
 ---
 # Cross-Agent Skills Packaging
 > **Portability target:** Works on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI, Codex, OpenCode. No vendor-specific frontmatter fields in core.
@@ -69,8 +74,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -85,8 +88,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -96,8 +101,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -141,6 +144,7 @@ What are you trying to do?
 ├── Writing skill content (not packaging) → Invoke the specific skill's authoring template instead
 ├── Debugging agent runtime behavior → Invoke agent-eval-pipeline instead
 └── Not sure? → Describe your deployment setup and which agents you target, I'll recommend the packaging strategy
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -253,6 +257,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                   └───────┘ └───────┘└────────┘│ core/   ││ <agent>/ +  │
                                                └─────────┘│ symlink     │
                                                           └─────────────┘
+
 ```
 
 **Symlink for shared skills** — 95% of cases. Single source of truth, zero duplication.
@@ -312,6 +317,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                      │ OUTPUT: Agent-normalized │
                      │ SKILL.md ready for deploy│
                      └──────────────────────────┘
+
 ```
 
 **What good looks like:** The normalization pipeline is deterministic — same input produces same output every time. It's run as a build step, not a manual process. Every target agent gets a validated, field-correct copy.
@@ -365,6 +371,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                  │ loads, routes, executes      │
                  │ Logs any warnings.           │
                  └──────────────────────────────┘
+
 ```
 
 **What good looks like:** All agents discover all skills within 2 seconds of startup. Zero "deployed but invisible" bugs. Manifest-driven discovery eliminates filesystem scanning overhead.
@@ -403,6 +410,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                                              │ for other     │
                                              │ agent.        │
                                              └──────────────┘
+
 ```
 
 **Common subset strategy:** For fields both agents require but interpret differently, use the most restrictive interpretation that satisfies both.
@@ -463,6 +471,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
                │ manifest.json + .lock file     │
                │ with versions, hashes, stats   │
                └────────────────────────────────┘
+
 ```
 
 **Incremental mode:** If `skills-manifest.lock` exists, only regenerate entries for skills whose SHA-256 differs. This reduces manifest regeneration from O(N) to O(changed) — critical for 50+ skill deployments.
@@ -710,3 +719,34 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 - **Claude Code Specific Patterns**: See [claude-code-specific-patterns.md](references/claude-code-specific-patterns.md)
 - **Copilot CLI Specific Patterns**: See [copilot-cli-specific-patterns.md](references/copilot-cli-specific-patterns.md)
 - **Compatibility Testing Matrix**: See [compatibility-testing-matrix.md](references/compatibility-testing-matrix.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness

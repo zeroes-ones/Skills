@@ -19,6 +19,8 @@ tags:
   - level-calibration
 token_budget: 4000
 chain:
+  examples:
+  - skills/00-framework/skill-levels/examples/backtest
   consumes_from:
   - using-agent-skills
   feeds_into:
@@ -59,7 +61,17 @@ chain:
 
 license: MIT
 output: "reference"
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
@@ -90,8 +102,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -106,8 +116,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -118,8 +130,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
 
-
-
 ## <!-- QUICK: 30s --> Route the Request
 
 ```
@@ -129,6 +139,7 @@ What are you trying to do?
 ├── Integrate levels into skill invocation → Go to "Integration Guide"
 ├── Define what "world-class" means at each level → Read "The Expert's Mindset" + "What World-Class Means at Each Level"
 └── Compare levels (e.g., Senior vs Staff) → Jump to "Level Transitions"
+
 ```
 
 ---
@@ -416,6 +427,7 @@ When invoking any skill, you can specify the target level:
 "Review this PR at L4 staff engineer level — focus on architectural implications."
 "Design this onboarding flow as an L2 UI/UX designer — I need production-ready specs."
 "Prioritize this backlog at L4 product manager level — strategic, portfolio-wide view."
+
 ```
 
 ### How Levels Affect Skill Output
@@ -447,7 +459,6 @@ If no level is specified:
 | Not updating leveling criteria as the company scales (seed → Series A → Series C → public) | Leveling criteria designed for a 20-person company break at 200 people; what was "wears all hats" becomes "lacks specialization" | Review and recalibrate leveling ladder every 18-24 months or at each major scale milestone (50 → 150 → 500 → 2000 people). Grandfather existing employees with a 12-month transition window | **$2M-$10M/yr** — Engineers hired at Series A get trapped at L3 because the L4 bar shifted to "cross-org influence" that didn't exist at hiring time. Recalibrate at every scale milestone. |
 | Using level as a proxy for respect, decision authority, or idea quality | When level determines who gets heard, organizations lose the best ideas from junior contributors and silence healthy challenge | Explicitly separate "decision rights" from "level." A L2 engineer with data should be able to challenge an L5 architect's design. Formalize this in your RFC/design review process: all levels participate, decisions are made on evidence not authority | **Immeasurable** — Junior engineers stop proposing ideas; senior engineers stop questioning bad decisions; psychological safety erodes; innovation collapses. Decouple decision rights from level. |
 | No terminal (career) level — requiring continuous promotion to remain in good standing | Without a terminal level, the only growth path is management, forcing deep practitioners into roles they don't want | Define a terminal level (typically L4 or L5) where an engineer can stay indefinitely with cost-of-living adjustments. Career growth at terminal level means *deepening* craft, not climbing ladder. ~40% of engineers should be at or near terminal level in a healthy org | **$500K-$1.5M/yr** — Loses deep technical expertise; creates managers who resent managing. Terminal levels retain craft excellence and prevent forced management conversions. |
-
 
 ## Gotchas
 
@@ -541,7 +552,12 @@ A world-class leveling system produces:
 - **Transparent:** Every engineer knows what L(N+1) requires, has a growth plan, and understands the evidence standard for promotion
 
 The leveling system doesn't rank people — it creates clarity. Everyone knows where they are, what's next, and how to get there.
-
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
 ## <!-- DEEP: 10+min --> Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
@@ -566,16 +582,74 @@ The leveling system doesn't rank people — it creates clarity. Everyone knows w
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
 
-* Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
-* Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
-* Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
+- Admit uncertainty. If you cannot determine the correct approach, ask — do not guess.
+- Flag your knowledge cutoff. If this project uses tools or patterns you have not seen, state your assumptions.
+- Never guess security. If work touches auth, payments, or PII, route to security-reviewer.
 - [VERIFIED] — Confirmed against official documentation or published standards
 - [COMMON-PRACTICE] — Widely used in the industry
 - [INFERRED] — Reasonable extrapolation from general principles
 - [UNKNOWN] — Requires verification against specific context
+
+## Decision Trees
+
+### Decision Tree 1: In-scope or out?
+- In-scope: follow Core Workflow and verify.
+- Out-of-scope: route to the owning skill and stop.
+
+### Decision Tree 2: Verify locally or escalate?
+- Locally verifiable: run the check and record the result.
+- Blocked externally: escalate once with full context.
+
+### Decision Tree 3: Ship or revise?
+- Meets What Good Looks Like: deliver with evidence.
+- Gaps found: revise before delivering.
 
 ## References
 
 Detailed reference material loaded on demand:
 
 - **Production Checklist**: See [checklist.md](references/checklist.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+- ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+- ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+- ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+- ❌ Hiding a limitation until review | ✅ Naming limitations up front
+- ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+
+## Production Checklist
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

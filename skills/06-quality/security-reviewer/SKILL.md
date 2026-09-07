@@ -23,6 +23,8 @@ tags:
 - cvss
 token_budget: 4000
 chain:
+  examples:
+  - skills/06-quality/security-reviewer/examples/backtest
   consumes_from:
   - using-agent-skills
   - supply-chain-security
@@ -76,6 +78,18 @@ chain:
   - secure-api-design
   - security-engineer
   - threat-intelligence
+workflow:
+  artifacts:
+    inputs: [change]
+    outputs: [security-report]
+  completion:
+    criteria:
+      - Findings map to concrete vulnerabilities or confirm none
+      - Verdict pass only when no unresolved high-severity finding remains
+      - Adversarial paths and data-flow reviewed for the change
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Security Reviewer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -102,8 +116,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -118,8 +130,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -129,8 +144,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -148,7 +161,9 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | A7 | `file_contains("diff", "PII\|GDPR\|CCPA\|personal\|privacy\|encrypt\|decrypt\|hash\|bcrypt\|argon")` | **DATA PROTECTION** — PII field classification, encryption at rest (KMS) and transit (TLS 1.3). PII not in logs. Data minimization. STRIDE: Information Disclosure. |
 | A8 | `file_contains("diff", "rate.limit\|throttle\|CORS\|csp\|csrf\|helmet\|security.*header")` | **API DEFENSE** — Rate limiting per endpoint. Strict CORS allowlist. CSP without unsafe-eval/inline. Mass assignment protection. STRIDE: Denial of Service. |
 | A9 | None of the above — general security review | **STANDARD** — OWASP Top 10 audit. STRIDE per component. CVSS-aligned severity grading. Reproduction steps for every finding. |
+
 ```
+
 What are you trying to do?
 ├── STRIDE threat modeling (design/architecture review) → Jump to "Core Workflow > Phase 1" and "Threat Modeling (STRIDE)"
 ├── OWASP Top 10 audit (code review against known vuln patterns) → Go to "OWASP Top 10 (2021) — Per-Language Patterns"
@@ -268,6 +283,7 @@ Security review scales from single-PR review to org-wide security program design
 ### Review Depth by Change Type
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Security review   │
                      │ depth?                   │
@@ -292,6 +308,7 @@ Security review scales from single-PR review to org-wide security program design
                           │ relevant   │  │ dependency   │
                           │ OWASP cats │  │ scan only    │
                           └────────────┘  └──────────────┘
+
 ```
 
 **When full STRIDE + OWASP All:** Auth flows, payment processing, PII handling, cryptographic operations. Any change that could expose user data or enable privilege escalation.
@@ -300,6 +317,7 @@ Security review scales from single-PR review to org-wide security program design
 ### Auth Vulnerability Severity
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: Auth finding found    │
                      └─────────────┬────────────────┘
@@ -324,6 +342,7 @@ Security review scales from single-PR review to org-wide security program design
                             │ merge.     │  │ claim, weak  │
                             │            │  │ algorithm.   │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When CRITICAL:** Auth bypass discovered. Any user can access another user's data (IDOR). Admin functions accessible without role check.
@@ -332,6 +351,7 @@ Security review scales from single-PR review to org-wide security program design
 ### Dependency Risk Triage
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: CVE found in dep      │
                      └─────────────┬────────────────┘
@@ -353,6 +373,7 @@ Security review scales from single-PR review to org-wide security program design
                             │ within 7   │  │ within 30    │
                             │ days.      │  │ days.        │
                             └────────────┘  └──────────────┘
+
 ```
 
 **When immediate hotfix:** Log4Shell-level vulnerability. RCE with public exploit. Dependency used in request path. CVSS ≥ 9.0 with network attack vector.
@@ -361,6 +382,7 @@ Security review scales from single-PR review to org-wide security program design
 ### Tool vs Manual Review
 
 ```
+
                      ┌──────────────────────────────┐
                      │ START: SAST flag or manual?  │
                      └─────────────┬────────────────┘
@@ -378,6 +400,7 @@ Security review scales from single-PR review to org-wide security program design
         │ if low FP rate.  │    │ logic bypass, race   │
         │                   │    │ conditions.          │
         └──────────────────┘    └──────────────────────┘
+
 ```
 
 **When SAST is sufficient:** SQL injection via string concatenation. Hardcoded API keys. Missing CSRF tokens. XSS via innerHTML. High true-positive rate.
@@ -507,6 +530,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 Critical (CVSS ≥ 9.0, actively exploitable, data breach)?
   └── CISO + Incident Responder + CTO. Immediate war room. Fix within 24 hours.
 
@@ -518,6 +542,7 @@ Medium (CVSS 4.0–6.9, limited impact, requires non-default config)?
 
 Low / Info?
   └── Log in backlog. No escalation needed. Fix when refactoring.
+
 ```
 
 ## Proactive Triggers
@@ -581,6 +606,7 @@ Before delivering a security review and clearing code for deployment, verify eve
 Security instinct is built through repeated adversarial thinking — learning to see systems the way an attacker sees them. This is a mindset that must be practiced, not just studied.
 
 ```mermaid
+
 graph LR
     A[Study a real vulnerability or CVE] --> B[Can you reproduce it in your own codebase?]
     B --> C[Fix it and write a detection rule]
@@ -633,12 +659,15 @@ graph LR
 **Before (Vulnerable):**
 
 ```[language]
+
 [actual vulnerable code from the codebase]
+
 ```
 
 **After (Fixed):**
 
 ```[language]
+
 [corrected code]
 
 ```
@@ -693,7 +722,25 @@ graph LR
 <!-- STANDARD: 3min -->
 
 Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
-## Error Decoder — War Stories from the Trenches
+## When NOT to Use
+
+- Do NOT use for active penetration testing or exploitation — that is offensive-security work,
+  not review.
+- Do NOT use as an automated dependency/secret scanner replacement — those run in the pipeline;
+  this skill reasons about architecture, data flow, and threat models.
+- Do NOT use for LLM-specific security (prompt injection, jailbreaks) — route to `ai-security`;
+  and do NOT use to write compliance documentation — route to `compliance-officer`.
+
+## Anti-Rationalization
+
+| # | Hard Rule |
+|---|-----------|
+| AR1 | "No obvious vulnerabilities" is a claim, not a finding. List the threat classes actually examined or mark the review scoped. |
+| AR2 | "The framework handles auth" is an assumption. Verify the enforcement point in code or open the question. |
+| AR3 | Severity inflation/deflation hides risk. Grade per the skill's model and justify high/low calls. |
+| AR4 | "We reviewed it before" is not a review of this change. Every diff gets its own data-flow pass. |
+
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -722,3 +769,15 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

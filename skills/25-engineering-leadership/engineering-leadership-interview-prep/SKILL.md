@@ -3,7 +3,8 @@ name: engineering-leadership-interview-prep
 description: >
   Use when preparing for engineering leadership interviews across the management
   ladder — Engineering Manager, Senior EM, Director, Senior Director, VP, SVP,
-  through CTO. Covers level-specific interview formats (people management, org
+  through CTO. Handles interview prep end to end, including question banks, mock-interview rubrics, and level-by-level plans.
+  Covers level-specific interview formats (people management, org
   design, strategy/vision, executive presence, board and investor), question
   banks per level, answer frameworks (STAR for managers, metric storytelling,
   org-design cases), mock loops with rubrics, and compensation/level negotiation
@@ -31,6 +32,8 @@ version: 1.0.0
 updated: 2026-09-03
 token_budget: 3500
 chain:
+  examples:
+  - skills/25-engineering-leadership/engineering-leadership-interview-prep/examples/backtest
   consumes_from:
     - engineering-manager
     - director-engineering
@@ -40,6 +43,7 @@ chain:
   feeds_into:
     - interview-coach
     - people-ops
+
 ---
 # Engineering Leadership Interview Prep — EM to CTO
 
@@ -192,6 +196,7 @@ Common chains:
 ### Which Track?
 
 ```
+
 What level are you interviewing for?
 ├── EM / Senior EM (manages ICs, 5-50 people)
 │   └── People-management track: stories on hiring, growth, performance,
@@ -205,11 +210,13 @@ What level are you interviewing for?
 └── CTO
     └── Vision track: technology strategy as business strategy, platform
         bets, M&A/due diligence, board + investor communication.
+
 ```
 
 ### How to Answer (the framework selector)
 
 ```
+
 What kind of question is it?
 ├── "Tell me about a time…" → STAR with metrics (Situation → Task → Action → Result),
 │   and always name the people impact.
@@ -223,11 +230,13 @@ What kind of question is it?
 │   this is what I'd do in your role in the first 90 days.
 └── Hostile/ambiguous exec question → Stay calm, restate, answer the real
     question, hold your ground with data (see Phase 4, exec drills).
+
 ```
 
 ### Build or Borrow a Story?
 
 ```
+
 Is the experience real?
 ├── Real, recent, metric-backed → Use it. Structure it; don't invent.
 ├── Real but old → Refresh with the framework; recency matters less than
@@ -237,6 +246,7 @@ Is the experience real?
 └── Not real (imagining a scenario) → NEVER fabricate. Interviewers probe
     stories and fabrication collapses. Use the role skills to learn the job
     and find real experience, or practice the framework on real past events.
+
 ```
 
 ## Core Workflow
@@ -417,12 +427,14 @@ A candidate who walks into a leadership loop and, whatever the level, answers li
 **(STANDARD)**
 
 ```mermaid
+
 graph TD
     A[Confirm Level + Loop] --> B[Build / Refine the Story Bank]
     B --> C[Drill Level Cases]
     C --> D[Timed Mock With Rubric]
     D --> E[Fix the Weakest Axis]
     E --> B
+
 ```
 
 | Level | Routine | Time | Success Metric |
@@ -494,6 +506,20 @@ graph TD
 - [ ] Answers match the target level's scope
 - [ ] Mocks rubric-scored with one fix each; post-interview debriefs written
 
+## Failure Modes & When to Stop
+
+**Failure modes and known limitations:**
+- Failure mode: the deliverable answers a question the user did not ask. Mitigate by restating scope and confirming intent first.
+- Failure mode: unverified claims are presented as fact. What goes wrong: the output is trusted and acted on. Mitigate with explicit uncertainty markers.
+- Failure mode: the approach is re-run unchanged after a failure. Mitigate by changing exactly one lever per attempt.
+- Failure mode: context is lost between sessions. Mitigate by recording decisions in the State Log as you go.
+- Edge case: the external owner of a blocker is unavailable. What breaks: progress stalls; escalate once with the full context instead of looping.
+
+**Completion / when-to-stop criteria:**
+- Complete when: the output is verified against the request and its assumptions are stated.
+- Stop when: the blocker is external - escalate rather than retry.
+- Stop when: three attempts produced the same failure - change approach or escalate.
+
 ## References
 
 **(QUICK)**
@@ -504,3 +530,17 @@ graph TD
 ---
 
 > **Skill version:** 1.0.0 | **Token budget:** 3500 | **Generated:** 2026-09-03
+
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |

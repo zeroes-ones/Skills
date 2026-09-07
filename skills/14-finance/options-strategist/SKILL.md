@@ -50,6 +50,9 @@ chain:
     - algorithmic-trader
   examples:
     - examples/uoa-options-trading/06-strategy-backtest/
+  examples:
+  - skills/14-finance/options-strategist/examples/backtest
+
 ---
 # Options Strategist
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -114,6 +117,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ```
+
 What are you trying to do?
 ├── Select an options strategy based on market conditions (IV rank, direction, UOA) → Jump to "Decision Trees" — Strategy Selection
 ├── Construct legs for a specific strategy (which strikes, which expirations, how wide) → Jump to "Core Workflow" — Phase 3 (Leg Construction)
@@ -123,6 +127,7 @@ What are you trying to do?
 ├── Design a complete trade plan (entry, exit, adjustment, sizing) → Jump to "Core Workflow" — Full Pipeline
 ├── Compare two strategies for the same market view (e.g., bull put spread vs. covered call) → Jump to "Best Practices" item 8
 └── Not sure? → Start at "Ground Rules" — read before anything else
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -217,30 +222,40 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 <!-- STANDARD: 3min -->
 
 ### DT1: Strategy Selection → Full detail in references/options-strategist-computations.md
+
 ```
+
 IV rank >50? → YES → Credit strategies (sell premium). Iron condor, strangle, credit spread.
   ↓ NO              Check: bull or bear? → Bull: covered call, bull put. Bear: bear call, debit put.
 IV rank <25? → YES → Debit strategies (buy premium). Long calls/puts, debit spreads, calendars.
   ↓ NO (25-50)
 Directional conviction? → HIGH → Debit spread aligned. LOW → Neutral: iron condor, butterfly, calendar.
+
 ```
 
 ### DT2: Adjustment Decision → Full detail in references/options-strategist-computations.md
+
 ```
+
 Position tested (delta >0.30 short)? → YES → Loss >50% max? → YES → CLOSE. Take the loss.
   ↓ NO                                                          ↓ NO
 Monitor only ✓                                                  Roll untested side, add hedge, or invert.
+
 ```
 
 ### DT3: Exit Decision → Full detail in references/options-strategist-computations.md
+
 ```
+
 Profit ≥50% max? → YES → CLOSE. Don't hold for last 50%. Gamma risk > theta reward.
   ↓ NO
 Loss ≥ stop? → YES → CLOSE. No hoping.
   ↓ NO
 DTE <21? → YES → CLOSE or ROLL. Theta decay too slow.
   ↓ NO → HOLD ✓
+
 ```
+
 ## Gotchas
 
 <!-- DEEP: 10+min — these are the expensive mistakes. Read every one. -->
@@ -389,3 +404,50 @@ This skill operates in a domain where fabricated numbers lose real money. A hall
 5. Track expected value, not win rate. EV = (win_rate × avg_win) − (loss_rate × avg_loss). A strategy with 60% win rate and 2:1 reward/risk ($200 win, $100 loss) has EV = $80/trade. A strategy with 90% win rate and 1:10 ($10 win, $100 loss) has EV = −$1/trade. The 90% strategy loses money.
 6. Anchor your strikes at or just inside the UOA concentration. If smart money bought $55 calls, your long strike should be at $55 or $52.50 — not $60. Don't reach for leverage that institutions avoided.
 7. Diversify across strategy types: 2-3 directional verticals, 1-2 neutral iron condors, 0-1 calendar/diagonal. True diversification means your positions should NOT all lose money in the same market scenario.
+## Cross-Skill Coordination
+| Upstream Skill | What You Receive | When to Involve |
+|----------------|------------------|-----------------|
+| `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
+| `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
+| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+
+## Core Workflow
+
+1. Intake: read the task and confirm scope.
+2. Execute: perform the domain work per this skill's guidance.
+3. Verify: check the output against the request with concrete evidence before delivering.
+
+## Proactive Triggers
+
+- New task arrives that matches the description: invoke this skill's workflow.
+- Existing output needs re-verification: re-run the verify step rather than assuming.
+- A claim lacks a source: flag it instead of passing it forward.
+
+## What Good Looks Like
+
+Output is scoped to the request, grounded in evidence, states its assumptions and limitations, and is ready for downstream consumption without re-derivation.
+| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
+| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+## Deliberate Practice
+
+- Run the workflow on a real task and compare output against the request.
+- Review where verification caught an error and encode that check into the routine.
+- Calibrate: adjust approach based on what the last N outputs revealed.
+
+## References
+
+Domain deep-dives and sub-skills live under references/ where provided; load them when the task needs depth beyond this overview.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |

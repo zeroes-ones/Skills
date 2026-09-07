@@ -19,6 +19,8 @@ version: 1.0.0
 updated: 2026-07-24
 token_budget: 4000
 chain:
+  examples:
+  - skills/04-architecture/event-driven-architect/examples/backtest
   consumes_from:
   - api-designer
   - backend-developer
@@ -34,11 +36,21 @@ chain:
   - performance-engineer
   - qa-engineer
   - security-engineer
+
 ---
+**(QUICK: 30s)** Route: run Core Workflow with standard checks.
+**(QUICK: 5min)** Standard: full workflow including verification.
+**(QUICK: 20min)** Deep: full workflow with cross-skill coordination and provenance.
+
+**Quick route (QUICK):** run Route → Execute → Verify.
+
+**Standard route (QUICK):** follow Core Workflow end to end with checks.
+
+**Escalation route (QUICK):** escalate once with full context when blocked.
+
 # Event-Driven Architect
 
 > **Quality Standards:** This skill follows the [SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md) framework for consistent quality, research rigor, and structured decision-making.
-
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
@@ -65,8 +77,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -81,8 +91,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -92,8 +104,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -123,6 +133,7 @@ What are you trying to do?
 ├── Design dead-letter queue and retry strategies
 ├── Set up schema registry and versioning
 └── Not sure? -> Describe your system and I will route you
+
 ```
 
 Do not read the entire skill. Follow the route above and read only the sections it points to.
@@ -237,6 +248,7 @@ Default: **L2**.
                                                  | Bridge  | | (simple,  |
                                                  +--------+ | fast)     |
                                                             +----------+
+
 ```
 
 | Broker | Throughput | Latency | Ordering | Replay | Best For |
@@ -268,6 +280,7 @@ Default: **L2**.
                     | Central      |   | Decentralized     |
                     | coordinator  |   | - harder to debug |
                     +-------------+   +------------------+
+
 ```
 
 **Choreography:** <5 services, simple linear flows, independent teams, no compensation needed. **Orchestration:** >5 steps, complex branching/compensation (Saga), explicit workflow visibility needed.
@@ -299,6 +312,7 @@ Default: **L2**.
                                      +----------+ | actions or   |
                                                   | Outbox)      |
                                                   +-------------+
+
 ```
 
 ### Schema Compatibility Strategy
@@ -327,6 +341,7 @@ Default: **L2**.
                                        | period (N      |
                                        | releases)      |
                                        +---------------+
+
 ```
 
 ### Partition Key Selection
@@ -353,6 +368,7 @@ Default: **L2**.
                      +-------------+ | if ordering     |
                                      | not required    |
                                      +----------------+
+
 ```
 
 ### Idempotency Strategy
@@ -379,6 +395,7 @@ Default: **L2**.
                                        | deduplicate    |
                                        | before acting  |
                                        +---------------+
+
 ```
 
 ## Core Workflow
@@ -442,6 +459,7 @@ if redis.setnx(f"processed:{event.idempotency_key}", "1", ex=86400):
     process_event(event)
 else:
     return cached_result(event.idempotency_key)
+
 ```
 
 3. **Configure DLQ:** Max 3 retries -> route to DLQ -> alert on depth > 0. Never silently drop.
@@ -582,6 +600,14 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Event payload is 2MB — Kafka broker rejects with `record too large` and producer silently drops messages | Default `max.message.bytes = 1MB` on broker. Producer doesn't check payload size before sending. Large binary payloads (images, PDFs) embedded in event body | Set `max.message.bytes` on broker and topic. Implement claim-check pattern: store payload in S3, put S3 key in event body. Consumer fetches payload from S3. Add producer-side size validation — reject oversized messages at the application layer | Events are signals, not data lakes. The event says "an invoice was generated" — the invoice PDF belongs in object storage. Claim-check pattern separates the signal from the payload. |
 | Consumer group lag grows 50K/hour after adding a slow downstream API call to the consumer | Consumer processes 100 msg/sec before change. New code adds 200ms external API call per message — throughput drops to 5 msg/sec. Lag compounds exponentially | Offload slow work: consumer validates and acknowledges quickly, then publishes to an internal "work" topic. Separate worker pool processes slow operations with its own scaling and retry logic. Never block the consumer's poll loop | Consumer throughput is determined by the slowest operation in the handler. Block the poll loop and lag grows linearly. Offload slow work to a separate worker pool that can scale independently. |
 
+## Error Recovery
+
+| Symptom | First Action | If That Fails | Last Resort |
+|---------|-------------|---------------|-------------|
+| Output disagrees with the source of truth | Re-validate inputs and reproduce the check | Cross-check against a second source and narrow scope | Escalate with both artifacts attached; do not proceed on the disagreement |
+| Repeated identical failure across attempts | Compare last two diagnostics sets | Change one lever (approach, inputs, scope) | Escalate with full attempt evidence instead of retrying |
+| External blocker (missing data/access/decision) | Escalate immediately with the blocker and the unblock path | Confirm ownership of the blocker | Human gate with full context; never loop on an external blocker |
+
 ## References
 <!-- STANDARD: 3min -->
 - **Saga Pattern**: See [saga-pattern.md](references/saga-pattern.md) — distributed transactions, choreography vs orchestration, compensations
@@ -638,3 +664,18 @@ Detailed reference material loaded on demand:
 | **V6** | Correlation ID propagates end-to-end | Trace a user request across all services: every log line, every event, every API call carries the same `correlation_id`. | Add middleware/interceptor that extracts or generates correlation ID. Pass through event envelope. Validate with distributed trace tool (Jaeger, Tempo). |
 | **V7** | Transactional outbox prevents ghost events | Kill the service mid-transaction 100 times in chaos test. Zero ghost events (fired but not committed) and zero lost events (committed but not fired). | Implement outbox: event written to outbox table in same DB transaction. Separate publisher process polls outbox and publishes, marks as sent. At-least-once outbox publisher + idempotent consumers. |
 | **V8** | Event replay reconstructs read models within SLA | Replay 6 months of events → any read model rebuilt in < 15 minutes. Cold start from snapshot works within 30 seconds. | Implement snapshots (every N events). Replay process reads snapshot → replays events since snapshot. Measure and optimize replay throughput. Alert if replay time exceeds SLA. |
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.

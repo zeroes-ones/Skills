@@ -22,6 +22,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/04-architecture/api-designer/examples/backtest
   consumes_from:
   - using-agent-skills
   - skill-levels
@@ -55,6 +57,18 @@ chain:
   - mobile-developer
   - qa-engineer
   - technical-writer
+workflow:
+  artifacts:
+    inputs: [domain-model]
+    outputs: [api-spec]
+  completion:
+    criteria:
+      - Endpoints and resources cover the domain operations
+      - Versioning, pagination, and error model defined
+      - Contract is reviewable by consumers without the author present
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # API Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -79,8 +93,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -95,8 +107,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -106,8 +120,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -267,6 +279,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                                       ┌────▼────┐ ┌▼──────┐
                                       │ gRPC    │ │ REST  │
                                       └─────────┘ └───────┘
+
 ```
 
 **When to choose REST:** Public-facing CRUD APIs, >3 consumer types, need HTTP caching, team has REST experience. **When to choose GraphQL:** 3+ client platforms with divergent data needs, nested/relational data, over-fetching problem measured at >40% unused fields. **When to choose gRPC:** Internal microservices, >1000 req/s, need bidirectional streaming, polyglot service mesh.
@@ -288,6 +301,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                     │ URL Path    │   │ Header or no    │
                     │ (/v1/,/v2/) │   │ versioning yet  │
                     └─────────────┘   └────────────────┘
+
 ```
 
 **When to choose URL Path:** Public API, >100 consumers, need discoverability and caching by version. **When to choose Header:** Internal-only API, <10 consumers, want clean URLs, can mandate Accept header usage.
@@ -310,6 +324,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                     │ (stable,     │   │ (simpler for    │
                     │  consistent) │   │ static datasets)│
                     └─────────────┘   └────────────────┘
+
 ```
 
 **When to choose Cursor:** Data changes frequently (>10 writes/sec), need stable pagination during mutations, dataset >10K records. **When to choose Offset:** Static or slowly-changing data (<1 write/min), need jump-to-page-N UX, dataset <10K records, simpler client implementation acceptable.
@@ -336,6 +351,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                                       │ API Key │ │ JWT (self- │
                                       │ (simple) │ │ contained) │
                                       └─────────┘ └────────────┘
+
 ```
 
 **When to choose OAuth2:** User-facing APIs, delegated access, need refresh tokens and scope-based permissions. **When to choose API Key:** Server-to-server, <10 internal consumers, no user context needed, simplest integration. **When to choose JWT:** Stateless auth, distributed systems, need claims without token lookup, short-lived tokens (<15 min).
@@ -359,6 +375,7 @@ API design skill manifests in the scope of the API — from single endpoints to 
                     │ 1000/min,    │   │ with burst 2x  │
                     │ Ent 10000/min│   └────────────────┘
                     └──────────────┘
+
 ```
 
 **When to choose Tiered:** Monetized API, >3 consumer tiers, need overage billing integration. **When to choose Flat:** Internal API, <100 consumers, no billing complexity needed, simple protection against abuse.
@@ -637,3 +654,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - **RPC & gRPC**: See [rpc-and-grpc.md](references/rpc-and-grpc.md) — stubs, IDL, deadlines, HTTP/2
 - **"Is REST Overkill?" Decision Tree**: See ["is-rest-overkill?"-decision-tree.md](references/"is-rest-overkill?"-decision-tree.md)
 - **Versioning Cost Analysis**: See [versioning-cost-analysis.md](references/versioning-cost-analysis.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |

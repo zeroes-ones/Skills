@@ -26,6 +26,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/07-devops/observability-engineer/examples/backtest
   consumes_from:
   - using-agent-skills
   - threat-intelligence
@@ -54,6 +56,18 @@ chain:
   - performance-engineer
   - platform-engineer
   - site-reliability-engineer
+workflow:
+  artifacts:
+    inputs: [service-design]
+    outputs: [observability-plan]
+  completion:
+    criteria:
+      - Metrics logs and traces cover the service SLIs
+      - Alert thresholds trace to SLO burn rates
+      - Onboarding runbook for on-call responders included
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Observability Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -84,8 +98,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -100,8 +112,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -111,8 +126,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->
@@ -137,6 +150,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ```
+
 What are you trying to do?
 ├── Instrument a service with metrics → Jump to "Core Workflow > Phase 1" (Instrumentation)
 ├── Set up a logging pipeline → Go to "Core Workflow > Phase 2" (Logging)
@@ -253,6 +267,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 ### Metrics Backend: Prometheus vs SaaS
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Metrics collection  │
                      └────────────┬─────────────┘
@@ -274,6 +289,7 @@ Observability scales from instrumenting a single service to org-wide observabili
                                       │ /Grafana│ │ Mimir for  │
                                       │ Cloud)  │ │ scale      │
                                       └─────────┘ └────────────┘
+
 ```
 
 **When to choose Self-Hosted Prometheus:** Budget <$500/month, <500 nodes, <10M active series, team has ops capacity (2-4 hrs/week). **When to choose SaaS:** >500 nodes, >10M series, no ops capacity, need integrated APM + logs + traces, budget >$2K/month. **When to choose Prometheus+Thanos:** Scale beyond single Prometheus but budget-constrained, 10M-100M series, team can manage distributed TSDB.
@@ -281,6 +297,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 ### Log Aggregation: Loki vs Elasticsearch
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Log aggregation     │
                      └────────────┬─────────────┘
@@ -296,6 +313,7 @@ Observability scales from instrumenting a single service to org-wide observabili
                     │  search,     │   │  S3-backed,     │
                     │  higher ops) │   │  lower ops)     │
                     └─────────────┘   └────────────────┘
+
 ```
 
 **When to choose Loki:** K8s-native, label-based indexing sufficient, want S3-backed storage, budget <$1K/month, already using Grafana. **When to choose Elasticsearch:** Full-text log search required, complex aggregations (e.g., business analytics on logs), team has ES expertise, budget >$2K/month.
@@ -303,6 +321,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 ### Alert Severity Classification
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: New alert condition │
                      └────────────┬─────────────┘
@@ -324,6 +343,7 @@ Observability scales from instrumenting a single service to org-wide observabili
                                       │ business│ │ or ticket,  │
                                       │ hours)  │ │ no page)    │
                                       └─────────┘ └────────────┘
+
 ```
 
 **When to set CRITICAL:** User-facing broken, error budget burning >10% in 1hr, revenue impact, page on-call with <5min ack SLA. **When to set WARNING:** Error budget burning >5% in 6hr, approaching threshold, page during business hours only. **When to set INFO:** Trend anomaly, no immediate user impact, dashboard-only, auto-generate ticket.
@@ -331,6 +351,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 ### Dashboard Design: RED vs USE vs Golden Signals
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Dashboard for a     │
                      │ service or resource        │
@@ -349,6 +370,7 @@ Observability scales from instrumenting a single service to org-wide observabili
                     │ + Golden    │   │ infra resources │
                     │ Signals     │   │ (CPU, mem, disk)│
                     └─────────────┘   └────────────────┘
+
 ```
 
 **When to use RED:** Every service endpoint — Rate (req/sec), Errors (5xx %), Duration (p50/p95/p99 latency). Add Golden Signals: traffic, latency, errors, saturation. **When to use USE:** Infrastructure — CPU utilization, memory saturation (OOM risk), disk I/O errors, network packet drops.
@@ -356,6 +378,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 ### Tracing Sampling Strategy
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: Sampling strategy   │
                      └────────────┬─────────────┘
@@ -373,6 +396,7 @@ Observability scales from instrumenting a single service to org-wide observabili
                     │  + slow     │   │ throughput)     │
                     │  traces)    │   └────────────────┘
                     └─────────────┘
+
 ```
 
 **When to choose Tail-Based:** >10K spans/sec, need 100% error/slow traces, budget-constrained, can deploy OpenTelemetry Collector with tail sampling processor. **When to choose Head-Based:** <10K spans/sec, simpler to implement, 10-50% sampling rate sufficient, no Collector deployment desired.
@@ -409,10 +433,12 @@ Observability scales from instrumenting a single service to org-wide observabili
 4. **Error Budget Policy** — Define what happens when budget depletes:
 
    ```
+
    Budget ≥ 50%: Normal operations, feature deploys allowed
    Budget 20-50%: Riskier deploys blocked, prioritize reliability
    Budget 5-20%: All feature deploys blocked, reliability-only
    Budget < 5%: Full freeze, notify VP Engineering
+
    ```
 
 **What good looks like:** Every service emits structured logs, metrics, and traces. Grafana dashboard shows RED metrics (Rate/Errors/Duration) per service. Alert fires within 60 seconds of SLO violation. p99 latency tracked and trended weekly.
@@ -420,6 +446,7 @@ Observability scales from instrumenting a single service to org-wide observabili
 5. **Stack Selection Decision**:
 
    ```
+
    Self-managed?
    ├─ YES → Prometheus + Grafana + Loki + Tempo (OSS Grafana stack)
    │   ├─ HA Prometheus: Thanos or Grafana Mimir
@@ -427,6 +454,7 @@ Observability scales from instrumenting a single service to org-wide observabili
    └─ NO → Managed/SaaS
        ├─ Grafana Cloud, Datadog, Honeycomb, New Relic
        └─ Best for: Small team, rapid onboarding, reduced ops burden
+
    ```
 
   Complete when: SLIs are defined for all critical user journeys, Prometheus recording rules compute SLIs over 7d/30d rolling windows, error budget policy is documented with burn rate thresholds, and stack selection decision is documented with rationale.
@@ -578,6 +606,7 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 Observability mastery comes from using your own dashboards during real incidents. The gap between what you designed on a whiteboard and what you actually need at 3am is where mastery lives.
 
 ```mermaid
+
 graph LR
     A[Instrument a service with metrics, logs, traces] --> B[Simulate a production incident]
     B --> C[Can you find the root cause in < 60 seconds using your dashboards?]
@@ -636,3 +665,38 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

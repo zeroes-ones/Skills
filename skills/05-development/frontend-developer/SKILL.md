@@ -24,6 +24,8 @@ tags:
 - accessibility
 token_budget: 4000
 chain:
+  examples:
+  - skills/05-development/frontend-developer/examples/backtest
   consumes_from:
     - website-builder
     - using-agent-skills
@@ -97,6 +99,18 @@ chain:
     - seo-specialist
     - tdd-guide
     - translation-manager
+workflow:
+  artifacts:
+    inputs: [design-system, api-contract]
+    outputs: [frontend-implementation]
+  completion:
+    criteria:
+      - Screens implement the agreed design and interaction states
+      - Components follow the shared design system and accessibility baseline
+      - Data flows match the api-contract with loading and error states
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Frontend Developer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -121,8 +135,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -137,8 +149,11 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
+
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -148,8 +163,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -187,6 +200,7 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 If no auto-route matched, use this intent tree:
 
 ```
+
 What are you trying to do?
 ├── Build a new component or page → Jump to "Core Workflow" — start at Phase 2 (Implementation)
 ├── Optimize performance (Core Web Vitals, bundle size) → Jump to "Core Workflow" — Phase 3 (Performance)
@@ -320,6 +334,7 @@ The same frontend task produces fundamentally different output depending on the 
 ### Rendering Strategy
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: SSR, SSG, or ISR? │
                      └───────────┬──────────────┘
@@ -342,6 +357,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │ time   │    │ every N   │
                              │ only   │    │ seconds   │
                              └────────┘    └───────────┘
+
 ```
 
 **When to choose SSR:** Content is per-user (dashboards, settings) or real-time (live scores, stock prices). SEO is critical and content changes by request.
@@ -350,6 +366,7 @@ The same frontend task produces fundamentally different output depending on the 
 ### State Management Selection
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: State type?       │
                      └───────────┬──────────────┘
@@ -371,6 +388,7 @@ The same frontend task produces fundamentally different output depending on the 
                           │ Jotai      │  │ useReducer   │
                           │ (global)   │  │ (local)      │
                           └────────────┘  └──────────────┘
+
 ```
 
 **When TanStack Query:** Data originates from API. Needs caching, background refetch, optimistic updates. Pagination/infinite scroll required.
@@ -379,6 +397,7 @@ The same frontend task produces fundamentally different output depending on the 
 ### CSS Architecture
 
 ```
+
                      ┌──────────────────────────┐
                      │ START: CSS approach?     │
                      └───────────┬──────────────┘
@@ -401,6 +420,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │classes │    │styled-    │
                              │        │    │components │
                              └────────┘    └───────────┘
+
 ```
 
 **When Tailwind + tokens:** Team with design system. Design tokens (colors, spacing, typography) defined once. Rapid iteration with constraints.
@@ -409,6 +429,7 @@ The same frontend task produces fundamentally different output depending on the 
 ### Component Testing Strategy
 
 ```
+
                      ┌───────────────────────────┐
                      │ START: How to test this   │
                      │ component?                │
@@ -433,6 +454,7 @@ The same frontend task produces fundamentally different output depending on the 
                              │render  │    │ user flow │
                              │assert  │    └───────────┘
                              └────────┘
+
 ```
 
 **When Testing Library + MSW:** Component fetches data, handles form submission, or manages async state. Need to test loading → success → error states.
@@ -447,6 +469,7 @@ The same frontend task produces fundamentally different output depending on the 
 Choosing the wrong framework costs months of migration. Start here:
 
 ```
+
 Is SEO critical OR do you need server-side rendering?
 ├── YES → Is content highly dynamic (per-user, real-time)?
 │   ├── YES → Next.js App Router (SSR + Streaming + ISR)
@@ -558,6 +581,7 @@ If a command or approach fails, follow this escalation path before giving up:
 ### Escalation Path
 
 ```
+
 API contract blocked? → Backend Developer lead → System Architect
 Design feasibility dispute? → UI/UX Designer → Product Strategist
 Performance SLO breach? → Observability Engineer → DevOps Engineer
@@ -756,3 +780,38 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

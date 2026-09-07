@@ -22,6 +22,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/04-architecture/system-architect/examples/backtest
   consumes_from:
   - wayfinder
   - using-agent-skills
@@ -79,6 +81,18 @@ chain:
   - security-engineer
   - staff-engineer
   - technical-program-manager
+workflow:
+  artifacts:
+    inputs: [requirements, non-functional-requirements]
+    outputs: [architecture]
+  completion:
+    criteria:
+      - Structure and integration points cover the requirements
+      - Non-functional requirements mapped to concrete mechanisms
+      - Trade-offs documented with alternatives considered
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # System Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -103,8 +117,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -119,8 +131,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -130,8 +144,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -237,6 +249,7 @@ What's the primary task?
 ├── Need API contract design (OpenAPI, GraphQL schema) → **api-designer**
 ├── Need database schema design → **database-designer**
 └── Need networking topology (VPN, BGP, CDN) → **networking-engineer**
+
 ```
 
 **Coordination pattern:** When multiple skills are needed, system-architect goes first — produce the architecture (C4 diagrams, ADRs, service topology). Then downstream skills implement: cloud-architect maps to cloud services, backend-developer implements services, devops-engineer provisions infrastructure, api-designer writes contracts. Never invoke downstream skills until the architecture is stable; rework cascades.
@@ -355,6 +368,7 @@ Starting a new project or refactoring?
     ├── Team < 20 engineers (coordination overhead > benefit)
     ├── No dedicated DevOps/SRE (N microservices = N deploy pipelines to maintain)
     └── Simple domain with low change velocity (a well-structured monolith will serve for years)
+
 ```
 
 ### Database Architecture Decision
@@ -380,6 +394,7 @@ What persistence pattern fits your access patterns?
     ├── Schema-per-tenant (moderate isolation, moderate cost) → shared DB, separate schemas. Good balance for mid-market.
     ├── Shared tables with tenant_id column (weakest isolation, lowest cost) → for SMB SaaS where tenant data volumes are small.
     └── Decision driver: what's the largest tenant? If Tenant X has 50x the data of the median, they need their own database anyway.
+
 ```
 
 ### API & Communication Pattern Decision
@@ -402,6 +417,7 @@ Synchronous or asynchronous between services?
     ├── BFF: one API layer per client type. Web BFF aggregates 10 endpoints; mobile BFF returns lean payloads.
     ├── GraphQL federation: each service owns its subgraph. Gateway composes responses. Client gets exactly what it requests.
     └── Never: expose internal service APIs directly to external clients. Gateway handles auth, rate limiting, and protocol translation.
+
 ```
 
 ## Core Workflow
@@ -542,6 +558,7 @@ Architecture decision that blocks multiple teams or changes core assumptions
 
 Architecture guidance, review, or approval for team-level design
   └── System Architect reviews, team implements. No escalation needed. ADR if decision affects other teams.
+
 ```
 
 **What good looks like:** Architecture Review Board signs off with zero unresolved critical findings. C4 diagrams (Context → Container → Component → Code) are accurate and up-to-date — a new team member traces the system's data flow from ingress to persistence in under 10 minutes. ADRs for the last 5 major decisions are written, reviewed, and merged. The architecture sketch passes the 'explain to a new hire in 5 minutes' test.
@@ -710,3 +727,26 @@ This section documents every irreversible decision made during the session. It i
 - [ ] **[SA11]** Security review: threat model, trust boundaries, encryption standards, compliance mappings completed
 - [ ] **[SA12]** Architecture review board sign-off with zero unresolved critical findings
 - [ ] **[SA13]** Cloud exit strategy quantified: 80% portability target, deliberate lock-in points with business justification
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |

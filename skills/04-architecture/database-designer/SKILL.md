@@ -24,6 +24,8 @@ version: 1.1.0
 updated: 2026-07-23
 token_budget: 4000
 chain:
+  examples:
+  - skills/04-architecture/database-designer/examples/backtest
   consumes_from:
   - using-agent-skills
   - skill-levels
@@ -54,6 +56,18 @@ chain:
   - fullstack-developer
   - migration-architect
   - performance-engineer
+workflow:
+  artifacts:
+    inputs: [domain-model, access-patterns]
+    outputs: [schema-design]
+  completion:
+    criteria:
+      - Schema supports the primary access patterns without obvious N+1 traps
+      - Migrations and indexing strategy are defined
+      - Data integrity and retention rules are stated
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 # Database Designer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -78,8 +92,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -94,8 +106,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -105,8 +119,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -268,6 +280,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                                       │         │ │ (Redis/    │
                                       │         │ │ DynamoDB)  │
                                       └─────────┘ └────────────┘
+
 ```
 
 **When to choose PostgreSQL:** Structured data, complex JOINs/aggregations, >90% of use cases — start here unless a specific NoSQL advantage is clear. **When to choose MongoDB:** Rapidly evolving schema, deeply nested JSON documents, no cross-document JOINs needed. **When to choose Key-Value:** Simple GET/SET access patterns, p99 latency <5ms required, caching/session store.
@@ -297,6 +310,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                     │ (target: <5ms│
                     │  Index Scan) │
                     └──────────────┘
+
 ```
 
 **When to add index:** Seq Scan on >10K rows, query runs >100× per minute, filtered column cardinality >100 distinct values. **When NOT to add index:** Table <1K rows, write-heavy table (>100 writes/sec) where read:write ratio <10:1, column with <10 distinct values.
@@ -319,6 +333,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                     │ specific    │   │ 3NF — data      │
                     │ column(s)   │   │ integrity first │
                     └─────────────┘   └────────────────┘
+
 ```
 
 **When to denormalize:** Read:write >100:1, read p95 >20ms, denormalized column is small (<100 bytes), <1% of writes trigger the denormalized update. **When to keep 3NF:** Read:write <10:1, write correctness critical (financial data), data changes must propagate instantly.
@@ -347,6 +362,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                                        │ (multi-  │ │ -peak, <1h)│
                                        │ step)    │ └────────────┘
                                        └──────────┘
+
 ```
 
 **When to use Expand-Contract:** NOT NULL + DEFAULT on >1M rows, column rename/drop, type change. Steps: add nullable → backfill → set NOT NULL → add DEFAULT → drop old. **When maintenance window is acceptable:** Off-peak traffic <10% of peak, RTO <1hr acceptable, table <1M rows.
@@ -376,6 +392,7 @@ Database design skill scales from single-table decisions to org-wide data strate
                     │ + 6mo + 2    │
                     │ DBREs        │
                     └──────────────┘
+
 ```
 
 **When to shard:** Data >10TB, writes >10K/sec sustained, read replicas maxed out (5+), vertical scaling ceiling hit (r6i.8xlarge). **When NOT to shard:** <1TB data, <5K writes/sec, can add read replicas, team <5 engineers — sharding costs $500K+/year.
@@ -542,6 +559,7 @@ Schema migration that blocks 3+ teams or requires coordinated multi-service depl
 
 Routine schema change (new column, index addition, non-breaking type change)
   └── Database Designer reviews PR, team deploys with migration. No escalation needed.
+
 ```
 
 **What good looks like:** ERD covers all entities with named relationships and cardinalities. The 10 most expensive query patterns each have an EXPLAIN plan showing sequential scans eliminated by the chosen index strategy. Migration scripts have both up and down paths tested in CI. The schema survives a production load test at 2x peak QPS without connection pool exhaustion or lock contention.
@@ -673,3 +691,26 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - **Denormalization ROI Calculator**: See [denormalization-roi-calculator.md](references/denormalization-roi-calculator.md)
 - **Sharding Cost Analysis**: See [sharding-cost-analysis.md](references/sharding-cost-analysis.md)
 - **When Postgres is All You Need**: See [when-postgres-is-all-you-need.md](references/when-postgres-is-all-you-need.md)
+
+## Anti-Rationalization
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+- The task needs judgment or authority this skill does not own.
+- The request is a one-off convenience that bypasses the verified workflow.
+- A specialized peer skill owns the exact scenario — route there instead.
+- There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |

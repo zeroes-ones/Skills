@@ -27,6 +27,8 @@ tags:
   - core-web-vitals
 token_budget: 5000
 chain:
+  examples:
+  - skills/05-development/website-builder/examples/backtest
   feeds_into:
     - personal-productivity-developer
     - micro-saas-developer
@@ -53,6 +55,18 @@ chain:
     - security-reviewer
     - ui-ux-designer
     - ux-researcher
+workflow:
+  artifacts:
+    inputs: [product-spec, brand-assets]
+    outputs: [website-implementation]
+  completion:
+    criteria:
+      - Pages and flows deliver the product-spec experience
+      - Responsive, performance, and accessibility baselines met
+      - Analytics and content hooks wired for growth
+    evidence: required
+  escalate_to: [human-gate]
+
 ---
 
 # Website Builder
@@ -80,8 +94,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -96,8 +108,10 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
+
 ```
 
 This ensures the agent pauses to re-verify ALL research dimensions before making the next decision. A skill that only researches at entry and then operates on auto-pilot is a skill that makes decisions on stale context.
@@ -107,8 +121,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Anti-Hallucination
 <!-- STANDARD: 3min -->
@@ -122,7 +134,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 <!-- STANDARD: 3min -->
 
 <!-- QUICK: 30s — auto-route first, then intent-route -->
-
 
 ## Auto-Route (No User Input Required)
 <!-- STANDARD: 3min -->
@@ -138,7 +149,6 @@ Evaluate these file-system conditions in order. First match wins — jump immedi
 | A5 | `file_contains("*", "lighthouse" \|\| "core.*web.*vitals" \|\| "LCP" \|\| "CLS" \|\| "FID" \|\| "INP")` AND `file_contains("*", "fail\|poor\|needs.*improvement")` | Performance problem detected. Jump to **Error Recovery** — Core Web Vitals. |
 | A6 | `file_contains("*", "sitemap" \|\| "robots.txt" \|\| "structured.*data" \|\| "json-ld")` AND `file_contains("*", "missing\|not.*found\|broken")` | SEO issue detected. Jump to **Core Workflow > Phase 5 (SEO Foundation)**. |
 | A7 | No framework or platform detected (`!file_exists("package.json\|composer.json\|Gemfile\|requirements.txt")` AND no SSG configs) | Greenfield project. Jump to **Intent Route** below. |
-
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -167,6 +177,7 @@ Discovery Questions (when user has no idea what to build):
 3. "What's your monthly hosting budget? ($0 / $5 / $20 / $50 / $200+)"
 4. "How urgent is launch? (this week / this month / this quarter)"
 5. "Any must-have third-party integrations? (Stripe, HubSpot, Salesforce, email provider, analytics)"
+
 ```
 
 ## Ground Rules — Read Before Anything Else
@@ -197,12 +208,10 @@ These rules are non-negotiable constraints that detect website building mistakes
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
 
-
 ## The Mental Model Shift
 <!-- STANDARD: 3min -->
 
 Competent web developers build sites that look good on their MacBook Pro with gigabit WiFi. Masters build sites that **load in under 2.5 seconds on a $150 Android phone with 3G connectivity, render correctly at 320px width, score 100 on Lighthouse, and cost $0/month to host indefinitely.** The shift: your Retina display is not representative. The median web user browses on a mid-range mobile device with variable connectivity. Design for constraints first — enhance for abundance.
-
 
 ## Cognitive Biases That Kill Websites
 <!-- STANDARD: 3min -->
@@ -214,7 +223,6 @@ Competent web developers build sites that look good on their MacBook Pro with gi
 | **Over-engineering the CMS** | Building a custom headless CMS + GraphQL API for a blog that one person updates quarterly — 80 hours of engineering for a markdown folder | Content update frequency drives CMS complexity. Quarterly updates = markdown. Daily updates by 5+ people = headless CMS. Match investment to usage. |
 | **Desktop-first design** | Designing at 1440px and "adapting" to mobile — mobile feels like a cramped afterthought | Design at 320px first. If it works on a tiny screen, it works everywhere. Mobile-first CSS (min-width breakpoints) enforces this mechanically. |
 
-
 ## What Website Masters Know That Others Don't
 <!-- STANDARD: 3min -->
 
@@ -223,7 +231,6 @@ Competent web developers build sites that look good on their MacBook Pro with gi
 * **SEO is a compounding investment.** A site with perfect SEO shipped today starts earning organic traffic in 3-6 months. A site with "SEO later" loses 6+ months of compounding traffic growth. Every month you delay SEO is a month of traffic you'll never get back.
 * **Platform risk is real and often invisible.** Webflow, Shopify, Squarespace — they can change pricing, remove features, or get acquired. Your content and code should be extractable. Static site generators produce plain HTML/Markdown — portable to any host. Proprietary platforms produce locked-in data. The portability difference is existential.
 * **The performance-poverty line divides the web.** Sites that load in < 2s on a budget device have global reach. Sites that require a flagship phone and fiber connection only serve the top 20% of users by income. Every 100KB of JS you ship excludes more of the world.
-
 
 ## When to Break Your Own Rules
 <!-- STANDARD: 3min -->
@@ -430,7 +437,6 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | **accessibility-testing** | Component inventory, interaction patterns, color tokens | Accessibility audit requires implemented UI components |
 | **ci-cd-builder** | Framework build command, environment variables, deploy target, branch strategy | CI/CD can't be configured without knowing the build toolchain |
 
-
 ## Communication Triggers
 <!-- STANDARD: 3min -->
 
@@ -477,7 +483,6 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-
 ## How the State Log Works
 <!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
@@ -502,7 +507,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-
 ## State Log Schema
 <!-- STANDARD: 3min -->
 
@@ -516,7 +520,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
-
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->
@@ -603,7 +606,6 @@ Detailed reference material loaded on demand:
 * **Verification Guardrails**: See [verification-guardrails.md](references/verification-guardrails.md)
 * **What Good Looks Like**: See [what-good-looks-like.md](references/what-good-looks-like.md)
 
-
 ## External Resources
 <!-- STANDARD: 3min -->
 
@@ -617,3 +619,47 @@ Detailed reference material loaded on demand:
 * **Core Web Vitals**: [web.dev/vitals](https://web.dev/vitals/), Lighthouse CI, `web-vitals` library, CrUX dashboard, PageSpeed Insights API.
 * **Structured Data**: [schema.org](https://schema.org/), Google Rich Results Test, JSON-LD generation patterns, breadcrumb/FAQ/Article/Product schemas.
 * **CDN & Hosting**: Cloudflare Pages, Vercel, Netlify, GitHub Pages, BunnyCDN — free tiers, limits, custom domain setup, SSL automation.
+
+## Anti-Rationalization
+
+* ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+* ❌ "It works because it must" — assert only what you can demonstrate.
+* ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+* ❌ "The output looks plausible" — plausible is not verified; run the check.
+* ✅ State the risk of being wrong and what would change your mind.
+
+## When NOT to Use
+
+* The task needs judgment or authority this skill does not own.
+* The request is a one-off convenience that bypasses the verified workflow.
+* A specialized peer skill owns the exact scenario — route there instead.
+* There is no way to verify the output against a source of truth.
+
+## Error Decoder
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
+| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
+| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
+
+## Anti-Patterns
+
+* ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
+* ❌ Copying the structure without the evidence | ✅ Filling every section from the actual task
+* ❌ Looping on the same failed approach | ✅ Changing one lever per retry
+* ❌ Hiding a limitation until review | ✅ Naming limitations up front
+* ❌ Optimizing for length | ✅ Optimizing for verifiable correctness
+
+## Production Checklist
+
+| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
+| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
+| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
+| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
+| ☐ | CR05 | Check: state log updated | Evidence: record result |
+| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
+| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
+| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
+| ☐ | CR09 | Check: references resolved | Evidence: record result |
+| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |
