@@ -5,6 +5,9 @@ reads** — nothing in this repo executes tasks for you; your agent does the wor
 this repo supplies the expertise (skills), optional orchestration (workflow engine),
 and measurement (tooling).
 
+> Full-library deep-dive: see `docs/USING-ALL-SKILLS.md` for activating and chaining
+> **all 298 skills**, per-agent cheat sheet, and concrete usage patterns.
+
 ---
 
 ## Mode A — "Just use the skills with my agent" (simplest)
