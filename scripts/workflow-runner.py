@@ -306,12 +306,28 @@ class Runner(object):
                                   "detail": "verdict=%s" % rec.get("verdict")})
         return rec
 
+    def _node_safety(self, nid):
+        """Per-node edge policy from the manifest's optional `safety` field (B5)."""
+        for n in self.manifest.get("nodes") or []:
+            if n.get("id") == nid:
+                v = n.get("safety")
+                if v is None:
+                    return None
+                return [v] if isinstance(v, str) else list(v)
+        return None
+
     def _apply_guardrail(self, nid, result):
         """Classify a node result at the graph edge (B5). Returns a reason string when the
-        payload is blocked (and records the block) or None when it may advance."""
-        if self.guardrail is None:
+        payload is blocked (and records the block) or None when it may advance.
+        A node-level `safety:` policy overrides the runner-global guardrail for that node."""
+        guard = self.guardrail
+        pols = self._node_safety(nid)
+        if pols:
+            from lib import guardrails as _g
+            guard = _g.classifier_for(pols)
+        if guard is None:
             return None
-        verdict = self.guardrail(nid, result, self.state) or {}
+        verdict = guard(nid, result, self.state) or {}
         if verdict.get("allow", True):
             return None
         self.state["budget"]["steps_used"] += 1

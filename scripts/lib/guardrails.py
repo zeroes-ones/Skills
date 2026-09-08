@@ -29,11 +29,16 @@ _INJECT_PATTERNS = [
     r"act\s+as\s+(if\s+)?(an?\s+)?(unfiltered|unrestricted|jailbroken)",
     r"system\s+prompt\s*[:=]",
 ]
+# Heuristic patterns — treat as demo detectors, not as a security boundary.
 _PII_PATTERNS = [
     (r"[\w.+-]+@[\w-]+\.[\w.]+", "email"),
     (r"\b\d{3}-\d{2}-\d{4}\b", "ssn"),
     (r"\b(?:\d[ -]*?){13,16}\b", "card-like-number"),
 ]
+_POLICIES = {
+    "inject-check": (_INJECT_PATTERNS, "inject"),
+    "pii-check": ([p for p, _label in _PII_PATTERNS], "pii"),
+}
 
 
 def _scan(blob, patterns, label):
@@ -44,22 +49,33 @@ def _scan(blob, patterns, label):
     return None
 
 
-def check_result(node_id, result, state=None):
-    """Deterministic edge checks over a node result. Returns (allow, reason)."""
+def check_result(node_id, result, state=None, policies=None):
+    """Deterministic edge checks over a node result. Returns (allow, reason).
+
+    policies: optional subset of {'inject-check', 'pii-check'}; defaults to all.
+    """
     blob = json.dumps(result, default=str)
-    inj = _scan(blob, _INJECT_PATTERNS, "inject")
-    if inj:
-        return False, inj
-    pii = _scan(blob, [p for p, _label in _PII_PATTERNS], "pii")
-    if pii:
-        return False, pii
+    for pol in (policies or list(_POLICIES)):
+        if pol not in _POLICIES:
+            return False, "unknown safety policy %r" % pol
+        pats, label = _POLICIES[pol]
+        hit = _scan(blob, pats, label)
+        if hit:
+            return False, hit
     return True, None
 
 
-def classify(node_id, result, state=None):
+def classify(node_id, result, state=None, policies=None):
     """Runner-facing contract: return {"allow": bool, "reason": str|None}."""
-    allow, reason = check_result(node_id, result, state)
+    allow, reason = check_result(node_id, result, state, policies=policies)
     return {"allow": allow, "reason": reason}
+
+
+def classifier_for(policies):
+    """Build a classify()-compatible callable restricted to the given policies."""
+    def _fn(node_id, result, state=None):
+        return classify(node_id, result, state, policies=policies)
+    return _fn
 
 
 if __name__ == "__main__":  # pragma: no cover - manual smoke test

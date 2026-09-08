@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-08T14:20:38Z
+# Generated: 2026-09-08T15:03:20Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    e9fa522206bdc7e4b092b8d896805d7bb51fc8e5
+# Commit:    91573d78cfd54c3f1dde7dfd0b7f0a72a5d2940f
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -39,14 +39,14 @@ a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject
 081fd8193ed7185c28574f1607f19b95a8bfeb5b9a3c52dc1253c1bc2d507164  scripts/install.sh
 cc63951ce1b92eea4d9fae4af852a57ca4b66a28e34bf5270951dd1372e00fe4  scripts/lib/deep-research-gate.sh
 4401693116769e6c5fece0929968d1902112619fe3d0633789e4bcc7ed82cb47  scripts/lib/eval-golden.py
-0ba91108c919c1de83b5d27bade167ff13cd97620f4460614d7ed0a89f0bce7d  scripts/lib/guardrails.py
+1487e3b07dd4f47596b3c7d4ecfd6139ac23524b56779f5d4d658344c023c36c  scripts/lib/guardrails.py
 c0713f12c06d91d78a1b3e7872ca7f3861fbce3d9cbe913640f1fbe8a7297641  scripts/lib/library-version-check.sh
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
 0bb1042e1e108645dc1a862cea231e7dc7be7c08552f5d9bf3274a30555ae34f  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
 34616440c7e3a5d1b2d7871aef8b3cd9501dad1e672e907912705f2d5da7e2b0  scripts/lib/lint-template.py
 e5ef422fedad81411d061b2cc53fcc9dbc55cd8be60ae6e14e3e4cb6af774507  scripts/lib/lint-workflow.py
-803942ce420e2fd140d7ad6ec02d79328fa404dc33b85febddad8853e83df1c3  scripts/lib/lint-yaml.py
+866980c7f79fa95f65a8a64f207cb047332c8bfd7267c93dcfef9e340fddfed2  scripts/lib/lint-yaml.py
 647393b289d48afb22217dfbad156da5d4eeb59a9330529da89fba7b4d30e0e9  scripts/lib/safe_yaml.py
 79b5cf6db04974cd871b66f8f518640c80afce10194589a83de470eadcaa1b96  scripts/lib/validate-skill-examples.sh
 5f2ffb808c267412a2fe61d40a51fa5ebaf76836bcc32a191f02202200b7a5b0  scripts/lint.sh
@@ -73,7 +73,7 @@ c74bde423ccadafcd78579625e11291289e19f52ba0ec4d992dc0d7e6d58f718  scripts/valida
 c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 ba05301fc66f4b37e48e0d95662ce801792126193e308545ef70fa7e4c4e1617  scripts/workflow-eligibility.py
-9b1cfd9cefac76fc38e6a8d7657d3aec128410d6b2b07ed8b6ce94809bdebc8f  scripts/workflow-runner.py
+e692e915f70a3293227b870f93f9e55bde9c5adf399c6842bd2dba0d631c96de  scripts/workflow-runner.py
 0e04d0d5b5122a5602971cbfbdefa7cf660f040c096887cf9710f48ec903324f  scripts/yaml_shim.py
 176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/00-framework/agent-persona-orchestrator/scripts/verify-skill.sh
 0d0e277f8dbc788d3c564ed6c8238635dab3cbc4c8f8c826762d9331171d738f  skills/00-framework/cross-skill-communication/scripts/verify-skill.sh

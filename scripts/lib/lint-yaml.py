@@ -21,6 +21,14 @@ try:
 except ImportError:
     HAS_YAML = False
 
+if HAS_YAML:
+    def _load_frontmatter(text):
+        return yaml.safe_load(text)
+    _YAML_ERROR = yaml.YAMLError
+else:
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    from yaml_shim import safe_load as _load_frontmatter, YAMLError as _YAML_ERROR
+
 
 # ── Rule Registry ──────────────────────────────────────────────────────────
 RULES = []
@@ -52,8 +60,8 @@ def check_yaml_valid(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        yaml.safe_load(parts[1])
-    except yaml.YAMLError as e:
+        _load_frontmatter(parts[1])
+    except _YAML_ERROR as e:
         # Find approximate line number
         line_num = 1 + parts[0].count('\n')
         errors.append((line_num, f"YAML parse error: {str(e).split(chr(10))[0]}"))
@@ -73,7 +81,7 @@ def check_required_fields(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        fm = yaml.safe_load(parts[1])
+        fm = _load_frontmatter(parts[1])
         if not isinstance(fm, dict):
             return [(1, "Frontmatter must be a YAML mapping")]
         for field in REQUIRED:
@@ -93,7 +101,7 @@ def check_description_length(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        fm = yaml.safe_load(parts[1])
+        fm = _load_frontmatter(parts[1])
         if isinstance(fm, dict) and 'description' in fm:
             desc = fm['description']
             if desc and len(str(desc)) > 1024:
@@ -112,7 +120,7 @@ def check_description_length_warning(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        fm = yaml.safe_load(parts[1])
+        fm = _load_frontmatter(parts[1])
         if isinstance(fm, dict) and 'description' in fm:
             desc = fm['description']
             if desc and len(str(desc)) >= 900 and len(str(desc)) <= 1024:
@@ -131,7 +139,7 @@ def check_name_matches_directory(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        fm = yaml.safe_load(parts[1])
+        fm = _load_frontmatter(parts[1])
         if isinstance(fm, dict) and 'name' in fm:
             dirname = os.path.basename(os.path.dirname(filepath))
             if fm['name'] != dirname:
@@ -151,7 +159,7 @@ def check_recommended_fields(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        fm = yaml.safe_load(parts[1])
+        fm = _load_frontmatter(parts[1])
         if isinstance(fm, dict):
             for field in RECOMMENDED:
                 if field not in fm:
@@ -170,7 +178,7 @@ def check_description_format(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        fm = yaml.safe_load(parts[1])
+        fm = _load_frontmatter(parts[1])
         if isinstance(fm, dict) and 'description' in fm:
             desc = str(fm['description'])
             missing = []
@@ -196,7 +204,7 @@ def check_chain_references_valid(filepath, lines):
     if len(parts) < 3:
         return errors
     try:
-        fm = yaml.safe_load(parts[1])
+        fm = _load_frontmatter(parts[1])
         if isinstance(fm, dict) and 'chain' in fm:
             chain = fm['chain']
             skills_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(filepath))), 'skills')

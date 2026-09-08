@@ -114,6 +114,9 @@ nodes:
     executor:
       type: string                            # type == task -> executor handler name
       required: false
+    safety:
+      type: list[string]                      # B5 per-edge policy: inject-check | pii-check
+      required: false                         # overrides the runner-global guardrail for this node
     gate:
       type: map                               # type == gate (auto) -> condition + targets
       required: false
