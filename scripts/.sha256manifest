@@ -1,13 +1,13 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-08T15:03:20Z
+# Generated: 2026-09-08T15:04:52Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    91573d78cfd54c3f1dde7dfd0b7f0a72a5d2940f
+# Commit:    e52e2ea154bf3f49985e1e1a3d3b7d3fbf1987a2
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
 e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
-8ba921cfc49008bb0116f486b42504a6e7a0b9ce1ea9eadd8cc4ff71c845203b  .githooks/pre-commit
+e317a3f98a8b39365f708f97950e21e7248c49227a724ca79218abf522b82668  .githooks/pre-commit
 ef8c6e4ace23f0c4d14b8865f2e543c4ea94b2d8850bfd0241e695e461e940a7  .githooks/pre-push
 655cdc9a64ff46197ba7f06f1553b88b5ffae74c7f4c4138dd545ac5dd4814eb  scripts/_compile_skill.py
 ffd847830fc4daa5ff70cdde91f58597623f5103959130f1240d1b9d82e6ea25  scripts/add-finance-rp-extensions.py

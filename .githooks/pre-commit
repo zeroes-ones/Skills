@@ -2,7 +2,7 @@
 # ==============================================================================
 # Pre-commit: Comprehensive Lint & Validate
 # ==============================================================================
-# Runs 16 gates on all staged files before any commit is accepted:
+# Runs 17 gates on all staged files before any commit is accepted:
 #
 #   G0  Script integrity (SHA256 manifest)
 #   G1  File format (UTF-8, LF, trailing whitespace, final newline, tabs)
@@ -328,6 +328,34 @@ sys.exit(min(errs, 1))
         warn "G14 Deep research gate script not found — skipping"
         warnings=$((warnings + 1))
     fi
+
+    # ── G16: Golden evals for changed skills (Frontier B2 merge gate) ──────
+    golden_ok=true
+    golden_ran=0
+    golden_names=""
+    for gf in $STAGED_SKILLS; do
+        gname=$(basename "$(dirname "$gf")")
+        if [ -d "$REPO_ROOT/evals/golden/$gname" ]; then
+            golden_names="$golden_names $gname"
+            if bash "$REPO_ROOT/scripts/eval-skill.sh" "$gname" >/tmp/zo-golden.out 2>&1; then
+                golden_ran=$((golden_ran + 1))
+            else
+                golden_ok=false
+                echo "  golden FAIL for '$gname':" >&2
+                tail -6 /tmp/zo-golden.out >&2
+            fi
+        fi
+    done
+    if $golden_ok; then
+        if [ "$golden_ran" -gt 0 ]; then
+            pass "G16 Golden evals (changed:${golden_names})"
+        else
+            pass "G16 Golden evals (no changed skill has golden cases — no-op)"
+        fi
+    else
+        fail "G16 Golden evals (changed skill failed its golden cases)"
+        errors=$((errors + 1))
+    fi
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -368,7 +396,7 @@ fi
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 if [ "$errors" -eq 0 ] && [ "$warnings" -eq 0 ]; then
-    echo -e "  ${GREEN}✅ All 16 pre-commit gates passed${NC}"
+    echo -e "  ${GREEN}✅ All pre-commit gates passed${NC}"
 elif [ "$errors" -eq 0 ]; then
     echo -e "  ${YELLOW}⚠  All gates passed with $warnings warning(s)${NC}"
 else
