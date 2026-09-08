@@ -492,7 +492,7 @@ Team is upset. Rollback took two days because we didn't plan it."
 * [incremental-implementation](../../05-development/incremental-implementation/SKILL.md) — Safe feature delivery
 * [system-architect](../../04-architecture/system-architect/SKILL.md) — Architecture understanding
 * [qa-engineer](../../06-quality/qa-engineer/SKILL.md) — Test suite creation
-* [teach](../../12-people/teach/SKILL.md) — Team training
+* [teach](../../12-operations/teach/SKILL.md) — Team training
 * [Strangler Fig Application (Martin Fowler)](https://martinfowler.com/bliki/StranglerFigApplication.html)
 * [Characterization Tests (Michael Feathers)](https://michaelfeathers.silvrback.com/characterization-testing)
 

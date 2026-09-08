@@ -611,15 +611,15 @@ A chat app parses a 4MB message history JSON on the UI isolate at startup; the a
 
 ## References **(QUICK)**
 
-- [State Management](../references/state-management.md) — Riverpod/Bloc/Provider choice and rebuild-scope discipline
-- [Platform Channels](../references/platform-channels.md) — Pigeon contracts, threading, error handling
-- [Async Dart](../references/async-dart.md) — Future/Stream/isolates patterns and pitfalls
-- [Performance Optimization](../references/performance-optimization.md) — Frame time, startup, and size levers with DevTools protocol
-- [Data Layer](../references/data-layer.md) — Repository pattern, models, offline cache
-- [Build & Release](../references/build-release.md) — AOT, tree-shaking, Codemagic/Fastlane, store submission
-- [Testing Matrix](../references/testing-matrix.md) — Unit/widget/integration test setup and release gates
-- [Version Matrix Reference](../references/version-matrix.md) — Flutter/Dart compatibility and upgrade protocol
-- [Widget Architecture](../references/widget-architecture.md) — Composition, const, rebuild scopes, theming
+- [State Management](references/state-management.md) — Riverpod/Bloc/Provider choice and rebuild-scope discipline
+- [Platform Channels](references/platform-channels.md) — Pigeon contracts, threading, error handling
+- [Async Dart](references/async-dart.md) — Future/Stream/isolates patterns and pitfalls
+- [Performance Optimization](references/performance-optimization.md) — Frame time, startup, and size levers with DevTools protocol
+- [Data Layer](references/data-layer.md) — Repository pattern, models, offline cache
+- [Build & Release](references/build-release.md) — AOT, tree-shaking, Codemagic/Fastlane, store submission
+- [Testing Matrix](references/testing-matrix.md) — Unit/widget/integration test setup and release gates
+- [Version Matrix Reference](references/version-matrix.md) — Flutter/Dart compatibility and upgrade protocol
+- [Widget Architecture](references/widget-architecture.md) — Composition, const, rebuild scopes, theming
 - **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---

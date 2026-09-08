@@ -429,7 +429,7 @@ Before deploying or delivering work from this skill, verify:
 ## References
 <!-- STANDARD: 3min -->
 
-* [feature-flag-architect](../feature-flag-architect/SKILL.md) — Flag infrastructure design
+* [feature-flag-architect](../../04-architecture/feature-flag-architect/SKILL.md) — Flag infrastructure design
 * [shipping-and-launch](../../07-devops/shipping-and-launch/SKILL.md) — Staged rollout patterns
 * [ci-cd-builder](../../07-devops/ci-cd-builder/SKILL.md) — CI/CD pipeline integration
 * [tdd-guide](../../06-quality/tdd-guide/SKILL.md) — Test-first discipline per slice

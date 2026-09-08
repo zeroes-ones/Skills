@@ -48,7 +48,7 @@ chain:
 
 # Product Analyst
 
-> **Quality Standards:** This skill follows the [SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md) framework for consistent quality, research rigor, and structured decision-making.
+> **Quality Standards:** This skill follows the [SKILL-QUALITY-STANDARDS.md](../../../SKILL-QUALITY-STANDARDS.md) framework for consistent quality, research rigor, and structured decision-making.
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 

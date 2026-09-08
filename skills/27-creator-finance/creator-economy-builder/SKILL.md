@@ -823,7 +823,7 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 - [Patreon Creator Agreement](https://www.patreon.com/policy/legal) — Reference for creator platform legal terms
 - [Substack Publisher Agreement](https://substack.com/terms) — Reference for newsletter platform legal terms
 - [Gumroad Terms of Service](https://gumroad.com/tos) — Reference for digital goods marketplace terms
-- [/scripts/payout-reconciliation.sh](scripts/payout-reconciliation.sh) — Automated double-entry ledger verification
-- [/scripts/tax-form-audit.sh](scripts/tax-form-audit.sh) — 1099-K test generation and verification
-- [/scripts/content-gate-pentest.sh](scripts/content-gate-pentest.sh) — Content gating penetration test automation
-- [/scripts/fee-calculator.py](scripts/fee-calculator.py) — Fee calculation engine with integer cents, configurable take rates
+- **Payout reconciliation procedure** (no bundled script — run as a manual verification step after each payout cycle): reconcile every payout against the double-entry ledger; assert debits = credits, platform fees recorded to the correct liability account, and creator net balances tie to payout records.
+- **1099-K audit procedure** (no bundled script): generate test 1099-K records against current IRS thresholds and verify your platform's reporting logic, then spot-check filenames, amounts, and threshold gating against the IRS specification.
+- **Content-gate penetration test procedure** (no bundled script): attempt direct-URL access to gated content, crafted referrers, signed-URL tampering, and membership-state spoofing; verify every gating path fails closed.
+- **Fee calculation procedure** (no bundled script): compute platform fees in integer cents using configurable take rates; test edge cases (free tier, minimum fee, rounding splits, refunds) with a table of expected values before enabling.

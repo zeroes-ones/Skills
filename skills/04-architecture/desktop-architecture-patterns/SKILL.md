@@ -874,14 +874,14 @@ See: [reference/desktop-state-management.md](reference/desktop-state-management.
 
 | File | Content | Lines |
 |------|---------|-------|
-| [desktop-mvvm-patterns.md](reference/desktop-mvvm-patterns.md) | MVVM deep-dive across WPF, SwiftUI, Electron/MobX | ~350 |
-| [multi-window-architecture.md](reference/multi-window-architecture.md) | Window lifecycle, ownership, state sync, modality | ~350 |
-| [desktop-ipc-architecture.md](reference/desktop-ipc-architecture.md) | IPC patterns, contextBridge, typed APIs, streaming | ~350 |
-| [system-tray-background-services.md](reference/system-tray-background-services.md) | Tray patterns, background services, platform specifics | ~300 |
-| [desktop-auto-update-patterns.md](reference/desktop-auto-update-patterns.md) | Update architecture, Squirrel, Sparkle, delta updates | ~300 |
-| [desktop-state-management.md](reference/desktop-state-management.md) | Redux, Zustand, multi-window sync, persistence | ~350 |
-| [cross-platform-desktop-strategies.md](reference/cross-platform-desktop-strategies.md) | Platform abstraction, build matrix, platform-specific code | ~350 |
-| [desktop-security-architecture.md](reference/desktop-security-architecture.md) | Threat model, sandboxing, CSP, code signing | ~350 |
+| [desktop-mvvm-patterns.md](references/desktop-mvvm-patterns.md) | MVVM deep-dive across WPF, SwiftUI, Electron/MobX | ~350 |
+| [multi-window-architecture.md](references/multi-window-architecture.md) | Window lifecycle, ownership, state sync, modality | ~350 |
+| [desktop-ipc-architecture.md](references/desktop-ipc-architecture.md) | IPC patterns, contextBridge, typed APIs, streaming | ~350 |
+| [system-tray-background-services.md](references/system-tray-background-services.md) | Tray patterns, background services, platform specifics | ~300 |
+| [desktop-auto-update-patterns.md](references/desktop-auto-update-patterns.md) | Update architecture, Squirrel, Sparkle, delta updates | ~300 |
+| [desktop-state-management.md](references/desktop-state-management.md) | Redux, Zustand, multi-window sync, persistence | ~350 |
+| [cross-platform-desktop-strategies.md](references/cross-platform-desktop-strategies.md) | Platform abstraction, build matrix, platform-specific code | ~350 |
+| [desktop-security-architecture.md](references/desktop-security-architecture.md) | Threat model, sandboxing, CSP, code signing | ~350 |
 
 ---
 

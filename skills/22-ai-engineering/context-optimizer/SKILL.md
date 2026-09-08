@@ -615,15 +615,15 @@ A minified payload fails 18% of the time; retries on the expensive path eat the 
 
 ## References **(QUICK)**
 
-- [Budget Allocation](../references/budget-allocation.md) — Per-task-type allocation tables and margin rules
-- [Cache Strategy](../references/cache-strategy.md) — Prefix freezing, hit-rate economics, provider rules
-- [Retention Validation](../references/retention-validation.md) — The >= 90% retention protocol for lossy steps
-- [Minification Playbook](../references/minification-playbook.md) — Lossless reductions: dedup, exclusion, whitespace
-- [Cost-per-Done](../references/cost-per-done.md) — Tracking successful-task cost and the retry tax
-- [Output Control](../references/output-control.md) — Per-task caps and structured output
-- [Measurement Protocol](../references/measurement-protocol.md) — Token accounting per level and bill reconciliation
-- [Optimization ROI Worksheet](../references/optimization-roi-worksheet.md) — Dollar-quantified before/after template
-- [Library Freshness Policy](../../scripts/references/library-freshness-policy.md) — Canonical "always use updated libraries" rule + shared checker
+- [Budget Allocation](references/budget-allocation.md) — Per-task-type allocation tables and margin rules
+- [Cache Strategy](references/cache-strategy.md) — Prefix freezing, hit-rate economics, provider rules
+- [Retention Validation](references/retention-validation.md) — The >= 90% retention protocol for lossy steps
+- [Minification Playbook](references/minification-playbook.md) — Lossless reductions: dedup, exclusion, whitespace
+- [Cost-per-Done](references/cost-per-done.md) — Tracking successful-task cost and the retry tax
+- [Output Control](references/output-control.md) — Per-task caps and structured output
+- [Measurement Protocol](references/measurement-protocol.md) — Token accounting per level and bill reconciliation
+- [Optimization ROI Worksheet](references/optimization-roi-worksheet.md) — Dollar-quantified before/after template
+- [Library Freshness Policy](../../../scripts/references/library-freshness-policy.md) — Canonical "always use updated libraries" rule + shared checker
 
 ---
 

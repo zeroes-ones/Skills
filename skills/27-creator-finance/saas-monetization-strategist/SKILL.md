@@ -709,6 +709,6 @@ This skill maintains a **decision ledger** to prevent context drift. Every prici
 - [Lenny's Newsletter: Pricing](https://www.lennysnewsletter.com/t/pricing) — Curated pricing insights from product leaders
 - [FTC: Click-to-Cancel Rule (2024)](https://www.ftc.gov/news-events/news/press-releases/2024/10/federal-trade-commission-announces-final-click-cancel-rule) — US auto-renewal compliance requirements
 - [RevenueCat: Subscription Benchmarks](https://www.revenuecat.com/state-of-subscription-apps/) — Annual report on mobile subscription performance
-- [/scripts/van_westendorp_analyzer.py](scripts/van_westendorp_analyzer.py) — Analyze WTP survey data: optimal price point, acceptable range, indifference point
-- [/scripts/churn_cohort_analyzer.py](scripts/churn_cohort_analyzer.py) — Parse churn data CSV, compute cohort retention curves and churn predictions
-- [/scripts/ltv_cac_calculator.py](scripts/ltv_cac_calculator.py) — Calculate LTV, CAC, payback period, and LTV:CAC ratio from revenue data
+- **Van Westendorp analysis procedure** (no bundled script): tally the four price-sensitivity questions from your WTP survey into cumulative distributions; read the optimal price point (PMC/OPP intersection), acceptable range, and indifference point off the chart.
+- **Cohort retention analysis procedure** (no bundled script): parse churn data into signup cohorts, compute retention curves per cohort, and extrapolate expected churn; compare against your plan's assumed churn before committing to pricing decisions.
+- **LTV / CAC calculation procedure** (no bundled script): from revenue and spend data compute LTV, CAC, payback period (CAC / monthly gross margin), and LTV:CAC ratio; flag any plan where LTV:CAC < 3 or payback > 12 months.

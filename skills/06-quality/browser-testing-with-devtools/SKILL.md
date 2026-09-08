@@ -805,10 +805,10 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 ## References
 <!-- STANDARD: 3min -->
 
-- [Core Workflow](../references/core-workflow.md) — Panel-by-panel deep dive with advanced techniques
-- [Anti-Patterns](../references/anti-patterns.md) — Common DevTools mistakes and their fixes
-- [Best Practices](../references/best-practices.md) — Pro tips from Chrome DevTools engineers
-- [Calibration](../references/calibration.md) — Performance budgets and when to stop optimizing
-- [Checklist](../references/checklist.md) — Pre-launch browser testing checklist
-- [Error Decoder](../references/error-decoder.md) — Common Console errors decoded with solutions
-- [Footguns](../references/footguns.md) — DevTools features that frequently cause problems
+- [Core Workflow](references/core-workflow.md) — Panel-by-panel deep dive with advanced techniques
+- [Anti-Patterns](references/anti-patterns.md) — Common DevTools mistakes and their fixes
+- [Best Practices](references/best-practices.md) — Pro tips from Chrome DevTools engineers
+- [Calibration](references/calibration.md) — Performance budgets and when to stop optimizing
+- [Checklist](references/checklist.md) — Pre-launch browser testing checklist
+- [Error Decoder](references/error-decoder.md) — Common Console errors decoded with solutions
+- [Footguns](references/footguns.md) — DevTools features that frequently cause problems

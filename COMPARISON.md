@@ -10,11 +10,11 @@ Data for the zeroes-ones/Skills corpus, refreshed with:
 
 <!-- MEASURED-BASELINE:START -->
 
-| Skills (prompts) | 297 |
-| Executable-node eligible (Core Workflow + Verification) | 294 |
+| Skills (prompts) | 298 |
+| Executable-node eligible (Core Workflow + Verification) | 295 |
 | Declared `workflow:` contracts | 30 |
-| Avg body words (load cost) | 8976 |
-| Compiled coverage | 233/297 |
+| Avg body words (load cost) | 8960 |
+| Compiled coverage | 233/298 |
 | Avg effective load (compiled tokens) | 3545 |
 | Effective load saving vs raw body | 63.4% |
 | Portability target declared | 100.0% |
@@ -30,9 +30,9 @@ comparable where corpora share conventions, so the fair headline metrics are cou
 
 | Metric | zeroes-ones/Skills | anthropics/skills | addyosmani/agent-skills | mattpocock/skills | obra/superpowers |
 |--------|--------------------|-------------------|-------------------------|-------------------|------------------|
-| Prompts | 297 | 19 | 25 | 37 | 14 |
-| Avg body words (load cost) | 8976 | 1969 | 2073 | 638 | 1457 |
-| Core Workflow + Verification structure | 294/297 | 0/19 (different anatomy) | 0/25 (different anatomy) | 0/37 (different anatomy) | 0/14 (different anatomy) |
+| Prompts | 298 | 19 | 25 | 37 | 14 |
+| Avg body words (load cost) | 8960 | 1969 | 2073 | 638 | 1457 |
+| Core Workflow + Verification structure | 295/298 | 0/19 (different anatomy) | 0/25 (different anatomy) | 0/37 (different anatomy) | 0/14 (different anatomy) |
 | `workflow:` contracts | 30 | 0 | 0 | 0 | 0 |
 | Portability target declared | 100.0% | 0.0% | 0.0% | 0.0% | 0.0% |
 | Golden eval sets covered | 3/3 | 0/3 | 0/3 | 0/3 | 0/3 |
@@ -43,9 +43,9 @@ Re-run method: `python3 scripts/benchmark-skills.py --root skills --markdown` (o
 
 ### Where each ecosystem leads (qualitative, 2026)
 
-| Dimension | zeroes-ones/Skills | anthropics/skills | superpowers | mattpocock/skills | skills.sh (ecosystem) |
+| Dimension | zeroes-ones/Skills | anthropics/skills | obra/superpowers | mattpocock/skills | skills.sh (ecosystem) |
 |---|---|---|---|---|---|
-| Scale + lifecycle coverage | 297 skills / 37 domains (CEO → governance) | curated ~19 skill archetypes | ~14-skill disciplined methodology | ~37 pragmatic daily skills | registry of many publishers' skills |
+| Scale + lifecycle coverage | 298 skills / 37 domains (CEO → governance) | curated ~19 skill archetypes | ~14-skill disciplined methodology | ~37 pragmatic daily skills | registry of many publishers' skills |
 | Skill load economy | compiled 65-90% savings + progressive disclosure (body words are raw) | lean bodies | lean bodies, auto-injected session discipline | leanest bodies (638 avg) | CLI-managed installs |
 | Quality governance | template/YAML/chain gates, audit, portability across 6 agents | high curation bar | methodology consistency | battle-tested by use | audits + community reputation |
 | Distribution / marketplace | GitHub only today | official plugin/marketplace reach | plugin marketplaces + session hooks | skills.sh installer + plugin marketplaces | **the open registry + `skills` CLI** (auto-discovery, leaderboard) |
@@ -54,18 +54,28 @@ Re-run method: `python3 scripts/benchmark-skills.py --root skills --markdown` (o
 See `docs/distribution-best-in-class.md` for the researched incorporation plan (flat index for
 registry auto-discovery, marketplace manifests, curated flagship set, methodology plugin,
 lockfiles).
-| Executable workflow layer (loops/graphs/engine) | **unique** — none of the peers ship an engine + manifests + guardrails | none | pipeline discipline is prose (workflows as plans) | none |
-| Evals + telemetry + self-improvement | golden evals, OTel exporter, SLIs, verifier-gated self-improvement | none published | none published | none published |
-| Ecosystem/mindshare + marketplace distribution | newer; smaller install base | Anthropic official + huge reach | large reach + plugin marketplaces | large reach (skills.sh / plugin marketplaces) |
 
-Note: "Matt Pocock's Superpowers" historically conflates `mattpocock/skills` with
-`obra/superpowers`; measured rows above match each repository by its URL.
+> **Column naming.** "Superpowers" alone is ambiguous: `obra/superpowers` (Jesse Vincent) is an
+> autonomous spec → plan → subagent-execute → review methodology; `mattpocock/skills` (Matt Pocock)
+> is a composable engineering toolkit centered on requirement grilling (`grill → spec → tickets →
+> TDD → code review`). They are separate repositories with different owners and philosophies; this
+> comparison tracks each under its own URL.
+
+### vs. andrej-karpathy-skills (a note on scope)
+
+`forrestchang/andrej-karpathy-skills` — the viral ~70-line `CLAUDE.md` distilling Karpathy's four
+behavioral rules (think before coding, simplicity first, surgical changes, goal-driven execution) —
+is **not a skills library and is excluded from the measured table**. It is a single per-project
+configuration file constraining agent behavior, not a corpus of scoped, loadable skills; there is no
+`SKILL.md` anatomy, routing, progressive disclosure, or per-skill verification to score. Its category
+(closest to a global ground-rules block) is complementary: those four rules could serve as a
+project-level `CLAUDE.md` overlay on top of any of the libraries above.
 
 ## vs. addyosmani/agent-skills
 
 | Dimension | zeroes-ones/Skills | addyosmani/agent-skills |
 |-----------|-------------------|------------------------|
-| **Skills** | 297 across 37 domains | 24 across ~10 domains |
+| **Skills** | 298 across 37 domains | 24 across ~10 domains |
 | **Scope** | Full company lifecycle (CEO → governance) | Engineering workflow (Define → Ship) |
 | **Quality system** | 10/10 rating with 12+ required sections per skill | 6 standard sections per skill |
 | **Chain/dependency** | 1,675 symmetric edges, bidirectional graph | Cross-references by name only |
@@ -81,23 +91,30 @@ Note: "Matt Pocock's Superpowers" historically conflates `mattpocock/skills` wit
 | **Unique domains** | Web3, hardware, health-clinical, trust-safety, creative, creator-finance, social-impact, corporate-finance, governance | None beyond engineering |
 | **Sub-skill map** | 2,000+ sub-skills with industry variations | None |
 | **Skill-levels framework** | L1-L5 competency taxonomy | None |
-| **Tiered activation** | --solo (8 skills), --grow (18), --full (210) | All-or-nothing |
+| **Tiered activation** | --solo (8 skills), --grow (18), --full (298) | All-or-nothing |
 | **Format standardization** | Agent-agnostic YAML frontmatter with portability target | Agent-agnostic YAML frontmatter |
 
 **Bottom line:** zeroes-ones/Skills covers the full company lifecycle with deeper quality standards. addyosmani/agent-skills is an excellent engineering-focused library that pioneers persona architecture, hooks, and evals — all now absorbed into this library.
 
-## vs. Matt Pocock's Superpowers
+## vs. mattpocock/skills (Matt Pocock)
 
-| Dimension | zeroes-ones/Skills | Superpowers |
+> History note: "Matt Pocock's Superpowers" conflates two separate projects. This section compares
+> `mattpocock/skills` (Matt Pocock); `obra/superpowers` (Jesse Vincent) is scored in the measured
+> table above. See the qualitative table note on column naming.
+
+| Dimension | zeroes-ones/Skills | mattpocock/skills |
 |-----------|-------------------|-------------|
-| **Skills** | 210 | ~20 |
-| **Focus** | Full lifecycle | TypeScript/JavaScript development |
-| **Architecture** | Structured with chain system | Conversational patterns |
-| **Domain coverage** | 28 domains | Primarily frontend/TypeScript |
+| **Skills** | 298 (measured) | ~37 (measured) |
+| **Focus** | Full lifecycle | TypeScript/JavaScript engineering workflow |
+| **Architecture** | Structured skills with chain system + progressive disclosure | Composable slash commands, user-invoked vs model-invoked split |
+| **Workflow** | Per-domain Core Workflow + Verification in every skill | grill → spec → vertical-slice tickets → TDD at seams → two-axis code review |
+| **Domain coverage** | 37 domains | Primarily frontend/TypeScript |
 | **Enterprise readiness** | Tiered activation, compliance skills | Dev-focused |
-| **Cross-skill coordination** | 1,675 symmetric edges | Not structured |
+| **Cross-skill coordination** | 1,675 symmetric edges | Dependency-declared tickets, not cross-skill links |
 
-**Bottom line:** Superpowers is excellent for TypeScript developers. zeroes-ones/Skills covers roles Superpowers doesn't address: CEO, CTO, product, design, security, devops, data, legal, finance, healthcare, and more.
+**Bottom line:** mattpocock/skills is a disciplined, battle-tested engineering toolkit that
+centers on grilling requirements before coding. zeroes-ones/Skills covers roles it doesn't address:
+CEO, CTO, product, design, security, devops, data, legal, finance, healthcare, and more.
 
 ## What Makes This Library Unique
 

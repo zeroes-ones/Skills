@@ -746,11 +746,11 @@ Before any framework-dependent code reaches production:
 ## References
 <!-- STANDARD: 3min -->
 
-- [Source Hierarchy Guide](../references/source-hierarchy-guide.md) — Detailed source authority hierarchy with trust levels and escalation paths
-- [Documentation Fetching Patterns](../references/doc-fetching-patterns.md) — Patterns for programmatic documentation retrieval (curl, gh CLI, web_fetch)
-- [Citation Templates](../references/citation-templates.md) — Standardized citation formats for every major framework ecosystem
-- [Version Pinning Strategies](../references/version-pinning-strategies.md) — How to pin and verify framework versions against documentation
-- [Unverified Claim Detection](../references/unverified-claim-detection.md) — Patterns for identifying claims not backed by official sources
-- [Stale Documentation Detection](../references/stale-documentation-detection.md) — Detecting when official docs are out of date with the actual API
-- [Framework Migration Checklist](../references/framework-migration-checklist.md) — Source-driven approach to major version migrations
-- [Source-Driven Code Review](../references/source-driven-code-review.md) — Code review checklist for source-driven development compliance
+- [Source Hierarchy Guide](references/source-hierarchy-guide.md) — Detailed source authority hierarchy with trust levels and escalation paths
+- [Documentation Fetching Patterns](references/doc-fetching-patterns.md) — Patterns for programmatic documentation retrieval (curl, gh CLI, web_fetch)
+- [Citation Templates](references/citation-templates.md) — Standardized citation formats for every major framework ecosystem
+- [Version Pinning Strategies](references/version-pinning-strategies.md) — How to pin and verify framework versions against documentation
+- [Unverified Claim Detection](references/unverified-claim-detection.md) — Patterns for identifying claims not backed by official sources
+- [Stale Documentation Detection](references/stale-documentation-detection.md) — Detecting when official docs are out of date with the actual API
+- [Framework Migration Checklist](references/framework-migration-checklist.md) — Source-driven approach to major version migrations
+- [Source-Driven Code Review](references/source-driven-code-review.md) — Code review checklist for source-driven development compliance

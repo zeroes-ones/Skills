@@ -697,6 +697,6 @@ This skill maintains a **decision ledger** to prevent context drift. Every major
 - [Calendly](https://calendly.com/) — Scheduling for customer onboarding calls (free tier as of 2026)
 - [UptimeRobot](https://uptimerobot.com/) — Free website monitoring (50 monitors, 5-min intervals as of 2026)
 - [Zapier](https://zapier.com/) — Workflow automation (free tier as of 2026)
-- [/scripts/mrr-calculator.py](scripts/mrr-calculator.py) — Calculate MRR, churn rate, LTV, and growth projections from Stripe CSV export
-- [/scripts/micro-saas-scorecard.py](scripts/micro-saas-scorecard.py) — Interactive scorecard evaluation for idea validation
-- [/scripts/churn-cohort-analyzer.py](scripts/churn-cohort-analyzer.py) — Parse cancellation data and calculate cohort-based churn metrics
+- **MRR / churn / LTV calculation procedure** (no bundled script): export subscriptions from Stripe as CSV; compute MRR from active subscriptions, churn from cancellation counts per period, and LTV = ARPU / monthly churn; sanity-check projections against 3 months of actuals.
+- **Idea scorecard procedure** (no bundled script): score the idea against the skill's validation criteria (problem severity, willingness to pay, distribution access, build cost) in a table; a score below threshold means go back to customer interviews.
+- **Cohort churn analysis procedure** (no bundled script): bucket customers by signup month, count retained vs cancelled per period, and produce a cohort retention table; look for cohort-specific (not product-wide) churn causes.

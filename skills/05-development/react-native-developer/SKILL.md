@@ -613,15 +613,15 @@ A chat app scrolls at 30fps because animations and list re-renders run on the JS
 
 ## References **(QUICK)**
 
-- [Expo vs Bare Decision](../references/expo-vs-bare-decision.md) — Workflow choice worksheet with native-needs checklist
-- [New Architecture Migration](../references/new-architecture-migration.md) — Fabric/TurboModules/JSI migration plan and interop matrix
-- [State Management](../references/state-management.md) — Zustand/Redux Toolkit/React Query boundaries and patterns
-- [Performance Optimization](../references/performance-optimization.md) — Cold start, size, and 60fps levers with profiler protocol
-- [Native Modules](../references/native-modules.md) — TurboModule patterns, config plugins, interop contracts
-- [Testing Matrix](../references/testing-matrix.md) — Jest/RNTL/Detox/Maestro setup and release gates
-- [OTA and Release Policy](../references/ota-release-policy.md) — EAS Update/CodePush channels, staging, App Store compliance
-- [Version Matrix Reference](../references/version-matrix.md) — RN/Expo/Hermes compatibility rules and upgrade protocol
-- [RN Deployment & Signing](../references/deployment-signing.md) — EAS/Fastlane, code signing, store submission
+- [Expo vs Bare Decision](references/expo-vs-bare-decision.md) — Workflow choice worksheet with native-needs checklist
+- [New Architecture Migration](references/new-architecture-migration.md) — Fabric/TurboModules/JSI migration plan and interop matrix
+- [State Management](references/state-management.md) — Zustand/Redux Toolkit/React Query boundaries and patterns
+- [Performance Optimization](references/performance-optimization.md) — Cold start, size, and 60fps levers with profiler protocol
+- [Native Modules](references/native-modules.md) — TurboModule patterns, config plugins, interop contracts
+- [Testing Matrix](references/testing-matrix.md) — Jest/RNTL/Detox/Maestro setup and release gates
+- [OTA and Release Policy](references/ota-release-policy.md) — EAS Update/CodePush channels, staging, App Store compliance
+- [Version Matrix Reference](references/version-matrix.md) — RN/Expo/Hermes compatibility rules and upgrade protocol
+- [RN Deployment & Signing](references/deployment-signing.md) — EAS/Fastlane, code signing, store submission
 - **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---

@@ -635,14 +635,14 @@ A routing layer sends easy tasks to a cheap model with a confidence threshold se
 
 ## References **(QUICK)**
 
-- [Token Cost Calculator](../references/token-cost-calculator.md) — Formulas, provider pricing tables, and worked examples for the scripts
-- [Prompt Cache Economics](../references/prompt-cache-economics.md) — Cache math, prefix-stability audit, provider-specific cache rules
-- [Compression Validation](../references/compression-validation.md) — Retention-test protocol and lossy-compression decision framework
-- [Output Token Control](../references/output-token-control.md) — Per-task-type caps, structured output, truncation monitoring
-- [Provider Pricing Matrix](../references/provider-pricing-matrix.md) — Verified input/output/cache pricing with [VERIFIED] dates
-- [Efficiency ROI Worksheet](../references/efficiency-roi-worksheet.md) — Template for dollar-quantified optimization proposals
-- [Budget Optimization](../references/budget-optimization.md) — The lever-ladder projection and ranked strategy mix (`--optimize` mode)
-- [Strategy Comparison](../references/strategy-comparison.md) — Choosing between caching, compression, routing, and distillation per workload
+- [Token Cost Calculator](references/token-cost-calculator.md) — Formulas, provider pricing tables, and worked examples for the scripts
+- [Prompt Cache Economics](references/prompt-cache-economics.md) — Cache math, prefix-stability audit, provider-specific cache rules
+- [Compression Validation](references/compression-validation.md) — Retention-test protocol and lossy-compression decision framework
+- [Output Token Control](references/output-token-control.md) — Per-task-type caps, structured output, truncation monitoring
+- [Provider Pricing Matrix](references/provider-pricing-matrix.md) — Verified input/output/cache pricing with [VERIFIED] dates
+- [Efficiency ROI Worksheet](references/efficiency-roi-worksheet.md) — Template for dollar-quantified optimization proposals
+- [Budget Optimization](references/budget-optimization.md) — The lever-ladder projection and ranked strategy mix (`--optimize` mode)
+- [Strategy Comparison](references/strategy-comparison.md) — Choosing between caching, compression, routing, and distillation per workload
 
 ---
 

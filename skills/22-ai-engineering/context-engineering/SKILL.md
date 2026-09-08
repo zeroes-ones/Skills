@@ -791,11 +791,11 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ## References
 <!-- STANDARD: 3min -->
 
-- [Context Hierarchy Design](../references/context-hierarchy-design.md) — Detailed 5-level specification with per-level examples
-- [Token Budget Calculator](../references/token-budget-calculator.md) — Formulas and tools for computing optimal budgets by model
-- [Inverse Packing Algorithm](../references/inverse-packing-algorithm.md) — Step-by-step implementation of inverse context packing
-- [File Relevance Scoring](../references/file-relevance-scoring.md) — Scoring methodology for context inclusion decisions
-- [Conversation Summarization](../references/conversation-summarization.md) — Strategies for compressing history without information loss
-- [Context Pollution Patterns](../references/context-polution-patterns.md) — Common pollution vectors and prevention techniques
-- [Prompt Caching Strategies](../references/prompt-caching-strategies.md) — Provider-specific caching optimization guides
-- [Context Failure Postmortem](../references/context-failure-postmortem.md) — Template for diagnosing context-related failures
+- [Context Hierarchy Design](references/context-hierarchy-design.md) — Detailed 5-level specification with per-level examples
+- [Token Budget Calculator](references/token-budget-calculator.md) — Formulas and tools for computing optimal budgets by model
+- [Inverse Packing Algorithm](references/inverse-packing-algorithm.md) — Step-by-step implementation of inverse context packing
+- [File Relevance Scoring](references/file-relevance-scoring.md) — Scoring methodology for context inclusion decisions
+- [Conversation Summarization](references/conversation-summarization.md) — Strategies for compressing history without information loss
+- [Context Pollution Patterns](references/context-polution-patterns.md) — Common pollution vectors and prevention techniques
+- [Prompt Caching Strategies](references/prompt-caching-strategies.md) — Provider-specific caching optimization guides
+- [Context Failure Postmortem](references/context-failure-postmortem.md) — Template for diagnosing context-related failures

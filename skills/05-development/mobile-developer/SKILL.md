@@ -761,7 +761,7 @@ Detailed reference material loaded on demand:
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
-- **Library Freshness Policy**: See [library-freshness-policy.md](../../scripts/references/library-freshness-policy.md) — canonical "always use updated libraries" rule + shared checker `scripts/lib/library-version-check.sh` (all mobile stacks enforce this; run it before emitting library references)
+- **Library Freshness Policy**: See [library-freshness-policy.md](../../../scripts/references/library-freshness-policy.md) — canonical "always use updated libraries" rule + shared checker `scripts/lib/library-version-check.sh` (all mobile stacks enforce this; run it before emitting library references)
 
 ## Anti-Rationalization
 

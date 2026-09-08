@@ -598,15 +598,15 @@ Shared state "protected" with `freeze()` under the old model behaves differently
 
 ## References **(QUICK)**
 
-- [Source-Set Design](../references/source-set-design.md) — Hierarchy template, commonMain discipline, expect/actual inventory
-- [iOS Interop](../references/ios-interop.md) — Framework export, CocoaPods/SPM, Swift bridging
-- [Shared Data Layer](../references/shared-data-layer.md) — Ktor, kotlinx.serialization, SQLDelight patterns
-- [Coroutines in Shared Code](../references/coroutines-shared.md) — Flow, scopes, and concurrency in commonMain
-- [Concurrency Under the New Memory Model](../references/concurrency-memory-model.md) — Thread-safety without freezing
-- [Build & CI](../references/build-ci.md) — Gradle config, targets, CI matrix, size control
-- [Testing Shared Logic](../references/testing-shared-logic.md) — commonTest setup and platform test strategy
-- [Version Matrix Reference](../references/version-matrix.md) — Kotlin/Gradle/kotlinx compatibility and upgrade protocol
-- [Compose Multiplatform](../references/compose-multiplatform.md) — Shared UI strategy and maturity guidance
+- [Source-Set Design](references/source-set-design.md) — Hierarchy template, commonMain discipline, expect/actual inventory
+- [iOS Interop](references/ios-interop.md) — Framework export, CocoaPods/SPM, Swift bridging
+- [Shared Data Layer](references/shared-data-layer.md) — Ktor, kotlinx.serialization, SQLDelight patterns
+- [Coroutines in Shared Code](references/coroutines-shared.md) — Flow, scopes, and concurrency in commonMain
+- [Concurrency Under the New Memory Model](references/concurrency-memory-model.md) — Thread-safety without freezing
+- [Build & CI](references/build-ci.md) — Gradle config, targets, CI matrix, size control
+- [Testing Shared Logic](references/testing-shared-logic.md) — commonTest setup and platform test strategy
+- [Version Matrix Reference](references/version-matrix.md) — Kotlin/Gradle/kotlinx compatibility and upgrade protocol
+- [Compose Multiplatform](references/compose-multiplatform.md) — Shared UI strategy and maturity guidance
 - **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---

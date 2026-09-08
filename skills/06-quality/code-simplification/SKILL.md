@@ -702,10 +702,10 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 ## References
 <!-- STANDARD: 3min -->
 
-- [Core Workflow](../references/core-workflow.md) — Detailed step-by-step with more code examples
-- [Anti-Patterns](../references/anti-patterns.md) — Common simplification failures by language
-- [Best Practices](../references/best-practices.md) — Proven simplification techniques with benchmarks
-- [Calibration](../references/calibration.md) — Complexity score thresholds and when to stop
-- [Checklist](../references/checklist.md) — Pre-merge verification checklist
-- [Error Decoder](../references/error-decoder.md) — Common simplification error messages and fixes
-- [Footguns](../references/footguns.md) — Simplifications that frequently backfire
+- [Core Workflow](references/core-workflow.md) — Detailed step-by-step with more code examples
+- [Anti-Patterns](references/anti-patterns.md) — Common simplification failures by language
+- [Best Practices](references/best-practices.md) — Proven simplification techniques with benchmarks
+- [Calibration](references/calibration.md) — Complexity score thresholds and when to stop
+- [Checklist](references/checklist.md) — Pre-merge verification checklist
+- [Error Decoder](references/error-decoder.md) — Common simplification error messages and fixes
+- [Footguns](references/footguns.md) — Simplifications that frequently backfire

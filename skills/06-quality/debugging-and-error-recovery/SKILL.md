@@ -734,10 +734,10 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 ## References
 <!-- STANDARD: 3min -->
 
-- [Core Workflow](../references/core-workflow.md) — Detailed 6-phase workflow with extended code examples
-- [Anti-Patterns](../references/anti-patterns.md) — Common debugging mistakes that waste hours
-- [Best Practices](../references/best-practices.md) — Battle-tested debugging techniques from SRE teams
-- [Calibration](../references/calibration.md) — When to stop debugging and escalate
-- [Checklist](../references/checklist.md) — Pre-close bug verification checklist
-- [Error Decoder](../references/error-decoder.md) — Common error messages decoded with root cause mappings
-- [Footguns](../references/footguns.md) — Debugging techniques that frequently backfire
+- [Core Workflow](references/core-workflow.md) — Detailed 6-phase workflow with extended code examples
+- [Anti-Patterns](references/anti-patterns.md) — Common debugging mistakes that waste hours
+- [Best Practices](references/best-practices.md) — Battle-tested debugging techniques from SRE teams
+- [Calibration](references/calibration.md) — When to stop debugging and escalate
+- [Checklist](references/checklist.md) — Pre-close bug verification checklist
+- [Error Decoder](references/error-decoder.md) — Common error messages decoded with root cause mappings
+- [Footguns](references/footguns.md) — Debugging techniques that frequently backfire

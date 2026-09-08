@@ -590,11 +590,11 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ## References
 <!-- STANDARD: 3min -->
 
-- [Narrative Structure Guide](../references/narrative-structures.md) — Minto Pyramid, SCQA, Hero's Journey, Monroe's Motivated Sequence with examples
-- [Slide Design Principles](../references/slide-design-principles.md) — Typography, color, layout, visual hierarchy, accessibility, cognitive load
-- [Data Storytelling on Slides](../references/data-storytelling.md) — Chart selection matrix, annotation techniques, highlighting methods, 3-second rule for data
-- [Pitch Deck Templates](../references/pitch-deck-templates.md) — YC, Sequoia, 500 Startups formats; stage-specific guidance (pre-seed through Series B)
-- [Virtual Presentation Guide](../references/virtual-presentation-guide.md) — Camera positioning, lighting, audio, engagement tactics, platform-specific tips (Zoom/Teams/Meet)
-- [Presentation Delivery Mastery](../references/presentation-delivery.md) — Voice, pacing, body language, eye contact, handling nerves, Q&A techniques
-- [Audience Analysis Framework](../references/audience-analysis.md) — Persona development, objection mapping, prior knowledge calibration, CTA design
-- [Common Presentation Patterns](../references/common-patterns.md) — Architecture shared across all presentation types
+- [Narrative Structure Guide](references/narrative-structures.md) — Minto Pyramid, SCQA, Hero's Journey, Monroe's Motivated Sequence with examples
+- [Slide Design Principles](references/slide-design-principles.md) — Typography, color, layout, visual hierarchy, accessibility, cognitive load
+- [Data Storytelling on Slides](references/data-storytelling.md) — Chart selection matrix, annotation techniques, highlighting methods, 3-second rule for data
+- [Pitch Deck Templates](references/pitch-deck-templates.md) — YC, Sequoia, 500 Startups formats; stage-specific guidance (pre-seed through Series B)
+- [Virtual Presentation Guide](references/virtual-presentation-guide.md) — Camera positioning, lighting, audio, engagement tactics, platform-specific tips (Zoom/Teams/Meet)
+- [Presentation Delivery Mastery](references/presentation-delivery.md) — Voice, pacing, body language, eye contact, handling nerves, Q&A techniques
+- [Audience Analysis Framework](references/audience-analysis.md) — Persona development, objection mapping, prior knowledge calibration, CTA design
+- [Common Presentation Patterns](references/common-patterns.md) — Architecture shared across all presentation types
