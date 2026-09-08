@@ -1,4 +1,7 @@
 ---
+version: 1.0.0
+status: stable
+type: finance
 name: trade-performance-analyst
 description: >
   Use when analyzing trading performance, constructing trade journals, computing

@@ -1,4 +1,6 @@
 ---
+status: stable
+type: development
 name: android-developer
 description: Android development with Kotlin, Jetpack Compose, Android SDK, Material Design 3, Gradle, Play Store deployment, and Android-specific architecture. Use when building Android applications, designing Android UI with Jetpack Compose/XML, configuring Gradle build variants, implementing Android-specific features (WorkManager, Room, Navigation), managing Play Store listings, or optimizing Android performance. Handles Android architecture patterns (MVVM, MVI), Kotlin coroutines/Flow, Android testing (JUnit, Espresso, Compose testing), and background processing. Do NOT use for iOS development, cross-platform mobile, or backend API development.
 author: Sandeep Kumar Penchala

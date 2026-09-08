@@ -1,4 +1,5 @@
 ---
+type: finance
 name: leaps-strategist
 description: >
   Use when the user wants to replace stock holdings with LEAPS for capital efficiency,

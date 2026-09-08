@@ -1,4 +1,7 @@
 ---
+version: 1.0.0
+status: stable
+type: growth
 license: MIT
 token_budget: 3000
 name: pricing-purchase-optimizer

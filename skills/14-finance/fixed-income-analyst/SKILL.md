@@ -1,4 +1,7 @@
 ---
+version: 1.0.0
+status: stable
+type: finance
 name: fixed-income-analyst
 license: MIT
 author: Sandeep Kumar Penchala

@@ -1,4 +1,5 @@
 ---
+type: finance
 name: swing-options-trader
 description: >
   Use when the user wants to swing trade options on 2-30 day holding periods, select

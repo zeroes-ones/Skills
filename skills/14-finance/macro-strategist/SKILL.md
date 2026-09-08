@@ -1,4 +1,7 @@
 ---
+version: 1.0.0
+status: stable
+type: finance
 name: macro-strategist
 description: >
   Use when designing cross-asset macro strategy, analyzing central bank policy impacts,

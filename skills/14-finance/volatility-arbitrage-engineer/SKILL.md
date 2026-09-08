@@ -1,4 +1,5 @@
 ---
+type: finance
 name: volatility-arbitrage-engineer
 description: >
   Use when the user wants to exploit volatility surface pricing discrepancies:

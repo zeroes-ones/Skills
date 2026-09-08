@@ -1,4 +1,5 @@
 ---
+type: finance
 name: intraday-options-trader
 description: >
   Use when the user wants to trade 0DTE options, gamma scalp intraday, execute

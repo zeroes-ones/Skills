@@ -1,4 +1,5 @@
 ---
+type: finance
 name: options-automation-engineer
 description: >
   Use when the user wants to build automated options trading systems, design

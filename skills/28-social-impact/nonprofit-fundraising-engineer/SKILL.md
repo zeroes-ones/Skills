@@ -1,4 +1,7 @@
 ---
+version: 1.0.0
+status: stable
+type: development
 license: MIT
 token_budget: 3000
 name: nonprofit-fundraising-engineer

@@ -1,4 +1,7 @@
 ---
+version: 1.0.0
+status: stable
+type: development
 name: mock-data-sync
 description: >
   Use when backend API schemas change (Pydantic, database columns) and mobile

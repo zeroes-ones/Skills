@@ -1,4 +1,6 @@
 ---
+status: stable
+type: development
 name: macos-developer
 description: Native macOS application development with SwiftUI, AppKit, Swift, Xcode, Catalyst, and Apple platform technologies. Use when building native macOS applications, designing macOS UI with SwiftUI/AppKit, implementing macOS-specific features (Menu Bar apps, Preferences windows, NSToolbar, NSTableView, drag-and-drop), configuring sandboxing and hardened runtime entitlements, notarizing apps for distribution, or building Universal Binaries for Apple Silicon + Intel. Handles macOS architecture patterns, Metal integration, XPC services, and macOS-specific performance optimization. Do NOT use for iOS development, cross-platform desktop with Electron/Tauri, or Windows/Linux native apps.
 author: Sandeep Kumar Penchala

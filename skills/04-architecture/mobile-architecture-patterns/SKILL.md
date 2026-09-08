@@ -1,4 +1,6 @@
 ---
+status: stable
+type: architecture
 name: mobile-architecture-patterns
 description: "Mobile application architecture patterns covering MVVM, Clean Architecture, VIPER, MVI, TCA (The Composable Architecture), and platform-specific patterns for iOS and Android. Use when designing mobile app architecture, choosing between architecture patterns, implementing navigation in complex apps, designing offline-first mobile data layers, structuring multi-module mobile projects, or planning state management at scale. Handles mobile-specific concerns: app lifecycle management, background processing architecture, deep linking, dependency injection at scale, and modularization strategies. Do NOT use for backend architecture, web architecture, or game architecture."
 author: Sandeep Kumar Penchala

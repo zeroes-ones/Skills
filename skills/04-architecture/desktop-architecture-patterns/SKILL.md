@@ -1,4 +1,6 @@
 ---
+status: stable
+type: architecture
 name: desktop-architecture-patterns
 description: "Desktop application architecture patterns covering MVVM, MVP, MVC, Redux-style, event-driven, and platform-specific patterns for Windows, macOS, and Linux. Use when designing desktop app architecture, choosing between web-based (Electron/Tauri) vs native desktop approaches, implementing multi-window management, designing system tray and background service architectures, planning auto-update and installer pipelines, or structuring desktop apps with IPC. Handles desktop-specific concerns: OS integration patterns, file system access architecture, hardware acceleration decisions, and cross-platform desktop strategies. Do NOT use for mobile architecture, web architecture, or game engine architecture."
 author: Sandeep Kumar Penchala

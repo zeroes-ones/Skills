@@ -1,4 +1,6 @@
 ---
+status: stable
+type: development
 name: gameplay-programmer
 description: Gameplay systems programming with C++, C#, Unity, Unreal Engine, and custom engines. Use when designing gameplay mechanics, implementing combat systems, building AI behaviors, creating animation state machines, integrating physics for gameplay, designing player controllers, or prototyping game features. Handles gameplay architecture patterns (ECS, component-based, data-driven design), game loop integration, input handling, camera systems, and gameplay performance optimization. Do NOT use for rendering pipeline engineering, engine architecture, networking infrastructure, or art/asset pipeline.
 author: Sandeep Kumar Penchala

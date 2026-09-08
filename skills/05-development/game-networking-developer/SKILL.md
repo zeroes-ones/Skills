@@ -1,4 +1,6 @@
 ---
+status: stable
+type: development
 name: game-networking-developer
 description: Game networking engineering covering client-server architecture, peer-to-peer, prediction and reconciliation, lag compensation, dedicated server infrastructure, and multiplayer synchronization. Use when implementing multiplayer game networking, designing client-server protocols, implementing server-authoritative game logic, building matchmaking systems, optimizing network bandwidth for real-time games, or debugging desync and rubber-banding issues. Handles UDP vs TCP decisions, snapshot interpolation, delta compression, interest management, NAT traversal, and relay server architecture. Do NOT use for REST API development, web backend development, or non-real-time networking.
 author: Sandeep Kumar Penchala

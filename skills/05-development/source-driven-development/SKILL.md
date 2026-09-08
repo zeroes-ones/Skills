@@ -1,4 +1,7 @@
 ---
+version: 1.0.0
+status: stable
+type: development
 name: source-driven-development
 description: Use when integrating new libraries, frameworks, or APIs into a production
   codebase; when upgrading dependencies across major versions; when debugging framework-specific
