@@ -229,26 +229,58 @@ activate() {
     return 0
 }
 
+install_principles() {
+    # Opt-in (--principles): append the always-on operating principles
+    # (hooks/always-on-principles.md) to the project's CLAUDE.md/AGENTS.md so
+    # every session carries the rules even when the agent has no hook support.
+    [ "$WRITE_PRINCIPLES" = "1" ] || return 0
+    local src="$SKILLS_HOME/hooks/always-on-principles.md"
+    if [ ! -f "$src" ]; then
+        echo -e "  ${YELLOW}⚠${NC} principles file not found at $src (run skills-update)" >&2
+        return 1
+    fi
+    local target=""
+    for cand in CLAUDE.md AGENTS.md; do
+        if [ -f "$cand" ]; then target="$cand"; break; fi
+    done
+    [ -n "$target" ] || target="CLAUDE.md"
+    if grep -q "zeroes-ones operating principles" "$target" 2>/dev/null; then
+        echo -e "  ${GREEN}✓${NC} Operating principles already present in $target (idempotent)"
+        return 0
+    fi
+    {
+        echo ""
+        echo "<!-- BEGIN zeroes-ones operating principles -->"
+        cat "$src"
+        echo "<!-- END zeroes-ones operating principles -->"
+    } >> "$target"
+    echo -e "  ${GREEN}✓${NC} Operating principles appended to $target (always-on, ~280 tokens)"
+    return 0
+}
+
 # ---- Main Entry ----
 MODE="full"
 PROJECT_ARG=""
+WRITE_PRINCIPLES=0
 while [ $# -gt 0 ]; do
     case "$1" in
         --solo)   MODE="solo"; shift ;;
         --grow)   MODE="grow"; shift ;;
         --full)   MODE="full"; shift ;;
+        --principles) WRITE_PRINCIPLES=1; shift ;;
         --status)
             cd "${2:-.}" 2>/dev/null || true
             show_status
             exit 0 ;;
         --help|-h)
-            echo "Usage: skills-init [--solo|--grow|--full|--status] [project-path]"
+            echo "Usage: skills-init [--solo|--grow|--full|--principles|--status] [project-path]"
             echo ""
-            echo "  (no flag)  all 298 skills — team/company projects (default)"
-            echo "  --full     all 298 skills (explicit)"
-            echo "  --grow     18 skills for projects gaining traction"
-            echo "  --solo     8 essential skills for personal projects"
-            echo "  --status   show current activation tier + skill count"
+            echo "  (no flag)     all 298 skills — team/company projects (default)"
+            echo "  --full        all 298 skills (explicit)"
+            echo "  --grow        18 skills for projects gaining traction"
+            echo "  --solo        8 essential skills for personal projects"
+            echo "  --principles  append always-on operating principles to CLAUDE.md/AGENTS.md"
+            echo "  --status      show current activation tier + skill count"
             exit 0 ;;
         *) PROJECT_ARG="$1"; shift ;;
     esac
@@ -259,3 +291,4 @@ cd "${PROJECT_ARG:-.}" || { echo -e "${YELLOW}Cannot access '$PROJECT_ARG'${NC}"
 
 IFS='|' read -r MODE COUNT LIST <<< "$(tier_info "$MODE")"
 activate "$MODE" "$LIST" "$COUNT"
+install_principles
