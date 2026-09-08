@@ -1,0 +1,40 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "description": "Composition test scaffold (P5). Pilot chain for a fullstack feature slice. Purpose: measure whether composed skills beat subsets (A+B+C vs A+C vs singles) on artifact quality — NOT to be treated as results. STATUS: unexecuted — requires a multi-agent/workflow runner with model access. This file defines the experiment so it is runnable the moment an executor exists.",
+  "chain": {
+    "id": "fullstack-feature-slice",
+    "task": "Deliver a login feature for a multi-tenant SaaS: spec, DB schema, backend auth API, frontend form, and a code review of the backend change.",
+    "expected_order": [
+      "product-manager",
+      "database-designer",
+      "backend-developer",
+      "frontend-developer",
+      "code-reviewer"
+    ],
+    "skills": {
+      "product-manager": "acceptance criteria, user story, edge cases",
+      "database-designer": "normalized schema, tenant scoping, migration sketch",
+      "backend-developer": "JWT/OAuth auth endpoint, rate limiting, input validation, error handling",
+      "frontend-developer": "login form, aria labels, keyboard nav, focus management, error announcements",
+      "code-reviewer": "file-and-line findings, severity grading, explicit verdict"
+    },
+    "conditions": [
+      "singles: each skill alone",
+      "composed_full: all five in expected_order",
+      "composed_pruned: product-manager + backend-developer + code-reviewer (no frontend/DB skills)"
+    ],
+    "golden_criteria": [
+      "backend artifact covers rate limiting, password hashing, token expiry, input validation, error responses",
+      "frontend artifact covers aria labels, keyboard navigation, focus management, error announcements",
+      "review references concrete files/lines and ends with a graded verdict",
+      "artifacts are mutually consistent (schema <-> API <-> form fields)"
+    ],
+    "metrics": [
+      "artifact completeness", "cross-artifact consistency", "hallucination/error rate",
+      "verification compliance", "token usage", "latency"
+    ],
+    "grader": "scripts/grade-golden.py --output-dir <recorded-outputs> (deterministic pattern checks; rubric judge optional per experiment)",
+    "status": "unexecuted"
+  }
+}

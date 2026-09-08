@@ -5,6 +5,7 @@
 set -euo pipefail
 
 SKILLS_DIR="$(cd "$(dirname "$0")/../skills" && pwd)"
+SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 PASS=0
 FAIL=0
 ERRORS=""
@@ -33,7 +34,12 @@ echo ""
 echo "[1] Frontmatter validation..."
 
 check "All SKILL.md files have valid YAML frontmatter" python3 -c "
-import os, re, yaml, sys
+import os, re, sys
+sys.path.insert(0, '$SCRIPTS_DIR')
+try:
+    import yaml
+except ImportError:
+    import yaml_shim as yaml
 errors = 0
 for root, dirs, files in os.walk('$SKILLS_DIR'):
     for f in files:
@@ -71,7 +77,12 @@ sys.exit(errors)
 echo "[2] Description trigger format..."
 
 check "All descriptions use 'Use when... Handles... Do NOT use for...' trigger format" python3 -c "
-import os, re, yaml, sys
+import os, re, sys
+sys.path.insert(0, '$SCRIPTS_DIR')
+try:
+    import yaml
+except ImportError:
+    import yaml_shim as yaml
 errors = 0
 for root, dirs, files in os.walk('$SKILLS_DIR'):
     for f in files:
@@ -244,7 +255,12 @@ READONLY_SKILLS=(
 )
 
 check "Read-only skills have allowed-tools restriction" python3 -c "
-import os, re, yaml, sys
+import os, re, sys
+sys.path.insert(0, '$SCRIPTS_DIR')
+try:
+    import yaml
+except ImportError:
+    import yaml_shim as yaml
 
 READONLY = {
     'code-reviewer', 'security-reviewer', 'accessibility-auditor', 'security-engineer',
@@ -330,7 +346,12 @@ sys.exit(errors)
 echo "[11] Chain connectivity (consumes_from + feeds_into)..."
 
 check "All skills have at least one upstream and downstream connection" python3 -c "
-import os, re, yaml, sys
+import os, re, sys
+sys.path.insert(0, '$SCRIPTS_DIR')
+try:
+    import yaml
+except ImportError:
+    import yaml_shim as yaml
 errors = 0
 for root, dirs, files in os.walk('$SKILLS_DIR'):
     for f in files:
@@ -366,7 +387,12 @@ sys.exit(errors)
 echo "[12] Token budget frontmatter field..."
 
 check "All skills have token_budget in frontmatter" python3 -c "
-import os, re, yaml, sys
+import os, re, sys
+sys.path.insert(0, '$SCRIPTS_DIR')
+try:
+    import yaml
+except ImportError:
+    import yaml_shim as yaml
 errors = 0
 for root, dirs, files in os.walk('$SKILLS_DIR'):
     for f in files:
