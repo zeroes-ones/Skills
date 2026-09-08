@@ -54,6 +54,7 @@ chain:
     - swing-options-trader
     - options-automation-engineer
     - volatility-arbitrage-engineer
+    - futures-options-trader
   feeds_into:
     - backend-developer
     - frontend-developer

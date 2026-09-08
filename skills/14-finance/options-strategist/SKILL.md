@@ -46,6 +46,7 @@ chain:
     - intraday-options-trader
     - options-automation-engineer
     - volatility-arbitrage-engineer
+    - futures-options-trader
   alternatives:
     - algorithmic-trader
   examples:

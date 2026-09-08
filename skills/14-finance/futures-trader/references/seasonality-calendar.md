@@ -1,5 +1,10 @@
 # Seasonality Calendar
 
+> **HISTORICAL PATTERNS ONLY — not a forecast.** Seasonality windows and "historical reliability"
+> figures are long-run tendencies, not predictions for the current season. Always overlay current
+> fundamentals (inventory, weather, positioning) and verify the current year's report calendar
+> (USDA/Crop Progress, EIA) before acting. Do not present these windows as a timing signal alone.
+
 > Commodity seasonality tables: bullish/bearish windows per commodity, transition dates, historical reliability scores.
 
 ## Seasonality Scorecard
@@ -109,4 +114,3 @@ Oct: "OCTOBER EFFECT." Crash month historically (1929, 1987, 2008). Also often a
 | Every Thursday | EIA Natural Gas Storage Report | HIGH for NG |
 
 **Always check the USDA, EIA, and CFTC release calendars for exact dates.** Reports routinely move markets 3-5% in minutes.
-

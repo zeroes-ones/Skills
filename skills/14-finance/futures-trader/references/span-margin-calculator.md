@@ -1,5 +1,10 @@
 # SPAN Margin Calculator
 
+> **MARGIN RATES CHANGE — use current session rates.** The SPAN methodology and worked examples
+> below are for computing structure and sensitivity. Actual initial/maintenance margin for a given
+> contract is set by the exchange and your broker and changes with volatility — pull it from the
+> broker/exchange API this session (never from memory or from a cached table) before sizing.
+
 > SPAN (Standard Portfolio Analysis of Risk) margin computation: risk arrays, scan range, cross-margining rules, exchange minimums.
 
 ## SPAN Overview
@@ -89,4 +94,3 @@ Inter-commodity spread credits are defined in the SPAN parameter file.
 | SPAN | Futures & futures options | 16-scenario risk array | 3-8% of notional value |
 
 **Key insight:** SPAN is generally the most capital-efficient because futures are inherently leveraged instruments and SPAN reflects actual portfolio risk, not a fixed percentage.
-

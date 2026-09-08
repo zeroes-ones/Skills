@@ -37,6 +37,7 @@ chain:
     - futures-trader
     - intraday-options-trader
     - leaps-strategist
+    - futures-options-trader
   feeds_into:
     - algorithmic-trader
     - portfolio-signal-manager

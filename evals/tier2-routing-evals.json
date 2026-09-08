@@ -388,6 +388,60 @@
           "weight": 1.0
         }
       ]
+    },
+    {
+      "id": "routing-trading-finance",
+      "description": "Trading and finance routing: futures outright, options on futures (FOPs), equity options, portfolio risk — verifies the futures-trader / futures-options-trader / options-risk-engineer boundary",
+      "scenarios": [
+      {
+        "id": "route-futures-outright",
+        "input": "I hold 3 ES contracts and want to roll them from the September contract to December before first notice day. Walk me through the roll mechanics and margin impact.",
+        "expected": "futures-trader",
+        "must_not_route": ["futures-options-trader", "options-strategist"],
+        "allow_top_n": 3,
+        "weight": 1.0
+      },
+      {
+        "id": "route-fop-long-call",
+        "input": "Buy a call option on December crude oil futures. What's the premium in dollars per contract and what happens if I exercise?",
+        "expected": "futures-options-trader",
+        "must_not_route": ["options-strategist", "futures-trader"],
+        "allow_top_n": 3,
+        "weight": 1.0
+      },
+      {
+        "id": "route-fop-covered-call",
+        "input": "I'm long 2 GC futures and want to sell covered calls against them for income. Check early assignment risk and SPAN margin on the short calls.",
+        "expected": "futures-options-trader",
+        "must_not_route": ["futures-trader", "options-strategist"],
+        "allow_top_n": 3,
+        "weight": 1.0
+      },
+      {
+        "id": "route-fop-expiry-delivery",
+        "input": "My short ES call option expires this Friday into the futures contract that hits first notice day next week. What does my position become and what should I do?",
+        "expected": "futures-options-trader",
+        "must_not_route": ["futures-trader"],
+        "allow_top_n": 3,
+        "weight": 1.0
+      },
+      {
+        "id": "route-equity-options-not-fop",
+        "input": "Sell a covered call on my AAPL shares and roll my SPY puts to next month.",
+        "expected": "options-strategist",
+        "must_not_route": ["futures-options-trader", "futures-trader"],
+        "allow_top_n": 3,
+        "weight": 1.0
+      },
+      {
+        "id": "route-portfolio-options-risk",
+        "input": "Stress test my whole options book — equity and futures options — for gamma and margin under a 10% down day. Show portfolio VaR.",
+        "expected": "options-risk-engineer",
+        "must_not_route": ["futures-options-trader"],
+        "allow_top_n": 3,
+        "weight": 1.0
+      }
+      ]
     }
   ]
 }

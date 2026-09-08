@@ -50,6 +50,7 @@ chain:
     - swing-options-trader
     - volatility-arbitrage-engineer
     - options-quant-engineer
+    - futures-options-trader
   alternatives:
     - ml-engineer
 

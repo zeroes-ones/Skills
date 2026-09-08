@@ -1,5 +1,12 @@
 # Contract Specifications
 
+> **VERIFICATION REQUIRED — specs change.** Tables below are a reference baseline, not current
+> exchange data. Contract multipliers are stable, but tick values, trading hours, margin, and
+> FND/LTD shift; and products get delisted (Eurodollar `GE` ceased trading April 2023 — use SOFR
+> futures `SR3` for short-term rate exposure). Before emitting any spec in an answer, verify the
+> product's current spec page at the exchange (CME/ICE product spec pages or broker API). Never
+> quote a spec from memory or from this table as if it were current.
+
 > Reference for all major futures contracts: multiplier, tick size, tick value, delivery type, FND/LTD, trading hours, exchange.
 
 ## Equity Index Futures (CME)
@@ -36,7 +43,7 @@
 | 10-Year T-Note | ZN | $100,000 face | $1,000 | $15.625 | Physical |
 | 5-Year T-Note | ZF | $100,000 face | $1,000 | $7.8125 | Physical |
 | 2-Year T-Note | ZT | $200,000 face | $2,000 | $7.8125 | Physical |
-| Eurodollar | GE | $1,000,000 | $2,500/bp | $6.25 | Cash |
+| SOFR (3-Month) | SR3 | $1,000,000 | 0.0025 (0.25 bp) | $6.25 | Cash |  *(replaced Eurodollar GE, delisted Apr 2023)* |
 | Fed Funds | ZQ | $5,000,000 | $4,166.70/bp | $10.4175 | Cash |
 
 ## Currency Futures (CME)
@@ -70,4 +77,3 @@ All CME Group products trade on Globex:
 - CME Group Product Slate: cmegroup.com/markets
 - ICE Futures: theice.com/products
 - Contract multipliers and ticks verified against exchange specifications
-

@@ -38,12 +38,14 @@ chain:
     - technical-signals-engineer
     - forex-trader
     - macro-strategist
+    - futures-options-trader
   feeds_into:
     - options-risk-engineer
     - commodities-analyst
     - portfolio-signal-manager
     - algorithmic-trader
     - macro-strategist
+    - futures-options-trader
   alternatives:
     - algorithmic-trader
     - forex-trader
@@ -88,6 +90,7 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
 ```
@@ -116,7 +119,7 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | # | Condition | Action |
 |---|-----------|--------|
 | A1 | `file_contains("*.py", "futures|es_|nq_|cl_|gc_|zb_|zn_|span_margin|cot_report|contract_roll|globex")` AND `file_contains("*.py", "CME|NYMEX|COMEX|CBOT|ICE|EUREX|delivery|FND|LTD")` | This is your skill. Jump to **Core Workflow** — Phase 0 (Contract Analysis). |
-| A2 | `file_contains("*.py", "futures_option|ES.*option|CL.*option|fop|span.*risk_array")` AND NOT `file_contains("*.py", "contract_roll|delivery|FND|cot")` | Invoke **options-risk-engineer** for futures options risk. Then return here for execution. |
+| A2 | `file_contains("*.py", "futures_option|ES.*option|CL.*option|fop|span.*risk_array")` AND NOT `file_contains("*.py", "contract_roll|delivery|FND|cot")` | Invoke **futures-options-trader** for options on futures (FOPs): mechanics, exercise/assignment, FOP spreads. Route portfolio-level FOP Greeks/margin to **options-risk-engineer**. Then return here for futures execution. |
 | A3 | `file_contains("*.py", "seasonal|contango|backwardation|roll_yield|supply_demand|crop|inventory")` AND NOT `file_contains("*.py", "margin|execution|order|broker")` | Invoke **commodities-analyst** for physical market analysis. Return here if trade execution is needed. |
 | A4 | `file_contains("*.py", "forex|currency_pair|spot_fx|pip|carry_trade")` AND NOT `file_contains("*.py", "6E|6J|6B|currency_future|CME")` | Invoke **forex-trader** for spot FX. Currency futures (6E, 6J) are this skill's domain. |
 | A5 | `file_contains("*futures*.py|*roll*.py|*cot*.py|*span*.py")` AND `file_contains("*.py", "alpaca|ibkr|schwab|robinhood")` | This is your skill. Jump to **Core Workflow** — Phase 3 (Execution). |
@@ -350,6 +353,7 @@ All computation details in references/futures-trading-computations.md.
 <!-- STANDARD: 3min -->
 
 ### DT1: Should I Trade This Contract?
+
 ```
 Leverage ≤ 5:1 overnight? → NO → Reduce size or day-trade only
   ↓ YES
@@ -363,6 +367,7 @@ PROCEED ✓
 ```
 
 ### DT2: Roll Decision — Calendar Spread or Outright?
+
 ```
 FND<10 or LTD<14? → NO → Hold current contract
   ↓ YES
@@ -372,6 +377,25 @@ Calendar spread >0 (backwardation)? → NO → Roll cost >5% annualized? → NO 
   ↓ YES                                              ↓ YES
 ROLL favorable ✓                                RECONSIDER: position may have negative carry
 ```
+
+### DT3: Trade the Outright, or Express It as a Spread?
+
+```
+Want to express a directional view on one leg only? → NO → See DT2 (calendar) or futures-options overlay
+  ↓ YES
+Spread type: calendar (time) or inter-commodity (relative value)?
+  ↓ calendar
+Same contract, deferred month available with OI > threshold? → NO → Use outright with stated roll cost
+  ↓ YES
+Calendar quoted as price difference (front vs deferred) — not two outright legs → PROCEED as calendar spread ✓
+  ↓ inter-commodity
+Basis relationship known (e.g., crack, crush, TED) and historically stable? → NO → PROCEED with wider risk stop
+  ↓ YES
+Both legs liquid (volume+OI on each) and margin offsets verified via SPAN? → NO → Reduce size or drop the pair
+  ↓ YES
+PROCEED as inter-commodity spread; record entry/exit basis for P&L attribution ✓
+```
+
 ## Gotchas
 
 | Gotcha | Cost | Fix |
@@ -464,16 +488,18 @@ If any checkbox fails, revise before delivering. If revision is impossible (no l
 
 Before delivering any futures analysis or trade plan, verify:
 
-- [ ] **C1: Contract specs verified from exchange** — Multiplier, tick size, tick value, trading hours from CME/exchange, never from memory (see references/contract-specifications.md)
-- [ ] **C2: Notional value surfaced** — Every position shown in dollar notional, never contract count alone; leverage ratio computed against account equity
-- [ ] **C3: Margin current** — SPAN margin from broker/exchange API this session; stale margin causes margin calls (see references/span-margin-calculator.md)
-- [ ] **C4: Roll uses calendar spreads** — Never two outright orders; quote the calendar spread price (see references/roll-strategy-guide.md)
-- [ ] **C5: FND/LTD known** — No physical-delivery position without an exit plan before FND-5 (see references/delivery-management.md)
-- [ ] **C6: Session correct** — Order type and session (RTH/ETH/Globex) match the scenario; emergency exits use the right venue
-- [ ] **C7: Prices tagged** — Every price [VERIFIED] with source and timestamp; no training-data prices
-- [ ] **C8: Risk limits respected** — Position within the account's stated overnight/day-trade limits and max-loss per trade
-- [ ] **C9: Tax treatment noted** — Section 1256 60/40 implications flagged where relevant (see references/tax-treatment.md)
-- [ ] **C10: Error path known** — Margin-call, gap-through-stop, and delivery-notice responses reviewed before the trade is live (see references/error-recovery.md)
+- [ ] **CR1: Contract specs verified from exchange** — Multiplier, tick size, tick value, trading hours from CME/exchange, never from memory (see references/contract-specifications.md)
+- [ ] **CR2: Notional value surfaced** — Every position shown in dollar notional, never contract count alone; leverage ratio computed against account equity
+- [ ] **CR3: Margin current** — SPAN margin from broker/exchange API this session; stale margin causes margin calls (see references/span-margin-calculator.md)
+- [ ] **CR4: Roll uses calendar spreads** — Never two outright orders; quote the calendar spread price (see references/roll-strategy-guide.md)
+- [ ] **CR5: FND/LTD known** — No physical-delivery position without an exit plan before FND-5 (see references/delivery-management.md)
+- [ ] **CR6: Session correct** — Order type and session (RTH/ETH/Globex) match the scenario; emergency exits use the right venue
+- [ ] **CR7: Prices tagged** — Every price [VERIFIED] with source and timestamp; no training-data prices
+- [ ] **CR8: Risk limits respected** — Position within the account's stated overnight/day-trade limits and max-loss per trade
+- [ ] **CR9: Tax treatment noted** — Section 1256 60/40 implications flagged where relevant (see references/tax-treatment.md)
+- [ ] **CR10: Error path known** — Margin-call, gap-through-stop, and delivery-notice responses reviewed before the trade is live (see references/error-recovery.md)
+- [ ] **CR11: Computations reproducible** — Every number the user relies on (notional, margin, roll cost, breakeven) reproducible from the inputs shown, computed inline — no "calculator script" references to files that don't exist (see references/futures-trading-computations.md)
+- [ ] **CR12: Provenance on every market fact** — Prices, COT data, seasonality stats, and margin rates tagged [VERIFIED source+timestamp] or [AS-OF date] from the cited source; nothing asserted from memory
 
 If any checkbox fails, revise before delivering. If revision is impossible (no live data), state exactly what could not be verified and why.
 
