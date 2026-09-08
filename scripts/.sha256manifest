@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-08T13:17:29Z
+# Generated: 2026-09-08T14:03:18Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    94733f77f79afa2e3a161fa99ba5f1fd62bdbe8e
+# Commit:    d054084939b452dd77e709433e8be7077ec59303
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -27,12 +27,13 @@ b34d876e8dd8148c56a17d28b0e160abb1fa5d78648be4f6c2f06e99315991aa  scripts/compil
 2205acdd76abb14d2b89589ddf63d544b08f7f86d5344521df35bbba191388f0  scripts/emit-marketplace.py
 8a6c2bd0d27ba91935308d5e9fc5642da947fd54f7e6d80529ac16b0a702ba7e  scripts/emit-skill-graph.py
 269678d9b63e8f28d2008b1bfb7fa514bafaa869842f96fe25b7c8f21b2b9c3b  scripts/emit-skill-registry.py
+d7258165ae29484705a19b6c606dba62381b340688ed5e6990d4cf77fcd86580  scripts/eval-routing.py
 f2a34eb14b3f482c6d57cfcd91837db04ba65ec00b23bf7859db44b51073f680  scripts/eval-skill.sh
 8719461626c18b24373c76517dc40407dcebdc503f532768f57784e3d2770b7e  scripts/executors/agent_executor.py
 12110beef66ea313b7fbcc58058fe16d86f84cf269cdaa1154ac0d5fa19e0583  scripts/executors/repo_checks.py
 e5133d51013888d8cc6cd26f11bb656b1430d15c45ffb64aaf3cdb0cb4f15cf0  scripts/export-traces.py
 9402b56e36779a62d99eb1066d87f8eeeb16a176181b3103e3b396f2f84587eb  scripts/grade-golden.py
-e602f47d56bfb606f103113e38ebf5f25059ea62d6a0611553d6dc81a91a512d  scripts/init-project.sh
+308a6a39c1059cc6e61629032771026cfe4329d6618a4c8838b1304e08db7590  scripts/init-project.sh
 a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject-anti-hallucination.py
 129cab96cfa4784974cc0d539b44d7ee24897cb6fe659e4aca88ab214fef2f94  scripts/install-hooks.sh
 081fd8193ed7185c28574f1607f19b95a8bfeb5b9a3c52dc1253c1bc2d507164  scripts/install.sh

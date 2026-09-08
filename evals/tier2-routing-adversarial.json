@@ -1,0 +1,125 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "description": "Tier 2 adversarial routing suite — semantic prompts that deliberately avoid the skill's obvious trigger keywords, to measure whether routing works on meaning rather than vocabulary. Consumed by scripts/eval-routing.py (stdlib) alongside tier2-routing-evals.json; schema-compatible with the node runner.",
+  "suites": [
+    {
+      "id": "routing-semantic-adversarial",
+      "description": "Paraphrased, keyword-poor prompts: the correct skill must still win, and near-neighbour skills must not be falsely activated",
+      "scenarios": [
+        {
+          "id": "adv-unify-codebases",
+          "input": "We acquired a competitor and now need to bring two separate codebases and two git histories into one repository",
+          "expected": "monorepo-manager",
+          "must_not_route": ["backend-developer", "devops-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-flaky-tests",
+          "input": "A third of our CI runs fail on tests that pass locally, and the failing test moves around run to run",
+          "expected": "qa-engineer",
+          "must_not_route": ["backend-developer", "code-reviewer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-cloud-cost",
+          "input": "Finance says our cloud bill tripled this quarter; find which workload is responsible and how we cap it",
+          "expected": "finops-engineer",
+          "must_not_route": ["backend-developer", "data-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-incident-response",
+          "input": "Production is down and customers are seeing errors; we need to find the root cause fast and coordinate the fix",
+          "expected": "incident-responder",
+          "must_not_route": ["backend-developer", "code-reviewer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-schema-growth",
+          "input": "Every week the main table gets bigger and our queries get slower and slower",
+          "expected": "database-designer",
+          "must_not_route": ["backend-developer", "performance-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-conflicting-edits",
+          "input": "Two teammates keep editing the same lines and we lose work at every merge",
+          "expected": "merge-conflict-resolver",
+          "must_not_route": ["code-reviewer", "git-submodules"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-erasure-request",
+          "input": "A user asked us to erase everything we hold about them and we need a defensible, auditable process",
+          "expected": "gdpr-privacy",
+          "must_not_route": ["backend-developer", "legal-advisor"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-graphql-migration",
+          "input": "Clients want to fetch exactly the fields they need instead of huge fixed REST responses; move us over gradually",
+          "expected": "api-designer",
+          "must_not_route": ["backend-developer", "frontend-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-safe-removal",
+          "input": "We have hundreds of thousands of lines nobody is sure are still used; find what we can safely remove",
+          "expected": "deprecation-engineer",
+          "must_not_route": ["code-reviewer", "backend-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-enterprise-trust",
+          "input": "A large enterprise customer demands proof of our security controls before they will sign",
+          "expected": "compliance-officer",
+          "must_not_route": ["backend-developer", "security-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-data-loss",
+          "input": "Someone dropped a production table by accident; get the data back with as little loss as possible",
+          "expected": "database-reliability-engineer",
+          "must_not_route": ["backend-developer", "database-designer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-read-only-review",
+          "input": "I need a second pair of eyes that only reads code and never edits it, to approve a risky refactor before merge",
+          "expected": "code-reviewer",
+          "must_not_route": ["backend-developer", "frontend-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-cross-service-change",
+          "input": "Rename an endpoint path and update every caller across all our services without breaking deploys",
+          "expected": "cross-repo-refactoring",
+          "must_not_route": ["backend-developer", "frontend-developer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "adv-market-check",
+          "input": "Before we build anything, we need to know whether this market is worth entering and who the real competitors are",
+          "expected": "business-strategist",
+          "must_not_route": ["product-manager", "marketing-manager"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        }
+      ]
+    }
+  ]
+}
