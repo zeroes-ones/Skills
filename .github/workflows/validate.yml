@@ -11,9 +11,14 @@ on:
       - 'scripts/lib/lint-template.py'
       - 'scripts/emit-skill-graph.py'
       - 'scripts/emit-marketplace.py'
+      - 'scripts/check-token-budget.py'
+      - 'scripts/emit-skill-registry.py'
+      - 'scripts/eval-routing.py'
       - 'docs/graph-explorer/**'
       - 'flagship/**'
       - 'plugins/**'
+      - 'evals/**'
+      - 'hooks/**'
       - '.github/**'
   push:
     branches: [main]
@@ -25,9 +30,14 @@ on:
       - 'scripts/lib/lint-template.py'
       - 'scripts/emit-skill-graph.py'
       - 'scripts/emit-marketplace.py'
+      - 'scripts/check-token-budget.py'
+      - 'scripts/emit-skill-registry.py'
+      - 'scripts/eval-routing.py'
       - 'docs/graph-explorer/**'
       - 'flagship/**'
       - 'plugins/**'
+      - 'evals/**'
+      - 'hooks/**'
       - '.github/**'
   workflow_dispatch:
 
@@ -188,3 +198,23 @@ jobs:
 
       - name: Measured baseline (informational)
         run: python3 scripts/benchmark-skills.py --root skills --markdown
+
+  measurement:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile all skills
+        run: bash scripts/compile-skills.sh --all
+
+      - name: Compiled token budget + compile coverage gate
+        run: python3 scripts/check-token-budget.py
+
+      - name: Skill registry required-field gate
+        run: python3 scripts/emit-skill-registry.py --check
+
+      - name: Routing baseline (informational)
+        run: python3 scripts/eval-routing.py
+
+      - name: Session-start hook guard
+        run: bash hooks/session-start-test.sh

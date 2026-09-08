@@ -20,7 +20,7 @@ type: product
 status: stable
 version: 1.1.0
 updated: 2026-07-23
-token_budget: 2190
+token_budget: 2300
 chain:
   consumes_from:
     - using-agent-skills

@@ -10,13 +10,13 @@ Data for the zeroes-ones/Skills corpus, refreshed with:
 
 <!-- MEASURED-BASELINE:START -->
 
-| Skills (prompts) | 298 |
-| Executable-node eligible (Core Workflow + Verification) | 295 |
+| Skills (prompts) | 299 |
+| Executable-node eligible (Core Workflow + Verification) | 296 |
 | Declared `workflow:` contracts | 30 |
-| Avg body words (load cost) | 8960 |
-| Compiled coverage | 233/298 |
-| Avg effective load (compiled tokens) | 3545 |
-| Effective load saving vs raw body | 63.4% |
+| Avg body words (load cost) | 8948 |
+| Compiled coverage | 299/299 |
+| Avg effective load (compiled tokens) | 1255 |
+| Effective load saving vs raw body | 86.0% |
 | Portability target declared | 100.0% |
 | Golden eval sets covered | 3/3 |
 | Routing Top-1 / Top-5 (lexical baseline) | 3/10 (30%) / 6/10 (60%) |

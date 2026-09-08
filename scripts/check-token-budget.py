@@ -31,6 +31,7 @@ import sys
 
 REPO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 DEFAULT_ROOT = os.path.join(REPO, ".skills-compiled")
+DEFAULT_CORPUS = os.path.join(REPO, "skills")
 
 
 def _budget_from_xml(xml_path):
@@ -46,6 +47,8 @@ def _budget_from_xml(xml_path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--root", default=DEFAULT_ROOT, help="compiled output dir")
+    ap.add_argument("--corpus", default=DEFAULT_CORPUS,
+                    help="source skills dir used to compute expected compile coverage")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--allow-over", action="store_true", help="report-only mode (exit 0)")
     args = ap.parse_args()
@@ -74,9 +77,25 @@ def main():
     errors = [r for r in rows if "error" in r]
     missing_budget = [r["skill"] for r in rows if "budget" not in r and r.get("budget") is None and "error" not in r]
 
+    # Compile coverage: every skill in the corpus must have a compiled artifact,
+    # otherwise stale/partial compile output could silently under-report.
+    corpus_count = 0
+    if os.path.isdir(args.corpus):
+        for domain in os.listdir(args.corpus):
+            dpath = os.path.join(args.corpus, domain)
+            if os.path.isdir(dpath):
+                corpus_count += sum(
+                    1 for n in os.listdir(dpath)
+                    if os.path.isfile(os.path.join(dpath, n, "SKILL.md")))
+    compiled_count = len(rows)
+    coverage_shortfall = max(0, corpus_count - compiled_count)
+
     if args.json:
         print(json.dumps({
             "total_compiled": len(rows),
+            "corpus_skills": corpus_count,
+            "coverage": f"{compiled_count}/{corpus_count}",
+            "coverage_shortfall": coverage_shortfall,
             "within_budget": sum(1 for r in rows if not r.get("over") and "error" not in r),
             "over_budget": len(violations),
             "metadata_errors": len(errors),
@@ -87,6 +106,9 @@ def main():
         }, indent=2))
     else:
         print(f"compiled skills checked : {len(rows)}")
+        print(f"corpus skills           : {corpus_count}")
+        print(f"compile coverage        : {compiled_count}/{corpus_count} "
+              f"({'OK' if coverage_shortfall == 0 else f'MISSING {coverage_shortfall}'})")
         print(f"within declared budget  : {sum(1 for r in rows if not r.get('over') and 'error' not in r)}")
         print(f"OVER declared budget    : {len(violations)}")
         if errors:
@@ -100,14 +122,20 @@ def main():
 
     if errors:
         print("note: metadata errors should be investigated", file=sys.stderr)
+    if coverage_shortfall > 0 and not args.allow_over:
+        print(f"FAIL: compile coverage {compiled_count}/{corpus_count} "
+              f"(missing {coverage_shortfall} — run scripts/compile-skills.sh --all).")
+        return 1
     if violations and not args.allow_over:
         print(f"FAIL: {len(violations)} compiled skills exceed their declared token_budget "
               f"(see docs — compiled XML is the agent-load artifact; budgets are a hard contract).")
         return 1
+    if coverage_shortfall > 0:
+        print(f"report: compile coverage {compiled_count}/{corpus_count} (non-blocking).")
     if violations:
         print(f"report: {len(violations)} compiled skills exceed their declared token_budget (non-blocking).")
-    else:
-        print("All compiled skills within declared token budget.")
+    elif coverage_shortfall == 0:
+        print("All compiled skills within declared token budget; full compile coverage.")
     return 0
 
 

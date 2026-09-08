@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-08T14:03:35Z
+# Generated: 2026-09-08T14:20:38Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    5409ce78919697d934ee5f5284d70b5db1c1fde9
+# Commit:    e9fa522206bdc7e4b092b8d896805d7bb51fc8e5
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -21,7 +21,7 @@ f0cb08ecfed782f0549fd727d4d988786bb487ef78a6e4fe62604170478f6f49  scripts/build-
 220f0d9b3f3c60c27f0b213809d92d55dec5d8151a1f604cd892677c0f6097b1  scripts/build-skill-index.py
 83e5bc2f876a6d31cc3fc9c54cbafbddb83bce9158f28780dcb83dbe8c236efe  scripts/calculate-roi.sh
 43f5d32c82818855c00463ec3f13502a9972ab15279aaed90fc0d397f9d3e229  scripts/check-flat-index.py
-e6def7320c3a51d6ea976722592210a4306413ee3ca25498fedb4a5596afedb8  scripts/check-token-budget.py
+0275d3713f1c34388927b27c4b9b4bb6c68e4c5f0a2329d88594901317ab609b  scripts/check-token-budget.py
 b34d876e8dd8148c56a17d28b0e160abb1fa5d78648be4f6c2f06e99315991aa  scripts/compile-skills.sh
 4cb7e67fd1ffeab924c1405f1f65e18e976aa151278fb70374d3bf63c280e24e  scripts/compliance-check.sh
 2205acdd76abb14d2b89589ddf63d544b08f7f86d5344521df35bbba191388f0  scripts/emit-marketplace.py
@@ -72,6 +72,7 @@ e4007cd0c2cc5234c9f4727a5047affa90418c003a29ecd5e9436627edbcde42  scripts/valida
 c74bde423ccadafcd78579625e11291289e19f52ba0ec4d992dc0d7e6d58f718  scripts/validate-workflows.py
 c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
+ba05301fc66f4b37e48e0d95662ce801792126193e308545ef70fa7e4c4e1617  scripts/workflow-eligibility.py
 9b1cfd9cefac76fc38e6a8d7657d3aec128410d6b2b07ed8b6ce94809bdebc8f  scripts/workflow-runner.py
 0e04d0d5b5122a5602971cbfbdefa7cf660f040c096887cf9710f48ec903324f  scripts/yaml_shim.py
 176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/00-framework/agent-persona-orchestrator/scripts/verify-skill.sh

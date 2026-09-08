@@ -20,7 +20,7 @@ type: product
 status: stable
 version: 1.1.0
 updated: 2026-07-23
-token_budget: 2430
+token_budget: 2500
 chain:
   examples:
   - skills/02-product/product-manager/examples/backtest
