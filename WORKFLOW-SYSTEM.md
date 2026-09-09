@@ -135,7 +135,7 @@ end: [arch-review]
 | `type` | Default | Role |
 |--------|---------|------|
 | `skill` | yes | Executes one skill from the library. `skill:` required. |
-| `gate` | no | Checkpoint that does no work: automated (condition on state) or human (requires approval). `type: gate` + `kind: human|auto`. |
+| `gate` | no | Checkpoint that does no work: automated (condition on state), agent (identify + bounded reroute before a human), or human (requires approval). `type: gate` + `kind: human|auto|agent`. |
 | `supervisor` | no | Routing node. Delegates to `workers` by capability; performs no content work itself. |
 | `task` | no | Reserved for non-skill work (script, stub executor in examples). `executor:` names the handler. |
 
@@ -199,6 +199,41 @@ gates:
     requires: [findings, fix-report]    # artifact refs that must exist before this gate
     description: Production change requires human approval.
 ```
+
+**Identify-agent gates (`kind: agent`)** — the pre-human escalation step. A loop that cannot
+converge (max-iterations or stagnation) escalates to an agent gate *before* any human gate. The
+gate names the corrective channel and grants the loop a fresh bounded window with that channel
+first; only a spent reroute budget, a no-delta window across reroutes, or a non-reroutable reason
+routes it onward to the terminal `escalate_to` (the human gate):
+
+```yaml
+gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [fixer, qa]          # corrective channels — must be members of the escalating loop
+    max_reroutes: 3            # bounded reroute budget before the human gate
+    escalate_to: human-gate    # terminal target after budget / no-delta / non-reroutable
+loops:
+  - id: quality-loop
+    nodes: [fixer, qa]
+    exit_when: qa.verdict == pass
+    max_iterations: 3
+    escalate_to: identify-agent-gate
+```
+
+Semantics (runner-enforced, executor-assisted; see `workflow/templates/escalate.md` and the
+`valid-agent-gate-reroute` fixture):
+
+| Rule | Why |
+|------|-----|
+| Triggered only by loop exhaustion (`escalate_to` from a loop) | A working loop never needs triage. |
+| `pool` must be members of the escalating loop | The fix lives inside one of the loop's own channels; the gate decides which channel leads. |
+| `max_reroutes` bounds reroute windows | No infinite agent-recursion by construction. |
+| Identify is a content step (`ctx.mode == "identify"`) | The executor names the channel; deterministic fallback = first untried pool member. |
+| No delta across reroutes escalates | Identical end-states across fresh windows produce no new information. |
+| Human gate stays terminal and reachable | `escalate_to` on the agent gate must resolve; the human remains the last authority. |
+| Non-reroutable reasons (step-budget, guardrail-block) escalate directly | Re-routing cannot fix a spent global budget or a blocked payload. |
 
 ### 2.5 Supervisor nodes (multi-agent mode)
 

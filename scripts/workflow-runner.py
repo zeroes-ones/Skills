@@ -170,6 +170,7 @@ def fresh_state(manifest, text, budget):
         "decisions": [],
         "open_questions": [],
         "handoff": None,
+        "reroutes": {},            # kind: agent gates -> {gate: {used, tried, last_signature}}
         "log": [],
     }
 
@@ -343,8 +344,14 @@ class Runner(object):
 
     def _run_loop_pass(self, loop):
         """Execute one pass over loop members. Returns 'exited'|'iterate'|'exhaust'. May set
-        self._loop_exit_reason."""
-        for nid in loop.get("nodes") or []:
+        self._loop_exit_reason. After an agent-gate reroute the identified channel runs first."""
+        members = list(loop.get("nodes") or [])
+        first = getattr(self, "_reroute_first", None)
+        if first is not None:
+            self._reroute_first = None  # consume: applies to this one pass
+            if first in members:
+                members = [first] + [m for m in members if m != first]
+        for nid in members:
             if nid not in self.nodes:
                 continue
             if self.state["budget"]["steps_used"] >= self.max_steps:
@@ -389,6 +396,76 @@ class Runner(object):
         recent = stamps[loop["id"]][-window:] if window > 1 else stamps[loop["id"]][-1:]
         return len(recent) >= window and len(set(recent)) == 1
 
+    def _agent_gate_visit(self, gate, loop):
+        """kind: agent gate — one bounded reroute decision after a loop exhausts.
+
+        Returns 'reroute' (grant the escalating loop a fresh window with the identified
+        channel first) or 'human' (escalate onward to gate.escalate_to). Rerouting is bounded
+        by gate.max_reroutes and stops when the loop's end-state stops changing across
+        reroutes, or when the exhaustion reason is not fixable by re-routing."""
+        state = self.state
+        gid = gate["id"]
+        rec = state["reroutes"].setdefault(gid, {"used": 0, "tried": [],
+                                                 "last_signature": None})
+        rec["used"] += 1
+        reason = self._loop_exit_reason or "exhaustion"
+        max_reroutes = gate.get("max_reroutes", 1)
+
+        def _escalate(why):
+            state["log"].append({"step": state["budget"]["steps_used"], "node": gid,
+                                 "action": "escalate",
+                                 "detail": "agent-gate %s: %s (reroutes %d/%d)"
+                                 % (gid, why, rec["used"], max_reroutes)})
+            return "human"
+
+        if reason not in ("max-iterations", "stagnation"):
+            return _escalate("reason %r is not reroutable" % reason)
+        if rec["used"] > max_reroutes:
+            return _escalate("reroute budget exhausted")
+        signature = self._loop_signature(loop)
+        if rec["used"] >= 2 and rec.get("last_signature") == signature:
+            return _escalate("no delta across reroutes (stagnation)")
+        rec["last_signature"] = signature
+
+        members = set(loop.get("nodes") or [])
+        tried = set(rec.get("tried") or [])
+        candidates = [p for p in gate.get("pool") or [] if p in members and p not in tried]
+        if not candidates:
+            return _escalate("all channels tried (%s)" % ",".join(rec.get("tried") or []))
+        # Identify the corrective channel. Content lives in the executor (mode=identify);
+        # the deterministic fallback is the first untried pool member in declared order.
+        pick = None
+        try:
+            res = self.executor.execute_node(
+                gid, state, {"mode": "identify", "gate": gid, "loop": loop["id"],
+                             "reason": reason, "pool": list(candidates),
+                             "reroute": rec["used"], "max_reroutes": max_reroutes})
+            if isinstance(res, dict) and res.get("verdict") == "reroute" \
+                    and res.get("next") in candidates:
+                pick = res["next"]
+        except Exception:  # noqa: BLE001 - executor errors degrade to the default pick
+            pick = None
+        if pick is None:
+            pick = candidates[0]
+        rec.setdefault("tried", []).append(pick)
+        self._reroute_first = pick
+        state["log"].append({"step": state["budget"]["steps_used"], "node": gid,
+                             "action": "agent-gate",
+                             "detail": "reroute %d/%d -> %s (loop %s, %s)"
+                             % (rec["used"], max_reroutes, pick, loop["id"], reason)})
+        return "reroute"
+
+    def _loop_signature(self, loop):
+        """Stable end-state signature of a loop's members (status/verdict/evidence)."""
+        parts = []
+        for nid in loop.get("nodes") or []:
+            rec = self.state["nodes"].get(nid, {})
+            parts.append(json.dumps({"id": nid, "status": rec.get("status"),
+                                     "verdict": rec.get("verdict"),
+                                     "evidence": rec.get("evidence") or []},
+                                    sort_keys=True, default=str))
+        return "|".join(sorted(parts))
+
     def _route_after_loop(self, loop, dest):
         """After loop exit/exhaustion, evaluate members' outgoing edges (exit) or jump straight
         to dest (exhaustion)."""
@@ -432,6 +509,7 @@ class Runner(object):
     def run(self):
         state = self.state
         manifest = self.manifest
+        state.setdefault("reroutes", {})  # resume-safe for pre-agent-gate run states
         start = self._start()
         if start is None:
             raise RuntimeError("cannot determine start node (set 'start' in the manifest)")
@@ -502,17 +580,39 @@ class Runner(object):
                                self._satisfied_edges_from(nid)):
                         state["phase"] = "complete"
                 else:  # exhaustion
-                    targets = self._route_after_loop(loop, loop.get("escalate_to"))
-                    state["log"].append({"step": state["budget"]["steps_used"],
-                                         "node": None, "action": "escalate",
-                                         "detail": "loop %s: %s" % (loop["id"],
-                                                                    self._loop_exit_reason)})
-                    if not targets:
+                    dest = loop.get("escalate_to")
+                    gate = self.gates.get(dest) if dest else None
+                    if gate is not None and gate.get("kind") == "agent":
+                        verdict = self._agent_gate_visit(gate, loop)
+                        if verdict == "reroute":
+                            # fresh bounded window for the escalating loop; identified channel first
+                            for nid in loop["nodes"]:
+                                self.state["nodes"].setdefault(
+                                    nid, {"status": "pending", "iterations": 0})["status"] = "pending"
+                            self.state["budget"]["iterations"][loop["id"]] = 0
+                            self.state.setdefault("_pass_stamps", {}).pop(loop["id"], None)
+                            loop_active = loop
+                            continue
+                        # escalated to the gate's terminal (human) target
                         state["phase"] = "escalated"
-                        return self._summary("loop-" + self._loop_exit_reason)
-                    for to in targets:
-                        if to not in seen and to not in active and to not in done:
-                            active.append(to)
+                        target = gate.get("escalate_to")
+                        if target and target not in seen and target not in active \
+                                and target not in done:
+                            active.append(target)
+                        else:
+                            return self._summary("agent-gate-" + self._loop_exit_reason)
+                    else:
+                        targets = self._route_after_loop(loop, dest)
+                        state["log"].append({"step": state["budget"]["steps_used"],
+                                             "node": None, "action": "escalate",
+                                             "detail": "loop %s: %s"
+                                             % (loop["id"], self._loop_exit_reason)})
+                        if not targets:
+                            state["phase"] = "escalated"
+                            return self._summary("loop-" + self._loop_exit_reason)
+                        for to in targets:
+                            if to not in seen and to not in active and to not in done:
+                                active.append(to)
             save_state(state, self._state_path)
 
             if not active and loop_active is None:
@@ -713,6 +813,71 @@ def _selftest():
                     any_action(st, None, "escalate")
                     and s["iterations"].get("rf") == 2
                     and s["nodes"]["human"]["status"] == "done"))
+
+    # 4b) agent gate reroutes a bounded number of times, then reaches the human gate
+    def never_qa(node_id, state, ctx):
+        if ctx.get("mode") == "identify":
+            return {"status": "done", "verdict": "reroute", "next": ctx["pool"][0],
+                    "summary": "identified %s" % ctx["pool"][0], "evidence": ["identify"]}
+        if node_id == "qa":
+            return {"status": "done", "verdict": "changes_requested",
+                    "evidence": ["qa-%d" % ctx["pass"]]}
+        return {"status": "done", "verdict": "pass", "evidence": [node_id]}
+
+    m = _make_manifest_fixture("t-agent-gate-exhaust",
+                               [{"id": "fixer", "skill": "backend-developer"},
+                                {"id": "qa", "skill": "qa-engineer"}],
+                               loops=[{"id": "rf", "nodes": ["fixer", "qa"],
+                                       "exit_when": "qa.verdict == pass",
+                                       "max_iterations": 2,
+                                       "escalate_to": "identify-agent-gate"}],
+                               gates=[{"id": "identify-agent-gate", "type": "gate",
+                                       "kind": "agent", "pool": ["fixer", "qa"],
+                                       "max_reroutes": 2, "escalate_to": "human"},
+                                      {"id": "human", "type": "gate", "kind": "human"}],
+                               start="fixer")
+    s, st = run_fixture(m, never_qa)
+    results.append(("agent-gate reroute budget exhausted -> human gate",
+                    st["nodes"]["human"]["status"] == "done"
+                    and st["reroutes"]["identify-agent-gate"]["used"] == 2
+                    and st["reroutes"]["identify-agent-gate"]["tried"] == ["fixer"]
+                    and any(e.get("action") == "agent-gate" for e in st["log"])
+                    and any(entry.get("node") == "identify-agent-gate"
+                            and entry.get("action") == "escalate"
+                            for entry in st["log"])))
+
+    # 4c) agent-gate reroute converges: identified channel leads the fresh window, qa passes
+    def channel_then_pass(node_id, state, ctx):
+        if ctx.get("mode") == "identify":
+            return {"status": "done", "verdict": "reroute", "next": ctx["pool"][0],
+                    "summary": "identified %s" % ctx["pool"][0], "evidence": ["identify"]}
+        if node_id == "qa":
+            runs = state.setdefault("fields", {}).get("qa_runs", 0) + 1
+            state["fields"]["qa_runs"] = runs
+            return {"status": "done",
+                    "verdict": "pass" if runs >= 4 else "changes_requested",
+                    "evidence": ["qa-%d" % runs]}
+        return {"status": "done", "verdict": "pass", "evidence": [node_id]}
+
+    m = _make_manifest_fixture("t-agent-gate-converge",
+                               [{"id": "fixer", "skill": "backend-developer"},
+                                {"id": "qa", "skill": "qa-engineer"}],
+                               loops=[{"id": "rf", "nodes": ["fixer", "qa"],
+                                       "exit_when": "qa.verdict == pass",
+                                       "max_iterations": 2,
+                                       "escalate_to": "identify-agent-gate"}],
+                               gates=[{"id": "identify-agent-gate", "type": "gate",
+                                       "kind": "agent", "pool": ["fixer", "qa"],
+                                       "max_reroutes": 3, "escalate_to": "human"},
+                                      {"id": "human", "type": "gate", "kind": "human"}],
+                               start="fixer")
+    s, st = run_fixture(m, channel_then_pass)
+    results.append(("agent-gate reroute converges without human (channel-first window)",
+                    s["outcome"] == "complete"
+                    and s["nodes"]["qa"]["verdict"] == "pass"
+                    and st["nodes"].get("human", {}).get("status") != "done"
+                    and st["reroutes"]["identify-agent-gate"]["used"] == 1
+                    and any(e.get("action") == "agent-gate" for e in st["log"])))
 
     # 5) global step budget hard stop (executor varies diagnostics so stagnation never fires)
     def busy(node_id, state, ctx):

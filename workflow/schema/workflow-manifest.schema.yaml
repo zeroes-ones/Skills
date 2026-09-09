@@ -77,7 +77,7 @@ nodes:
       required: false                         #   skills/*/SKILL.md frontmatter name
     kind:
       type: string                            # REQUIRED when type == gate
-      enum: [human, auto]
+      enum: [human, auto, agent]              # agent = identify-agent gate (reroute before human)
     description:
       type: string
       required: false
@@ -223,7 +223,19 @@ gates:
     kind:
       type: string
       required: true
-      enum: [human, auto]
+      enum: [human, auto, agent]              # agent = pre-human identify/reroute gate
+    pool:                                     # kind: agent -> candidate corrective channels
+      type: list[string]
+      required: false
+      resolvable: node                        # each id must be a member of a referencing loop
+    max_reroutes:                             # kind: agent -> bounded reroute budget
+      type: integer
+      required: false
+      min: 1
+    escalate_to:                              # kind: agent -> terminal gate after reroutes/stagnation
+      type: string
+      required: false
+      resolvable: node
     requires:
       type: list[string]                      # artifact/field names that must exist pre-gate
       required: false
@@ -246,3 +258,7 @@ gates:
 #     (status, summary, artifacts, decisions, open_questions, verification_evidence,
 #      context, budget, next).
 # V9  start/end resolve; every node reachable from start.
+# V10 kind: agent gates require pool (node ids), max_reroutes >= 1 and a terminal escalate_to;
+#     each pool member must belong to a loop that escalates to the gate. Agent gates reroute a
+#     bounded number of times (loop window reset, identified channel first) before escalating to
+#     the terminal (human) gate; they never act as a manifest end.

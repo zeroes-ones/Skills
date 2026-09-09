@@ -1,0 +1,50 @@
+name: valid-agent-gate-reroute
+version: "1.0.0"
+description: "Flagship pattern: a bounded fix-review loop that, on exhaustion, first escalates to a kind: agent gate. The agent gate identifies the corrective channel from its pool and grants the loop a fresh bounded window with that channel first; only when the reroute budget is spent or the end-state stops changing does it escalate to the human gate."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 60
+start: fixer
+nodes:
+  - id: fixer
+    skill: backend-developer
+    inputs: [change, qa-report]
+    outputs: [fix-report]
+  - id: qa
+    skill: qa-engineer
+    inputs: [change, fix-report]
+    outputs: [qa-report]
+gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [fixer, qa]            # corrective channels (must be members of the escalating loop)
+    max_reroutes: 3              # bounded reroute budget before the human gate
+    escalate_to: human-gate      # terminal target after budget / stagnation / human-only blocker
+    requires: [qa-report, fix-report]
+    description: "Pre-human triage: on loop exhaustion, identify which channel should lead the next bounded window (executor ctx mode=identify; deterministic fallback = first untried pool member). Reroutes are counted and bounded; no delta across reroutes escalates."
+  - id: human-gate
+    type: gate
+    kind: human
+    requires: [qa-report, fix-report]
+    description: Human approves the change once agent-gate reroutes are exhausted.
+loops:
+  - id: quality-loop
+    nodes: [fixer, qa]
+    exit_when: qa.verdict == pass
+    max_iterations: 2
+    escalate_to: identify-agent-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [human-gate]

@@ -24,6 +24,23 @@ def _run(args):
 
 
 def execute_node(node_id, state, ctx):
+    # kind: agent gate — identify the corrective channel (deterministic content leg).
+    # Prefer a pool member whose latest record still needs work; else the first untried.
+    if ctx and ctx.get("mode") == "identify":
+        pool = ctx.get("pool") or []
+        if not pool:
+            return {"status": "done", "verdict": "human",
+                    "summary": "no corrective channels left", "evidence": ["identify:none"]}
+        records = state.get("nodes", {}) if isinstance(state, dict) else {}
+        for cand in pool:
+            rec = records.get(cand) or {}
+            if rec.get("verdict") and rec.get("verdict") != "pass":
+                return {"status": "done", "verdict": "reroute", "next": cand,
+                        "summary": "identified %s (needs work)" % cand,
+                        "evidence": ["identify:%s" % cand]}
+        return {"status": "done", "verdict": "reroute", "next": pool[0],
+                "summary": "identified %s (first untried)" % pool[0],
+                "evidence": ["identify:%s" % pool[0]]}
     if node_id == "start-check":
         return {"status": "done", "verdict": "pass",
                 "summary": "kicking off repo quality gates",

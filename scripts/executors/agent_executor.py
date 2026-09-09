@@ -126,7 +126,70 @@ def _record(node_id, verdict, text, seconds, fallback, prompt_words=None, skill=
         pass  # transcript is best-effort
 
 
+def _identify_prompt(node_id, state, ctx):
+    """Prompt for a kind: agent gate — pick the corrective channel from the pool."""
+    lines = ["You are the identify-agent gate '%s' in an agentic workflow run." % node_id,
+             "A bounded loop exhausted and escalated to you. Choose which channel should",
+             "lead the next bounded window, or decide the blocker needs a human.",
+             "Exhaustion reason: %s (reroute %d/%d)."
+             % (ctx.get("reason"), ctx.get("reroute"), ctx.get("max_reroutes")),
+             "Candidate channels (current records):"]
+    records = state.get("nodes", {}) if isinstance(state, dict) else {}
+    for cand in ctx.get("pool") or []:
+        rec = records.get(cand) or {}
+        lines.append("- %s: verdict=%s summary=%s"
+                     % (cand, rec.get("verdict"), (rec.get("summary") or "")[:120]))
+    lines.append("")
+    lines.append("Reply with exactly one line: 'NEXT: <channel id>' to reroute, or 'HUMAN'.")
+    return "\n".join(lines)
+
+
+def _identify(node_id, state, ctx):
+    """mode=identify content leg. Asks the agent; deterministic fallback matches
+    repo_checks.py (prefer a pool member still needing work, else first untried)."""
+    fallback = {"status": "done", "verdict": "human", "summary": "no channels left",
+                "evidence": ["identify:none"]}
+    pool = ctx.get("pool") or []
+    if not pool:
+        return fallback
+
+    def default_pick():
+        records = state.get("nodes", {}) if isinstance(state, dict) else {}
+        for cand in pool:
+            rec = records.get(cand) or {}
+            if rec.get("verdict") and rec.get("verdict") != "pass":
+                return cand
+        return pool[0]
+
+    try:
+        text, seconds = _call_agent(_identify_prompt(node_id, state, ctx))
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        _record(node_id, "reroute", "identify fallback: %s" % exc, 0.0, fallback=True)
+        cand = default_pick()
+        return {"status": "done", "verdict": "reroute", "next": cand,
+                "summary": "identified %s (agent unavailable, deterministic)" % cand,
+                "evidence": ["identify-fallback:%s" % cand]}
+    m = re.search(r"^NEXT:\s*([a-z0-9][a-z0-9-]*)", text or "", re.M | re.I)
+    if m and m.group(1) in pool:
+        _record(node_id, "reroute", text, seconds, fallback=False)
+        return {"status": "done", "verdict": "reroute", "next": m.group(1),
+                "summary": "identified %s" % m.group(1),
+                "evidence": ["identify:%s" % m.group(1)]}
+    if re.search(r"^HUMAN", text or "", re.M | re.I):
+        _record(node_id, "human", text, seconds, fallback=False)
+        return {"status": "done", "verdict": "human",
+                "summary": "blocker needs a human", "evidence": ["identify:human"]}
+    _record(node_id, "reroute", "identify unparseable, deterministic pick", seconds,
+            fallback=True)
+    cand = default_pick()
+    return {"status": "done", "verdict": "reroute", "next": cand,
+            "summary": "identified %s (unparseable reply, deterministic)" % cand,
+            "evidence": ["identify-fallback:%s" % cand]}
+
+
 def execute_node(node_id, state, ctx):
+    if ctx and ctx.get("mode") == "identify":
+        return _identify(node_id, state, ctx)
     prompt, skill_words = _context_prompt(node_id, state, ctx)
     try:
         text, seconds = _call_agent(prompt)

@@ -12,7 +12,7 @@ enforces loop budgets, stagnation, step budgets, and handoff bookkeeping in code
 | Manifest | Shape | What it proves |
 |----------|-------|----------------|
 | `serial-feature-delivery.yaml` | **Serial, single-agent** | idea-to-spec → system-architect → code-reviewer, one registered handoff payload per edge |
-| `quality-fix-loop.yaml` | **Bounded loop, single-agent** | backend-developer ↔ qa-engineer until `qa.verdict == pass`; exhaustion escalates to a human gate |
+| `quality-fix-loop.yaml` | **Bounded loop, single-agent + agent gate** | backend-developer ↔ qa-engineer until `qa.verdict == pass`; exhaustion first escalates to `identify-agent-gate` (`kind: agent`, bounded reroute of corrective channels) before the human `release-gate` — see WORKFLOW-SYSTEM.md §2.4 |
 | `parallel-audits-merge.yaml` | **Parallel, multi-agent** | three specialist auditors over one change, join: all, human gate fires after the last auditor |
 | `agent-efficiency-pass.yaml` | **Serial, prompt/efficiency skills** | using-agent-skills → llm-engineer → context-compaction-strategies → token-efficiency |
 | `senior-dev-loop.yaml` | **Bounded loop, single-agent (flagship)** | micro-SDLC over flagship skills: incremental-implementation ↔ code-reviewer until `review.verdict == pass`; exhaustion escalates to a human ship gate — see `docs/flagship-senior-engineering.md` |

@@ -140,7 +140,7 @@ top_level:
       action:
         type: string
         required: true
-        enum: [intake, execute, verify, revise, handoff-out, handoff-in, escalate, checkpoint, done]
+        enum: [intake, execute, verify, revise, handoff-out, handoff-in, escalate, agent-gate, checkpoint, done]
       detail:
         type: string
         required: false

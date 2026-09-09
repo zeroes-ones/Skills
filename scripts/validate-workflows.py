@@ -271,17 +271,45 @@ class WorkflowValidator(object):
                                    % (pid, o)))
 
     def _check_gates(self, data, nodes, errors):
+        loops = data.get("loops") or []
         for g in data.get("gates") or []:
             if not isinstance(g, dict):
                 continue
             gid = g.get("id")
             if g.get("type") != "gate":
                 errors.append(_err("gate %s: type must be 'gate'" % gid))
-            if g.get("kind") not in ("human", "auto"):
-                errors.append(_err("gate %s: kind must be human|auto" % gid))
+            kind = g.get("kind")
+            if kind not in ("human", "auto", "agent"):
+                errors.append(_err("gate %s: kind must be human|auto|agent" % gid))
             if g.get("pass_when") and not _COND_RE.match(str(g["pass_when"])):
                 errors.append(_err("gate %s: pass_when outside vocabulary: %r"
                                    % (gid, g["pass_when"])))
+            if kind != "agent":
+                continue
+            # V10: identify-agent gate contract
+            pool = g.get("pool")
+            if not isinstance(pool, list) or not pool:
+                errors.append(_err("gate %s: kind agent requires a non-empty pool" % gid))
+            for p in pool or []:
+                self._node_ref_ok(p, nodes, errors, "gate %s.pool" % gid)
+            mr = g.get("max_reroutes")
+            if not isinstance(mr, int) or isinstance(mr, bool) or mr < 1:
+                errors.append(_err("gate %s: kind agent requires max_reroutes >= 1" % gid))
+            if not g.get("escalate_to"):
+                errors.append(_err("gate %s: kind agent requires a terminal escalate_to" % gid))
+            else:
+                self._node_ref_ok(g["escalate_to"], nodes, errors,
+                                  "gate %s.escalate_to" % gid)
+            referencing = [lp for lp in loops if lp.get("escalate_to") == gid]
+            if not referencing:
+                errors.append(_err("gate %s: kind agent must be referenced by a loop "
+                                   "escalate_to" % gid))
+            for lp in referencing:
+                members = set(lp.get("nodes") or [])
+                for p in pool or []:
+                    if p not in members:
+                        errors.append(_err("gate %s: pool member %r is not a member of "
+                                           "referencing loop %s" % (gid, p, lp.get("id"))))
 
     def _check_supervisors(self, data, nodes, errors):
         for n in data.get("nodes") or []:
@@ -360,6 +388,16 @@ class WorkflowValidator(object):
             if isinstance(e, dict):
                 adj.setdefault(e.get("from"), []).append(e.get("to"))
         loop_members = self._loop_members(data)
+        # Escalation arcs are reachability arcs at runtime: a loop reaches its escalate_to
+        # target (kind: agent gates), and an agent gate reaches its terminal escalate_to.
+        loop_escalate = {}
+        for lp in data.get("loops") or []:
+            if isinstance(lp, dict) and lp.get("escalate_to"):
+                for nid in lp.get("nodes") or []:
+                    loop_escalate[nid] = lp["escalate_to"]
+        gate_escalate = {g["id"]: g["escalate_to"] for g in data.get("gates") or []
+                         if isinstance(g, dict) and g.get("kind") == "agent"
+                         and g.get("escalate_to")}
         reachable = set()
         frontier = [start]
         while frontier:
@@ -369,6 +407,10 @@ class WorkflowValidator(object):
             reachable.add(cur)
             if cur in loop_members:
                 frontier.extend(loop_members)  # loop members iterate among themselves
+                if cur in loop_escalate:
+                    frontier.append(loop_escalate[cur])
+            if cur in gate_escalate:
+                frontier.append(gate_escalate[cur])
             for nxt in adj.get(cur, []):
                 if nxt not in reachable:
                     frontier.append(nxt)

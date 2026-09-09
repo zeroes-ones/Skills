@@ -1,6 +1,6 @@
 name: quality-fix-loop
-version: "1.0.0"
-description: "Single-agent bounded loop: backend change -> QA -> fix until QA passes, escalating to a human release gate at exhaustion. Demonstrates the loop protocol over ordinary (default-mode) skills."
+version: "1.1.0"
+description: "Single-agent bounded loop: backend change -> QA -> fix until QA passes. On exhaustion the loop first escalates to an identify-agent gate (kind: agent) which names the corrective channel and grants a fresh bounded window with that channel first; only after the reroute budget or a no-delta window does it escalate to the human release gate."
 payloads:
   handoff-v1:
     - status
@@ -13,7 +13,7 @@ payloads:
     - budget
     - next
 budget:
-  max_steps: 40
+  max_steps: 60
 start: developer
 nodes:
   - id: developer
@@ -24,11 +24,19 @@ nodes:
     inputs: [change]
     outputs: [qa-report]
 gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [developer, qa]        # corrective channels (members of the escalating loop)
+    max_reroutes: 3              # bounded reroute budget before the human gate
+    escalate_to: release-gate    # terminal target after reroutes / stagnation / human-only
+    requires: [qa-report, change]
+    description: "Pre-human triage: on loop exhaustion, identify which channel leads the next bounded window (executor ctx mode=identify; deterministic fallback = first untried pool member). Reroutes are counted and bounded; a no-delta window escalates to the human release gate."
   - id: release-gate
     type: gate
     kind: human
     requires: [qa-report, change]
-    description: Human approves the change after QA converges or the loop exhausts.
+    description: Human approves the change after QA converges, agent reroutes are exhausted, or the loop exhausts.
 edges:
   - from: qa
     to: release-gate
@@ -39,7 +47,7 @@ loops:
     nodes: [developer, qa]
     exit_when: qa.verdict == pass
     max_iterations: 3
-    escalate_to: release-gate
+    escalate_to: identify-agent-gate
     convergence:
       window: 2
       require_delta: true
