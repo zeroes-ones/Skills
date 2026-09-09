@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-09T20:50:48Z
+# Generated: 2026-09-09T20:58:44Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    4abc968d2655c99625a43b0d0b6d8cbd34421398
+# Commit:    f65932750d89165f0e8502c8e182498ecbdcc3e5
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -66,6 +66,7 @@ fd1b88f2e6e0491d653c161745eef606b6b047196c524d7aefe4ae021ed8feea  scripts/runtim
 13b0d593d655dedb7cc285a394646b569dfcf7f6c9182e07ea34665e68c9b8b4  scripts/skill-factory.py
 5c1bf5669af34bd2d76f32a8b3a1dbebc8b7f850762313d2f806aeac778e530a  scripts/skill-incorporate.py
 e30826411b84e2d4402143670ff88d6821e2635b762d964fcc3015595228cc56  scripts/skill-router.py
+e645847000cb93b77bee6732868752d68495fcd87a75517665a8e1c5a849c278  scripts/skill-self-run.py
 e3257e7332f11cd5bcafa5d4a3de62b8dc881115de7265bfad372bf08ea33958  scripts/skill-sli-report.py
 5efe46068f41d543978a8df504ea429125bd03c425675074b8d3a8fd3e739c37  scripts/trim-context.sh
 0a95e1fb6019c454162c2e3222fe9d461c65eecf7a3a8955373a26a7f13d7cb0  scripts/upgrade_to_10_v2.py

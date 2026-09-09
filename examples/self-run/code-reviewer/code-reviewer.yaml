@@ -1,0 +1,65 @@
+name: code-reviewer
+version: "1.0.0"
+description: "Self-running graph for skill 'code-reviewer': run 2 prerequisite(s) (back), then the skill loops until its Verification passes (exit_when: main.verdict == pass; exhaustion reroutes via a kind: agent gate), then hands off to a human accept gate."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 80
+start: using-agent-skills
+nodes:
+  - id: using-agent-skills
+    skill: using-agent-skills
+    outputs: [using-agent-skills-output]
+  - id: source-driven-development
+    skill: source-driven-development
+    outputs: [source-driven-development-output]
+  - id: main
+    skill: code-reviewer
+    outputs: [result]
+gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [main]
+    max_reroutes: 3
+    escalate_to: accept-gate
+    requires: [result]
+    description: "Pre-human triage: on self-loop exhaustion, reroute the main channel (bounded); then escalate to the human gate."
+  - id: accept-gate
+    type: gate
+    kind: human
+    requires: [result]
+    description: "Human accepts the result once the skill's Verification passes (or reviews the escalation report when automation exhausted)."
+
+edges:
+  - from: using-agent-skills
+    to: source-driven-development
+    when: using-agent-skills.status == done
+    payload: handoff-v1
+  - from: source-driven-development
+    to: main
+    when: source-driven-development.status == done
+    payload: handoff-v1
+  - from: main
+    to: accept-gate
+    when: main.status == done
+    payload: handoff-v1
+loops:
+  - id: self-loop
+    nodes: [main]
+    exit_when: main.verdict == pass
+    max_iterations: 2
+    escalate_to: identify-agent-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [accept-gate]
