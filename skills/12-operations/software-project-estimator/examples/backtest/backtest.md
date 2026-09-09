@@ -12,5 +12,8 @@ Figures tagged [VERIFIED]=actuals, [COMPUTED]=derived, [ESTIMATED]=judgment.
 Converged calibration: add integration/test allowance (20–35%) and the risk contingency from
 the decision tree; S-class bands ±25% held within ±10% when decomposition was done.
 
+Dollar P&L: M-class base $30,000; band miss (±30%) cost ≈ **$9,000** absorbed; S-class
+under-estimate by one band ≈ **$1,800** on a $6,000 quote.
+
 **Complete when:** the calibration log shows ≥3 actuals and the default bands are the result of
 the deltas above, not an industry guess.

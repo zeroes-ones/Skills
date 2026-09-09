@@ -12,5 +12,9 @@ Three engagements used to calibrate the deliverable-day anchors and utilization 
 Converged calibration: use the day-box anchors from `references/patterns-catalog.md`, add the
 20–30% review/rework buffer, model ramp on fractional roles, and log real days quarterly.
 
+Dollar P&L: discovery day-box at $1,200/day → 1-day miss ≈ **$1,200**; fractional ramp
+under-modeled by 3 days/mo ≈ **$3,600/mo** of unbilled ramp; review-cycle miss on a design
+deliverable ≈ **$2,400–$3,600**.
+
 **Complete when:** the calibration log shows ≥3 engagements and the anchors + utilization
 defaults trace to the deltas above, not to an industry guess.
