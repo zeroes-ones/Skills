@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "zeroes-ones-all",
-      "description": "All 298 skills in one plugin (flat discovery layer)",
+      "description": "All 303 skills in one plugin (flat discovery layer)",
       "source": "./plugins/zeroes-ones-all"
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "name": "operations",
-      "description": "9 skills: customer-support-engineer, event-planner, handoff, project-manager, scrum-master, teach, \u2026 (12-operations)",
+      "description": "11 skills: consulting-effort-estimator, customer-support-engineer, event-planner, handoff, project-manager, scrum-master, \u2026 (12-operations)",
       "source": "./plugins/operations"
     },
     {
@@ -88,12 +88,12 @@
     },
     {
       "name": "finance",
-      "description": "25 skills: advanced-options-structures, algorithmic-trader, commodities-analyst, crypto-trader, financial-security, fixed-income-analyst, \u2026 (14-finance)",
+      "description": "26 skills: advanced-options-structures, algorithmic-trader, commodities-analyst, crypto-trader, financial-security, fixed-income-analyst, \u2026 (14-finance)",
       "source": "./plugins/finance"
     },
     {
       "name": "sales",
-      "description": "6 skills: bizdev-manager, demand-generation, marketing-manager, partnerships-manager, revops-manager, sales-engineer, \u2026 (15-sales)",
+      "description": "8 skills: bizdev-manager, demand-generation, marketing-manager, partnerships-manager, revops-manager, sales-engineer, \u2026 (15-sales)",
       "source": "./plugins/sales"
     },
     {

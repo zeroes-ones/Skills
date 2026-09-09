@@ -1,15 +1,12 @@
 {
   "name": "zeroes-ones-all",
   "version": "1.0.0",
-  "description": "All 298 skills in one plugin (flat discovery layer)",
+  "description": "All 303 skills in one plugin (flat discovery layer)",
   "author": {
     "name": "Sandeep Kumar Penchala",
     "email": "sandeepkumarp@outlook.com"
   },
   "skills": [
     "./skills"
-  ],
-  "hooks": [
-    "./hooks"
   ]
 }
