@@ -1,0 +1,105 @@
+name: payments-api-ship
+version: "1.0.0"
+description: "Real-world delivery lifecycle for a payments/checkout API change: spec -> architecture -> implementation (single-agent serial handoffs), parallel specialist audits (code + security, join: all), a bounded fix-and-verify loop (fixer <-> qa) that escalates to a kind: agent identify gate before a human release gate. Companion walkthrough: examples/payments-api-ship/README.md."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 80
+start: spec
+nodes:
+  - id: spec
+    skill: idea-to-spec
+    outputs: [spec]
+  - id: architect
+    skill: system-architect
+    inputs: [spec]
+    outputs: [architecture]
+  - id: backend
+    skill: backend-developer
+    inputs: [architecture]
+    outputs: [change]
+  - id: code-reviewer
+    skill: code-reviewer
+    inputs: [change]
+    outputs: [code-findings]
+    max_iterations: 1
+  - id: security-reviewer
+    skill: security-reviewer
+    inputs: [change]
+    outputs: [security-findings]
+    max_iterations: 1
+  - id: fixer
+    skill: backend-developer
+    inputs: [change, code-findings, security-findings]
+    outputs: [fix-report]
+  - id: qa
+    skill: qa-engineer
+    inputs: [change, fix-report]
+    outputs: [qa-report]
+gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [fixer, qa]
+    max_reroutes: 3
+    escalate_to: release-gate
+    requires: [qa-report, change]
+    description: "Pre-human triage: on loop exhaustion, identify which channel (fixer rework or qa re-verify) should lead the next bounded window; reroutes are counted and bounded, and a no-delta window escalates to the human release gate."
+  - id: release-gate
+    type: gate
+    kind: human
+    requires: [change, code-findings, security-findings, qa-report]
+    description: "Human release manager approves shipping to production once automated convergence is green (or reviews the escalation report if automation exhausted)."
+parallel:
+  - id: auditors
+    nodes: [code-reviewer, security-reviewer]
+    join: all
+    outputs: [audit-findings]
+edges:
+  - from: spec
+    to: architect
+    when: spec.status == done
+    payload: handoff-v1
+  - from: architect
+    to: backend
+    when: architect.status == done
+    payload: handoff-v1
+  - from: backend
+    to: code-reviewer
+    when: backend.status == done
+    payload: handoff-v1
+  - from: backend
+    to: security-reviewer
+    when: backend.status == done
+    payload: handoff-v1
+  - from: code-reviewer
+    to: fixer
+    when: code-reviewer.status == done
+    payload: handoff-v1
+  - from: security-reviewer
+    to: fixer
+    when: security-reviewer.status == done
+    payload: handoff-v1
+  - from: qa
+    to: release-gate
+    when: qa.status == done
+    payload: handoff-v1
+loops:
+  - id: fix-verify-loop
+    nodes: [fixer, qa]
+    exit_when: qa.verdict == pass
+    max_iterations: 2
+    escalate_to: identify-agent-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [release-gate]

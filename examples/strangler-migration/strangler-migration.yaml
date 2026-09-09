@@ -1,0 +1,95 @@
+name: strangler-migration
+version: "1.0.0"
+description: "Real-world strangler-fig migration: analyze the legacy monolith, human approves the plan, design the new API, implement and verify in a bounded loop (escalating to a kind: agent gate on exhaustion), human approves cutover, then documentation and deprecation close the slice."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 80
+start: analyze
+nodes:
+  - id: analyze
+    skill: migration-architect
+    outputs: [migration-plan]
+  - id: design
+    skill: api-designer
+    inputs: [migration-plan]
+    outputs: [target-api]
+  - id: implement
+    skill: backend-developer
+    inputs: [target-api]
+    outputs: [slice]
+  - id: verify
+    skill: qa-engineer
+    inputs: [slice]
+    outputs: [verify-report]
+  - id: docs-engineer
+    skill: documentation-engineer
+    inputs: [slice]
+    outputs: [api-docs]
+  - id: deprecation-engineer
+    skill: deprecation-engineer
+    inputs: [slice]
+    outputs: [sunset-plan]
+gates:
+  - id: plan-gate
+    type: gate
+    kind: human
+    requires: [migration-plan]
+    description: "Human architecture owner approves the migration plan before any code is written."
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [implement, verify]
+    max_reroutes: 3
+    escalate_to: cutover-gate
+    requires: [verify-report, slice]
+    description: "Pre-human triage: on implement-verify exhaustion, pick the channel (implement or verify) that leads the next bounded window; reroutes are bounded, and a no-delta window escalates to the cutover gate."
+  - id: cutover-gate
+    type: gate
+    kind: human
+    requires: [verify-report, slice]
+    description: "Human release owner approves the cutover only when verification converges (or reviews the escalation report when automation exhausted)."
+edges:
+  - from: analyze
+    to: plan-gate
+    when: analyze.status == done
+    payload: handoff-v1
+  - from: plan-gate
+    to: design
+    when: plan-gate.status == done
+    payload: handoff-v1
+  - from: design
+    to: implement
+    when: design.status == done
+    payload: handoff-v1
+  - from: verify
+    to: cutover-gate
+    when: verify.status == done
+    payload: handoff-v1
+  - from: cutover-gate
+    to: docs-engineer
+    when: cutover-gate.status == done
+    payload: handoff-v1
+  - from: cutover-gate
+    to: deprecation-engineer
+    when: cutover-gate.status == done
+    payload: handoff-v1
+loops:
+  - id: implement-verify-loop
+    nodes: [implement, verify]
+    exit_when: verify.verdict == pass
+    max_iterations: 2
+    escalate_to: identify-agent-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [docs-engineer, deprecation-engineer]

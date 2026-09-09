@@ -79,6 +79,16 @@ A solo quant trader building an Unusual Options Activity (UOA) detection and exe
 | **LogSnap Full** | 56 | Growing SaaS, hiring first employees |
 | **Orchestra Platform** | 106+ | Funded startups, enterprise teams, all-domains coverage |
 | **UOA Trading** | 15 | Domain-specific pipelines (finance, health, gaming, etc.) |
+| **Payments API Ship** ([`payments-api-ship/`](payments-api-ship/)) | 6 | Executable delivery graph: skill chain + parallel audits + bounded loop + agent-gate → human release |
+| **Production Incident** ([`production-incident/`](production-incident/)) | 3 | On-call firefight: time-boxed stabilize loop → agent-gate channel pick → human incident commander |
+| **Strangler Migration** ([`strangler-migration/`](strangler-migration/)) | 6 | Phased legacy migration with two human gates (plan, cutover) + agent-gate before cutover risk |
+| **Solo SaaS** ([`solo-saas/`](solo-saas/)) — small | 3 | Idea → build-verify loop → human go-live gate. Solo scale: escalation goes straight to the human (no agent pool). |
+| **Team Product** ([`team-product/`](team-product/)) — mid | 6 | Parallel backend+frontend tracks (join) → integration loop → agent gate → human prod gate → deploy |
+| **Enterprise Platform** ([`enterprise-platform/`](enterprise-platform/)) — large | 8 | Parallel readiness (implement/security/compliance) → loop + agent gate → compliance gate → canary → observability → release board |
+
+**Diagrams:** every executable example has annotated ASCII + Mermaid flow diagrams (legend,
+budgets, loops, gates, escalation arcs, handoff payloads — field-accurate to the manifests).
+Full set: [`DETAILED-DIAGRAMS.md`](DETAILED-DIAGRAMS.md).
 
 ---
 

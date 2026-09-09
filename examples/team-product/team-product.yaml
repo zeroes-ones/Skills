@@ -1,0 +1,103 @@
+name: team-product
+version: "1.0.0"
+description: "Mid / small-team project scale: one product release built by a small team. Spec -> architecture -> parallel frontend + backend tracks (join: all) -> bounded integration loop (fixer <-> qa) escalating to a kind: agent gate -> human production gate -> deploy. End-to-end from start to prod release."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 60
+start: spec
+nodes:
+  - id: spec
+    skill: idea-to-spec
+    outputs: [spec]
+  - id: architect
+    skill: system-architect
+    inputs: [spec]
+    outputs: [architecture]
+  - id: backend
+    skill: backend-developer
+    inputs: [architecture]
+    outputs: [api]
+  - id: frontend
+    skill: frontend-developer
+    inputs: [architecture]
+    outputs: [ui]
+  - id: fixer
+    skill: backend-developer
+    inputs: [api, ui]
+    outputs: [fix-report]
+  - id: verify
+    skill: qa-engineer
+    inputs: [api, ui, fix-report]
+    outputs: [qa-report]
+  - id: deploy
+    skill: release-manager
+    inputs: [qa-report]
+    outputs: [release]
+gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [fixer, verify]
+    max_reroutes: 3
+    escalate_to: prod-gate
+    requires: [qa-report]
+    description: "Pre-human triage: on integration-loop exhaustion, pick the channel (fixer or verify) that leads the next bounded window; reroutes are bounded, and a no-delta window escalates to the production gate."
+  - id: prod-gate
+    type: gate
+    kind: human
+    requires: [qa-report]
+    description: "Team lead approves the production release after integration converges (or reviews the escalation report when automation exhausted)."
+parallel:
+  - id: dev-tracks
+    nodes: [backend, frontend]
+    join: all
+    outputs: [build-artifacts]
+edges:
+  - from: spec
+    to: architect
+    when: spec.status == done
+    payload: handoff-v1
+  - from: architect
+    to: backend
+    when: architect.status == done
+    payload: handoff-v1
+  - from: architect
+    to: frontend
+    when: architect.status == done
+    payload: handoff-v1
+  - from: backend
+    to: fixer
+    when: backend.status == done
+    payload: handoff-v1
+  - from: frontend
+    to: fixer
+    when: frontend.status == done
+    payload: handoff-v1
+  - from: verify
+    to: prod-gate
+    when: verify.status == done
+    payload: handoff-v1
+  - from: prod-gate
+    to: deploy
+    when: prod-gate.status == done
+    payload: handoff-v1
+loops:
+  - id: integration-loop
+    nodes: [fixer, verify]
+    exit_when: verify.verdict == pass
+    max_iterations: 2
+    escalate_to: identify-agent-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [deploy]

@@ -1,0 +1,132 @@
+name: enterprise-platform
+version: "1.0.0"
+description: "Large / enterprise project scale: one platform release with parallel implementation + security + compliance readiness (join: all), a bounded integration loop (fixer <-> qa) escalating to a kind: agent gate, a human compliance gate before canary deploy, observability check, and a final human release-board gate. End-to-end from start to prod release."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 120
+start: spec
+nodes:
+  - id: spec
+    skill: idea-to-spec
+    outputs: [spec]
+  - id: architect
+    skill: system-architect
+    inputs: [spec]
+    outputs: [architecture]
+  - id: implement
+    skill: backend-developer
+    inputs: [architecture]
+    outputs: [release-candidate]
+  - id: secure
+    skill: security-engineer
+    inputs: [architecture]
+    outputs: [security-report]
+  - id: compliance
+    skill: compliance-officer
+    inputs: [architecture]
+    outputs: [compliance-report]
+  - id: fixer
+    skill: backend-developer
+    inputs: [release-candidate, security-report, compliance-report]
+    outputs: [fix-report]
+  - id: verify
+    skill: qa-engineer
+    inputs: [release-candidate, fix-report]
+    outputs: [qa-report]
+  - id: deploy
+    skill: release-manager
+    inputs: [qa-report]
+    outputs: [canary-deploy]
+  - id: observe
+    skill: observability-engineer
+    inputs: [canary-deploy]
+    outputs: [canary-report]
+gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [fixer, verify]
+    max_reroutes: 3
+    escalate_to: compliance-gate
+    requires: [qa-report]
+    description: "Pre-human triage: on integration-loop exhaustion, pick the channel (fixer or verify) that leads the next bounded window; reroutes are bounded, and a no-delta window escalates to the compliance gate."
+  - id: compliance-gate
+    type: gate
+    kind: human
+    requires: [qa-report, security-report, compliance-report]
+    description: "Security + compliance owners approve moving the release candidate to canary after integration converges (or review the escalation report when automation exhausted)."
+  - id: release-board-gate
+    type: gate
+    kind: human
+    requires: [canary-report]
+    description: "The release board approves full production rollout only after the canary shows healthy observability."
+parallel:
+  - id: readiness
+    nodes: [implement, secure, compliance]
+    join: all
+    outputs: [readiness-artifacts]
+edges:
+  - from: spec
+    to: architect
+    when: spec.status == done
+    payload: handoff-v1
+  - from: architect
+    to: implement
+    when: architect.status == done
+    payload: handoff-v1
+  - from: architect
+    to: secure
+    when: architect.status == done
+    payload: handoff-v1
+  - from: architect
+    to: compliance
+    when: architect.status == done
+    payload: handoff-v1
+  - from: implement
+    to: fixer
+    when: implement.status == done
+    payload: handoff-v1
+  - from: secure
+    to: fixer
+    when: secure.status == done
+    payload: handoff-v1
+  - from: compliance
+    to: fixer
+    when: compliance.status == done
+    payload: handoff-v1
+  - from: verify
+    to: compliance-gate
+    when: verify.status == done
+    payload: handoff-v1
+  - from: compliance-gate
+    to: deploy
+    when: compliance-gate.status == done
+    payload: handoff-v1
+  - from: deploy
+    to: observe
+    when: deploy.status == done
+    payload: handoff-v1
+  - from: observe
+    to: release-board-gate
+    when: observe.status == done
+    payload: handoff-v1
+loops:
+  - id: integration-loop
+    nodes: [fixer, verify]
+    exit_when: verify.verdict == pass
+    max_iterations: 2
+    escalate_to: identify-agent-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [release-board-gate]

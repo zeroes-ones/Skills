@@ -1,0 +1,54 @@
+name: solo-saas
+version: "1.0.0"
+description: "Small / solo project scale: take a SaaS idea from spec to first production release as one person. Idea -> build -> verify in a small bounded loop; on exhaustion escalation goes straight to a human go-live gate (no specialist pool at solo scale). End-to-end from start to prod release."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 30
+start: spec
+nodes:
+  - id: spec
+    skill: idea-to-spec
+    outputs: [spec]
+  - id: build
+    skill: backend-developer
+    inputs: [spec]
+    outputs: [app]
+  - id: qa
+    skill: qa-engineer
+    inputs: [app]
+    outputs: [qa-report]
+gates:
+  - id: go-live-gate
+    type: gate
+    kind: human
+    requires: [qa-report, app]
+    description: "The solo developer (as release owner) decides go-live after the bounded build-verify loop converges or exhausts."
+edges:
+  - from: spec
+    to: build
+    when: spec.status == done
+    payload: handoff-v1
+  - from: qa
+    to: go-live-gate
+    when: qa.status == done
+    payload: handoff-v1
+loops:
+  - id: build-verify-loop
+    nodes: [build, qa]
+    exit_when: qa.verdict == pass
+    max_iterations: 2
+    escalate_to: go-live-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [go-live-gate]
