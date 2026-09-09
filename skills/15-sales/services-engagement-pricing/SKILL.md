@@ -405,14 +405,17 @@ the support-quote path already started if the client will need it.
 
 ## Failure Modes
 
-- **Cost-blind pricing** — trigger: quoting without a computed break-even rate; impact:
-  **$5,000–$20,000** per fixed deal subsidized by you.
-- **Fixed-price risk transfer** — trigger: buffer skipped on fixed quotes; impact: overrun
-  absorbed (typical 30–40%); mitigation: 15–25% buffer + assumptions.
-- **Category mispricing** — trigger: B2B priced like B2C; impact: **$10,000–$60,000** per deal
-  left behind; mitigation: category multiplier check.
-- **Effective-rate blindness** — trigger: judging "great" hourly without unbilled time; impact:
-  **15–40%** of income invisible; mitigation: effective-rate calc per client.
+- **Failure mode — cost-blind pricing:** quoting without a computed break-even rate. Worst case:
+  a fixed deal subsidized by you (**$5,000–$20,000**). Known limitation of skipping Phase 2 —
+  mitigate by running the rate card before any price.
+- **Failure mode — fixed-price risk transfer:** buffer skipped on fixed quotes. When that fails,
+  the overrun is absorbed (typical 30–40%). Exit condition for a sane fixed quote: base +
+  15–25% buffer + assumptions present.
+- **Failure mode — category mispricing:** B2B priced like B2C. Worst case: **$10,000–$60,000**
+  per deal left behind. Edge case to re-check: procurement-grade buyers that look B2C.
+- **Failure mode — effective-rate blindness:** judging a "great" hourly without unbilled time.
+  When this fails, 15–40% of income is invisible. Known limitation of sticker-rate pricing —
+  run the effective-rate calc per client.
 
 ## References
 
