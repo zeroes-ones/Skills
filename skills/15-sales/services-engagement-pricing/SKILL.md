@@ -35,9 +35,11 @@ chain:
   consumes_from:
   - software-project-estimator
   - software-maintenance-support-estimator
+  - consulting-effort-estimator
   feeds_into:
   - software-project-estimator
   - software-maintenance-support-estimator
+  - consulting-effort-estimator
 ---
 # Services Engagement Pricing
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

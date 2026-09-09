@@ -98,7 +98,38 @@ Small Business Chron / Architekwiki billing-rate multipliers.
 Sources: Axented, BlastAsia, Netguru, ScienceSoft via CodeStringers, JHAVTECH, PC Tech Magazine
 (2026 maintenance-cost guides).
 
-## 5. Known weaknesses of these numbers
+## 5. Services & consulting coverage matrix (what the cluster prices, and how)
+
+Any client ask maps to an engagement type; each maps to a model, an estimator, and the pricing
+skill. "Estimator" column = the skill that sizes the effort for the pricing skill.
+
+| Engagement type | Client ask examples | Estimator | Default model | Key driver |
+|---|---|---|---|---|
+| Build (app/feature/API/DB) | new app, add feature, change API, create DB | `software-project-estimator` | fixed (scoped) or T&M | effort class + risk |
+| Change/redesign | UI change, refactor | `software-project-estimator` (S class) | fixed | bounded scope |
+| Migrate | DB/system migration | `software-project-estimator` + migration workflow | fixed per slice | parity risk |
+| Incident / ops firefight | prod down | incident workflow | T&M / emergency terms | time-boxed |
+| Support & maintain | retainer, SLA, annual | `software-maintenance-support-estimator` | retainer + T&M lane | % of build + risk |
+| Discovery / consulting | audit, roadmap, tech advisory, options analysis | `consulting-effort-estimator` | day rate or fixed small | deliverable days |
+| Non-software deliverables | design, content, data, ML model, training, docs | `consulting-effort-estimator` | fixed per deliverable | deliverable-based sizing |
+| Ongoing / fractional | part-time CTO, staff augmentation, support-team placement | `consulting-effort-estimator` | monthly retainer / placement | availability premium |
+| Value/outcome-based | growth on revenue, SLA-backed ops | pricing skill (value rules) | value-based | metric + floor |
+
+Segment playbooks (how to present and buffer the same work):
+
+| Segment | Presentation | Buffer/multiplier notes |
+|---|---|---|
+| Solo freelancer | simple fixed or hourly; build actuals | buffer 15–25% on fixed |
+| Agency | structured SOW, milestone billing | firm multiplier 2.0–3.7× |
+| Productized service | packaged tiers, published pricing | fixed scope per tier + T&M overflow |
+| Enterprise / B2B | procurement-grade SOW + category multiplier | B2B 2–4×, compliance overhead |
+| B2G | RFP-compliant, long cycles | 3–5× equivalent, payment lag priced |
+
+This matrix is the routing layer for `docs/client-request-playbook.md`: every row above has a
+runnable example there except the consulting rows, which the `consulting-effort-estimator` skill
+covers directly (discovery, non-software deliverables, ongoing/fractional engagements).
+
+## 6. Known weaknesses of these numbers
 
 - Many maintenance "benchmarks" are vendor-published budget heuristics; treat as starting anchors
   and calibrate to your own actuals.
