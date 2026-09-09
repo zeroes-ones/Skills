@@ -416,6 +416,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/benchmarks-vs-agent-skills.md`](docs/benchmarks-vs-agent-skills.md) | Reproducible routing benchmark — methodology, before/after results, reproduction commands, and how to score any peer corpus with the same harness |
 | [`docs/client-request-playbook.md`](docs/client-request-playbook.md) | Client-request playbook: "build an app / change UI / change API / create or migrate a DB / add features / support & maintain" → skills, example manifest, estimate→price→support path, and your human-gate points by practitioner level |
 | [`docs/service-size-fitting.md`](docs/service-size-fitting.md) | Right-size any services job XS→XL (SaaS, any product/development, services, freelancing): effort band → engagement model, skills, example to copy, money path, human gates |
+| [`docs/using-the-services-stack.md`](docs/using-the-services-stack.md) | Quick guide: how to actually use the estimate → price → SOW → support skills (install, 4 usage modes, worked freelancer flow, prompt table) |
 | [`scripts/run-effectiveness.py`](scripts/run-effectiveness.py) | Score any run 0-100: completion, clean, exit-by-design, handoffs, budget, memory (gateable) |
 | [`scripts/skill-incorporate.py`](scripts/skill-incorporate.py) | Per-skill incorporation scorecard over the whole library (gaps as data) |
 | [`examples/efficiency-in-action.md`](examples/efficiency-in-action.md) | Real-time token/memory/prompt efficiency example with measured savings across loops & graphs |
