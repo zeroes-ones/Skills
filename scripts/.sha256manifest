@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-08T15:04:52Z
+# Generated: 2026-09-09T16:13:41Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    e52e2ea154bf3f49985e1e1a3d3b7d3fbf1987a2
+# Commit:    8e3cc3cde2c153e2f26ddd62ccf8a5d7d37655b8
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -9,16 +9,16 @@
 e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
 e317a3f98a8b39365f708f97950e21e7248c49227a724ca79218abf522b82668  .githooks/pre-commit
 ef8c6e4ace23f0c4d14b8865f2e543c4ea94b2d8850bfd0241e695e461e940a7  .githooks/pre-push
-655cdc9a64ff46197ba7f06f1553b88b5ffae74c7f4c4138dd545ac5dd4814eb  scripts/_compile_skill.py
+63bad0ccc35c995cc82645b621ebdc014a7c7d2fe32dec985d6a3a246d161cb2  scripts/_compile_skill.py
 ffd847830fc4daa5ff70cdde91f58597623f5103959130f1240d1b9d82e6ea25  scripts/add-finance-rp-extensions.py
 951f3b69eebbc777c0088fa90793c199efe8d9b726fabc08881871facb48abf8  scripts/add-iterative-research-loop.py
 8f552e802a940117d04749517d73024eabaefc086061a181245f50f383c82976  scripts/add-research-prerequisite.py
 158880b0bd253ee05757d80e778650d4740e3ea569d9c4a88d6ee929833ad5f8  scripts/agent-handshake.sh
 faee631777544e92d7f2b676903643d0bfdea22887c68b768069f90685389471  scripts/audit-library.py
 5e967a4ccc318b31d0af47e02174382a23afa24dd767f44e70174cff25be087a  scripts/behavioral-evals.py
-15f7ac66cb302d8f8ce9fe39ea824a8e853d58ae31f083357890edbc2badf5c7  scripts/benchmark-skills.py
+2a8bc96d20233d9a346c219006dbd0f208eefa5dae1466ab5fa0a5dc66909559  scripts/benchmark-skills.py
 f0cb08ecfed782f0549fd727d4d988786bb487ef78a6e4fe62604170478f6f49  scripts/build-flat-index.sh
-220f0d9b3f3c60c27f0b213809d92d55dec5d8151a1f604cd892677c0f6097b1  scripts/build-skill-index.py
+f3ced2ba8eb676c16f81956aa90f8e533d78e8c2039a95ad94fc24c493e6d91f  scripts/build-skill-index.py
 83e5bc2f876a6d31cc3fc9c54cbafbddb83bce9158f28780dcb83dbe8c236efe  scripts/calculate-roi.sh
 43f5d32c82818855c00463ec3f13502a9972ab15279aaed90fc0d397f9d3e229  scripts/check-flat-index.py
 0275d3713f1c34388927b27c4b9b4bb6c68e4c5f0a2329d88594901317ab609b  scripts/check-token-budget.py
@@ -27,7 +27,7 @@ b34d876e8dd8148c56a17d28b0e160abb1fa5d78648be4f6c2f06e99315991aa  scripts/compil
 2205acdd76abb14d2b89589ddf63d544b08f7f86d5344521df35bbba191388f0  scripts/emit-marketplace.py
 8a6c2bd0d27ba91935308d5e9fc5642da947fd54f7e6d80529ac16b0a702ba7e  scripts/emit-skill-graph.py
 269678d9b63e8f28d2008b1bfb7fa514bafaa869842f96fe25b7c8f21b2b9c3b  scripts/emit-skill-registry.py
-d7258165ae29484705a19b6c606dba62381b340688ed5e6990d4cf77fcd86580  scripts/eval-routing.py
+5bf9fc5cd06487e00526e2d4cb70bda0a952072e1ab5c5ebd4c6a13754ffeb76  scripts/eval-routing.py
 f2a34eb14b3f482c6d57cfcd91837db04ba65ec00b23bf7859db44b51073f680  scripts/eval-skill.sh
 8719461626c18b24373c76517dc40407dcebdc503f532768f57784e3d2770b7e  scripts/executors/agent_executor.py
 12110beef66ea313b7fbcc58058fe16d86f84cf269cdaa1154ac0d5fa19e0583  scripts/executors/repo_checks.py
@@ -74,7 +74,7 @@ c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/valida
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 ba05301fc66f4b37e48e0d95662ce801792126193e308545ef70fa7e4c4e1617  scripts/workflow-eligibility.py
 e692e915f70a3293227b870f93f9e55bde9c5adf399c6842bd2dba0d631c96de  scripts/workflow-runner.py
-0e04d0d5b5122a5602971cbfbdefa7cf660f040c096887cf9710f48ec903324f  scripts/yaml_shim.py
+27c5b0c560338d1d37b32f40fe7e2e1b98510452ac3d6667c220daa781bdcac0  scripts/yaml_shim.py
 176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/00-framework/agent-persona-orchestrator/scripts/verify-skill.sh
 0d0e277f8dbc788d3c564ed6c8238635dab3cbc4c8f8c826762d9331171d738f  skills/00-framework/cross-skill-communication/scripts/verify-skill.sh
 1f5d7e04ad9be786253c37133933083bc4669ee54846860b85697d057c8b6553  skills/00-framework/senior-engineer-mode-router/scripts/verify-skill.sh

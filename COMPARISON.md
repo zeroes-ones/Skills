@@ -19,7 +19,7 @@ Data for the zeroes-ones/Skills corpus, refreshed with:
 | Effective load saving vs raw body | 86.0% |
 | Portability target declared | 100.0% |
 | Golden eval sets covered | 3/3 |
-| Routing Top-1 / Top-5 (lexical baseline) | 3/10 (30%) / 6/10 (60%) |
+| Routing Top-1 / Top-5 (lexical baseline) | 5/10 (50%) / 6/10 (60%) |
 
 <!-- MEASURED-BASELINE:END -->
 

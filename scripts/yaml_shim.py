@@ -66,7 +66,8 @@ def _parse(raw):
         return re.match(r"^(\w[\w_-]*):\s*(.*)$", l)
 
     def _is_bullet(l):
-        return re.match(r"^\s+-\s+", l) is not None
+        # Flush-left ('- item') and indented ('  - item') YAML block bullets.
+        return re.match(r"^\s*-\s+", l) is not None
 
     while i < n:
         line = lines[i]
@@ -101,7 +102,7 @@ def _parse(raw):
             collected = []
             j = i + 1
             while j < n and _is_bullet(lines[j]):
-                collected.append(re.match(r"^\s+-\s+(.*)", lines[j]).group(1).strip())
+                collected.append(re.match(r"^\s*-\s+(.*)", lines[j]).group(1).strip())
                 j += 1
             data[key] = collected
             i = j

@@ -413,6 +413,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/distribution-best-in-class.md`](docs/distribution-best-in-class.md) | Research: how we compare to superpowers / anthropics/skills / skills.sh and what to incorporate (registry publishing, marketplace, methodology plugin) |
 | [`docs/plugin-marketplace-publishing.md`](docs/plugin-marketplace-publishing.md) | Plugin & marketplace playbook — plugin.json/marketplace.json mechanics, monetization reality, packaging steps |
 | [`docs/agent-support-matrix.md`](docs/agent-support-matrix.md) | Cross-agent support: flat discovery layer (skills-flat/) for every agent's skill scanner — Claude, Cursor, Copilot, Codex, Gemini, Windsurf, Cline, OpenCode, Zed + universal `.agents/skills` |
+| [`docs/benchmarks-vs-agent-skills.md`](docs/benchmarks-vs-agent-skills.md) | Reproducible routing benchmark — methodology, before/after results, reproduction commands, and how to score any peer corpus with the same harness |
 | [`scripts/run-effectiveness.py`](scripts/run-effectiveness.py) | Score any run 0-100: completion, clean, exit-by-design, handoffs, budget, memory (gateable) |
 | [`scripts/skill-incorporate.py`](scripts/skill-incorporate.py) | Per-skill incorporation scorecard over the whole library (gaps as data) |
 | [`examples/efficiency-in-action.md`](examples/efficiency-in-action.md) | Real-time token/memory/prompt efficiency example with measured savings across loops & graphs |

@@ -68,6 +68,22 @@ def _chain_degree(front):
     return cnt
 
 
+def _tags(front):
+    out = []
+    collecting = False
+    for ln in front.splitlines():
+        if re.match(r"^tags:[ \t]*$", ln):
+            collecting = True
+            continue
+        if collecting:
+            if re.match(r"^[A-Za-z_]+:", ln):
+                break
+            m = re.match(r"^[ \t]*-[ \t]*([a-z0-9][a-z0-9-]*)", ln)
+            if m:
+                out.append(m.group(1))
+    return out
+
+
 def build_index():
     index = []
     for domain in sorted(os.listdir(SKILLS_DIR)):
@@ -89,7 +105,8 @@ def build_index():
                 "name": name,
                 "domain": domain,
                 "path": os.path.relpath(path, ROOT),
-                "description": _description(front)[:600],
+                "description": _description(front),
+                "tags": _tags(front),
                 "body_words": len(body.split()),
                 "chain_degree": _chain_degree(front),
             })
@@ -97,12 +114,15 @@ def build_index():
 
 
 def _tokens(skill):
-    return re.findall(r"[a-z0-9][a-z0-9-]*",
-                      (skill["name"] + " " + skill["description"]).lower())
+    # Hyphen-split tokenization over name + description + tags so compound skill
+    # names ("fullstack-developer") and query words ("fullstack") align.
+    return re.findall(r"[a-z0-9]+",
+                      (skill["name"] + " " + skill["description"] + " "
+                       + " ".join(skill.get("tags", []))).lower())
 
 
 def lexical_search(query, index, topk=5):
-    q = set(re.findall(r"[a-z0-9][a-z0-9-]*", query.lower()))
+    q = set(re.findall(r"[a-z0-9]+", query.lower()))
     scored = []
     for skill in index:
         toks = _tokens(skill)

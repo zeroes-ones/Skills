@@ -108,7 +108,10 @@ function collectSkills(dir) {
           }
 
           if (desc) {
-            skills.push({ name, desc, tags, domain: path.relative(SKILLS_DIR, subdir) });
+            // Body = everything after the frontmatter close. Used to harvest the
+            // "When to Use" section as a lightweight auxiliary routing field.
+            const body = content.slice(fmMatch[0].length);
+            skills.push({ name, desc, tags, domain: path.relative(SKILLS_DIR, subdir), body });
           }
         }
       }
@@ -125,10 +128,40 @@ function collectSkills(dir) {
 // ---------------------------------------------------------------------------
 // 2. TF-IDF computation
 // ---------------------------------------------------------------------------
+// Light suffix normalization mirroring scripts/eval-routing.py stem().
+// Keeps routing vocabulary aligned across inflected forms ('minimizing'/'minimize'
+// -> 'minimiz'). Conservative: only transforms words longer than 4 chars.
+function stem(word) {
+  const w = word;
+  if (w.length <= 4) return w;
+  if (w.endsWith('ies')) return w.slice(0, -3) + 'y';
+  if (w.endsWith('ing')) {
+    let s = w.slice(0, -3);
+    if (s.length >= 3) {
+      if (s.endsWith('e') && !/(ee|oe|ye)$/.test(s)) s = s.slice(0, -1);
+      if (s.length > 3 && s[s.length - 1] === s[s.length - 2] && !'aeiou'.includes(s[s.length - 1])) {
+        s = s.slice(0, -1);
+      }
+      return s;
+    }
+  }
+  if (w.endsWith('ed')) {
+    let s = w.slice(0, -2);
+    if (s.endsWith('e') && !/(ee|oe|ye)$/.test(s)) s = s.slice(0, -1);
+    if (s.length > 3 && s[s.length - 1] === s[s.length - 2] && !'aeiou'.includes(s[s.length - 1])) {
+      s = s.slice(0, -1);
+    }
+    return s;
+  }
+  if (w.endsWith('s') && !/(ss|us|is)$/.test(w)) return w.slice(0, -1);
+  return w;
+}
+
 function tokenize(text) {
   return text.toLowerCase()
     .replace(/[^a-z0-9\s-]/g, ' ')
     .split(/[\s-]+/)
+    .map(stem)
     .filter(w => w.length > 1)
     .filter(w => !STOP_WORDS.has(w));
 }
@@ -166,23 +199,49 @@ function computeIDF(docs, totalDocs) {
   return idf;
 }
 
+// Extract the body's "When to Use" section (mirrors eval-routing.py section_text).
+function whenToUseText(body) {
+  const lines = String(body || '').split('\n');
+  const out = [];
+  let collect = false;
+  for (const line of lines) {
+    const hm = line.match(/^#{1,4}\s+(.*)$/);
+    if (hm) {
+      collect = hm[1].toLowerCase().indexOf('when to use') !== -1;
+      continue;
+    }
+    if (collect && line.trim()) out.push(line.trim());
+  }
+  return out.join(' ');
+}
+
 // ---------------------------------------------------------------------------
 // 3. Build the routing index
 // ---------------------------------------------------------------------------
 function buildIndex(skills) {
-  const docs = skills.map(s => tokenize(s.desc + ' ' + (s.tags || []).join(' ')));
-  const idf = computeIDF(docs, skills.length);
+  // Head field: skill name + description + tags (weight 1.0). Auxiliary field:
+  // the body's "When to Use" section (weight 0.15). Each field has its own IDF.
+  const headDocs = skills.map(s =>
+    tokenize([s.name, s.desc, (s.tags || []).join(' ')].join(' ')));
+  const whenDocs = skills.map(s => Array.from(new Set(tokenize(whenToUseText(s.body)))));
+  const idfHead = computeIDF(headDocs, skills.length);
+  const idfWhen = computeIDF(whenDocs, skills.length);
+  const WHEN_WEIGHT = 0.15;
 
-  const vectors = docs.map((tokens, i) => {
+  const vectors = headDocs.map((tokens, i) => {
     const tf = computeTF(tokens);
     const vec = new Map();
     for (const [t, tfVal] of tf) {
-      vec.set(t, tfVal * (idf.get(t) || 0));
+      vec.set(t, tfVal * (idfHead.get(t) || 0));
+    }
+    const tfWhen = computeTF(whenDocs[i]);
+    for (const [t, tfVal] of tfWhen) {
+      vec.set(t, (vec.get(t) || 0) + WHEN_WEIGHT * tfVal * (idfWhen.get(t) || 0));
     }
     return { name: skills[i].name, vector: vec, doc: tokens };
   });
 
-  return { vectors, idf, skills };
+  return { vectors, idf: idfHead, skills };
 }
 
 function cosineSimilarity(queryVec, docVec) {

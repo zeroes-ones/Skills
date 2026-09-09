@@ -23,9 +23,9 @@ def parse_frontmatter(text):
     list_val = []
 
     for line in raw.split("\n"):
-        # Handle list items under a key
+        # Handle list items under a key (indented or flush-left YAML bullets)
         if list_key is not None:
-            list_match = re.match(r"^\s+-\s+(.*)", line)
+            list_match = re.match(r"^\s*-\s+(.*)", line)
             if list_match:
                 list_val.append(list_match.group(1).strip())
                 continue

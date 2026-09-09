@@ -10,7 +10,10 @@ Source: Frontier B6 of `BEYOND-LOOPS-GRAPHS.md`.
 ## 1. Why
 
 - Canonical routing baseline (63 scenarios, `scripts/eval-routing.py`, committed):
-  **rank-1 42.9%** (core-49: 55.1%), top-N 60.3%, MRR 0.531, 7 must-not violations.
+  **rank-1 55.6%** (core-49: 71.4%), top-N 66.7%, MRR 0.624, 6 must-not violations.
+  Raised from 42.9% / 60.3% / 0.531 / 7 by the 2026 routing pass (index profile upgrade
+  + YAML parser fix); full attribution and reproduction in
+  `docs/benchmarks-vs-agent-skills.md`.
 - Semantic-adversarial suite (keyword-poor prompts): **rank-1 0.0%** — lexical matching
   fails on meaning. Any retrieval upgrade must be gated on beating these numbers, not on
   vibes.
@@ -46,10 +49,10 @@ baseline stays the floor; a real embedder is an environment-provided model API
 
 | Metric | Current (lexical) | Target |
 |---|---|---|
-| Rank-1 (63 scenarios) | 42.9% | ≥ 75% (and strictly > lexical) |
+| Rank-1 (63 scenarios) | 55.6% | ≥ 75% (and strictly > lexical) |
 | Rank-1 (adversarial) | 0.0% | ≥ 50% |
-| MRR | 0.531 | ≥ 0.80 |
-| Must-not violations | 7 | ≤ 2% of scenarios |
+| MRR | 0.624 | ≥ 0.80 |
+| Must-not violations | 6 | ≤ 2% of scenarios |
 | Tokens/task vs full load | n/a (router unmeasured) | ≤ 25% of full-load tokens at ≥ baseline quality |
 
 Thresholds are starting points; the hard gate is **monotone improvement over the lexical

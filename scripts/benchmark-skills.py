@@ -74,6 +74,22 @@ def _description(front):
     return " ".join(out)
 
 
+def _tags(front):
+    out = []
+    collecting = False
+    for ln in front.splitlines():
+        if re.match(r"^tags:[ \t]*$", ln):
+            collecting = True
+            continue
+        if collecting:
+            if re.match(r"^[A-Za-z_]+:", ln):
+                break
+            m = re.match(r"^[ \t]*-[ \t]*([a-z0-9][a-z0-9-]*)", ln)
+            if m:
+                out.append(m.group(1))
+    return out
+
+
 def collect(root, flat=False, shallow=False):
     """Return list of {name, path, text, front, body_words, eligible, declared, portable}."""
     items = []
@@ -113,6 +129,7 @@ def collect(root, flat=False, shallow=False):
             "path": path,
             "body_words": len(body.split()),
             "desc": _description(front),
+            "tags": _tags(front),
             "eligible": bool(re.search(r"^#+\s+Core Workflow", body, re.M)
                              and re.search(r"^#+\s+Verification", body, re.M)),
             "declared": bool(re.search(r"(?m)^workflow:\s*$", front)),
@@ -122,10 +139,13 @@ def collect(root, flat=False, shallow=False):
 
 
 def lexical_topk(query, rows, k):
-    q = set(re.findall(r"[a-z0-9][a-z0-9-]*", query.lower()))
+    # Tokenize on letter/digit runs only so hyphenated skill names ("fullstack-developer")
+    # and query compounds ("fullstack") match; index name + description + tags.
+    q = set(re.findall(r"[a-z0-9]+", query.lower()))
     scored = []
     for r in rows:
-        toks = re.findall(r"[a-z0-9][a-z0-9-]*", (r["name"] + " " + r["desc"]).lower())
+        toks = re.findall(r"[a-z0-9]+",
+                          (r["name"] + " " + r["desc"] + " " + " ".join(r["tags"])).lower())
         scored.append((sum(1 for t in q if t in toks), r["name"]))
     scored.sort(key=lambda x: (-x[0], x[1]))
     return [n for s, n in scored[:k] if s > 0]

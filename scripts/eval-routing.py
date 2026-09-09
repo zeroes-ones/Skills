@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""eval-routing.py — canonical TF-IDF routing evaluator (stdlib only, Tier 2).
+"""eval-routing.py — canonical routing evaluator (stdlib only, Tier 2).
+
+Routing baseline over each skill's indexable profile. Algorithm:
+light suffix normalization -> augmented TF -> IDF log(1+N/df) -> cosine.
+Indexed fields per skill:
+  - head field: skill name + description + tags (weight 1.0)
+  - auxiliary field: the body's "When to Use" section (weight 0.15), its own IDF
+The auxiliary field reuses vocabulary the skill already publishes, so the router
+sees the same trigger language an agent reads — no external data.
 
 Faithful stdlib port of scripts/run-routing-evals.js scoring semantics so the
-routing baseline is measurable in any environment (no node required):
-tokenize -> augmented TF -> IDF log(1+N/df) -> cosine, over each skill's
-description + tags.
+routing baseline is measurable in any environment (no node required).
 
 Scores every scenario in evals/tier2-routing-evals.json (core 49) plus
 evals/tier2-routing-adversarial.json (semantic, keyword-poor prompts), with
@@ -48,13 +54,43 @@ STOP_WORDS = {
 }
 
 
+def stem(word):
+    """Light suffix normalization (stdlib-only). Keeps routing vocabulary aligned
+    across inflected forms: 'minimizing'/'minimize'/'minimized' -> 'minimiz',
+    'scaling'/'scales' -> 'scal'. Conservative: only transforms words of len > 4
+    and never strips to a token shorter than 3 chars."""
+    w = word
+    if len(w) <= 4:
+        return w
+    if w.endswith("ies") and len(w) > 4:
+        return w[:-3] + "y"
+    if w.endswith("ing"):
+        s = w[:-3]
+        if len(s) >= 3:
+            if s.endswith("e") and not s.endswith(("ee", "oe", "ye")):
+                s = s[:-1]
+            if len(s) > 3 and s[-1] == s[-2] and s[-1] not in "aeiou":
+                s = s[:-1]
+            return s
+    if w.endswith("ed") and len(w) > 4:
+        s = w[:-2]
+        if s.endswith("e") and not s.endswith(("ee", "oe", "ye")):
+            s = s[:-1]
+        if len(s) > 3 and s[-1] == s[-2] and s[-1] not in "aeiou":
+            s = s[:-1]
+        return s
+    if w.endswith("s") and not w.endswith(("ss", "us", "is")) and len(w) > 4:
+        return w[:-1]
+    return w
+
+
 def tokenize(text):
     toks = re.sub(r"[^a-z0-9\s-]", " ", text.lower()).split()
     out = []
     for t in toks:
         for part in re.split(r"[\s-]+", t):
             if len(part) > 1 and part not in STOP_WORDS:
-                out.append(part)
+                out.append(stem(part))
     return out
 
 
@@ -107,8 +143,25 @@ def collect_skills():
                 "name": fm.get("name") or os.path.basename(os.path.dirname(p)),
                 "desc": desc,
                 "tags": tags,
+                "body": parts[2],
             })
     return skills
+
+
+# Section headings the router harvests as a light, field-weighted signal.
+_HEADING_RE = re.compile(r"^#{1,4}\s+(.*)$", re.MULTILINE)
+
+
+def section_text(body, wanted):
+    """Return text under body headings whose lowercase name contains a wanted phrase."""
+    chunks = _HEADING_RE.split(body)  # [pre, head1, text1, head2, text2, ...]
+    out = []
+    for i in range(1, len(chunks), 2):
+        head = chunks[i].lower()
+        if any(w in head for w in wanted):
+            text = chunks[i + 1] if i + 1 < len(chunks) else ""
+            out.append(text)
+    return " ".join(out)
 
 
 def load_cases(target_suite):
@@ -144,12 +197,25 @@ def main():
 
     skills = collect_skills()
     names = {s["name"] for s in skills}
-    docs = [tokenize(s["desc"] + " " + " ".join(s["tags"])) for s in skills]
-    idf = compute_idf(docs, len(skills))
+
+    # Head field: skill name + description + tags. Auxiliary field: the body's
+    # "When to Use" section, harvested per skill and weighted at WHEN_WEIGHT.
+    # Each field gets its own IDF so field vocabulary is compared on equal terms.
+    head_docs = [tokenize(s["name"]) + tokenize(s["desc"]) + tokenize(" ".join(s["tags"]))
+                 for s in skills]
+    when_docs = [list(set(tokenize(section_text(s["body"], ["when to use"])))) for s in skills]
+    idf_head = compute_idf(head_docs, len(skills))
+    idf_when = compute_idf(when_docs, len(skills)) if any(when_docs) else {}
+    WHEN_WEIGHT = 0.15
     doc_vectors = []
-    for s, toks in zip(skills, docs):
-        tf = compute_tf(toks)
-        doc_vectors.append({"name": s["name"], "vec": {t: v * idf.get(t, 0.0) for t, v in tf.items()}})
+    for s, hd, wt in zip(skills, head_docs, when_docs):
+        tf = compute_tf(hd)
+        vec = {t: v * idf_head.get(t, 0.0) for t, v in tf.items()}
+        if idf_when:
+            tf_w = compute_tf(wt)
+            for t, v in tf_w.items():
+                vec[t] = vec.get(t, 0.0) + WHEN_WEIGHT * v * idf_when.get(t, 0.0)
+        doc_vectors.append({"name": s["name"], "vec": vec})
 
     cases = load_cases(args.suite)
     if not cases:
@@ -164,7 +230,7 @@ def main():
     by_suite = {}
     for c in cases:
         qtf = compute_tf(tokenize(c["prompt"]))
-        qvec = {t: v * idf.get(t, 0.0) for t, v in qtf.items()}
+        qvec = {t: v * idf_head.get(t, 0.0) for t, v in qtf.items()}
         ranked = sorted(
             (cosine(qvec, d["vec"]), d["name"]) for d in doc_vectors)
         ranked = [(n, s) for s, n in ranked]
