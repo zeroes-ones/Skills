@@ -14,3 +14,11 @@ assumptions register (the B2G deal survived because scope boundary was written d
 
 **Complete when:** the quote log shows ≥3 outcomes and the buffer/multiplier defaults trace to
 the deltas above.
+
+## Scenario analysis
+
+Best case: scope frozen at kickoff and integration clean — actuals land at or under base.
+Worst case: scope creeps past the 15–20% trigger and integration surfaces late — overrun
+reaches the top of the band. Lesson learned: publish the assumption register before work and
+re-quote at the trigger; every overrun in the table above traces to a missed trigger or a
+missing workstream.

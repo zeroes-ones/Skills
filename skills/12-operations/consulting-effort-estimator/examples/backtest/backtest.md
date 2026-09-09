@@ -18,3 +18,11 @@ deliverable ≈ **$2,400–$3,600**.
 
 **Complete when:** the calibration log shows ≥3 engagements and the anchors + utilization
 defaults trace to the deltas above, not to an industry guess.
+
+## Scenario analysis
+
+Best case: scope frozen at kickoff and integration clean — actuals land at or under base.
+Worst case: scope creeps past the 15–20% trigger and integration surfaces late — overrun
+reaches the top of the band. Lesson learned: publish the assumption register before work and
+re-quote at the trigger; every overrun in the table above traces to a missed trigger or a
+missing workstream.

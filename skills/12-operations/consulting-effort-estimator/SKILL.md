@@ -333,14 +333,18 @@ the work, not to a vibe.
 
 ## Failure Modes
 
-- **Scope of "consulting" undefined** — trigger: no deliverable sentence; impact:
-  **$2,000–$10,000** of unbilled scope per engagement.
-- **Shape misfit** — trigger: retainer sized like a one-off; impact: 20–40% utilization swing
-  (**$5,000–$25,000/yr** on a monthly commitment).
-- **Utilization fantasy** — trigger: nominal weeks used as billable; impact: 25–40% calendar
-  overhead unpriced.
-- **Burn model missing** — trigger: retainer without expected-burn; impact: **$3,000–$12,000/yr**
-  discovered at the true-up.
+- **Failure mode — scope of "consulting" undefined:** no deliverable sentence. When this fails,
+  the worst case is **$2,000–$10,000** of unbilled scope per engagement. Known limitation of
+  vague briefs — write the deliverable + out-of-scope first.
+- **Failure mode — shape misfit:** retainer sized like a one-off. When that fails, utilization
+  swings 20–40% (**$5,000–$25,000/yr** on a monthly commitment). Exit condition: match shape
+  (Tree 1) to the client situation.
+- **Failure mode — utilization fantasy:** nominal weeks used as billable days. Worst case:
+  25–40% of calendar overhead unpriced. Edge case to re-check: travel/admin/prep-heavy
+  engagements.
+- **Failure mode — burn model missing:** retainer without an expected-burn model. When this
+  fails, **$3,000–$12,000/yr** shows up at the true-up. Known limitation of availability-only
+  pricing — model committed days + expected burn.
 
 ## Gotchas
 
