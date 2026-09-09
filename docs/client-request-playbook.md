@@ -8,6 +8,10 @@ price it, and where YOU sit (the human gates).**
 > [`service-size-fitting.md`](service-size-fitting.md) to pick the fitting example, model,
 > skills, and money path by size. This playbook fits by *type* of request; that page fits by
 > *size*.
+>
+> Or auto-generate any row as a runnable graph: `python3 scripts/goal-to-graph.py --goal
+> "<your ask>" --kind build|ui|api|db|support --size xs|s|m|l|xl` → loop + agent gate + human
+> release (see `examples/goal-to-ship/`).
 
 > New to the repo? Start with `examples/payments-api-ship/TUTORIAL.md`, then come back here.
 

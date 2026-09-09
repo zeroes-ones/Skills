@@ -109,6 +109,10 @@ With a real agent executor (`--executor scripts/executors/agent_executor.py` + `
 each node is executed by your agent grounded in that skill — the engine still owns ordering,
 budgets, loops, handoffs, and gates.
 
+**Want it auto-generated?** Describe the goal and let
+`scripts/goal-to-graph.py` build the whole spec-to-ship graph for you (loop → agent gate →
+human release gate): see `examples/goal-to-ship/README.md`.
+
 ## 6. If something doesn't fit
 
 - Job too vague to size → run a fixed discovery day-box first, then size.
