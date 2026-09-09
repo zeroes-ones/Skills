@@ -19,6 +19,7 @@ Real projects demonstrating how skills chain together. Each example shows a diff
 **Key insight:** You don't need 56 skills to ship. You need 8. Add skills when pain exceeds overhead.
 
 **To run it yourself:**
+
 ```bash
 cd my-saas-idea
 skills-init --solo
@@ -85,6 +86,11 @@ A solo quant trader building an Unusual Options Activity (UOA) detection and exe
 | **Solo SaaS** ([`solo-saas/`](solo-saas/)) — small | 3 | Idea → build-verify loop → human go-live gate. Solo scale: escalation goes straight to the human (no agent pool). |
 | **Team Product** ([`team-product/`](team-product/)) — mid | 6 | Parallel backend+frontend tracks (join) → integration loop → agent gate → human prod gate → deploy |
 | **Enterprise Platform** ([`enterprise-platform/`](enterprise-platform/)) — large | 8 | Parallel readiness (implement/security/compliance) → loop + agent gate → compliance gate → canary → observability → release board |
+| **Add Feature** ([`add-feature/`](add-feature/)) | 3 | Client: add a feature — scope → build → verify → human accept |
+| **UI Change** ([`ui-change/`](ui-change/)) | 2 | Client: change the UI — build view → review → human accept |
+| **API Change** ([`api-change/`](api-change/)) | 4 | Client: change/create an API — contract → impl → secure → verify → human accept |
+| **DB Create** ([`db-create/`](db-create/)) | 3 | Client: create a DB — schema → human schema-gate → impl → verify → human release |
+| **Support & Maintain** ([`support-maintain/`](support-maintain/)) | 3 | Client: support/maintain — monthly intake → fix-verify loop → human month close |
 
 **Diagrams:** every executable example has annotated ASCII + Mermaid flow diagrams (legend,
 budgets, loops, gates, escalation arcs, handoff payloads — field-accurate to the manifests).

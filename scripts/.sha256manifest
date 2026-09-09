@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-09T16:44:18Z
+# Generated: 2026-09-09T18:36:06Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    c859234263739882e0099f69368384a5b021490f
+# Commit:    f3d814fb54aa40b16045218aeb6a8e83f2027bb4
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -219,6 +219,7 @@ d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/12-oper
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/project-manager/scripts/verify-skill.sh
 fcfd3aa30497c4cf5c2b715e7b260f5e2d7b2a6dfe9f7f780bf2d87cc85495b0  skills/12-operations/scrum-master/_write_skill.py
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/scrum-master/scripts/verify-skill.sh
+b9ca00db39bbef2d627bb7a56865718c1950d77f79240f9fe131dd87fc6bfa7d  skills/12-operations/software-project-estimator/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/12-operations/teach/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/technical-program-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/technical-writer/scripts/verify-skill.sh
@@ -277,6 +278,8 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sale
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/partnerships-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/revops-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/15-sales/sales-engineer/scripts/verify-skill.sh
+b9ca00db39bbef2d627bb7a56865718c1950d77f79240f9fe131dd87fc6bfa7d  skills/15-sales/services-engagement-pricing/scripts/verify-skill.sh
+b9ca00db39bbef2d627bb7a56865718c1950d77f79240f9fe131dd87fc6bfa7d  skills/15-sales/software-maintenance-support-estimator/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/hr-manager/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/interview-coach/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/16-people/job-search-strategist/scripts/verify-skill.sh
