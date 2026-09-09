@@ -1,0 +1,69 @@
+name: booking-mvp
+version: "1.0.0"
+description: "Build me a booking SaaS MVP with auth and payments (auto-generated graph, size m, build). Bounded fix-verify loop until verification passes; exhaustion reroutes via a kind: agent gate; a human release gate approves once ready."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 60
+start: spec
+nodes:
+  - id: spec
+    skill: idea-to-spec
+    outputs: [spec]
+  - id: build
+    skill: backend-developer
+    inputs: [spec]
+    outputs: [deliverable]
+  - id: verify
+    skill: qa-engineer
+    inputs: [deliverable]
+    outputs: [qa-report]
+
+gates:
+  - id: identify-agent-gate
+    type: gate
+    kind: agent
+    pool: [build, verify]
+    max_reroutes: 3
+    escalate_to: release-gate
+    requires: [verify-report, deliverable]
+    description: "Pre-human triage: on loop exhaustion, identify which channel leads the next bounded window (bounded reroutes); then escalate to the human gate."
+  - id: release-gate
+    type: gate
+    kind: human
+    description: "Human release approval: ship to production once the bounded fix-verify loop converges (or review the escalation report when automation exhausted)."
+
+edges:
+  - from: spec
+    to: build
+    when: spec.status == done
+    payload: handoff-v1
+  - from: build
+    to: verify
+    when: build.status == done
+    payload: handoff-v1
+  - from: verify
+    to: release-gate
+    when: verify.status == done
+    payload: handoff-v1
+
+loops:
+  - id: fix-verify-loop
+    nodes: [build, verify]
+    exit_when: verify.verdict == pass
+    max_iterations: 2
+    escalate_to: identify-agent-gate
+    convergence:
+      window: 2
+      require_delta: true
+
+end: [release-gate]

@@ -91,6 +91,7 @@ A solo quant trader building an Unusual Options Activity (UOA) detection and exe
 | **API Change** ([`api-change/`](api-change/)) | 4 | Client: change/create an API — contract → impl → secure → verify → human accept |
 | **DB Create** ([`db-create/`](db-create/)) | 3 | Client: create a DB — schema → human schema-gate → impl → verify → human release |
 | **Support & Maintain** ([`support-maintain/`](support-maintain/)) | 3 | Client: support/maintain — monthly intake → fix-verify loop → human month close |
+| **Goal → Ship** ([`goal-to-ship/`](goal-to-ship/)) | auto | `scripts/goal-to-graph.py` turns a one-line goal into a validated spec-to-ship graph; runs until verification green → human release gate |
 
 **Diagrams:** every executable example has annotated ASCII + Mermaid flow diagrams (legend,
 budgets, loops, gates, escalation arcs, handoff payloads — field-accurate to the manifests).
