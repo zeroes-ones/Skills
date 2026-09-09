@@ -4,6 +4,11 @@ A one-page decision map for freelancers, agencies, and delivery orgs: whatever t
 for, this doc says **which skills to load, which runnable example to copy, how to estimate and
 price it, and where YOU sit (the human gates).**
 
+> Size first? If you already know the job's rough size (XS–XL), use
+> [`service-size-fitting.md`](service-size-fitting.md) to pick the fitting example, model,
+> skills, and money path by size. This playbook fits by *type* of request; that page fits by
+> *size*.
+
 > New to the repo? Start with `examples/payments-api-ship/TUTORIAL.md`, then come back here.
 
 ---
