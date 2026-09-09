@@ -45,6 +45,9 @@ software-project-estimator           effort: XS–XXL class -> low/base/high + a
 services-engagement-pricing          price: model + rate card + category multiplier
       ▼                              (fixed buffer 15–25% | T&M caps | retainer premium)
 software-maintenance-support-estimator   annual % of build + SLA tiers + enhancement lane
+      ▼
+statement-of-work-authoring              full SOW draft (scope/deliverables/acceptance/
+                                         milestones/change control/terms) → legal review
 ```
 
 Numbers you can start from (details + sources in `docs/estimation-research.md`):

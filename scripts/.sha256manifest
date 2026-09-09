@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-09T18:36:06Z
+# Generated: 2026-09-09T20:29:53Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    f3d814fb54aa40b16045218aeb6a8e83f2027bb4
+# Commit:    c25a9af5484e662e50f85ac7e2d8eaa781b056cc
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -213,6 +213,8 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/10-grow
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/gdpr-privacy/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/legal-advisor/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/11-legal/regulatory-specialist/scripts/verify-skill.sh
+b9ca00db39bbef2d627bb7a56865718c1950d77f79240f9fe131dd87fc6bfa7d  skills/11-legal/statement-of-work-authoring/scripts/verify-skill.sh
+b9ca00db39bbef2d627bb7a56865718c1950d77f79240f9fe131dd87fc6bfa7d  skills/12-operations/consulting-effort-estimator/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/customer-support-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/12-operations/event-planner/scripts/verify-skill.sh
 d1dbc30c9938eb2038c3a54a3f2fd3cf41effe294e14c39b03849323e3a64ff1  skills/12-operations/handoff/scripts/verify-skill.sh

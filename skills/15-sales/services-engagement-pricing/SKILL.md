@@ -36,10 +36,12 @@ chain:
   - software-project-estimator
   - software-maintenance-support-estimator
   - consulting-effort-estimator
+  - statement-of-work-authoring
   feeds_into:
   - software-project-estimator
   - software-maintenance-support-estimator
   - consulting-effort-estimator
+  - statement-of-work-authoring
 ---
 # Services Engagement Pricing
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
