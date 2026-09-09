@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**298 skills across 37 domains. 9.9/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — the 948 pre-existing asymmetric edges were repaired in a dedicated 2026 pass).
+**303 skills across 37 domains. 9.9/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — the 948 pre-existing asymmetric edges were repaired in a dedicated 2026 pass).
 
 ### 🚀 Quick Links
 
@@ -16,7 +16,7 @@ A collection of agent-agnostic skills covering the **full company lifecycle** �
 | **[examples/](examples/)** | Real projects: solo SaaS, team platform, trading system |
 | **[PROJECT-BOOTSTRAP.md](PROJECT-BOOTSTRAP.md)** | Phase-by-phase: idea → production, all 106 skills mapped |
 | **[SKILL-QUALITY-STANDARDS.md](SKILL-QUALITY-STANDARDS.md)** | Quality bar + external reviewer scoring rubric |
-| **[COORDINATION-MATRIX.md](COORDINATION-MATRIX.md)** | Full dependency graph with 1,675 symmetric edges |
+| **[COORDINATION-MATRIX.md](COORDINATION-MATRIX.md)** | Full dependency graph with 1,576 symmetric edges |
 
 ### Cross-Skill Chain System
 
@@ -101,7 +101,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 ## Quality Status
 
-**Library rating: 9.9/10** (live domain-calibrated audit over 298 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
+**Library rating: 9.9/10** (live domain-calibrated audit over 303 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
 
 > The "Quality Status" numbers below are from an earlier generation of the audit (214-skill baseline). The authoritative current numbers come from `python3 scripts/audit-library.py` (live) and `skills-audit-report.txt`; see [GAP-ANALYSIS.md](GAP-ANALYSIS.md) for the 2026 delta analysis.
 
@@ -126,7 +126,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 - **Verification Guardrails** — Self-check checklist the agent runs before delivering work
 - **Anti-Hungination** — "NOT VERIFIED" + "Flag your knowledge cutoff" guardrails
 
-**Chain symmetry:** 1,675 edges with **0 asymmetries** — verified programmatically via `python3 scripts/audit-library.py`.
+**Chain symmetry:** 1,576 edges with **0 asymmetries** — verified programmatically via `python3 scripts/audit-library.py`.
 
 ## Personas — The "Who" Layer
 
@@ -232,7 +232,7 @@ what it consumes from and feeds into.
 - **Open it live:** **[https://zeroes-ones.github.io/Skills/](https://zeroes-ones.github.io/Skills/)** —
   or double-click [`docs/graph-explorer/index.html`](docs/graph-explorer/index.html) locally
   (works offline, no build step).
-- **What's inside (regenerated from live data):** 298 skill nodes, 1,916 directed chain edges
+- **What's inside (regenerated from live data):** 303 skill nodes, 1,930 directed chain edges
   (1,567 undirected connections) across 37 domains. Pan/zoom, search, per-domain filter; hovering
   a skill highlights its whole neighborhood; clicking opens its chain panel — consumes from,
   feeds into, plus GitHub and skills.sh links.
@@ -328,7 +328,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 298 skills in current project (team/company default) |
+| `skills-init` | Activate all 303 skills in current project (team/company default) |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
@@ -336,7 +336,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 ### Tiered Activation — Match Skills to Project Maturity
 
-Two modes, pick per project: `skills-init` with no flags activates **all 298 skills** (team/company
+Two modes, pick per project: `skills-init` with no flags activates **all 303 skills** (team/company
 default — one flat layer every agent discovers). Want a lean start? Activate a tier, then expand
 as you grow:
 
@@ -348,8 +348,8 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 298 skills
-skills-init               # All 37 domains, 298 skills, full lifecycle coverage
+# Startup or team project — full 303 skills
+skills-init               # All 37 domains, 303 skills, full lifecycle coverage
 
 ```
 
@@ -429,13 +429,13 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`scripts/lint.sh`](scripts/lint.sh) | Master lint runner — 5 categories (files, markdown, yaml, shell, template) with --fix, --json, --ci |
 | [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates |
 | [`scripts/run-evals.sh`](scripts/run-evals.sh) | 3-tier evaluation harness — structural, routing, behavioral |
-| [`scripts/validate-workflows.py`](scripts/validate-workflows.py) | Workflow manifest validator — structure, cycles, loop budgets, payloads, `--coverage` (298/298 skills referenceable) |
+| [`scripts/validate-workflows.py`](scripts/validate-workflows.py) | Workflow manifest validator — structure, cycles, loop budgets, payloads, `--coverage` (303/303 skills referenceable) |
 | [`scripts/workflow-runner.py`](scripts/workflow-runner.py) | Deterministic loop engine — parallel join, budgets, checkpoints, `--memory`, `--guardrail` |
 | [`scripts/export-traces.py`](scripts/export-traces.py) | Run-state → OTel-shaped span exporter (agent-run observability) |
 | [`scripts/skill-sli-report.py`](scripts/skill-sli-report.py) | Per-workflow SLIs + escalation-rate gate over run checkpoints |
 | [`scripts/eval-skill.sh`](scripts/eval-skill.sh) | Golden-skill regression evals (evals/golden/*) — CI merge gate |
 | [`scripts/skill-evolve-prep.py`](scripts/skill-evolve-prep.py) | Failure-trace → self-improvement draft inbox |
-| [`scripts/build-skill-index.py`](scripts/build-skill-index.py) | 298-skill index + lexical routing baseline |
+| [`scripts/build-skill-index.py`](scripts/build-skill-index.py) | 303-skill index + lexical routing baseline |
 | [`scripts/benchmark-skills.py`](scripts/benchmark-skills.py) | Corpus metrics + live measured baseline (refreshes COMPARISON.md) |
 | [`scripts/executors/agent_executor.py`](scripts/executors/agent_executor.py) | Reusable agent executor (claude/gemini) with timeout + fallback for real node content |
 | [`scripts/project-init.sh`](scripts/project-init.sh) | One command: attach the workflow layer to ANY project (`.agent/` scaffold + starter manifest) |

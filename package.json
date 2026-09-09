@@ -1,7 +1,7 @@
 {
   "name": "@zeroes-ones/skills",
   "version": "2.0.0",
-  "description": "297 agent-agnostic skills covering the full company lifecycle — from CEO vision through architecture, development, security, compliance, and operations. Installer/activator CLI (npx @zeroes-ones/skills init).",
+  "description": "303 agent-agnostic skills covering the full company lifecycle — from CEO vision through architecture, development, security, compliance, and operations. Installer/activator CLI (npx @zeroes-ones/skills init).",
   "license": "MIT",
   "author": "Sandeep Kumar Penchala",
   "repository": {

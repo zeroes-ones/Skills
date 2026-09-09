@@ -17,7 +17,7 @@ Source: Frontier B6 of `BEYOND-LOOPS-GRAPHS.md`.
 - Semantic-adversarial suite (keyword-poor prompts): **rank-1 0.0%** — lexical matching
   fails on meaning. Any retrieval upgrade must be gated on beating these numbers, not on
   vibes.
-- Static routers stop scaling: 298 skills today, thousands tomorrow.
+- Static routers stop scaling: 303 skills today, thousands tomorrow.
 
 ## 2. Design
 

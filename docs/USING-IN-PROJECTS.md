@@ -62,7 +62,7 @@ Needs only `python3` (standard library — no pip packages).
 ./scripts/validate-skills.sh              # governance suite (14/14 green = exit 0)
 ./scripts/run-evals.sh --tier 1           # structural evals (43/43)
 python3 scripts/eval-routing.py           # routing health: rank-1 / top-N / MRR / violations
-python3 scripts/emit-skill-registry.py --check   # metadata drift gate (299/299)
+python3 scripts/emit-skill-registry.py --check   # metadata drift gate (303/303)
 python3 scripts/check-token-budget.py     # compiled-tokens vs declared token_budget contract
 python3 scripts/regression-scope.py <skill>      # dependents to re-test before editing a skill
 python3 scripts/grade-golden.py           # deterministic RED→GREEN grading (no LLM judge)

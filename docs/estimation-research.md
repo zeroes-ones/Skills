@@ -7,7 +7,7 @@ of vibes, and so a reviewer can check where each figure came from.
 
 ## 1. Gap analysis (why these skills exist)
 
-A full name/body scan of the 299-skill corpus found **no dedicated estimation or services-pricing
+A full name/body scan of the 303-skill corpus found **no dedicated estimation or services-pricing
 skill**. Closest coverage and where it stops:
 
 | Existing skill | Has | Missing |

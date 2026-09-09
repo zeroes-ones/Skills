@@ -10,13 +10,13 @@ Data for the zeroes-ones/Skills corpus, refreshed with:
 
 <!-- MEASURED-BASELINE:START -->
 
-| Skills (prompts) | 299 |
-| Executable-node eligible (Core Workflow + Verification) | 296 |
+| Skills (prompts) | 303 |
+| Executable-node eligible (Core Workflow + Verification) | 300 |
 | Declared `workflow:` contracts | 30 |
-| Avg body words (load cost) | 8948 |
-| Compiled coverage | 299/299 |
-| Avg effective load (compiled tokens) | 1255 |
-| Effective load saving vs raw body | 86.0% |
+| Avg body words (load cost) | 8870 |
+| Compiled coverage | 303/303 |
+| Avg effective load (compiled tokens) | 1247 |
+| Effective load saving vs raw body | 85.9% |
 | Portability target declared | 100.0% |
 | Golden eval sets covered | 3/3 |
 | Routing Top-1 / Top-5 (lexical baseline) | 5/10 (50%) / 6/10 (60%) |
@@ -78,7 +78,7 @@ project-level `CLAUDE.md` overlay on top of any of the libraries above.
 | **Skills** | 298 across 37 domains | 24 across ~10 domains |
 | **Scope** | Full company lifecycle (CEO → governance) | Engineering workflow (Define → Ship) |
 | **Quality system** | 10/10 rating with 12+ required sections per skill | 6 standard sections per skill |
-| **Chain/dependency** | 1,675 symmetric edges, bidirectional graph | Cross-references by name only |
+| **Chain/dependency** | 1,576 symmetric edges, bidirectional graph | Cross-references by name only |
 | **Progressive disclosure** | QUICK/STANDARD/DEEP markers on every section | ~500 line max per skill |
 | **Scale depth** | Solo → Small → Medium → Enterprise in every skill | Not structured |
 | **Error recovery** | Symptom → Root Cause → Fix → Lesson decoders with dollar-quantified gotchas | Common rationalizations table |
@@ -110,7 +110,7 @@ project-level `CLAUDE.md` overlay on top of any of the libraries above.
 | **Workflow** | Per-domain Core Workflow + Verification in every skill | grill → spec → vertical-slice tickets → TDD at seams → two-axis code review |
 | **Domain coverage** | 37 domains | Primarily frontend/TypeScript |
 | **Enterprise readiness** | Tiered activation, compliance skills | Dev-focused |
-| **Cross-skill coordination** | 1,675 symmetric edges | Dependency-declared tickets, not cross-skill links |
+| **Cross-skill coordination** | 1,576 symmetric edges | Dependency-declared tickets, not cross-skill links |
 
 **Bottom line:** mattpocock/skills is a disciplined, battle-tested engineering toolkit that
 centers on grilling requirements before coding. zeroes-ones/Skills covers roles it doesn't address:

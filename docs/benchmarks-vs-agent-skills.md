@@ -137,7 +137,7 @@ target (≥ 75% rank-1, ≥ 50% adversarial).
 
 ## 5. Data-quality note
 
-9 of 299 skills carry no `tags` (finance cluster: `commodities-analyst`,
+9 of 303 skills carry no `tags` (finance cluster: `commodities-analyst`,
 `crypto-trader`, `fixed-income-analyst`, `macro-strategist`, `trade-performance-analyst`,
 plus `mock-data-sync`, `nonprofit-fundraising-engineer`, `pricing-purchase-optimizer`,
 `source-driven-development`). Their routing profiles rely on name + description only;

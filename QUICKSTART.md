@@ -33,7 +33,7 @@ skills-init
 
 ```
 
-This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover all 298 skills.
+This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover all 303 skills.
 
 ---
 
@@ -88,11 +88,11 @@ As your project grows, activate more skills:
 ```bash
 
 skills-init --grow   # 18 skills: add business strategy, UX research, design, architecture, backend, DevOps
-skills-init --full   # 298 skills: full enterprise coverage
+skills-init --full   # 303 skills: full enterprise coverage
 
 ```
 
-See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to full coverage (298 skills).
+See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to full coverage (303 skills).
 
 ---
 
@@ -103,7 +103,7 @@ See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a c
 | **Skill invocation** | `/skill-name: your request` — the agent reads SKILL.md and follows its workflow |
 | **Progressive disclosure** | QUICK (30s gist) → STANDARD (3min working knowledge) → DEEP (10+min war stories) |
 | **Skill chaining** | Output from skill A feeds into skill B via `chain:` YAML declarations |
-| **Tiered activation** | `--solo` (8 skills) → `--grow` (18) → `--full` (298) — activate only what you need |
+| **Tiered activation** | `--solo` (8 skills) → `--grow` (18) → `--full` (303) — activate only what you need |
 
 ---
 
@@ -117,4 +117,4 @@ See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a c
 
 ---
 
-*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 298 skills, 37 domains, 9.9/10 quality.*
+*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 303 skills, 37 domains, 9.9/10 quality.*

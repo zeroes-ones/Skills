@@ -105,7 +105,7 @@ declaring done.
 
 ### B. Chaining skills (the library's real power)
 Skills declare dependencies in frontmatter `chain: consumes_from / feeds_into`
-(1,916 validated edges). Hand a **chain** as one request:
+(1,930 validated edges). Hand a **chain** as one request:
 
 ```
 "Take this idea to a shipped feature: idea-to-spec → system-architect →

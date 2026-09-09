@@ -163,7 +163,7 @@ How to read it like a developer:
    artifact reviewers consume.
 3. **Symmetry is a repo law.** If A `feeds_into` B, then B must `consumes_from` A. The whole
    graph is checked: `python3 scripts/validate_chains.py` (0 asymmetries is the enforced bar,
-   and the full symmetric edge set — 1,675 pairs / 1,916 directed edges — is published in
+   and the full symmetric edge set — 1,576 pairs / 1,930 directed edges — is published in
    `README.md` / `COORDINATION-MATRIX.md`).
 4. **The chain is not execution.** It answers "who comes before/after me", never "run now".
    Execution happens in layer 2.
