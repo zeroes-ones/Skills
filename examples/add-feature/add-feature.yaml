@@ -1,0 +1,49 @@
+name: add-feature
+version: "1.0.0"
+description: "Client asked: add a feature to an existing app. Small S-class engagement: scope the feature (idea-to-spec), implement it (backend-developer), verify (qa-engineer), and stop at a human acceptance gate. End-to-end from request to accepted delivery."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 30
+start: scope
+nodes:
+  - id: scope
+    skill: idea-to-spec
+    outputs: [feature-spec]
+  - id: build
+    skill: backend-developer
+    inputs: [feature-spec]
+    outputs: [feature]
+  - id: qa
+    skill: qa-engineer
+    inputs: [feature]
+    outputs: [qa-report]
+gates:
+  - id: accept-gate
+    type: gate
+    kind: human
+    requires: [qa-report, feature]
+    description: "Client/freelancer acceptance: approve the delivered feature or send it back with notes."
+edges:
+  - from: scope
+    to: build
+    when: scope.status == done
+    payload: handoff-v1
+  - from: build
+    to: qa
+    when: build.status == done
+    payload: handoff-v1
+  - from: qa
+    to: accept-gate
+    when: qa.status == done
+    payload: handoff-v1
+end: [accept-gate]

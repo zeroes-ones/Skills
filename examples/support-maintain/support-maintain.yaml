@@ -1,0 +1,54 @@
+name: support-maintain
+version: "1.0.0"
+description: "Client asked: support and maintain the app. Recurring engagement: intake the monthly ticket bucket (customer-support-engineer), fix (backend-developer), verify (qa-engineer) in a bounded loop, escalate to the human month-close gate when fixes stall, and close the month with a human review of SLA + hours. See software-maintenance-support-estimator for pricing this engagement."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 60
+start: intake
+nodes:
+  - id: intake
+    skill: customer-support-engineer
+    outputs: [ticket-bucket]
+  - id: fix
+    skill: backend-developer
+    inputs: [ticket-bucket]
+    outputs: [fix-attempt]
+  - id: verify
+    skill: qa-engineer
+    inputs: [ticket-bucket, fix-attempt]
+    outputs: [verification-report]
+gates:
+  - id: close-gate
+    type: gate
+    kind: human
+    requires: [ticket-bucket, verification-report]
+    description: "Month close: client/provider review of tickets fixed, SLA met, hours vs retainer bucket; approve or true-up."
+edges:
+  - from: intake
+    to: fix
+    when: intake.status == done
+    payload: handoff-v1
+  - from: verify
+    to: close-gate
+    when: verify.status == done
+    payload: handoff-v1
+loops:
+  - id: support-loop
+    nodes: [fix, verify]
+    exit_when: verify.verdict == pass
+    max_iterations: 3
+    escalate_to: close-gate
+    convergence:
+      window: 2
+      require_delta: true
+end: [close-gate]

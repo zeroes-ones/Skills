@@ -1,0 +1,58 @@
+name: db-create
+version: "1.0.0"
+description: "Client asked: create a database for a new module. Schema-first engagement: design the schema + migrations (database-designer), human reviews the schema, implement migrations (backend-developer), verify (qa-engineer), and stop at a human release gate."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 40
+start: schema
+nodes:
+  - id: schema
+    skill: database-designer
+    outputs: [schema-design, migration-plan]
+  - id: impl
+    skill: backend-developer
+    inputs: [schema-design, migration-plan]
+    outputs: [migrations]
+  - id: qa
+    skill: qa-engineer
+    inputs: [migrations]
+    outputs: [qa-report]
+gates:
+  - id: schema-gate
+    type: gate
+    kind: human
+    requires: [schema-design, migration-plan]
+    description: "Schema review: approve the design and migration plan before any DDL runs."
+  - id: release-gate
+    type: gate
+    kind: human
+    requires: [qa-report, migrations]
+    description: "Release approval: apply migrations to production after verification."
+edges:
+  - from: schema
+    to: schema-gate
+    when: schema.status == done
+    payload: handoff-v1
+  - from: schema-gate
+    to: impl
+    when: schema-gate.status == done
+    payload: handoff-v1
+  - from: impl
+    to: qa
+    when: impl.status == done
+    payload: handoff-v1
+  - from: qa
+    to: release-gate
+    when: qa.status == done
+    payload: handoff-v1
+end: [release-gate]

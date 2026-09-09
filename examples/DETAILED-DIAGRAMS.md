@@ -1,19 +1,31 @@
-# Detailed Annotated Diagrams — All Six Executable Examples
+# Detailed Annotated Diagrams — Runnable Examples
 
-Field-accurate diagrams for every runnable example. Each diagram is generated from the
+Field-accurate diagrams for the runnable examples. Each diagram is generated from the
 **manifest as committed** — node ids, skills, gates, loops, budgets, edges, conditions and
 payloads all match the YAML — so you can read the picture and the file side by side.
 
-Quick index (start → end, all the way to a production release):
+Six **deep-dive** examples (full annotated ASCII + Mermaid here) plus a **client-request
+suite** (five compact examples whose diagrams live in their own READMEs, listed in the index
+below).
 
-| # | Example | Scale | Start | Human gates | End |
+Quick index (start → end, all the way to a production release or accepted delivery):
+
+| # | Example | Scale / type | Start | Human gates | End |
 |---|---|---|---|---|---|
-| 1 | `solo-saas` | small | `spec` | go-live | `go-live-gate` |
-| 2 | `team-product` | mid | `spec` | prod | `deploy` |
-| 3 | `enterprise-platform` | large | `spec` | compliance + release board | `release-board-gate` |
-| 4 | `payments-api-ship` | mid feature | `spec` | release | `release-gate` |
-| 5 | `production-incident` | ops | `triage` | commander | `commander-gate` |
-| 6 | `strangler-migration` | migration | `analyze` | plan + cutover | `docs-engineer, deprecation-engineer` |
+| 1 | `solo-saas` | small project | `spec` | go-live | `go-live-gate` |
+| 2 | `team-product` | mid project | `spec` | prod | `deploy` |
+| 3 | `enterprise-platform` | large project | `spec` | compliance + release board | `release-board-gate` |
+| 4 | `payments-api-ship` | new app / feature | `spec` | release | `release-gate` |
+| 5 | `production-incident` | incident / ops | `triage` | commander | `commander-gate` |
+| 6 | `strangler-migration` | DB / system migration | `analyze` | plan + cutover | `docs-engineer, deprecation-engineer` |
+| 7 | `add-feature` *(request suite)* | feature on existing app | `scope` | accept | `accept-gate` |
+| 8 | `ui-change` *(request suite)* | UI change | `ui` | accept | `accept-gate` |
+| 9 | `api-change` *(request suite)* | API change/create | `contract` | accept | `accept-gate` |
+| 10 | `db-create` *(request suite)* | DB create | `schema` | schema + release | `release-gate` |
+| 11 | `support-maintain` *(request suite)* | support & maintain | `intake` | month close | `close-gate` |
+
+The request-suite (#7–#11) maps 1:1 to `docs/client-request-playbook.md` rows; see each
+folder's `README.md` for its diagram + real trace.
 
 ---
 
@@ -511,7 +523,7 @@ the plan gate; two end nodes — the slice is only done when docs **and** deprec
 Every diagram is backed by a runnable manifest and a deterministic executor:
 
 ```bash
-# validate everything (all 13 manifests, incl. the six below)
+# validate everything (all 18 manifests, incl. the eleven below)
 python3 scripts/validate-workflows.py --all
 
 # example: run one diagram end to end and watch its state.log

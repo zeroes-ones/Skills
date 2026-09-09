@@ -1,0 +1,57 @@
+name: api-change
+version: "1.0.0"
+description: "Client asked: change an API. Contract-first engagement: redesign the API (api-designer), implement (backend-developer), harden (secure-api-design), verify contract behavior (qa-engineer), and stop at a human acceptance gate."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 40
+start: contract
+nodes:
+  - id: contract
+    skill: api-designer
+    outputs: [api-spec]
+  - id: backend
+    skill: backend-developer
+    inputs: [api-spec]
+    outputs: [change]
+  - id: secure
+    skill: secure-api-design
+    inputs: [change]
+    outputs: [security-report]
+  - id: qa
+    skill: qa-engineer
+    inputs: [change, security-report]
+    outputs: [qa-report]
+gates:
+  - id: accept-gate
+    type: gate
+    kind: human
+    requires: [qa-report, api-spec, change]
+    description: "Client acceptance: approve the API change (contract, implementation, security) or send it back."
+edges:
+  - from: contract
+    to: backend
+    when: contract.status == done
+    payload: handoff-v1
+  - from: backend
+    to: secure
+    when: backend.status == done
+    payload: handoff-v1
+  - from: secure
+    to: qa
+    when: secure.status == done
+    payload: handoff-v1
+  - from: qa
+    to: accept-gate
+    when: qa.status == done
+    payload: handoff-v1
+end: [accept-gate]

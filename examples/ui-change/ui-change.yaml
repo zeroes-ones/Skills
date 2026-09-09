@@ -1,0 +1,41 @@
+name: ui-change
+version: "1.0.0"
+description: "Client asked: change the UI. Small engagement: rebuild the view (frontend-developer), review it (code-reviewer), and stop at a human acceptance gate. End-to-end from request to accepted UI change."
+payloads:
+  handoff-v1:
+    - status
+    - summary
+    - artifacts
+    - decisions
+    - open_questions
+    - verification_evidence
+    - context
+    - budget
+    - next
+budget:
+  max_steps: 20
+start: ui
+nodes:
+  - id: ui
+    skill: frontend-developer
+    outputs: [ui-change]
+  - id: review
+    skill: code-reviewer
+    inputs: [ui-change]
+    outputs: [review-report]
+gates:
+  - id: accept-gate
+    type: gate
+    kind: human
+    requires: [review-report, ui-change]
+    description: "Client acceptance: approve the UI change or send it back with notes."
+edges:
+  - from: ui
+    to: review
+    when: ui.status == done
+    payload: handoff-v1
+  - from: review
+    to: accept-gate
+    when: review.status == done
+    payload: handoff-v1
+end: [accept-gate]
