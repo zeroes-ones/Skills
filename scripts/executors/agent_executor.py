@@ -16,7 +16,12 @@ Configuration (env):
                                    "{prompt}" where the prompt goes.
                       If no {prompt} placeholder is present, the prompt is appended as the last
                       argument (legacy behavior; works for claude -p and gemini -p).
-    AGENT_TIMEOUT     seconds per node call (default 90)
+    AGENT_TIMEOUT     seconds per node call (default 600). A real node is NOT a 90s call: this value
+                      must cover the agent reading a full skill excerpt and reasoning over it.
+                      Measured on the flagship senior-dev-loop manifest (D1 in
+                      docs/skill-automation-platform.md): 149.6s for one implement node and >180s
+                      for the next, so anything below ~300s produces spurious timeouts. Lower it
+                      only for cheap/throwaway models.
     AGENT_TRANSCRIPT  log file for every agent turn (default ./agent-transcript.log)
     AGENT_FALLBACK    when a call fails/times out, return a stub pass instead of crashing
                       (default 1). Set 0 to surface failures to the runner.
@@ -42,7 +47,7 @@ import time
 import xml.etree.ElementTree as ET
 
 AGENT_CMD = os.environ.get("AGENT_CMD", "claude -p")
-AGENT_TIMEOUT = float(os.environ.get("AGENT_TIMEOUT", "90"))
+AGENT_TIMEOUT = float(os.environ.get("AGENT_TIMEOUT", "600"))
 AGENT_TRANSCRIPT = os.environ.get("AGENT_TRANSCRIPT", "agent-transcript.log")
 AGENT_FALLBACK = os.environ.get("AGENT_FALLBACK", "1") not in ("0", "false", "no")
 AGENT_SKILL_WORDS = int(os.environ.get("AGENT_SKILL_WORDS", "1200"))  # window budget per skill

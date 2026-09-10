@@ -30,8 +30,18 @@ Execution semantics (implemented)
 - Global step budget halts the run; per-loop max_iterations enforced in code.
 - run-state is written to --state after every node (checkpoint); existing state with a matching
   manifest name resumes without re-running completed nodes.
+- A node that raises is checkpointed before the exception escapes (an `action: error` log entry
+  names the node and exception), so a crashed run keeps every completed node and re-runs only the
+  node that failed — including a crash inside a loop pass.
 - Handoff bookkeeping: node completion appends to log and, when the next node is selected, writes
   a `handoff` record {from, to, payload, sha} where sha covers the sending node's record.
+- Node contracts (`--enforce-contracts`, off by default = default mode): when enabled, a node whose
+  skill declares a `workflow:` block must substantiate its completion — `evidence: required` must be
+  present, and every declared criterion must be covered by the node's `criteria_met` report (indices
+  like `c1`/`1`, or the criterion's own text). A violation records an `action: contract` entry and
+  the node is NOT marked done: inside a loop it is retried and exhaustion escalates to the loop's
+  `escalate_to`; outside a loop the run escalates rather than advancing. Declared `artifacts.outputs`
+  that were not produced are recorded as `action: contract-warning` (never blocking).
 
 Usage:
     python3 scripts/workflow-runner.py --manifest workflow.yaml [--executor exec.py]
@@ -68,8 +78,83 @@ def _load_module(path, modname):
 _VALIDATOR = _load_module(os.path.join(SCRIPTS, "validate-workflows.py"), "validate_workflows")
 WorkflowValidator = _VALIDATOR.WorkflowValidator
 _find_skill_names = _VALIDATOR._find_skill_names  # noqa: SLF001 (same-repo tool reuse)
+_LINT_WORKFLOW = _load_module(os.path.join(SCRIPTS, "lib", "lint-workflow.py"), "lint_workflow")
 
 _STATUS_WORDS = {"done", "blocked", "needs_review", "skipped"}
+
+_contract_cache = {}
+
+
+def _dedent(text):
+    """Strip the common leading indentation from a captured `workflow:` block."""
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    if not lines:
+        return ""
+    ind = min(len(ln) - len(ln.lstrip(" ")) for ln in lines)
+    return "\n".join(ln[ind:] if len(ln) >= ind else ln for ln in lines)
+
+
+def load_contract(skill):
+    """Return the parsed L0 `workflow:` contract for a skill name, or None (default mode).
+
+    Absence of the block is not an error: a skill without a contract runs in default mode, where
+    its Verification section is the criteria source (WORKFLOW-SYSTEM.md §1). Cached per process —
+    the skill corpus is static for the duration of a run.
+    """
+    if not skill:
+        return None
+    if skill not in _contract_cache:
+        contract = None
+        rel = _find_skill_names().get(skill)
+        if rel:
+            try:
+                text = open(os.path.join(ROOT, rel), encoding="utf-8").read()
+                block = _LINT_WORKFLOW.extract_workflow_block(text)
+                if block and block.strip():
+                    parsed = safe_yaml.parse(_dedent(block))
+                    contract = parsed if isinstance(parsed, dict) else None
+            except Exception:  # noqa: BLE001 - an unreadable contract means default mode
+                contract = None
+        _contract_cache[skill] = contract
+    return _contract_cache[skill]
+
+
+def _criterion_index(ref, count):
+    """Map one `criteria_met` entry to a 1-based criterion index, or None if not a reference."""
+    if isinstance(ref, bool):
+        return None
+    if isinstance(ref, int):
+        return ref if 1 <= ref <= count else None
+    s = str(ref).strip()
+    if s.isdigit():
+        i = int(s)
+        return i if 1 <= i <= count else None
+    m = re.match(r"^c(\d+)$", s, re.I)
+    if m:
+        i = int(m.group(1))
+        return i if 1 <= i <= count else None
+    return None
+
+
+def _criteria_covered(met, criteria):
+    """Return (covered 1-based indices, unrecognized references).
+
+    Accepts either explicit references (`1`, `c2`) or the criterion's own text / a distinctive
+    fragment of it, so an executor can report coverage without inventing an index scheme.
+    """
+    covered, unknown = set(), []
+    for ref in met:
+        idx = _criterion_index(ref, len(criteria))
+        if idx is None:
+            s = str(ref).strip().lower()
+            hits = [i + 1 for i, c in enumerate(criteria)
+                    if s and (s == c.strip().lower() or s in c.strip().lower())]
+            idx = hits[0] if len(hits) == 1 else None
+        if idx is None:
+            unknown.append(ref)
+        else:
+            covered.add(idx)
+    return covered, unknown
 
 
 def _sha(obj):
@@ -181,6 +266,7 @@ def save_state(state, path):
         tmp = path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as fh:
             json.dump(state, fh, indent=2, default=str)
+            fh.write("\n")  # FMT004: repo convention is a final newline on every text artifact
         os.replace(tmp, path)
 
 
@@ -228,9 +314,11 @@ def load_state(path, manifest, text):
 
 # ---------------------------------------------------------------- runner
 class Runner(object):
-    def __init__(self, manifest, executor, state, max_steps, guardrail=None):
+    def __init__(self, manifest, executor, state, max_steps, guardrail=None,
+                 enforce_contracts=False):
         self.manifest = manifest
         self.guardrail = _as_guardrail(guardrail)
+        self.enforce_contracts = enforce_contracts
         self.nodes = {n["id"]: n for n in manifest.get("nodes") or []}
         self.edges = []
         for e in manifest.get("edges") or []:
@@ -342,6 +430,94 @@ class Runner(object):
         self.state["phase"] = "escalated"
         return verdict.get("reason", "blocked by edge guardrail")
 
+    def _contract_violations(self, nid, result):
+        """Check this node's declared completion contract. Returns (problems, warnings).
+
+        Only the `completion:` block blocks. `evidence: required` must be satisfied, and every
+        declared criterion must be covered by the node's `criteria_met` report — that is the
+        assertion that turns an L3 contract from a claim into a check. `artifacts.outputs` is a
+        warning, not a block: output naming depends on executor detail, whereas the completion
+        block is precisely the statement the node is making about its own work.
+        """
+        if not self.enforce_contracts:
+            return [], []
+        skill = (self.nodes.get(nid) or {}).get("skill")
+        contract = load_contract(skill)
+        if not contract:
+            return [], []          # no block = default mode, nothing to enforce
+        problems, warnings = [], []
+        comp = contract.get("completion") or {}
+        criteria = comp.get("criteria") or []
+        evidence = result.get("evidence") or []
+        if (comp.get("evidence") or "optional") == "required" and not evidence:
+            problems.append("completion.evidence is 'required' but the node reported no evidence")
+        if criteria:
+            met = result.get("criteria_met") or []
+            if not met:
+                problems.append("completion.criteria declares %d criteria (%s) but the node "
+                                "reported no criteria_met coverage"
+                                % (len(criteria), ", ".join("c%d" % (i + 1)
+                                                            for i in range(len(criteria)))))
+            else:
+                covered, unknown = _criteria_covered(met, criteria)
+                if unknown:
+                    problems.append("criteria_met references unrecognized criteria: %s"
+                                    % ", ".join(str(u) for u in unknown))
+                missing = [i for i in range(1, len(criteria) + 1) if i not in covered]
+                if missing:
+                    problems.append("declared criteria not covered: %s"
+                                    % ", ".join("c%d" % i for i in missing))
+        outs = (contract.get("artifacts") or {}).get("outputs") or []
+        if outs:
+            have = {a.get("name") for a in (result.get("artifacts") or [])
+                    if isinstance(a, dict)}
+            have |= set(self.state.get("artifacts") or {})
+            missing = [o for o in outs if o not in have]
+            if missing:
+                warnings.append("declared artifacts.outputs not produced: %s"
+                                % ", ".join(missing))
+        return problems, warnings
+
+    def _apply_contract(self, nid, result):
+        """Assert the node's declared contract in place. Returns the violation reason, or None.
+
+        On violation the result is rewritten to status=needs_review / verdict=contract-violation
+        so normal machinery takes over: inside a loop the node is retried and exhaustion escalates
+        to the loop's `escalate_to`; outside a loop the caller escalates instead of advancing.
+        Warnings are always recorded, never blocking.
+        """
+        problems, warnings = self._contract_violations(nid, result)
+        for w in warnings:
+            self.state["log"].append({"step": self.state["budget"]["steps_used"], "node": nid,
+                                      "action": "contract-warning", "detail": w})
+        if not problems:
+            return None
+        detail = "; ".join(problems)
+        self.state["log"].append({"step": self.state["budget"]["steps_used"], "node": nid,
+                                  "action": "contract", "detail": detail})
+        result["status"] = "needs_review"
+        result["verdict"] = "contract-violation"
+        result["summary"] = ("contract violation: %s" % detail)[:400]
+        return detail
+
+    def _crash_checkpoint(self, nid, exc):
+        """Record a crashing node and checkpoint the run BEFORE the exception escapes.
+
+        D2 (docs/skill-automation-platform.md): a node that raises must not discard the run.
+        Without this, an exception inside a loop pass propagated out of run() and no run-state
+        was ever written, so completed nodes were lost and `--state` resume was impossible for
+        exactly the runs that need it. Completed nodes keep status=done; the crashed node stays
+        not-done and re-runs on resume.
+        """
+        self.state["phase"] = "error"
+        self.state.setdefault("log", []).append({
+            "step": self.state["budget"]["steps_used"],
+            "node": nid,
+            "action": "error",
+            "detail": "%s: %s" % (type(exc).__name__, str(exc)[:160]),
+        })
+        save_state(self.state, self._state_path)
+
     def _run_loop_pass(self, loop):
         """Execute one pass over loop members. Returns 'exited'|'iterate'|'exhaust'. May set
         self._loop_exit_reason. After an agent-gate reroute the identified channel runs first."""
@@ -359,13 +535,19 @@ class Runner(object):
                 return "exhaust"
             ctx = {"loop_id": loop["id"], "pass": self.state["budget"]["iterations"][loop["id"]] + 1,
                    "skill": (self.nodes.get(nid) or {}).get("skill")}
-            result = self.executor.execute_node(nid, self.state, ctx)
-            guard_reason = self._apply_guardrail(nid, result)
-            if guard_reason is not None:
-                save_state(self.state, self._state_path)
-                return "guardrail-block"
-            self._mark_done(nid, result)
-            self.state["budget"]["steps_used"] += 1
+            try:
+                result = self.executor.execute_node(nid, self.state, ctx)
+                guard_reason = self._apply_guardrail(nid, result)
+                if guard_reason is not None:
+                    save_state(self.state, self._state_path)
+                    return "guardrail-block"
+                self._apply_contract(nid, result)
+                self._mark_done(nid, result)
+                self.state["budget"]["steps_used"] += 1
+            except BaseException as exc:
+                self._crash_checkpoint(nid, exc)
+                raise
+            save_state(self.state, self._state_path)  # per-node checkpoint (D2)
         self.state["budget"]["iterations"][loop["id"]] += 1
         self.state["iteration"] = self.state["budget"]["iterations"][loop["id"]]
         if eval_condition(loop.get("exit_when", "always"), self.state, loop["id"]):
@@ -545,15 +727,27 @@ class Runner(object):
                     loop = next(l for l in self.loops if l["id"] == lp_id)
                     loop_active = loop
                     continue
-                result = self.executor.execute_node(
-                    nid, state, {"loop_id": None, "pass": 0,
-                                 "skill": (self.nodes.get(nid) or {}).get("skill")})
-                guard_reason = self._apply_guardrail(nid, result)
-                if guard_reason is not None:
-                    save_state(state, self._state_path)
-                    return self._summary("guardrail-block")
-                self._mark_done(nid, result)
-                state["budget"]["steps_used"] += 1
+                violation = None
+                try:
+                    result = self.executor.execute_node(
+                        nid, state, {"loop_id": None, "pass": 0,
+                                     "skill": (self.nodes.get(nid) or {}).get("skill")})
+                    guard_reason = self._apply_guardrail(nid, result)
+                    if guard_reason is not None:
+                        save_state(state, self._state_path)
+                        return self._summary("guardrail-block")
+                    violation = self._apply_contract(nid, result)
+                    self._mark_done(nid, result)
+                    state["budget"]["steps_used"] += 1
+                except BaseException as exc:
+                    self._crash_checkpoint(nid, exc)
+                    raise
+                save_state(state, self._state_path)  # per-node checkpoint (D2)
+                if violation is not None:
+                    # Outside a loop there is no retry to grant: an unsubstantiated completion
+                    # claim escalates rather than silently advancing the graph.
+                    state["phase"] = "escalated"
+                    return self._summary("contract-violation")
                 self._advance_from(nid, active, seen, done)
             else:
                 outcome = self._run_loop_pass(loop_active)
@@ -655,12 +849,14 @@ def _selftest():
     results = []
     validator = WorkflowValidator(_find_skill_names())
 
-    def run_fixture(manifest, executor=None, max_steps=100, state=None, guardrail=None):
+    def run_fixture(manifest, executor=None, max_steps=100, state=None, guardrail=None,
+                    enforce_contracts=False):
         text = json.dumps(manifest, sort_keys=True)
         st = state or fresh_state(manifest, text, max_steps)
         exe = type("E", (), {"execute_node": staticmethod(
             executor or _stub_execute)})()
-        r = Runner(manifest, exe, st, max_steps, guardrail=guardrail)
+        r = Runner(manifest, exe, st, max_steps, guardrail=guardrail,
+                   enforce_contracts=enforce_contracts)
         return r.run(), st
 
     def any_action(state, node, action):
@@ -879,7 +1075,88 @@ def _selftest():
                     and st["reroutes"]["identify-agent-gate"]["used"] == 1
                     and any(e.get("action") == "agent-gate" for e in st["log"])))
 
-    # 5) global step budget hard stop (executor varies diagnostics so stagnation never fires)
+    # 5) D2: a node that raises mid-loop must checkpoint the run, not discard it.
+    # Regression for docs/skill-automation-platform.md D2: before the fix, an exception inside
+    # a loop pass propagated out of run() and no run-state was ever written, so a crashed run
+    # could not be resumed even though earlier nodes had completed.
+    def crashy(node_id, state, ctx):
+        if node_id == "fixer":
+            raise RuntimeError("executor exploded")
+        return {"status": "done", "verdict": "changes_requested",
+                "summary": "needs work", "evidence": ["stub:%s" % node_id]}
+
+    m = _make_manifest_fixture("t-crash-checkpoint",
+                               [{"id": "reviewer", "skill": "code-reviewer"},
+                                {"id": "fixer", "skill": "backend-developer"}],
+                               loops=[{"id": "rf", "nodes": ["reviewer", "fixer"],
+                                       "exit_when": "reviewer.verdict == pass",
+                                       "max_iterations": 3}],
+                               start="reviewer")
+    text = json.dumps(m, sort_keys=True)
+    st = fresh_state(m, text, 100)
+    exe = type("E", (), {"execute_node": staticmethod(crashy)})()
+    crash_path = os.path.join(tempfile.mkdtemp(), "run-state.json")
+    r = Runner(m, exe, st, 100)
+    r.set_state_path(crash_path)
+    raised = False
+    try:
+        r.run()
+    except RuntimeError:
+        raised = True
+    saved = json.load(open(crash_path, encoding="utf-8")) if os.path.exists(crash_path) else {}
+    results.append(("crash mid-loop checkpoints the run (D2)",
+                    raised
+                    and bool(saved)
+                    and saved["nodes"]["reviewer"]["status"] == "done"
+                    and saved["nodes"]["fixer"].get("status") != "done"
+                    and any(e.get("action") == "error" for e in saved.get("log") or [])))
+
+    # 5c) L3 contract enforcement: a declared completion contract is ASSERTED, not assumed.
+    # Regression for the limit documented in docs/skill-automation-platform.md §6.
+    contract = load_contract("idea-to-spec") or {}
+    n_criteria = len((contract.get("completion") or {}).get("criteria") or [])
+
+    def no_evidence(node_id, state, ctx):
+        return {"status": "done", "verdict": "pass"}
+
+    m = _make_manifest_fixture("t-contract-violation",
+                               [{"id": "spec", "skill": "idea-to-spec"}],
+                               start="spec", end=["spec"])
+    s, st = run_fixture(m, no_evidence, enforce_contracts=True)
+    results.append(("contract enforcement blocks an unsubstantiated completion",
+                    n_criteria > 0
+                    and s["outcome"] == "contract-violation"
+                    and st["nodes"]["spec"]["status"] == "needs_review"
+                    and st["nodes"]["spec"]["verdict"] == "contract-violation"
+                    and any_action(st, "spec", "contract")))
+
+    s2, st2 = run_fixture(m, no_evidence)  # enforcement off = default mode, unchanged
+    results.append(("contract enforcement is opt-in (default mode unchanged)",
+                    s2["outcome"] == "complete"
+                    and st2["nodes"]["spec"]["status"] == "done"))
+
+    def substantiated(node_id, state, ctx):
+        return {"status": "done", "verdict": "pass", "evidence": ["check:all"],
+                "criteria_met": ["c%d" % i for i in range(1, n_criteria + 1)]}
+
+    s3, st3 = run_fixture(m, substantiated, enforce_contracts=True)
+    results.append(("a substantiated completion passes contract enforcement",
+                    s3["outcome"] == "complete"
+                    and st3["nodes"]["spec"].get("verdict") == "pass"))
+
+    def partial(node_id, state, ctx):
+        return {"status": "done", "verdict": "pass", "evidence": ["check:partial"],
+                "criteria_met": ["c1"]}
+
+    s4, st4 = run_fixture(m, partial, enforce_contracts=True)
+    detail = " ".join(e.get("detail", "") for e in st4["log"]
+                      if e.get("action") == "contract")
+    results.append(("partial criteria coverage is detected and named",
+                    n_criteria > 1
+                    and s4["outcome"] == "contract-violation"
+                    and "c2" in detail))
+
+    # 5b) global step budget hard stop (executor varies diagnostics so stagnation never fires)
     def busy(node_id, state, ctx):
         return {"status": "needs_review", "verdict": "again",
                 "evidence": ["attempt-%d" % ctx["pass"]],
@@ -912,6 +1189,9 @@ def main(argv=None):
     ap.add_argument("--state", help="run-state json path (checkpoint/resume)")
     ap.add_argument("--memory", help="directory for durable run-memory entries (B1)")
     ap.add_argument("--max-steps", type=int, default=None, help="override global step budget")
+    ap.add_argument("--enforce-contracts", action="store_true",
+                    help="assert each node's declared workflow: completion contract "
+                         "(evidence + criteria coverage); off by default = default mode")
     ap.add_argument("--selftest", action="store_true")
     args = ap.parse_args(argv)
 
@@ -939,7 +1219,8 @@ def main(argv=None):
     guard = None
     if args.guardrail:
         guard = _as_guardrail(_load_module(args.guardrail, "workflow_guardrail"))
-    runner = Runner(manifest, load_executor(args.executor), state, budget, guardrail=guard)
+    runner = Runner(manifest, load_executor(args.executor), state, budget, guardrail=guard,
+                    enforce_contracts=args.enforce_contracts)
     runner.set_state_path(args.state)
     summary = runner.run()
     save_state(state, args.state)
