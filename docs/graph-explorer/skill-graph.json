@@ -1,11 +1,11 @@
 {
  "schema": 1,
  "stats": {
-  "nodes": 303,
-  "directed_edges": 1930,
-  "undirected_edges": 1576,
+  "nodes": 304,
+  "directed_edges": 1932,
+  "undirected_edges": 1577,
   "dangling_refs": 0,
-  "avg_degree": 10.4,
+  "avg_degree": 10.38,
   "hubs": [
    {
     "id": "backend-developer",
@@ -88,7 +88,7 @@
    "health-clinical": 10,
    "health-wellness": 7,
    "home-domestic": 4,
-   "legal": 3,
+   "legal": 4,
    "operations": 11,
    "people": 7,
    "personal-finance": 9,
@@ -116,8 +116,8 @@
    "desc": "Use when designing A/B tests, analyzing experiment results, calculating statistical significance, determining sample size requirements, interpreting p-values and confidence intervals, avoiding common statistical pitfalls (peeking, multiple comparisons, Simpson's paradox), impleme",
    "type": "data",
    "path": "skills/09-data/ab-testing-specialist",
-   "x": 893.4,
-   "y": 882.5
+   "x": 920.8,
+   "y": 449.9
   },
   {
    "id": "access-tech-developer",
@@ -126,8 +126,8 @@
    "desc": "Use when building assistive technology or inclusive applications for people with disabilities — screen reader compatible apps, AAC (Augmentative and Alternative Communication) tools, cognitive accessibility applications, motor impairment adaptations (switch access, eye tracking, ",
    "type": "development",
    "path": "skills/28-social-impact/access-tech-developer",
-   "x": 855.8,
-   "y": 912.5
+   "x": 875.9,
+   "y": 455.5
   },
   {
    "id": "accessibility-auditor",
@@ -136,8 +136,8 @@
    "desc": "Use when auditing digital products for WCAG 2.2 compliance, testing with assistive technologies, evaluating semantic HTML, or assessing legal exposure under ADA, Section 508, or EN 301 549. Handles automated auditing (axe-core, pa11y, Lighthouse), screen reader testing (VoiceOver",
    "type": "design",
    "path": "skills/03-design/accessibility-auditor",
-   "x": 855.5,
-   "y": 889.6
+   "x": 881.8,
+   "y": 461.6
   },
   {
    "id": "accessibility-testing",
@@ -146,8 +146,8 @@
    "desc": "Use when implementing automated accessibility testing in CI/CD pipelines, setting up WCAG 2.2 AA compliance gates, building accessibility monitoring dashboards, or integrating axe-core across test layers. Handles automated screen reader testing, visual regression for accessibilit",
    "type": "quality",
    "path": "skills/06-quality/accessibility-testing",
-   "x": 844.7,
-   "y": 910.6
+   "x": 867.5,
+   "y": 465.0
   },
   {
    "id": "account-manager",
@@ -156,8 +156,8 @@
    "desc": "Use when planning account strategies, executing renewals, expanding revenue within existing accounts, building ROI business cases, or preparing for contract negotiations. Handles commercial relationship management post-sale with stakeholder mapping, renewal strategy and price jus",
    "type": "customer-success",
    "path": "skills/17-customer-success/account-manager",
-   "x": 911.0,
-   "y": 801.1
+   "x": 944.0,
+   "y": 451.0
   },
   {
    "id": "accountant",
@@ -166,8 +166,8 @@
    "desc": "Use when setting up accounting for a startup, closing the books, preparing for an audit, implementing ASC 606 revenue recognition, or managing equity accounting under ASC 718. Handles chart of accounts design, month-end close processes, payroll accounting, AP/AR management, sales",
    "type": "corporate-finance",
    "path": "skills/18-corporate-finance/accountant",
-   "x": 896.9,
-   "y": 829.1
+   "x": 921.8,
+   "y": 537.6
   },
   {
    "id": "ad-monetization-engineer",
@@ -176,8 +176,8 @@
    "desc": "Use when designing ad-based revenue models for digital products, implementing ad tech stacks (header bidding, programmatic, direct-sold), optimizing ad unit placement and viewability, setting up ad mediation for mobile apps, building subscription-vs-ad hybrid monetization, or deb",
    "type": "growth",
    "path": "skills/10-growth/ad-monetization-engineer",
-   "x": 924.7,
-   "y": 851.5
+   "x": 954.8,
+   "y": 467.8
   },
   {
    "id": "advanced-options-structures",
@@ -186,8 +186,8 @@
    "desc": "Use when the user needs advanced options strategies beyond the standard 17 covered by options-strategist — zebra spreads (zero extrinsic back ratios), double diagonals, flyagonals (butterfly-diagonal hybrids), double calendars, iron albatross, Christmas tree spreads, seagulls, bo",
    "type": "finance",
    "path": "skills/14-finance/advanced-options-structures",
-   "x": 987.3,
-   "y": 864.2
+   "x": 997.1,
+   "y": 507.4
   },
   {
    "id": "adventure-planner",
@@ -196,8 +196,8 @@
    "desc": "Use when designing adventure travel and experience progression. Handles adventure-type selection, skill pathways, gear frameworks, risk matrices and expedition logistics. Do NOT use for extreme or professional expedition (Everest/Antarctica) planning.",
    "type": "travel-adventure",
    "path": "skills/36-travel-adventure/adventure-planner",
-   "x": 413.0,
-   "y": 228.8
+   "x": 526.0,
+   "y": 1022.9
   },
   {
    "id": "agent-eval-pipeline",
@@ -206,8 +206,8 @@
    "desc": "Use when designing automated behavioral evaluation suites for AI agents, implementing LLM-as-judge rubrics with inter-rater reliability calibration, setting up statistical eval frameworks (SPRT sequential testing), building eval datasets with ground truth generation, or integrati",
    "type": "infrastructure",
    "path": "skills/22-ai-engineering/agent-eval-pipeline",
-   "x": 765.3,
-   "y": 874.3
+   "x": 823.8,
+   "y": 513.6
   },
   {
    "id": "agent-handoff-protocol",
@@ -216,8 +216,8 @@
    "desc": "Use when building multi-agent pipelines, passing state between specialized agents, or designing cross-agent orchestration. Handles state serialization, context pruning, decision gate ledgers, handoff contracts, multi-agent topology selection, and context rot defense. Do NOT use f",
    "type": "framework",
    "path": "skills/13-specialized/agent-handoff-protocol",
-   "x": 767.4,
-   "y": 878.4
+   "x": 820.7,
+   "y": 503.4
   },
   {
    "id": "agent-persona-orchestrator",
@@ -226,8 +226,8 @@
    "desc": "Use when orchestrating multiple agent personas (code-reviewer, security-auditor, test-engineer, web-perf-auditor) for complex workflows that require parallel auditing, gated deployment, or multi-dimensional quality gates. Handles a three-layer architecture (Skills → Personas → Co",
    "type": "framework",
    "path": "skills/00-framework/agent-persona-orchestrator",
-   "x": 773.8,
-   "y": 901.8
+   "x": 817.8,
+   "y": 474.2
   },
   {
    "id": "ai-engineer",
@@ -236,8 +236,8 @@
    "desc": "Use when building AI-powered applications or features, designing RAG systems, architecting AI agent workflows, selecting and integrating foundation models (LLMs, embeddings, multimodal), implementing AI safety guardrails, optimizing model inference latency and cost, or building e",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/ai-engineer",
-   "x": 842.5,
-   "y": 836.4
+   "x": 883.5,
+   "y": 457.2
   },
   {
    "id": "ai-safety-engineer",
@@ -246,8 +246,8 @@
    "desc": "Use when evaluating LLM features for safety in regulated health contexts, building guardrail systems, conducting red-teaming exercises, or preparing AI features for FDA/EU AI Act regulatory review. Handles LLM output safety evaluation (medical accuracy, hallucination detection, h",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/ai-safety-engineer",
-   "x": 826.9,
-   "y": 793.7
+   "x": 866.7,
+   "y": 437.6
   },
   {
    "id": "ai-safety-health-reviewer",
@@ -256,8 +256,8 @@
    "desc": "Use when evaluating medical AI outputs for clinical accuracy, assessing FDA regulatory readiness (SaMD, PCCP, 510(k) vs De Novo), auditing health AI for harmful suggestions, or conducting specialized red teaming for healthcare LLMs. Handles medical AI output evaluation (hallucina",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/ai-safety-health-reviewer",
-   "x": 839.7,
-   "y": 783.3
+   "x": 887.3,
+   "y": 441.9
   },
   {
    "id": "ai-security",
@@ -266,8 +266,8 @@
    "desc": "Use when securing LLM-based applications against prompt injection, jailbreaks, and training data poisoning; when implementing AI guardrails and content safety filters; when conducting AI red-teaming with automated adversarial testing; when evaluating OWASP Top 10 for LLM Applicat",
    "type": "security",
    "path": "skills/22-ai-engineering/ai-security",
-   "x": 798.9,
-   "y": 788.2
+   "x": 846.4,
+   "y": 434.2
   },
   {
    "id": "algorithmic-trader",
@@ -276,8 +276,8 @@
    "desc": "Use when developing algorithmic trading strategies, building backtesting engines, designing position sizing logic, or integrating with broker APIs. Handles entry/exit/trim strategy design, vectorized and event-driven backtesting, walk-forward optimization, position sizing (Kelly,",
    "type": "finance",
    "path": "skills/14-finance/algorithmic-trader",
-   "x": 935.2,
-   "y": 857.8
+   "x": 954.6,
+   "y": 504.0
   },
   {
    "id": "analytics-engineer",
@@ -286,8 +286,8 @@
    "desc": "Use when building dbt data models, designing metric layers, enabling self-service BI (Looker/Metabase/Lightdash), running A/B tests, optimizing SQL performance, designing event tracking, or building data quality frameworks. Handles dbt project architecture, semantic layer design,",
    "type": "data",
    "path": "skills/09-data/analytics-engineer",
-   "x": 888.9,
-   "y": 860.5
+   "x": 921.4,
+   "y": 470.8
   },
   {
    "id": "android-developer",
@@ -296,8 +296,8 @@
    "desc": "Android development with Kotlin, Jetpack Compose, Android SDK, Material Design 3, Gradle, Play Store deployment, and Android-specific architecture. Use when building Android applications, designing Android UI with Jetpack Compose/XML, configuring Gradle build variants, implementi",
    "type": "development",
    "path": "skills/05-development/android-developer",
-   "x": 838.6,
-   "y": 913.8
+   "x": 884.9,
+   "y": 485.3
   },
   {
    "id": "angel-investor",
@@ -306,8 +306,8 @@
    "desc": "Use when seeking Angel Investor guidance in personal finance. Angel investing: sourcing dealflow, startup evaluation (TAM, traction, team), term sheet basics, cap table modeling, portfolio construction, follow-on strategy, and QSBS considerations. Handles Angel Investor execution",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/angel-investor",
-   "x": 965.0,
-   "y": 799.3
+   "x": 972.1,
+   "y": 574.1
   },
   {
    "id": "api-designer",
@@ -316,8 +316,8 @@
    "desc": "Use when designing REST, GraphQL, or gRPC APIs, writing OpenAPI 3.1 specifications, defining versioning strategies, or architecting authentication and rate limiting. Handles API lifecycle design, error modeling, pagination strategies, SDK generation, developer portal design, and ",
    "type": "architecture",
    "path": "skills/04-architecture/api-designer",
-   "x": 810.4,
-   "y": 883.5
+   "x": 856.2,
+   "y": 500.7
   },
   {
    "id": "api-test-suite-builder",
@@ -326,8 +326,8 @@
    "desc": "Use when generating automated API test suites, building integration test coverage for REST endpoints, creating contract tests from OpenAPI specs, or ensuring comprehensive test matrices across auth, validation, error codes, and pagination. Handles route detection across framework",
    "type": "quality",
    "path": "skills/06-quality/api-test-suite-builder",
-   "x": 791.8,
-   "y": 912.3
+   "x": 829.3,
+   "y": 499.0
   },
   {
    "id": "apple-hig-expert",
@@ -336,8 +336,8 @@
    "desc": "Use when auditing or designing iOS, macOS, watchOS, or visionOS interfaces against the Apple Human Interface Guidelines, including the Liquid Glass design language (WWDC25, iOS 26/macOS Tahoe). Handles HIG compliance audits with automated scoring, contrast and tap-target validati",
    "type": "design",
    "path": "skills/03-design/apple-hig-expert",
-   "x": 864.5,
-   "y": 922.6
+   "x": 879.9,
+   "y": 442.5
   },
   {
    "id": "applying-llm-guardrails",
@@ -346,8 +346,8 @@
    "desc": "Use when implementing runtime safety classifiers for LLM applications, configuring LlamaGuard/Prompt Guard/NeMo Guardrails for production, hardening LLM inputs against jailbreaks and indirect prompt injection, deploying PII/PHI redaction in LLM pipelines, or measuring guardrail e",
    "type": "security",
    "path": "skills/23-trust-safety/applying-llm-guardrails",
-   "x": 795.1,
-   "y": 808.6
+   "x": 841.1,
+   "y": 444.9
   },
   {
    "id": "appsec-engineer",
@@ -356,8 +356,8 @@
    "desc": "Use when establishing a secure SDLC for an engineering organization; when performing threat modeling on a new feature or architecture; when integrating SAST, DAST, SCA, or IAST tools into CI/CD; when designing secure code review programs; when building security champions programs",
    "type": "security",
    "path": "skills/08-security/appsec-engineer",
-   "x": 761.3,
-   "y": 824.2
+   "x": 808.6,
+   "y": 453.8
   },
   {
    "id": "automation-engineer",
@@ -366,8 +366,8 @@
    "desc": "Use when building end-to-end delivery automation — CI/CD pipelines, multi-platform build matrices (iOS/Android/Web/Desktop/Electron/Flutter/game engines), store & marketplace publishing (App Store, Google Play, Chrome Web Store, Microsoft Store, Steam, Snap, Homebrew), infrastruc",
    "type": "devops",
    "path": "skills/07-devops/automation-engineer",
-   "x": 826.4,
-   "y": 864.5
+   "x": 871.9,
+   "y": 489.7
   },
   {
    "id": "backend-developer",
@@ -376,8 +376,8 @@
    "desc": "Use when building REST APIs, implementing authentication, designing database schemas, writing server-side business logic, or debugging backend performance issues. Handles multi-language backend development (Python/FastAPI, Node.js/Express, Go) with JWT/OAuth authentication, datab",
    "type": "development",
    "path": "skills/05-development/backend-developer",
-   "x": 824.6,
-   "y": 872.0
+   "x": 867.5,
+   "y": 490.3
   },
   {
    "id": "bizdev-manager",
@@ -386,8 +386,8 @@
    "desc": "Use when identifying strategic partners, structuring partnership deals, designing channel programs, or negotiating term sheets. Handles partner identification and qualification, partnership models (reseller, OEM, marketplace, co-sell), deal structuring and term sheets, channel sa",
    "type": "sales",
    "path": "skills/15-sales/bizdev-manager",
-   "x": 887.3,
-   "y": 796.6
+   "x": 933.6,
+   "y": 489.0
   },
   {
    "id": "blockchain-developer",
@@ -396,8 +396,8 @@
    "desc": "Use when developing blockchain applications — smart contract development (Solidity, Rust), dApp architecture (Web3 frontend + smart contract backend), token standards (ERC-20, ERC-721, ERC-1155), DeFi protocol design (AMM, lending, staking), gas optimization, smart contract secur",
    "type": "development",
    "path": "skills/05-development/blockchain-developer",
-   "x": 707.4,
-   "y": 836.6
+   "x": 769.8,
+   "y": 481.6
   },
   {
    "id": "board-manager",
@@ -406,8 +406,8 @@
    "desc": "Use when preparing for board meetings, recruiting independent directors, structuring board committees, managing shareholder communications, drafting board minutes, or navigating governance crises. Handles board composition and fiduciary duties, meeting cadence and agenda design, ",
    "type": "governance",
    "path": "skills/19-governance/board-manager",
-   "x": 898.8,
-   "y": 773.4
+   "x": 937.2,
+   "y": 532.8
   },
   {
    "id": "brainstorming",
@@ -416,8 +416,8 @@
    "desc": "Use when starting a new feature, product, or architecture from a rough idea; when a stakeholder provides a vague requirement; when exploring solution space before committing to implementation; or when design decisions need rigorous examination before coding. Handles Socratic refi",
    "type": "product",
    "path": "skills/02-product/brainstorming",
-   "x": 833.3,
-   "y": 854.0
+   "x": 861.9,
+   "y": 451.3
   },
   {
    "id": "brand-guidelines",
@@ -426,8 +426,8 @@
    "desc": "Use when designing brand identity systems, creating logo systems, defining color palettes with accessibility validation, establishing typographic hierarchy, or governing brand consistency at scale. Handles brand architecture, identity system design, design token creation, iconogr",
    "type": "design",
    "path": "skills/03-design/brand-guidelines",
-   "x": 878.4,
-   "y": 871.2
+   "x": 905.7,
+   "y": 453.9
   },
   {
    "id": "brownfield-adoption-planner",
@@ -436,8 +436,8 @@
    "desc": "Use when planning the phased rollout of agent skills into an existing, brownfield codebase with production traffic, where safety and team trust are paramount. Handles four-phase adoption (read-only safety net → context + characterization tests → development for new features → dev",
    "type": "specialized",
    "path": "skills/13-specialized/brownfield-adoption-planner",
-   "x": 800.0,
-   "y": 859.6
+   "x": 846.3,
+   "y": 477.5
   },
   {
    "id": "browser-testing-with-devtools",
@@ -446,8 +446,8 @@
    "desc": "Use when debugging live web applications in a browser, inspecting DOM structure and CSS layout issues, analyzing network requests and API responses, profiling JavaScript performance and memory usage, verifying accessibility compliance in the rendered DOM, capturing console errors",
    "type": "quality",
    "path": "skills/06-quality/browser-testing-with-devtools",
-   "x": 824.3,
-   "y": 914.7
+   "x": 852.9,
+   "y": 459.6
   },
   {
    "id": "build-system-design",
@@ -456,8 +456,8 @@
    "desc": "Use when build times exceed 5m incremental/30m clean; when evaluating build systems (Bazel, Buck2, Pants, Nx, Turborepo, Make); when planning a build system migration; when designing build infrastructure for 50+ engineer monorepos; when build flakiness causes CI failures; when in",
    "type": "devops",
    "path": "skills/07-devops/build-system-design",
-   "x": 769.1,
-   "y": 929.9
+   "x": 820.4,
+   "y": 538.4
   },
   {
    "id": "business-intelligence-engineer",
@@ -466,8 +466,8 @@
    "desc": "Use when designing semantic layers, building board-ready dashboards with SaaS metrics, modeling star schemas for BI, creating clinical outcomes analytics, or implementing embedded customer-facing analytics. Handles semantic layer design (dbt metrics, LookML explores, MetricFlow, ",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/business-intelligence-engineer",
-   "x": 915.8,
-   "y": 826.7
+   "x": 947.3,
+   "y": 492.3
   },
   {
    "id": "business-strategist",
@@ -476,8 +476,8 @@
    "desc": "Use when designing business models, creating go-to-market plans, modeling financial projections, evaluating pricing strategies, or planning market expansion. Handles TAM/SAM/SOM analysis, unit economics, competitive positioning, business model canvas, revenue modeling, and growth",
    "type": "strategy",
    "path": "skills/01-strategy/business-strategist",
-   "x": 855.2,
-   "y": 825.4
+   "x": 905.2,
+   "y": 499.3
   },
   {
    "id": "casual-game-developer",
@@ -486,8 +486,8 @@
    "desc": "Use when building casual games accessible to all ages and skill levels — hyper-casual games (one-tap mechanics, 30-second sessions), puzzle games (match-3, word, Sudoku, jigsaw), card and board game adaptations, idle/clicker/incremental games, endless runners, arcade-style games,",
    "type": "development",
    "path": "skills/05-development/casual-game-developer",
-   "x": 873.2,
-   "y": 893.7
+   "x": 900.9,
+   "y": 471.7
   },
   {
    "id": "ceo-strategist",
@@ -496,8 +496,8 @@
    "desc": "Use when making company-defining decisions, raising capital, designing organizational structures, navigating crises, scaling from seed to enterprise, or managing board relations. Handles fundraising strategy, board governance, OKR design, competitive strategy, M&A evaluation, exe",
    "type": "strategy",
    "path": "skills/01-strategy/ceo-strategist",
-   "x": 857.5,
-   "y": 804.0
+   "x": 907.8,
+   "y": 523.2
   },
   {
    "id": "chaos-engineer",
@@ -506,8 +506,8 @@
    "desc": "Use when designing chaos experiments, planning GameDays, validating system resilience through controlled fault injection, or building organizational confidence in failure handling. Handles chaos experiment design, fault injection (network latency, pod kills, resource exhaustion, ",
    "type": "specialized",
    "path": "skills/13-specialized/chaos-engineer",
-   "x": 785.5,
-   "y": 858.0
+   "x": 840.1,
+   "y": 504.7
   },
   {
    "id": "ci-cd-builder",
@@ -516,8 +516,8 @@
    "desc": "Use when designing, building, or debugging CI/CD pipelines, optimizing build performance, implementing quality gates, securing software supply chains, or planning deployment strategies. Handles GitHub Actions and GitLab CI pipeline architecture, composite and reusable workflows, ",
    "type": "devops",
    "path": "skills/07-devops/ci-cd-builder",
-   "x": 797.1,
-   "y": 891.4
+   "x": 843.6,
+   "y": 505.9
   },
   {
    "id": "civic-tech-developer",
@@ -526,8 +526,8 @@
    "desc": "Use when building civic technology for social impact — community reporting tools, government transparency platforms, disaster response systems, citizen engagement apps, public data dashboards, participatory budgeting tools, or any technology that solves community problems. Handle",
    "type": "development",
    "path": "skills/28-social-impact/civic-tech-developer",
-   "x": 843.9,
-   "y": 888.0
+   "x": 873.2,
+   "y": 473.5
   },
   {
    "id": "clinical-informatics-specialist",
@@ -536,8 +536,8 @@
    "desc": "Use when designing FHIR R4/R5 resources, integrating EHR systems (Epic, Cerner), mapping clinical terminologies (SNOMED CT, LOINC, ICD-10-CM, RxNorm), building health data exchange pipelines (HIE, TEFCA), modeling patient-reported outcomes (PROMIS, PRO-CTCAE), or implementing con",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/clinical-informatics-specialist",
-   "x": 858.9,
-   "y": 790.9
+   "x": 901.9,
+   "y": 435.2
   },
   {
    "id": "cloud-architect",
@@ -546,8 +546,8 @@
    "desc": "Use when designing cloud architectures, planning multi-cloud or hybrid strategies, evaluating managed services, designing landing zones, or conducting Well-Architected reviews across AWS, Azure, or GCP. Handles landing zone design, multi-account governance, IAM strategy, networki",
    "type": "devops",
    "path": "skills/07-devops/cloud-architect",
-   "x": 796.7,
-   "y": 832.7
+   "x": 849.2,
+   "y": 508.4
   },
   {
    "id": "cloud-security",
@@ -556,8 +556,8 @@
    "desc": "Use when designing cloud IAM with least privilege across AWS/Azure/GCP, hardening cloud networks (VPC, security groups, WAF, DDoS), implementing secrets management with automatic rotation, automating cloud compliance (CIS, PCI DSS, HIPAA, SOC 2), evaluating CSPM/CNAPP tools (Wiz,",
    "type": "security",
    "path": "skills/08-security/cloud-security",
-   "x": 787.7,
-   "y": 812.5
+   "x": 833.5,
+   "y": 483.0
   },
   {
    "id": "code-reviewer",
@@ -566,8 +566,8 @@
    "desc": "Use when performing structured code reviews on pull requests, reviewing code for security vulnerabilities, evaluating performance implications, or assessing error handling and test coverage. Handles six-dimension reviews covering security, performance, quality, error handling, te",
    "type": "quality",
    "path": "skills/06-quality/code-reviewer",
-   "x": 790.0,
-   "y": 887.1
+   "x": 835.5,
+   "y": 489.3
   },
   {
    "id": "code-simplification",
@@ -576,8 +576,8 @@
    "desc": "Use when reducing code complexity while preserving exact behavior, refactoring legacy code, eliminating dead code, flattening deep nesting, simplifying conditionals, removing premature abstractions, or applying Chesterton's Fence before removing any code. Handles complexity scori",
    "type": "quality",
    "path": "skills/06-quality/code-simplification",
-   "x": 793.8,
-   "y": 883.6
+   "x": 841.7,
+   "y": 495.9
   },
   {
    "id": "codebase-design",
@@ -586,8 +586,8 @@
    "desc": "Use when designing new modules, classes, or packages; when evaluating existing code for refactoring opportunities; when code review reveals shallow modules (large interface, little behavior) or pass-throughs; when planning a codebase reorganization; or when teaching software desi",
    "type": "architecture",
    "path": "skills/04-architecture/codebase-design",
-   "x": 805.0,
-   "y": 909.8
+   "x": 840.4,
+   "y": 464.4
   },
   {
    "id": "coding-interview-prep",
@@ -596,8 +596,8 @@
    "desc": "Use when preparing for coding and algorithm interviews — LeetCode-style problem practice, data structure and algorithm patterns (arrays, strings, hash maps, two pointers, sliding window, stacks, queues, linked lists, trees, graphs, heaps, tries, DP, backtracking, greedy, binary s",
    "type": "development",
    "path": "skills/05-development/coding-interview-prep",
-   "x": 736.7,
-   "y": 771.6
+   "x": 839.8,
+   "y": 592.6
   },
   {
    "id": "commercial-real-estate-analyst",
@@ -606,8 +606,8 @@
    "desc": "Use when valuing and underwriting commercial properties: cap rate/NOI models, DCF valuations, lease and debt analysis, market cycle timing, and due diligence checklists. Handles financial models, checklists, and waterfall templates. Do NOT use for residential real estate or prima",
    "type": "real-estate",
    "path": "skills/33-real-estate/commercial-real-estate-analyst",
-   "x": 961.5,
-   "y": 880.5
+   "x": 958.8,
+   "y": 588.1
   },
   {
    "id": "commodities-analyst",
@@ -616,8 +616,8 @@
    "desc": "Use when analyzing physical commodities (energy, metals, agriculture), supply-demand balances, inventory cycles, contango/backwardation in futures curves, commodity super-cycles, processing spreads (crack, crush, spark), or cross-commodity relative value. Handles fundamental supp",
    "type": "finance",
    "path": "skills/14-finance/commodities-analyst",
-   "x": 981.4,
-   "y": 864.5
+   "x": 990.8,
+   "y": 524.9
   },
   {
    "id": "community-operations-manager",
@@ -626,8 +626,8 @@
    "desc": "Use when designing patient community programs, peer mentorship initiatives, community health metrics and engagement tracking, patient event programs (virtual roundtables, webinars, conference meetups), or patient support group operations. Handles ambassador program design, commun",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/community-operations-manager",
-   "x": 872.4,
-   "y": 741.7
+   "x": 898.0,
+   "y": 394.6
   },
   {
    "id": "community-organizing-tech",
@@ -636,8 +636,8 @@
    "desc": "Use when building technology for grassroots community organizing — volunteer coordination platforms, mutual aid networks (food, housing, transportation), petition and advocacy platforms, community event management, neighborhood communication tools, participatory budgeting platfor",
    "type": "development",
    "path": "skills/28-social-impact/community-organizing-tech",
-   "x": 836.3,
-   "y": 873.9
+   "x": 871.1,
+   "y": 459.3
   },
   {
    "id": "compliance-officer",
@@ -646,8 +646,8 @@
    "desc": "Use when preparing for SOC 2, ISO 27001, HIPAA, or PCI-DSS audits, mapping controls across frameworks, collecting audit evidence, writing compliance policies, or performing vendor risk assessments. Handles framework scoping (SOC 2, ISO 27001, HIPAA, PCI-DSS), control mapping, gap",
    "type": "security",
    "path": "skills/08-security/compliance-officer",
-   "x": 828.0,
-   "y": 811.1
+   "x": 876.8,
+   "y": 475.9
   },
   {
    "id": "consulting-effort-estimator",
@@ -656,8 +656,8 @@
    "desc": "Use when estimating effort, duration, or price-input for services and consulting engagements that are not a simple software build — discovery and advisory engagements, audits, options analyses, design/content/data/ML deliverables, training and documentation, and ongoing fractiona",
    "type": "operations",
    "path": "skills/12-operations/consulting-effort-estimator",
-   "x": 86.7,
-   "y": 691.3
+   "x": 431.8,
+   "y": 93.6
   },
   {
    "id": "content-policy-manager",
@@ -666,8 +666,8 @@
    "desc": "Use when designing medical misinformation taxonomies, writing community guidelines for health platforms, building enforcement frameworks with escalation pathways, or preparing transparency reports for digital services regulation. Handles policy taxonomy design (medical misinforma",
    "type": "governance",
    "path": "skills/23-trust-safety/content-policy-manager",
-   "x": 857.0,
-   "y": 755.5
+   "x": 898.3,
+   "y": 425.2
   },
   {
    "id": "content-strategist",
@@ -676,8 +676,8 @@
    "desc": "Use when planning content strategy, designing editorial calendars, auditing content inventories, architecting topic clusters, defining tone-of-voice guidelines, measuring content ROI, or building content marketing funnels. Handles content operations, repurposing workflows, audien",
    "type": "growth",
    "path": "skills/10-growth/content-strategist",
-   "x": 884.6,
-   "y": 866.3
+   "x": 911.9,
+   "y": 460.1
   },
   {
    "id": "context-compaction-strategies",
@@ -686,8 +686,8 @@
    "desc": "Manage token budgets, progressive disclosure, context window optimization, summarization strategies, dual-representation compilation (human-readable vs agent-optimized), structured context pruning, attention budget allocation, context retention policies across multi-turn conversa",
    "type": "infrastructure",
    "path": "skills/22-ai-engineering/context-compaction-strategies",
-   "x": 751.9,
-   "y": 863.1
+   "x": 818.3,
+   "y": 520.9
   },
   {
    "id": "context-engineering",
@@ -696,8 +696,8 @@
    "desc": "Use when designing or debugging AI agent context strategies, optimizing token budgets, building context assembly pipelines, or diagnosing context-related failures (wrong answers from missing info, bloated context causing poor reasoning, conversation drift). Handles 5-level contex",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/context-engineering",
-   "x": 746.2,
-   "y": 868.2
+   "x": 808.2,
+   "y": 506.5
   },
   {
    "id": "context-optimizer",
@@ -706,8 +706,8 @@
    "desc": "Use when minimizing the token cost of a given context payload while holding answer quality constant — the autonomous budget-saving engine. Handles context measurement and token accounting per level, minimization levers (minification, deduplication, compression selection, cache st",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/context-optimizer",
-   "x": 729.9,
-   "y": 871.8
+   "x": 804.1,
+   "y": 528.8
   },
   {
    "id": "creator-economy-builder",
@@ -716,8 +716,8 @@
    "desc": "Use when building platforms for the creator economy — membership/subscription platforms (Patreon-style), tipping and donation systems, digital product marketplaces (courses, ebooks, templates, presets, code), token-gated content and NFT platforms, live streaming monetization, pod",
    "type": "finance",
    "path": "skills/27-creator-finance/creator-economy-builder",
-   "x": 861.5,
-   "y": 874.3
+   "x": 896.4,
+   "y": 498.9
   },
   {
    "id": "crisis-response-manager",
@@ -726,8 +726,8 @@
    "desc": "Use when managing adverse event reporting (FDA MedWatch, EudraVigilance), suicide prevention escalation in patient communities, pharmacovigilance signal detection, public health emergency response, or medical device adverse event reporting (MDR). Handles crisis taxonomies (S1-S5)",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/crisis-response-manager",
-   "x": 840.0,
-   "y": 757.1
+   "x": 882.0,
+   "y": 422.3
   },
   {
    "id": "critical-thinker",
@@ -736,8 +736,8 @@
    "desc": "Use when you must evaluate claims, arguments, and evidence rapidly and reliably. Handles argument mapping, fallacy detection, Socratic questioning, steel-manning, and media literacy. Do NOT use for formal debate coaching or legal advocacy.",
    "type": "philosophy-wisdom",
    "path": "skills/34-philosophy-wisdom/critical-thinker",
-   "x": 133.1,
-   "y": 400.8
+   "x": 257.4,
+   "y": 225.9
   },
   {
    "id": "cross-agent-skills-packaging",
@@ -746,8 +746,8 @@
    "desc": "Use when packaging skills for deployment across multiple AI agent terminals (Claude Code, Copilot CLI, Cursor, Codex, Gemini CLI, OpenClaw), configuring the ~/.agents/skills/ cross-agent directory with symlink strategies, resolving agent-specific frontmatter conflicts, generating",
    "type": "infrastructure",
    "path": "skills/13-specialized/cross-agent-skills-packaging",
-   "x": 750.9,
-   "y": 885.7
+   "x": 811.7,
+   "y": 520.7
   },
   {
    "id": "cross-repo-refactoring",
@@ -756,8 +756,8 @@
    "desc": "Use when planning a breaking API change affecting consumers in other repos; when migrating consumers of a deprecated API across 5+ repos; when designing a deprecation strategy for a library; when estimating blast radius for cross-repo changes; when building automated migration to",
    "type": "specialized",
    "path": "skills/13-specialized/cross-repo-refactoring",
-   "x": 772.8,
-   "y": 922.9
+   "x": 822.2,
+   "y": 528.8
   },
   {
    "id": "cross-skill-communication",
@@ -766,8 +766,8 @@
    "desc": "Use when designing inter-skill communication protocols, diagnosing broken skill chains, defining message schemas for skill-to-skill data exchange, setting up publish-subscribe event flows, resolving conflicts when multiple skills produce contradictory outputs, establishing handof",
    "type": "framework",
    "path": "skills/00-framework/cross-skill-communication",
-   "x": 759.3,
-   "y": 857.8
+   "x": 817.1,
+   "y": 480.9
   },
   {
    "id": "crypto-trader",
@@ -776,8 +776,8 @@
    "desc": "Use when trading or analyzing cryptocurrency markets — perpetual futures, funding rates, spot execution, on-chain data, DeFi yield strategies, exchange risk evaluation, stablecoin mechanics, or crypto-native risk management. Handles perpetual swap mechanics (funding rate arbitrag",
    "type": "finance",
    "path": "skills/14-finance/crypto-trader",
-   "x": 955.0,
-   "y": 827.9
+   "x": 969.7,
+   "y": 523.1
   },
   {
    "id": "cryptographic-engineer",
@@ -786,8 +786,8 @@
    "desc": "Use when implementing threshold cryptography (FROST Schnorr, BLS aggregation, t-of-n signing), deploying Multi-Party Computation (MP-SPDZ, Shamir Secret Sharing, Garbled Circuits), designing zkSNARK/zkSTARK circuits, implementing commitment schemes (Pedersen, KZG, Merkle trees) f",
    "type": "specialized",
    "path": "skills/26-web3/cryptographic-engineer",
-   "x": 761.2,
-   "y": 837.0
+   "x": 813.0,
+   "y": 481.3
   },
   {
    "id": "cryptography",
@@ -796,8 +796,8 @@
    "desc": "Use when designing or auditing TLS, implementing encryption at rest or in transit, managing certificate lifecycle (ACME, renewal, OCSP), selecting cryptographic primitives (AEAD, key exchange, signatures, hash), designing key management with HSMs (FIPS 140-2 L3, PCI PIN), impleme",
    "type": "security",
    "path": "skills/08-security/cryptography",
-   "x": 740.6,
-   "y": 813.2
+   "x": 796.8,
+   "y": 507.1
   },
   {
    "id": "cto-advisor",
@@ -806,8 +806,8 @@
    "desc": "Use when evaluating build-vs-buy decisions, designing engineering organizations, governing architecture, performing technical due diligence, selecting vendors, or managing innovation portfolios. Handles technology strategy, team topologies, architecture governance frameworks, tec",
    "type": "strategy",
    "path": "skills/01-strategy/cto-advisor",
-   "x": 802.4,
-   "y": 819.6
+   "x": 870.7,
+   "y": 527.6
   },
   {
    "id": "customer-onboarding-specialist",
@@ -816,8 +816,8 @@
    "desc": "Use when designing or running customer onboarding — new-customer kickoff, time-to-value (TTV) reduction, implementation and setup, adoption and activation programs, health-score design, and onboarding-to-renewal handoff. Handles onboarding playbooks by customer segment, kickoff a",
    "type": "customer-success",
    "path": "skills/17-customer-success/customer-onboarding-specialist",
-   "x": 906.0,
-   "y": 820.0
+   "x": 929.0,
+   "y": 431.8
   },
   {
    "id": "customer-success-manager",
@@ -826,8 +826,8 @@
    "desc": "Use when designing customer health score models, preparing QBRs, predicting and preventing churn, optimizing time-to-first-value, identifying expansion opportunities, or running voice-of-customer programs. Handles the full post-sale customer lifecycle from onboarding through advo",
    "type": "customer-success",
    "path": "skills/17-customer-success/customer-success-manager",
-   "x": 917.9,
-   "y": 808.4
+   "x": 945.7,
+   "y": 444.0
   },
   {
    "id": "customer-support-engineer",
@@ -836,8 +836,8 @@
    "desc": "Use when designing support tiers (L1/L2/L3), debugging customer-reported issues, managing knowledge bases, triaging bug reports, handling escalations, monitoring SLAs, measuring support metrics (CSAT/NPS/CES), or building proactive customer health signals. Handles ticket manageme",
    "type": "operations",
    "path": "skills/12-operations/customer-support-engineer",
-   "x": 879.5,
-   "y": 841.6
+   "x": 910.5,
+   "y": 455.2
   },
   {
    "id": "data-engineer",
@@ -846,8 +846,8 @@
    "desc": "Use when building ETL/ELT pipelines, designing data architecture (medallion/data mesh/lakehouse), modeling data warehouses (star/snowflake/data vault), orchestrating workflows (Airflow/dbt), implementing streaming (Kafka/Flink), enforcing data quality (Great Expectations/WAP), or",
    "type": "data",
    "path": "skills/09-data/data-engineer",
-   "x": 868.8,
-   "y": 845.0
+   "x": 907.0,
+   "y": 483.4
   },
   {
    "id": "data-governance-officer",
@@ -856,8 +856,8 @@
    "desc": "Use when establishing or running data governance — data ownership and stewardship, cataloging, lineage, quality rules and SLAs, classification and sensitivity, retention and lifecycle, access and usage policy, or metrics and reporting for data trust. Handles governance operating ",
    "type": "data",
    "path": "skills/09-data/data-governance-officer",
-   "x": 871.1,
-   "y": 819.1
+   "x": 919.7,
+   "y": 489.5
   },
   {
    "id": "data-scientist",
@@ -866,8 +866,8 @@
    "desc": "Use when conducting hypothesis tests, designing A/B experiments, performing causal inference (DID/RDD/IV), building predictive models, running exploratory data analysis, forecasting time series, or interpreting model outputs with SHAP/LIME. Handles statistical methodology, experi",
    "type": "data",
    "path": "skills/09-data/data-scientist",
-   "x": 904.3,
-   "y": 844.3
+   "x": 935.3,
+   "y": 479.7
   },
   {
    "id": "data-security",
@@ -876,8 +876,8 @@
    "desc": "Use when designing data classification schemas, implementing DLP, configuring encryption at rest/transit/use, building data masking and tokenization pipelines, securing databases and data warehouses, or implementing data access audit logging. Handles data classification (PHI/PII/",
    "type": "security",
    "path": "skills/23-trust-safety/data-security",
-   "x": 824.0,
-   "y": 827.9
+   "x": 876.0,
+   "y": 496.3
   },
   {
    "id": "data-visualization-engineer",
@@ -886,8 +886,8 @@
    "desc": "Use when designing data visualizations, selecting chart types, building dashboards, applying color theory and accessibility standards, optimizing information density, or communicating data insights visually. Handles chart selection rules (bar vs line vs scatter vs heatmap vs tree",
    "type": "data",
    "path": "skills/09-data/data-visualization-engineer",
-   "x": 905.5,
-   "y": 872.1
+   "x": 932.9,
+   "y": 454.8
   },
   {
    "id": "database-designer",
@@ -896,8 +896,8 @@
    "desc": "Use when designing database schemas, planning indexing strategies, normalizing or denormalizing data models, choosing between SQL and NoSQL, or optimizing query performance. Handles logical and physical data modeling, migration management, performance tuning, technology selection",
    "type": "architecture",
    "path": "skills/04-architecture/database-designer",
-   "x": 827.9,
-   "y": 869.1
+   "x": 870.8,
+   "y": 497.4
   },
   {
    "id": "database-reliability-engineer",
@@ -906,8 +906,8 @@
    "desc": "Use when designing database high availability, planning disaster recovery (RPO/RTO), optimizing query performance, architecting replication and sharding, configuring connection pooling, executing zero-downtime migrations, or managing database fleets at scale. Handles HA topology ",
    "type": "data",
    "path": "skills/09-data/database-reliability-engineer",
-   "x": 855.1,
-   "y": 856.9
+   "x": 895.9,
+   "y": 515.6
   },
   {
    "id": "debt-optimizer",
@@ -916,8 +916,8 @@
    "desc": "Use when seeking Debt Optimizer guidance in personal finance. Debt optimization: avalanche vs snowball, refinancing models, student loan strategies (PSLF, IDR), mortgage paydown vs invest analysis, and HELOC/margin considerations. Handles Debt Optimizer execution including planni",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/debt-optimizer",
-   "x": 974.1,
-   "y": 914.6
+   "x": 958.7,
+   "y": 627.5
   },
   {
    "id": "debugging-and-error-recovery",
@@ -926,8 +926,8 @@
    "desc": "Use when debugging production incidents, troubleshooting non-reproducible bugs, performing root cause analysis, reducing a bug to a minimal reproduction case, or applying systematic debugging methodology on any codebase. Handles the 6-step triage workflow (Reproduce, Localize wit",
    "type": "quality",
    "path": "skills/06-quality/debugging-and-error-recovery",
-   "x": 801.5,
-   "y": 890.9
+   "x": 837.2,
+   "y": 477.3
   },
   {
    "id": "decision-engineer",
@@ -936,8 +936,8 @@
    "desc": "Use when structuring important personal decisions. Handles bias mitigation, decision matrices, expected value, pre-mortems, reversibility analysis, decision journaling, Bayesian updating, and speed frameworks. Do NOT use for formal organizational governance or legal rulings.",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/decision-engineer",
-   "x": 519.8,
-   "y": 779.9
+   "x": 640.6,
+   "y": 585.1
   },
   {
    "id": "defi-protocol-engineer",
@@ -946,8 +946,8 @@
    "desc": "Use when designing, building, or auditing decentralized finance protocols — AMMs, lending and borrowing markets, yield vaults, stablecoins, and on-chain market-making. Handles protocol design and mechanism choice, liquidity pool math, interest-rate and risk models, token and ince",
    "type": "specialized",
    "path": "skills/26-web3/defi-protocol-engineer",
-   "x": 724.8,
-   "y": 854.4
+   "x": 784.8,
+   "y": 484.9
   },
   {
    "id": "demand-generation",
@@ -956,8 +956,8 @@
    "desc": "Use when building paid acquisition campaigns, designing lead scoring models, optimizing conversion rates, or implementing ABM programs. Handles paid acquisition (Google, LinkedIn, Meta ads), email marketing automation, lead scoring and nurturing, MQL to SQL handoff, attribution m",
    "type": "sales",
    "path": "skills/15-sales/demand-generation",
-   "x": 928.9,
-   "y": 834.4
+   "x": 954.8,
+   "y": 451.6
   },
   {
    "id": "dependency-governance",
@@ -966,8 +966,8 @@
    "desc": "Use when managing dependencies across 10+ repos; when version sprawl causes bugs, vulnerabilities, or CI failures; when establishing org-wide dependency policies; when responding to a critical CVE affecting multiple repos; when auditing license compliance; or when reducing depend",
    "type": "devops",
    "path": "skills/07-devops/dependency-governance",
-   "x": 797.5,
-   "y": 847.1
+   "x": 851.7,
+   "y": 513.3
   },
   {
    "id": "deprecation-engineer",
@@ -976,8 +976,8 @@
    "desc": "Use when planning to deprecate APIs, endpoints, SDK versions, database schemas, feature flags past their sunset date, or entire services. Handles the full deprecation lifecycle: advisory vs. compulsory deprecation, migration patterns (Strangler Fig, Adapter, Feature Flag, Expand-",
    "type": "specialized",
    "path": "skills/13-specialized/deprecation-engineer",
-   "x": 788.0,
-   "y": 898.9
+   "x": 833.4,
+   "y": 505.5
   },
   {
    "id": "desktop-architecture-patterns",
@@ -986,8 +986,8 @@
    "desc": "Desktop application architecture patterns covering MVVM, MVP, MVC, Redux-style, event-driven, and platform-specific patterns for Windows, macOS, and Linux. Use when designing desktop app architecture, choosing between web-based (Electron/Tauri) vs native desktop approaches, imple",
    "type": "architecture",
    "path": "skills/04-architecture/desktop-architecture-patterns",
-   "x": 824.3,
-   "y": 940.6
+   "x": 836.7,
+   "y": 448.8
   },
   {
    "id": "desktop-developer",
@@ -996,8 +996,8 @@
    "desc": "Cross-platform desktop application development with Electron, Tauri, .NET MAUI, Qt, WPF, and native desktop frameworks. Use when building desktop applications for Windows/macOS/Linux, choosing desktop frameworks, implementing system tray/menu bar apps, designing auto-update pipel",
    "type": "development",
    "path": "skills/05-development/desktop-developer",
-   "x": 818.3,
-   "y": 906.3
+   "x": 852.0,
+   "y": 469.0
   },
   {
    "id": "devops-engineer",
@@ -1006,8 +1006,8 @@
    "desc": "Use when implementing Infrastructure as Code, designing GitOps workflows, managing secrets and configuration, planning disaster recovery, or automating deployment pipelines. Handles Terraform and Pulumi IaC patterns, GitOps with Argo CD, secret management (Vault, external-secrets",
    "type": "devops",
    "path": "skills/07-devops/devops-engineer",
-   "x": 813.1,
-   "y": 863.0
+   "x": 859.5,
+   "y": 503.1
   },
   {
    "id": "devrel-advocate",
@@ -1016,8 +1016,8 @@
    "desc": "Use when building developer relations strategy, creating developer content (tutorials/samples/talks), designing hackathons, running champion programs, optimizing developer onboarding (TTC), measuring developer NPS, or evangelizing APIs. Handles community strategy, content creatio",
    "type": "growth",
    "path": "skills/10-growth/devrel-advocate",
-   "x": 842.6,
-   "y": 855.7
+   "x": 883.3,
+   "y": 451.5
   },
   {
    "id": "director-engineering",
@@ -1026,8 +1026,8 @@
    "desc": "Use when designing engineering org structures for 20-50 engineers, translating business strategy into team topology, managing engineering managers, planning budgets and headcount, or preparing executive and board communications. Handles org design and team topology, strategy tran",
    "type": "leadership",
    "path": "skills/25-engineering-leadership/director-engineering",
-   "x": 809.3,
-   "y": 780.3
+   "x": 887.9,
+   "y": 541.1
   },
   {
    "id": "docker-kubernetes",
@@ -1036,8 +1036,8 @@
    "desc": "Use when writing production Dockerfiles, configuring docker-compose, authoring Kubernetes manifests or Helm charts, hardening container security, or designing ingress and service mesh topologies. Handles multi-stage Dockerfile optimization, docker-compose orchestration, Kubernete",
    "type": "devops",
    "path": "skills/07-devops/docker-kubernetes",
-   "x": 795.8,
-   "y": 863.0
+   "x": 860.1,
+   "y": 519.6
   },
   {
    "id": "documentation-engineer",
@@ -1046,8 +1046,8 @@
    "desc": "Use when setting up docs-as-code infrastructure, generating API documentation, designing information architecture, or automating content quality checks. Handles static site generator selection (Docusaurus, Nextra, Mintlify, GitBook), API documentation (OpenAPI, GraphQL, gRPC), in",
    "type": "specialized",
    "path": "skills/13-specialized/documentation-engineer",
-   "x": 777.0,
-   "y": 872.9
+   "x": 829.6,
+   "y": 468.0
   },
   {
    "id": "domain-modeling",
@@ -1056,8 +1056,8 @@
    "desc": "Use when building or refining a project's shared vocabulary (ubiquitous language); when onboarding new team members who need to understand domain concepts; when code uses inconsistent terminology for the same concept; when domain rules are scattered across code without centralize",
    "type": "development",
    "path": "skills/05-development/domain-modeling",
-   "x": 836.6,
-   "y": 869.0
+   "x": 860.4,
+   "y": 471.9
   },
   {
    "id": "doubt-driven-development",
@@ -1066,8 +1066,8 @@
    "desc": "Use when building safety-critical or high-stakes software where defects have disproportionate cost. Handles adversarial fresh-context code review, claim extraction and verification, doubt injection cycles, and reconciliation tracking. Do NOT use for prototyping, spike solutions, ",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/doubt-driven-development",
-   "x": 784.8,
-   "y": 852.2
+   "x": 834.1,
+   "y": 467.7
   },
   {
    "id": "dynamic-skill-creator",
@@ -1076,8 +1076,8 @@
    "desc": "Use when creating, upgrading, or auditing SKILL.md files to 10/10* production-quality standards. Handles the complete skill-building methodology: 12 mandatory sections, ground rules with violation examples, anti-rationalization tables, dollar-quantified gotchas, ASCII decision tr",
    "type": "specialized",
    "path": "skills/13-specialized/dynamic-skill-creator",
-   "x": 775.3,
-   "y": 864.4
+   "x": 827.4,
+   "y": 490.4
   },
   {
    "id": "education-access-developer",
@@ -1086,8 +1086,8 @@
    "desc": "Use when building educational technology for underserved learners — OER platforms, offline-first learning apps for low-connectivity regions, adult literacy and basic education tools, vocational skills training, language learning for immigrants and refugees, low-cost school manage",
    "type": "development",
    "path": "skills/28-social-impact/education-access-developer",
-   "x": 868.0,
-   "y": 888.7
+   "x": 894.6,
+   "y": 471.4
   },
   {
    "id": "educational-game-developer",
@@ -1096,8 +1096,8 @@
    "desc": "Use when building educational games and learning applications for any age group — Pre-K/early childhood, K-12 curriculum-aligned games, adult skills training, serious games for professional development, cognitive training for seniors, language learning games, or gamified educatio",
    "type": "development",
    "path": "skills/05-development/educational-game-developer",
-   "x": 866.9,
-   "y": 895.3
+   "x": 892.9,
+   "y": 461.6
   },
   {
    "id": "email-composer",
@@ -1106,8 +1106,8 @@
    "desc": "Use when composing professional emails, writing cold outreach, drafting follow-ups, crafting internal communications, responding to customers, writing sales emails, composing apology or difficult-conversation emails, building email sequences, or calibrating email tone (formal, ca",
    "type": "communication",
    "path": "skills/24-creative/email-composer",
-   "x": 934.6,
-   "y": 825.7
+   "x": 945.5,
+   "y": 426.5
   },
   {
    "id": "embedded-engineer",
@@ -1116,8 +1116,8 @@
    "desc": "Use when selecting MCU/MPU architectures, configuring RTOS, designing peripheral interfaces, optimizing power profiles, implementing bootloaders, or setting up HIL testing. Handles ARM Cortex-M/R/A, RISC-V, ESP32, nRF, and STM32 platforms with FreeRTOS, Zephyr, and ThreadX coveri",
    "type": "hardware",
    "path": "skills/20-hardware/embedded-engineer",
-   "x": 815.0,
-   "y": 927.2
+   "x": 837.4,
+   "y": 497.4
   },
   {
    "id": "engineering-leadership-interview-prep",
@@ -1126,8 +1126,8 @@
    "desc": "Use when preparing for engineering leadership interviews across the management ladder — Engineering Manager, Senior EM, Director, Senior Director, VP, SVP, through CTO. Handles interview prep end to end, including question banks, mock-interview rubrics, and level-by-level plans. ",
    "type": "engineering-leadership",
    "path": "skills/25-engineering-leadership/engineering-leadership-interview-prep",
-   "x": 788.2,
-   "y": 771.0
+   "x": 873.8,
+   "y": 567.2
   },
   {
    "id": "engineering-manager",
@@ -1136,8 +1136,8 @@
    "desc": "Use when managing a team of 5-10 engineers, running effective 1:1s and career conversations, handling performance issues and underperformance, building hiring pipelines, or establishing team culture and psychological safety. Handles 1:1 cadence and career growth conversations, de",
    "type": "engineering-leadership",
    "path": "skills/25-engineering-leadership/engineering-manager",
-   "x": 807.2,
-   "y": 794.5
+   "x": 878.4,
+   "y": 535.2
   },
   {
    "id": "enterprise-pricing-strategist",
@@ -1146,8 +1146,8 @@
    "desc": "Use when designing enterprise-tier pricing models, creating custom quote workflows, modeling volume discounts, structuring ROI-based pricing for B2B SaaS, negotiating enterprise contracts, designing procurement-compatible pricing, or building deal desk integration for complex sal",
    "type": "strategy",
    "path": "skills/01-strategy/enterprise-pricing-strategist",
-   "x": 898.0,
-   "y": 805.6
+   "x": 941.3,
+   "y": 491.7
   },
   {
    "id": "environmental-tech-developer",
@@ -1156,8 +1156,8 @@
    "desc": "Use when building environmental and sustainability technology — carbon footprint trackers, climate action platforms, waste reduction and recycling apps, conservation monitoring systems, environmental data collection and visualization, sustainable consumption guides, renewable ene",
    "type": "development",
    "path": "skills/28-social-impact/environmental-tech-developer",
-   "x": 863.7,
-   "y": 883.2
+   "x": 895.2,
+   "y": 481.9
   },
   {
    "id": "estate-planner",
@@ -1166,8 +1166,8 @@
    "desc": "Use when seeking Estate Planner guidance in personal finance. Estate planning: wills, revocable living trusts, irrevocable trusts, powers of attorney, beneficiary audits, gifting strategies, and probate avoidance frameworks. Handles Estate Planner execution including planning, an",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/estate-planner",
-   "x": 1012.3,
-   "y": 918.3
+   "x": 985.9,
+   "y": 630.4
   },
   {
    "id": "ethics-architect",
@@ -1176,8 +1176,8 @@
    "desc": "Use when designing a personal ethics system and real-time ethical decision protocols. Handles values clarification, stakeholder mapping, decision frameworks, whistleblowing decision trees, and legacy letters. Do NOT use for corporate compliance or legal advice.",
    "type": "philosophy-wisdom",
    "path": "skills/34-philosophy-wisdom/ethics-architect",
-   "x": 156.1,
-   "y": 416.6
+   "x": 278.1,
+   "y": 234.5
   },
   {
    "id": "event-driven-architect",
@@ -1186,8 +1186,8 @@
    "desc": "Use when designing event-driven systems, choosing message brokers (Kafka, RabbitMQ, SQS/SNS, EventBridge), implementing event sourcing or CQRS, designing event schemas and versioning strategies, or debugging eventual consistency issues. Handles broker selection with trade-off ana",
    "type": "architecture",
    "path": "skills/04-architecture/event-driven-architect",
-   "x": 803.2,
-   "y": 874.7
+   "x": 855.7,
+   "y": 514.0
   },
   {
    "id": "event-planner",
@@ -1196,8 +1196,8 @@
    "desc": "Use when planning events — corporate conferences, weddings, trade shows, team offsites, product launches, fundraisers, virtual/hybrid events. Handles budget development and tracking with category benchmarking, venue selection and contract negotiation (attrition, force majeure, AV",
    "type": "operations",
    "path": "skills/12-operations/event-planner",
-   "x": 767.3,
-   "y": 833.1
+   "x": 821.6,
+   "y": 453.6
   },
   {
    "id": "expat-strategist",
@@ -1206,8 +1206,8 @@
    "desc": "Use when planning medium- to long-term relocation. Handles country selection matrices, visa/residency pathways, tax planning for expats, banking and healthcare strategy, and integration planning. Do NOT use for corporate relocation or legal immigration advice.",
    "type": "travel-adventure",
    "path": "skills/36-travel-adventure/expat-strategist",
-   "x": 407.0,
-   "y": 190.4
+   "x": 528.2,
+   "y": 996.7
   },
   {
    "id": "explore-tools",
@@ -1216,8 +1216,8 @@
    "desc": "Use when discovering, evaluating, or comparing tools, libraries, frameworks, or services for any development task. Handles multi-dimensional evaluation (maintenance, cost, community, security, docs, license), cost analysis with TCO modeling, and low-cost alternatives. Do NOT use ",
    "type": "specialized",
    "path": "skills/13-specialized/explore-tools",
-   "x": 849.7,
-   "y": 876.0
+   "x": 887.9,
+   "y": 502.8
   },
   {
    "id": "feature-flag-architect",
@@ -1226,8 +1226,8 @@
    "desc": "Use when designing a feature flag system, selecting a feature flag SDK (LaunchDarkly, Flagsmith, Unleash, Firebase Remote Config), implementing flag-driven development, managing flag technical debt, designing kill switches, or architecting gradual rollout from a developer perspec",
    "type": "architecture",
    "path": "skills/04-architecture/feature-flag-architect",
-   "x": 827.7,
-   "y": 905.7
+   "x": 864.4,
+   "y": 474.5
   },
   {
    "id": "financial-security",
@@ -1236,8 +1236,8 @@
    "desc": "Use when implementing PCI DSS 4.0 for systems processing cardholder data; when designing financial fraud detection (transaction monitoring, graph analysis); when building KYC/AML programs; when building secure payment APIs with idempotency and dual control; when implementing PSD2",
    "type": "finance",
    "path": "skills/14-finance/financial-security",
-   "x": 886.1,
-   "y": 822.9
+   "x": 917.8,
+   "y": 511.4
   },
   {
    "id": "finops-engineer",
@@ -1246,8 +1246,8 @@
    "desc": "Use when analyzing cloud spending, optimizing resource utilization, planning commitment discounts (Reserved Instances and Savings Plans), implementing cost governance, or building showback and chargeback models. Handles multi-cloud cost analysis, right-sizing recommendations, was",
    "type": "devops",
    "path": "skills/07-devops/finops-engineer",
-   "x": 829.4,
-   "y": 803.2
+   "x": 881.5,
+   "y": 543.2
   },
   {
    "id": "fintech-app-developer",
@@ -1256,8 +1256,8 @@
    "desc": "Use when building revenue-generating financial apps handling real money — payment processing, digital wallets, P2P transfers, subscription billing, invoicing, banking API integrations, and multi-currency platforms. Handles payment stack selection (Stripe vs Adyen vs Braintree vs ",
    "type": "finance",
    "path": "skills/27-creator-finance/fintech-app-developer",
-   "x": 845.1,
-   "y": 852.7
+   "x": 885.7,
+   "y": 507.0
   },
   {
    "id": "fintech-ui-designer",
@@ -1266,8 +1266,8 @@
    "desc": "Use when designing user interfaces for financial applications — trading platforms, banking dashboards, investment portfolios, payment flows, cryptocurrency exchanges, insurance portals, and personal finance tools. Handles real-time data display patterns, high-density information ",
    "type": "design",
    "path": "skills/03-design/fintech-ui-designer",
-   "x": 884.5,
-   "y": 906.7
+   "x": 905.2,
+   "y": 442.7
   },
   {
    "id": "firmware-developer",
@@ -1276,8 +1276,8 @@
    "desc": "Use when designing boot flows, writing device drivers, creating BSPs, implementing OTA update infrastructure, configuring build systems with cross-compilation toolchains, or writing factory test firmware. Handles ROM-to-app boot sequences, DMA and interrupt-driven drivers, MMIO, ",
    "type": "hardware",
    "path": "skills/20-hardware/firmware-developer",
-   "x": 778.4,
-   "y": 908.9
+   "x": 809.3,
+   "y": 485.0
   },
   {
    "id": "fitness-programmer",
@@ -1286,8 +1286,8 @@
    "desc": "Use when you need evidence-based strength & cardio programming. Handles periodized templates (5x5, 5/3/1, GZCL), progressive overload, deloads, mobility, RPE-based auto-regulation, and home-gym design. Do NOT use for clinical rehabilitation or physical therapy prescription.",
    "type": "health-wellness",
    "path": "skills/30-health-wellness/fitness-programmer",
-   "x": 379.0,
-   "y": 793.0
+   "x": 529.3,
+   "y": 555.1
   },
   {
    "id": "fixed-income-analyst",
@@ -1296,8 +1296,8 @@
    "desc": "Use when analyzing bonds, yield curves, duration/convexity, credit spreads, fixed income ETFs, sovereign debt, TIPS breakevens, bond futures, OIS curves, carry/roll-down strategies, or repo markets. Handles rate risk quantification, curve trade construction, credit analysis, infl",
    "type": "finance",
    "path": "skills/14-finance/fixed-income-analyst",
-   "x": 977.1,
-   "y": 870.9
+   "x": 985.6,
+   "y": 524.6
   },
   {
    "id": "flutter-developer",
@@ -1306,8 +1306,8 @@
    "desc": "Use when building cross-platform mobile apps with Flutter, writing Dart code, designing widget trees, choosing state management (Riverpod, Bloc, Provider), implementing platform channels for native features, optimizing Flutter performance (Impeller/Skia, isolates, jank), testing ",
    "type": "development",
    "path": "skills/05-development/flutter-developer",
-   "x": 848.2,
-   "y": 959.6
+   "x": 913.0,
+   "y": 507.2
   },
   {
    "id": "forex-trader",
@@ -1316,8 +1316,8 @@
    "desc": "Use when trading spot foreign exchange, FX forwards, or managing currency exposure across major, minor, and exotic pairs. Handles pip-value computation per pair, carry trade analysis (interest rate differentials, swap points, forward points), central bank policy anticipation (FOM",
    "type": "finance",
    "path": "skills/14-finance/forex-trader",
-   "x": 978.5,
-   "y": 851.7
+   "x": 986.4,
+   "y": 518.3
   },
   {
    "id": "fp-and-a-analyst",
@@ -1326,8 +1326,8 @@
    "desc": "Use when building financial models, preparing board financials, evaluating fundraising scenarios, diagnosing SaaS metric health, running scenario planning, or creating annual budgets. Handles three-statement financial models, SaaS metrics (ARR, NRR, LTV/CAC, magic number), varian",
    "type": "corporate-finance",
    "path": "skills/18-corporate-finance/fp-and-a-analyst",
-   "x": 876.5,
-   "y": 800.8
+   "x": 921.7,
+   "y": 531.2
   },
   {
    "id": "frontend-developer",
@@ -1336,8 +1336,8 @@
    "desc": "Use when building React, Next.js, or Vue web applications, implementing component architectures, managing client-side state, optimizing Core Web Vitals, or ensuring WCAG 2.2 AA accessibility compliance. Handles SSR/SSG patterns, CSS architecture at scale, bundle optimization, and",
    "type": "development",
    "path": "skills/05-development/frontend-developer",
-   "x": 840.9,
-   "y": 888.7
+   "x": 877.2,
+   "y": 479.7
   },
   {
    "id": "fullstack-developer",
@@ -1346,8 +1346,8 @@
    "desc": "Use when delivering end-to-end features spanning frontend and backend, integrating APIs with UI layers, implementing full-stack authentication flows, working in TypeScript monorepos, or orchestrating deployment across all tiers. Handles database-to-UI feature delivery, shared typ",
    "type": "development",
    "path": "skills/05-development/fullstack-developer",
-   "x": 826.9,
-   "y": 888.3
+   "x": 864.5,
+   "y": 486.8
   },
   {
    "id": "fundamental-analyst",
@@ -1356,8 +1356,8 @@
    "desc": "Use when performing equity valuation (DCF, comparable company analysis, Graham number), analyzing financial statements (income statement, balance sheet, cash flow), computing fundamental ratios (PE, PEG, PB, EV/EBITDA, ROE, ROIC, FCF yield), screening for undervalued stocks, asse",
    "type": "finance",
    "path": "skills/14-finance/fundamental-analyst",
-   "x": 968.0,
-   "y": 842.7
+   "x": 981.3,
+   "y": 506.9
   },
   {
    "id": "futures-options-trader",
@@ -1366,8 +1366,8 @@
    "desc": "Use when trading options ON futures contracts (FOPs) — equity index FOPs (ES, NQ, YM, RTY, MES, MNQ), commodity FOPs (CL, GC, SI, NG, ZC, ZS, ZW), interest rate FOPs (ZB, ZN, ZF, ZT, SR3), or currency FOPs (6E, 6J, 6B). Handles FOP mechanics that differ from equity options: exerc",
    "type": "finance",
    "path": "skills/14-finance/futures-options-trader",
-   "x": 1000.4,
-   "y": 850.1
+   "x": 1006.3,
+   "y": 507.1
   },
   {
    "id": "futures-trader",
@@ -1376,8 +1376,8 @@
    "desc": "Use when trading futures contracts across any asset class — equity index futures (ES, NQ, YM, RTY), commodity futures (CL, GC, NG, ZC, ZW, ZS, CT, KC, HG), interest rate futures (ZB, ZN, ZF, ZT), or currency futures (6E, 6J, 6B, 6A). Handles futures-specific execution (Globex 23/",
    "type": "finance",
    "path": "skills/14-finance/futures-trader",
-   "x": 983.8,
-   "y": 846.8
+   "x": 990.8,
+   "y": 515.7
   },
   {
    "id": "game-developer",
@@ -1386,8 +1386,8 @@
    "desc": "Use when developing video games — game engine selection, core game loop architecture, physics engine integration, rendering pipeline optimization, asset pipeline design, input handling, multiplayer/networking architecture, procedural generation, game AI (behavior trees, pathfindi",
    "type": "development",
    "path": "skills/05-development/game-developer",
-   "x": 843.1,
-   "y": 925.1
+   "x": 880.4,
+   "y": 495.0
   },
   {
    "id": "game-engine-architect",
@@ -1396,8 +1396,8 @@
    "desc": "Use when architecting real-time game engine systems, optimizing rendering pipelines (deferred/forward/PBR/ray tracing), designing ECS architectures, writing high-performance C++ game loops, integrating Unity DOTS/ECS with Burst, configuring UE5 Nanite and Lumen, optimizing shader",
    "type": "specialized",
    "path": "skills/20-hardware/game-engine-architect",
-   "x": 825.0,
-   "y": 929.4
+   "x": 863.7,
+   "y": 511.3
   },
   {
    "id": "game-networking-developer",
@@ -1406,8 +1406,8 @@
    "desc": "Game networking engineering covering client-server architecture, peer-to-peer, prediction and reconciliation, lag compensation, dedicated server infrastructure, and multiplayer synchronization. Use when implementing multiplayer game networking, designing client-server protocols, ",
    "type": "development",
    "path": "skills/05-development/game-networking-developer",
-   "x": 809.2,
-   "y": 916.4
+   "x": 857.7,
+   "y": 524.8
   },
   {
    "id": "game-ui-designer",
@@ -1416,8 +1416,8 @@
    "desc": "Use when designing user interfaces for games — HUD layouts, menu systems, diegetic/non-diegetic UI patterns, controller and gamepad input mapping, cross-platform game UI (console, PC, mobile), accessibility for game interfaces (subtitles, colorblind modes, remappable controls), a",
    "type": "design",
    "path": "skills/03-design/game-ui-designer",
-   "x": 874.5,
-   "y": 916.4
+   "x": 900.6,
+   "y": 457.2
   },
   {
    "id": "gameplay-programmer",
@@ -1426,8 +1426,8 @@
    "desc": "Gameplay systems programming with C++, C#, Unity, Unreal Engine, and custom engines. Use when designing gameplay mechanics, implementing combat systems, building AI behaviors, creating animation state machines, integrating physics for gameplay, designing player controllers, or pr",
    "type": "development",
    "path": "skills/05-development/gameplay-programmer",
-   "x": 817.3,
-   "y": 939.2
+   "x": 862.6,
+   "y": 527.3
   },
   {
    "id": "gardener",
@@ -1436,8 +1436,8 @@
    "desc": "Use when you want a practical home-gardening system: garden planning, soil health, seasonal vegetable calendars, container strategies, water-wise irrigation, IPM pest control, seed starting and saving. Handles templates and planting calendars. Do NOT use for commercial farming or",
    "type": "home-domestic",
    "path": "skills/35-home-domestic/gardener",
-   "x": 1398.2,
-   "y": 308.3
+   "x": 1342.6,
+   "y": 73.1
   },
   {
    "id": "gdpr-privacy",
@@ -1446,8 +1446,8 @@
    "desc": "Use when implementing GDPR, CCPA/CPRA, or global privacy compliance programs, conducting data protection impact assessments (DPIAs), designing consent management, handling data subject requests (DSARs), or establishing cross-border data transfer mechanisms. Handles GDPR, CCPA, LG",
    "type": "legal",
    "path": "skills/11-legal/gdpr-privacy",
-   "x": 821.0,
-   "y": 778.2
+   "x": 869.8,
+   "y": 442.4
   },
   {
    "id": "git-submodules",
@@ -1456,8 +1456,8 @@
    "desc": "Use when sharing code across multiple repos and evaluating git submodules, git subtree, or alternatives; when managing vendor dependencies needing local modification; when extracting a subdirectory from a monorepo preserving history; when troubleshooting submodule CI failures; wh",
    "type": "devops",
    "path": "skills/07-devops/git-submodules",
-   "x": 765.6,
-   "y": 941.6
+   "x": 816.1,
+   "y": 551.0
   },
   {
    "id": "git-workflow",
@@ -1466,8 +1466,8 @@
    "desc": "Use when designing Git branching strategies, writing commits, managing releases, resolving merge conflicts, setting up Git hooks, automating changelogs, or establishing versioning conventions. Handles trunk-based development, atomic commits, descriptive commit messages (Conventio",
    "type": "devops",
    "path": "skills/07-devops/git-workflow",
-   "x": 764.2,
-   "y": 901.7
+   "x": 817.1,
+   "y": 514.0
   },
   {
    "id": "graphql-engineer",
@@ -1476,8 +1476,8 @@
    "desc": "Use when designing GraphQL schemas, implementing resolvers, optimizing query performance (N+1 prevention, DataLoader patterns, query complexity analysis), building GraphQL federation/supergraph architectures, designing GraphQL subscriptions with real-time transports, securing Gra",
    "type": "development",
    "path": "skills/05-development/graphql-engineer",
-   "x": 810.8,
-   "y": 935.6
+   "x": 867.8,
+   "y": 533.4
   },
   {
    "id": "grilling",
@@ -1486,8 +1486,8 @@
    "desc": "Use when a decision, plan, or design needs rigorous examination through relentless questioning; when walking through every branch of a decision tree to resolve dependencies and uncover hidden assumptions; when another skill needs the grilling primitive to interview a user systema",
    "type": "product",
    "path": "skills/02-product/grilling",
-   "x": 817.0,
-   "y": 821.5
+   "x": 853.0,
+   "y": 443.8
   },
   {
    "id": "growth-engineer",
@@ -1496,8 +1496,8 @@
    "desc": "Use when building A/B testing infrastructure, optimizing conversion funnels, engineering viral loops and referral programs, diagnosing activation bottlenecks, modeling growth scenarios, or instrumenting event taxonomies. Handles experimentation platforms, feature flag architectur",
    "type": "growth",
    "path": "skills/10-growth/growth-engineer",
-   "x": 893.9,
-   "y": 858.9
+   "x": 925.1,
+   "y": 471.1
   },
   {
    "id": "habit-engineer",
@@ -1506,8 +1506,8 @@
    "desc": "Use when you need to design durable behavior change systems. Handles Atomic Habits, BJ Fogg B=MAP, habit stacking, environment design, tracking systems, and accountability constructs. Do NOT use for addiction treatment or clinical behavior modification.",
    "type": "health-wellness",
    "path": "skills/30-health-wellness/habit-engineer",
-   "x": 403.7,
-   "y": 790.3
+   "x": 551.5,
+   "y": 561.0
   },
   {
    "id": "handoff",
@@ -1516,8 +1516,8 @@
    "desc": "Use when a conversation is approaching context limits and needs compaction; when work needs to transfer between agents or sessions; when a long-running task spans multiple sessions; when preparing a status update for a stakeholder; or when pausing work that will resume later. Han",
    "type": "operations",
    "path": "skills/12-operations/handoff",
-   "x": 741.4,
-   "y": 800.5
+   "x": 811.4,
+   "y": 448.2
   },
   {
    "id": "hardware-architect",
@@ -1526,8 +1526,8 @@
    "desc": "Use when choosing processors and SoCs, designing memory architectures, planning power trees, making PCB stackup decisions, managing signal integrity, or ensuring EMC/EMI compliance. Handles ARM Cortex, RISC-V, FPGA, and ASIC selection with AMBA/AXI/AHB/APB bus architectures, SRAM",
    "type": "hardware",
    "path": "skills/20-hardware/hardware-architect",
-   "x": 781.7,
-   "y": 926.9
+   "x": 809.0,
+   "y": 492.7
   },
   {
    "id": "health-condition-supporter",
@@ -1536,8 +1536,8 @@
    "desc": "Use when managing chronic health conditions, tracking symptoms and medications, preparing for medical appointments, communicating with healthcare providers, navigating insurance and treatment decisions, or building health management systems. Handles symptom journaling with struct",
    "type": "health",
    "path": "skills/21-health-clinical/health-condition-supporter",
-   "x": 892.4,
-   "y": 735.0
+   "x": 918.1,
+   "y": 386.1
   },
   {
    "id": "health-regulatory-submission",
@@ -1546,8 +1546,8 @@
    "desc": "Use when determining FDA regulatory pathways for health software (SaMD classification), preparing 510(k)/De Novo/PMA submissions, evaluating EU MDR/IVDR requirements, or assessing whether a health app qualifies as a medical device. Handles FDA pre-submission strategy, breakthroug",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/health-regulatory-submission",
-   "x": 861.0,
-   "y": 770.1
+   "x": 913.5,
+   "y": 442.6
   },
   {
    "id": "healthcare-security",
@@ -1556,8 +1556,8 @@
    "desc": "Use when designing healthcare-specific security architectures, performing PHI data classification, assessing medical device security risks, architecting clinical network segmentation, evaluating cloud vendor BAAs, planning breach notification workflows, hardening EHR/telemedicine",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/healthcare-security",
-   "x": 817.4,
-   "y": 834.7
+   "x": 865.5,
+   "y": 493.8
   },
   {
    "id": "healthcare-ui-designer",
@@ -1566,8 +1566,8 @@
    "desc": "Use when designing user interfaces for healthcare applications — electronic health records (EHR), patient portals, clinical decision support tools, telemedicine platforms, medical device interfaces, pharmacy systems, and health tracking apps. Handles clinical data display pattern",
    "type": "design",
    "path": "skills/03-design/healthcare-ui-designer",
-   "x": 865.6,
-   "y": 854.8
+   "x": 882.2,
+   "y": 434.6
   },
   {
    "id": "hipaa-technical-implementation",
@@ -1576,8 +1576,8 @@
    "desc": "Use when implementing HIPAA-compliant technical infrastructure, designing PHI audit trail schemas, configuring encryption for ePHI at rest and in transit, building breach notification pipelines, or managing BAA workflows with sub-processors. Handles PHI access logging architectur",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/hipaa-technical-implementation",
-   "x": 830.8,
-   "y": 817.9
+   "x": 866.5,
+   "y": 461.1
   },
   {
    "id": "home-buying",
@@ -1586,8 +1586,8 @@
    "desc": "Use when buying a home, evaluating mortgage options, comparing rent vs buy, calculating total cost of homeownership, preparing for the home buying process (pre-approval, inspection, closing), evaluating properties with a structured framework, negotiating purchase offers, understa",
    "type": "personal-finance",
    "path": "skills/14-finance/home-buying",
-   "x": 958.8,
-   "y": 866.4
+   "x": 960.7,
+   "y": 570.1
   },
   {
    "id": "home-chef",
@@ -1596,8 +1596,8 @@
    "desc": "Use when you want complete home-cooking mastery: kitchen setup, knife skills, 5 mother sauces, meal planning, flavor balancing, pantry systems, cooking methods, fermentation basics. Handles practical templates, recipes, and systems. Do NOT use for professional kitchen operations ",
    "type": "home-domestic",
    "path": "skills/35-home-domestic/home-chef",
-   "x": 1393.6,
-   "y": 294.5
+   "x": 1338.3,
+   "y": 62.1
   },
   {
    "id": "home-organizer",
@@ -1606,8 +1606,8 @@
    "desc": "Use when you want a rigorous home organization system: KonMari, zone design, containerization, digital file taxonomy, paper triage, maintenance rhythms, moving/unpacking systems. Handles checklists, decision trees, and templates. Do NOT use for professional organizing business co",
    "type": "home-domestic",
    "path": "skills/35-home-domestic/home-organizer",
-   "x": 1007.4,
-   "y": 945.6
+   "x": 996.2,
+   "y": 612.8
   },
   {
    "id": "hr-manager",
@@ -1616,8 +1616,8 @@
    "desc": "Use when building or auditing HR functions, handling employee relations issues, designing compensation bands, managing open enrollment, running investigations, developing employee handbooks, or establishing compliance programs. Handles the full employee lifecycle from hiring and ",
    "type": "people",
    "path": "skills/16-people/hr-manager",
-   "x": 827.4,
-   "y": 772.6
+   "x": 884.9,
+   "y": 552.3
   },
   {
    "id": "iam-architect",
@@ -1626,8 +1626,8 @@
    "desc": "Use when designing IAM architecture or migrating from legacy auth, implementing OAuth2/OIDC flows, designing RBAC/ABAC/ReBAC access control, adopting Zero Trust, implementing PAM with just-in-time elevation, hardening JWT/session/API key security, integrating MFA (WebAuthn/FIDO2,",
    "type": "security",
    "path": "skills/08-security/iam-architect",
-   "x": 752.5,
-   "y": 798.4
+   "x": 799.2,
+   "y": 477.8
   },
   {
    "id": "idea-to-spec",
@@ -1636,8 +1636,8 @@
    "desc": "Use when transforming raw product ideas into structured engineering specifications, converting napkin sketches into actionable work items, or formalizing feature requests into PRDs. Handles PRD generation, data model design, API contract definition, screen inventory, domain model",
    "type": "product",
    "path": "skills/02-product/idea-to-spec",
-   "x": 836.9,
-   "y": 880.7
+   "x": 866.7,
+   "y": 470.0
   },
   {
    "id": "incident-responder",
@@ -1646,8 +1646,8 @@
    "desc": "Use when responding to active incidents, designing on-call rotations, writing postmortems, creating runbooks, establishing escalation policies, or building incident communication templates. Handles incident command, detection and triage, containment and recovery, blameless postmo",
    "type": "security",
    "path": "skills/08-security/incident-responder",
-   "x": 797.5,
-   "y": 836.3
+   "x": 848.9,
+   "y": 474.8
   },
   {
    "id": "incremental-implementation",
@@ -1656,8 +1656,8 @@
    "desc": "Use when building features incrementally with thin vertical slices instead of big-bang delivery; when each slice must be independently shippable and testable; when implementing behind feature flags with safe defaults; when every commit must leave the codebase in a deployable stat",
    "type": "development",
    "path": "skills/05-development/incremental-implementation",
-   "x": 795.2,
-   "y": 903.9
+   "x": 832.6,
+   "y": 476.5
   },
   {
    "id": "insurance-strategist",
@@ -1666,8 +1666,8 @@
    "desc": "Use when seeking Insurance Strategist guidance in personal finance. Insurance strategy: life insurance needs analysis, disability coverage, umbrella sizing, long-term care evaluation, and health plan optimization (HDHP+HSA vs PPO). Handles Insurance Strategist execution including",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/insurance-strategist",
-   "x": 987.2,
-   "y": 909.7
+   "x": 966.8,
+   "y": 624.2
   },
   {
    "id": "interior-designer",
@@ -1676,8 +1676,8 @@
    "desc": "Use when you want room-level interior design: space planning, color theory, lighting layers, furniture scale, texture mixing, window treatments, rug sizing, budget design, and contractor coordination. Handles templates and measurement worksheets. Do NOT use for commercial archite",
    "type": "home-domestic",
    "path": "skills/35-home-domestic/interior-designer",
-   "x": 999.1,
-   "y": 952.0
+   "x": 1002.7,
+   "y": 609.0
   },
   {
    "id": "interview-coach",
@@ -1686,8 +1686,8 @@
    "desc": "Use when preparing for job interviews, practicing behavioral questions (STAR method), preparing technical interview responses, conducting mock interviews, building confidence for specific interview formats (panel, case study, portfolio review, whiteboard), preparing questions to ",
    "type": "career",
    "path": "skills/16-people/interview-coach",
-   "x": 773.6,
-   "y": 763.5
+   "x": 858.5,
+   "y": 584.5
   },
   {
    "id": "intraday-options-trader",
@@ -1696,8 +1696,8 @@
    "desc": "Use when the user wants to trade 0DTE options, gamma scalp intraday, execute Opening Range Breakout (ORB) strategies with options, trade momentum on intraday timeframes, or navigate options market microstructure (spreads, liquidity windows). Use when the user asks \"0DTE strategy,",
    "type": "finance",
    "path": "skills/14-finance/intraday-options-trader",
-   "x": 977.4,
-   "y": 838.3
+   "x": 989.1,
+   "y": 494.9
   },
   {
    "id": "investor-relations",
@@ -1706,8 +1706,8 @@
    "desc": "Use when raising capital, managing investor communications, preparing data rooms, building pitch decks, modeling dilution and cap table scenarios, or navigating down rounds and tender offers. Handles investor CRM management, fundraising process design, due diligence coordination,",
    "type": "governance",
    "path": "skills/19-governance/investor-relations",
-   "x": 912.6,
-   "y": 790.4
+   "x": 944.3,
+   "y": 527.4
   },
   {
    "id": "ios-developer",
@@ -1716,8 +1716,8 @@
    "desc": "Use when building, debugging, or architecting native iOS applications with Swift, SwiftUI, UIKit, and the Apple developer ecosystem. Handles view architecture, data flow, navigation, networking with URLSession/Alamofire, persistence with Core Data/SwiftData/GRDB, concurrency with",
    "type": "development",
    "path": "skills/05-development/ios-developer",
-   "x": 834.3,
-   "y": 912.9
+   "x": 884.8,
+   "y": 480.7
   },
   {
    "id": "iterative-task-execution",
@@ -1726,8 +1726,8 @@
    "desc": "Use when an agent must iterate on work until it is genuinely done — running the intake → execute → verify → decide loop, distinguishing done from not-done with evidence, revising within a bounded budget, and escalating instead of stopping early or looping forever. Handles run-sta",
    "type": "framework",
    "path": "skills/13-specialized/iterative-task-execution",
-   "x": 740.6,
-   "y": 885.8
+   "x": 801.7,
+   "y": 521.4
   },
   {
    "id": "job-search-strategist",
@@ -1736,8 +1736,8 @@
    "desc": "Use when planning a job search campaign, building a target company list, optimizing a LinkedIn profile for recruiter discovery, networking strategically (informational interviews, warm introductions, conference networking), evaluating job offers (total compensation comparison, eq",
    "type": "career",
    "path": "skills/16-people/job-search-strategist",
-   "x": 773.8,
-   "y": 789.8
+   "x": 834.2,
+   "y": 593.8
   },
   {
    "id": "kotlin-multiplatform",
@@ -1746,8 +1746,8 @@
    "desc": "Use when building mobile apps with Kotlin Multiplatform (KMP), sharing business logic between Android and iOS, using Compose Multiplatform for shared UI, writing expect/actual declarations, configuring KMP Gradle builds, interoperating with Swift/ObjC, or sharing data-layer code ",
    "type": "development",
    "path": "skills/05-development/kotlin-multiplatform",
-   "x": 841.0,
-   "y": 946.8
+   "x": 899.3,
+   "y": 520.4
   },
   {
    "id": "leaps-strategist",
@@ -1756,8 +1756,8 @@
    "desc": "Use when the user wants to replace stock holdings with LEAPS for capital efficiency, design Poor Man's Covered Call (PMCC) setups, hedge portfolios with long-dated puts, trade LEAPS diagonals or calendars, implement dividend-aware LEAPS strategies, or analyze rho sensitivity for ",
    "type": "finance",
    "path": "skills/14-finance/leaps-strategist",
-   "x": 991.9,
-   "y": 840.9
+   "x": 1000.4,
+   "y": 496.2
   },
   {
    "id": "learning-accelerator",
@@ -1766,8 +1766,8 @@
    "desc": "Use when accelerating skill acquisition. Handles meta-learning audits, spaced repetition, memory palaces, deliberate practice, Feynman technique, interleaving, retrieval practice, Zettelkasten synthesis, and plateau-busting. Do NOT use for formal curriculum design or corporate tr",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/learning-accelerator",
-   "x": 474.4,
-   "y": 769.4
+   "x": 604.7,
+   "y": 590.1
   },
   {
    "id": "learning-development-lead",
@@ -1776,8 +1776,8 @@
    "desc": "Use when designing or running corporate learning and development — skills strategy, onboarding programs for new hires, role-based curricula, leadership development, compliance training, learning measurement, and L&D tooling and operations. Handles learning needs analysis, curricu",
    "type": "people",
    "path": "skills/16-people/learning-development-lead",
-   "x": 795.0,
-   "y": 748.9
+   "x": 872.1,
+   "y": 560.1
   },
   {
    "id": "legal-advisor",
@@ -1786,8 +1786,8 @@
    "desc": "Use when drafting SaaS agreements, reviewing contracts, developing IP protection strategy, evaluating open-source license compliance, structuring fundraising term sheets, or generating terms of service and privacy policies. Handles contract review frameworks, corporate structure ",
    "type": "legal",
    "path": "skills/11-legal/legal-advisor",
-   "x": 861.9,
-   "y": 803.0
+   "x": 904.5,
+   "y": 490.4
   },
   {
    "id": "life-architect",
@@ -1796,8 +1796,8 @@
    "desc": "Use when designing a coherent long-term life plan. Handles purpose discovery (Ikigai), vision crafting, goal cascading, energy audits, life-portfolio design, planning rhythms, and life-satisfaction metrics. Do NOT use for career placement or job hunting — route to job-search-stra",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/life-architect",
-   "x": 482.5,
-   "y": 789.0
+   "x": 612.0,
+   "y": 575.4
   },
   {
    "id": "llm-engineer",
@@ -1806,8 +1806,8 @@
    "desc": "Use when designing RAG pipelines, engineering prompts at scale, building LLM evaluation frameworks, implementing function calling and tool use, or optimizing LLM latency and cost. Handles RAG pipeline design (chunking strategies, embedding models, vector databases), prompt engine",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/llm-engineer",
-   "x": 802.5,
-   "y": 841.7
+   "x": 852.1,
+   "y": 479.5
   },
   {
    "id": "llm-search-optimizer",
@@ -1816,8 +1816,8 @@
    "desc": "Use when optimizing content for AI-powered search surfaces (Google AI Overviews, ChatGPT, Perplexity, Bing Copilot, Claude), configuring AI crawler access directives (GPTBot, CCBot, Claude-Web), structuring content for answer-engine citation, deploying entity markup for knowledge",
    "type": "growth",
    "path": "skills/10-growth/llm-search-optimizer",
-   "x": 918.7,
-   "y": 865.7
+   "x": 948.2,
+   "y": 455.7
   },
   {
    "id": "localization-engineer",
@@ -1826,8 +1826,8 @@
    "desc": "Use when designing i18n/l10n architecture, implementing translation pipelines, adding RTL layout support, configuring locale-aware formatting, or setting up continuous localization in CI/CD. Handles message extraction, TMS integration, Unicode/BIDI handling, pseudo-localization t",
    "type": "development",
    "path": "skills/05-development/localization-engineer",
-   "x": 863.2,
-   "y": 905.8
+   "x": 876.0,
+   "y": 446.9
   },
   {
    "id": "longevity-biohacker",
@@ -1836,8 +1836,8 @@
    "desc": "Use when you want an evidence-oriented longevity strategy. Handles biomarker tracking, epigenetic clock interpretation, exercise stacks (zone 2, strength), fasting strategies, and supplement evidence review. Do NOT use for geriatric medicine or disease treatment.",
    "type": "health-wellness",
    "path": "skills/30-health-wellness/longevity-biohacker",
-   "x": 414.7,
-   "y": 802.8
+   "x": 557.2,
+   "y": 552.5
   },
   {
    "id": "m-and-a-strategist",
@@ -1846,8 +1846,8 @@
    "desc": "Use when evaluating, structuring, negotiating, or integrating an acquisition, merger, divestiture, or strategic investment; when a company needs target screening, buy-side or sell-side diligence, valuation, deal structuring, negotiation, or post-merger integration planning. Handl",
    "type": "corporate-finance",
    "path": "skills/18-corporate-finance/m-and-a-strategist",
-   "x": 901.7,
-   "y": 778.0
+   "x": 937.9,
+   "y": 537.6
   },
   {
    "id": "macos-developer",
@@ -1856,8 +1856,8 @@
    "desc": "Native macOS application development with SwiftUI, AppKit, Swift, Xcode, Catalyst, and Apple platform technologies. Use when building native macOS applications, designing macOS UI with SwiftUI/AppKit, implementing macOS-specific features (Menu Bar apps, Preferences windows, NSToo",
    "type": "development",
    "path": "skills/05-development/macos-developer",
-   "x": 827.9,
-   "y": 918.3
+   "x": 850.6,
+   "y": 457.3
   },
   {
    "id": "macro-strategist",
@@ -1866,8 +1866,8 @@
    "desc": "Use when designing cross-asset macro strategy, analyzing central bank policy impacts, constructing regime-based allocation frameworks, interpreting global liquidity conditions, modeling inflation-growth scenarios, or building intermarket signals. Handles macro regime classificati",
    "type": "finance",
    "path": "skills/14-finance/macro-strategist",
-   "x": 971.2,
-   "y": 856.4
+   "x": 976.1,
+   "y": 535.8
   },
   {
    "id": "market-data-engineer",
@@ -1876,8 +1876,8 @@
    "desc": "Use when building market data ingestion pipelines, normalizing corporate actions, storing tick data, or streaming real-time financial data. Handles options flow ingestion (Unusual Whales, CBOE LiveVol, Polygon.io, Bloomberg), real-time streaming (Kafka/Redpanda), tick data storag",
    "type": "finance",
    "path": "skills/14-finance/market-data-engineer",
-   "x": 936.5,
-   "y": 852.1
+   "x": 955.9,
+   "y": 508.8
   },
   {
    "id": "marketing-manager",
@@ -1886,8 +1886,8 @@
    "desc": "Use when defining product positioning, planning go-to-market launches, creating sales enablement materials, or managing analyst relations. Handles product marketing strategy, competitive analysis, launch management, buyer persona development, sales enablement (battle cards, pitch",
    "type": "sales",
    "path": "skills/15-sales/marketing-manager",
-   "x": 888.9,
-   "y": 844.0
+   "x": 923.2,
+   "y": 468.2
   },
   {
    "id": "marketplace-platform-builder",
@@ -1896,8 +1896,8 @@
    "desc": "Use when building two-sided or multi-sided marketplace platforms — product marketplaces (Etsy-style), service marketplaces (Uber/Fiverr-style), rental/sharing platforms (Airbnb-style), freelance and gig platforms, B2B procurement exchanges, classifieds and listing platforms, crow",
    "type": "finance",
    "path": "skills/27-creator-finance/marketplace-platform-builder",
-   "x": 847.7,
-   "y": 866.7
+   "x": 887.4,
+   "y": 496.9
   },
   {
    "id": "master-negotiator",
@@ -1906,8 +1906,8 @@
    "desc": "Use when preparing for high-stakes one-on-one negotiations. Handles BATNA development, anchoring, framing, concession strategy, MESOs, salary and deal structuring, cross-cultural adaptation, and post-deal audits. Do NOT use for legal settlements or collective bargaining.",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/master-negotiator",
-   "x": 618.4,
-   "y": 784.4
+   "x": 715.8,
+   "y": 590.2
   },
   {
    "id": "material-design-expert",
@@ -1916,8 +1916,8 @@
    "desc": "Use when designing or auditing Android interfaces against Material Design 3 guidelines, including Material You/Dynamic Color, large-screen adaptation, Wear OS, Android TV, and Android Auto. Handles MD3 compliance audits with automated scoring (contrast, touch-target, component-sp",
    "type": "design",
    "path": "skills/03-design/material-design-expert",
-   "x": 873.3,
-   "y": 921.5
+   "x": 899.1,
+   "y": 448.6
   },
   {
    "id": "mcp-management",
@@ -1926,8 +1926,8 @@
    "desc": "Use when configuring Model Context Protocol (MCP) servers, diagnosing MCP connection failures, securing MCP tool access against poisoning and injection, designing mcp-config.json schemas for skills to declare tool dependencies, optimizing MCP performance, or implementing MCP with",
    "type": "infrastructure",
    "path": "skills/22-ai-engineering/mcp-management",
-   "x": 789.3,
-   "y": 865.9
+   "x": 838.7,
+   "y": 512.4
   },
   {
    "id": "medical-content-reviewer",
@@ -1936,8 +1936,8 @@
    "desc": "Use when reviewing patient-facing health content for clinical accuracy, building medical misinformation detection rules, fact-checking health claims against clinical guidelines, or establishing evidence-based content validation workflows. Handles GRADE framework evidence assessme",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/medical-content-reviewer",
-   "x": 850.7,
-   "y": 767.6
+   "x": 887.7,
+   "y": 425.8
   },
   {
    "id": "medical-illustrator",
@@ -1946,8 +1946,8 @@
    "desc": "Use when creating clinical diagrams, anatomical illustrations, patient education infographics, mechanism-of-action animations, or visual design systems for regulated health products. Handles FDA labeling compliance for patient-facing visuals, color-blind safe palettes, medical ac",
    "type": "creative",
    "path": "skills/24-creative/medical-illustrator",
-   "x": 880.3,
-   "y": 815.2
+   "x": 906.1,
+   "y": 412.5
   },
   {
    "id": "mental-fitness-coach",
@@ -1956,8 +1956,8 @@
    "desc": "Use when you need practical mental fitness protocols. Handles CBT techniques, resilience training, emotional regulation frameworks, MBSR, positive psychology exercises, and ACT-based defusion. Do NOT use for clinical mental health diagnosis or therapy.",
    "type": "health-wellness",
    "path": "skills/30-health-wellness/mental-fitness-coach",
-   "x": 440.9,
-   "y": 802.5
+   "x": 577.9,
+   "y": 562.3
   },
   {
    "id": "mental-models",
@@ -1966,8 +1966,8 @@
    "desc": "Use when you need practical decision-making frames and rapid cognitive tool selection. Handles 25+ high-leverage mental models, model-selection flow, model-combination patterns, misapplication warnings, and a daily practice protocol. Do NOT use for academic philosophy or formal l",
    "type": "philosophy-wisdom",
    "path": "skills/34-philosophy-wisdom/mental-models",
-   "x": 1539.6,
-   "y": 544.7
+   "x": 1180.7,
+   "y": 1070.8
   },
   {
    "id": "merge-conflict-resolver",
@@ -1976,8 +1976,8 @@
    "desc": "Use when a git merge or rebase produces conflicts that need systematic resolution; when conflicts span multiple files with interdependent changes; when the intent behind conflicting changes is unclear; when merging long-running feature branches; or when rebasing onto a significan",
    "type": "devops",
    "path": "skills/07-devops/merge-conflict-resolver",
-   "x": 764.6,
-   "y": 916.8
+   "x": 806.2,
+   "y": 498.2
   },
   {
    "id": "micro-saas-developer",
@@ -1986,8 +1986,8 @@
    "desc": "Use when building a small, independently-profitable SaaS product as a solo developer or tiny team (1-3 people) — validating SaaS ideas quickly, building MVPs in weeks not months, choosing infrastructure that scales from $0 to $5K MRR affordably, pricing strategy for solo founders",
    "type": "finance",
    "path": "skills/27-creator-finance/micro-saas-developer",
-   "x": 871.4,
-   "y": 876.2
+   "x": 902.1,
+   "y": 497.6
   },
   {
    "id": "migration-architect",
@@ -1996,8 +1996,8 @@
    "desc": "Use when planning database migrations, cloud platform transitions, language or framework rewrites, or any production migration requiring zero downtime and rollback capability. Handles database migration strategies (expand-contract, blue-green, parallel run), cloud migration patte",
    "type": "specialized",
    "path": "skills/13-specialized/migration-architect",
-   "x": 800.6,
-   "y": 900.7
+   "x": 849.2,
+   "y": 526.3
   },
   {
    "id": "mindfulness-practitioner",
@@ -2006,8 +2006,8 @@
    "desc": "Use when building a daily mindfulness practice. Handles meditation techniques (vipassana, metta, body-scan), attention training, compassion cultivation, mindful daily routines, retreat design, and progress markers. Do NOT use for religious instruction or clinical therapy.",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/mindfulness-practitioner",
-   "x": 482.8,
-   "y": 807.7
+   "x": 609.2,
+   "y": 558.3
   },
   {
    "id": "mission-driven-growth-strategist",
@@ -2016,8 +2016,8 @@
    "desc": "Use when designing theory of change frameworks, measuring social impact (IRIS+, SDG, B Impact Assessment), structuring social enterprise legal entities (B Corp, L3C, benefit corporation, CIC), designing hybrid nonprofit/for-profit models, building community-owned platforms, balan",
    "type": "strategy",
    "path": "skills/28-social-impact/mission-driven-growth-strategist",
-   "x": 884.4,
-   "y": 832.3
+   "x": 929.1,
+   "y": 504.2
   },
   {
    "id": "ml-ai-engineer",
@@ -2026,8 +2026,8 @@
    "desc": "Use when training ML models, building RAG pipelines, fine-tuning LLMs, deploying models to production, designing MLOps infrastructure, monitoring drift, or implementing responsible AI guardrails. Handles model selection, training pipelines, LLM integration patterns, serving at sc",
    "type": "data",
    "path": "skills/09-data/ml-ai-engineer",
-   "x": 866.6,
-   "y": 831.7
+   "x": 907.3,
+   "y": 477.6
   },
   {
    "id": "ml-engineer",
@@ -2036,8 +2036,8 @@
    "desc": "Use when training machine learning models, performing feature engineering, selecting model architectures, tuning hyperparameters, evaluating model performance, tracking ML experiments, handling imbalanced data, building training pipelines, or preparing datasets for ML training. H",
    "type": "data",
    "path": "skills/09-data/ml-engineer",
-   "x": 874.6,
-   "y": 827.9
+   "x": 914.1,
+   "y": 466.9
   },
   {
    "id": "mlops-engineer",
@@ -2046,8 +2046,8 @@
    "desc": "Use when deploying ML models to production, setting up model monitoring with drift detection, building retraining pipelines, implementing feature stores, or configuring CI/CD for ML. Handles model deployment patterns (real-time inference with Triton/vLLM/Ray Serve, batch inferenc",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/mlops-engineer",
-   "x": 841.7,
-   "y": 821.1
+   "x": 887.2,
+   "y": 466.7
   },
   {
    "id": "mobile-architecture-patterns",
@@ -2056,8 +2056,8 @@
    "desc": "Mobile application architecture patterns covering MVVM, Clean Architecture, VIPER, MVI, TCA (The Composable Architecture), and platform-specific patterns for iOS and Android. Use when designing mobile app architecture, choosing between architecture patterns, implementing navigati",
    "type": "architecture",
    "path": "skills/04-architecture/mobile-architecture-patterns",
-   "x": 837.1,
-   "y": 935.7
+   "x": 893.9,
+   "y": 507.8
   },
   {
    "id": "mobile-developer",
@@ -2066,8 +2066,8 @@
    "desc": "Use when building cross-platform mobile applications with React Native or Flutter, implementing offline-first architecture, configuring push notifications, or preparing app store deployments. Handles navigation patterns, state management, platform-specific design systems, biometr",
    "type": "development",
    "path": "skills/05-development/mobile-developer",
-   "x": 843.1,
-   "y": 902.2
+   "x": 882.3,
+   "y": 478.3
   },
   {
    "id": "mock-data-sync",
@@ -2076,8 +2076,8 @@
    "desc": "Use when backend API schemas change (Pydantic, database columns) and mobile test fixtures must stay in sync; when TypeScript types drift from mock factories; when setting up CI pipelines to catch mock-data drift automatically; or when configuring OpenAPI generator for automated t",
    "type": "development",
    "path": "skills/05-development/mock-data-sync",
-   "x": 806.4,
-   "y": 926.8
+   "x": 869.1,
+   "y": 519.3
   },
   {
    "id": "monorepo-manager",
@@ -2086,8 +2086,8 @@
    "desc": "Use when designing monorepo architectures, selecting monorepo tooling, optimizing build orchestration, or migrating from polyrepo. Handles monorepo tooling (Turborepo, Nx, pnpm workspaces, Bazel, Lerna, Rush), repository structure patterns, build orchestration, dependency governa",
    "type": "specialized",
    "path": "skills/13-specialized/monorepo-manager",
-   "x": 782.1,
-   "y": 902.3
+   "x": 836.1,
+   "y": 524.6
   },
   {
    "id": "multi-agent-orchestration",
@@ -2096,8 +2096,8 @@
    "desc": "Use when designing multi-agent systems, selecting topology patterns (supervisor/hierarchical/peer-to-peer/debate/swarm), implementing typed shared state with LangGraph or CrewAI, configuring agent delegation with capability-based routing, resolving inter-agent conflicts, or instr",
    "type": "framework",
    "path": "skills/13-specialized/multi-agent-orchestration",
-   "x": 759.5,
-   "y": 876.2
+   "x": 817.1,
+   "y": 505.1
   },
   {
    "id": "multirepo-designer",
@@ -2106,8 +2106,8 @@
    "desc": "Use when designing multi-repository architectures, deciding repo granularity, managing cross-repo dependencies, orchestrating CI/CD across repos, publishing shared libraries, managing breaking changes, establishing repo ownership models, designing cross-repo testing strategies, o",
    "type": "specialized",
    "path": "skills/13-specialized/multirepo-designer",
-   "x": 797.7,
-   "y": 913.8
+   "x": 841.4,
+   "y": 523.7
   },
   {
    "id": "network-builder",
@@ -2116,8 +2116,8 @@
    "desc": "Use when intentionally growing professional and personal networks. Handles weak tie activation, relationship CRM, conference strategy, informational interviewing, reciprocity dynamics, community building, and networking for introverts. Do NOT use for direct sales prospecting or B",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/network-builder",
-   "x": 543.4,
-   "y": 782.1
+   "x": 659.0,
+   "y": 589.6
   },
   {
    "id": "networking-engineer",
@@ -2126,8 +2126,8 @@
    "desc": "Use when designing cloud network architectures, planning subnet and CIDR layouts, architecting DNS and CDN, configuring load balancers, or implementing network security controls. Handles VPC/VNet/VCN design, hybrid and multi-cloud networking (VPN, Direct Connect, ExpressRoute), B",
    "type": "architecture",
    "path": "skills/04-architecture/networking-engineer",
-   "x": 792.4,
-   "y": 854.8
+   "x": 850.2,
+   "y": 519.3
   },
   {
    "id": "nonprofit-fundraising-engineer",
@@ -2136,8 +2136,8 @@
    "desc": "Use when building or optimizing online donation platforms, implementing recurring giving programs, setting up peer-to-peer fundraising infrastructure, integrating fundraising CRMs (Salesforce NPSP, Blackbaud Raiser's Edge, DonorPerfect), designing donation form UX with payment pr",
    "type": "development",
    "path": "skills/28-social-impact/nonprofit-fundraising-engineer",
-   "x": 875.0,
-   "y": 863.1
+   "x": 911.7,
+   "y": 483.9
   },
   {
    "id": "nutrition-strategist",
@@ -2146,8 +2146,8 @@
    "desc": "Use when you need practical, evidence-based nutrition strategies. Handles macros by goal, micronutrient adequacy, dietary frameworks, supplement evidence review, hydration, and gut-support. Do NOT use for clinical nutrition therapy or eating disorder treatment.",
    "type": "health-wellness",
    "path": "skills/30-health-wellness/nutrition-strategist",
-   "x": 378.3,
-   "y": 803.1
+   "x": 529.8,
+   "y": 547.5
   },
   {
    "id": "observability-engineer",
@@ -2156,8 +2156,8 @@
    "desc": "Use when designing observability stacks, instrumenting applications with OpenTelemetry, defining SLOs and error budgets, building dashboards, configuring alerting rules, or setting up log aggregation and distributed tracing. Handles Prometheus, Grafana, Loki, and Tempo integratio",
    "type": "devops",
    "path": "skills/07-devops/observability-engineer",
-   "x": 839.4,
-   "y": 861.1
+   "x": 881.2,
+   "y": 498.8
   },
   {
    "id": "offensive-security",
@@ -2166,8 +2166,8 @@
    "desc": "Use when planning and executing penetration tests (web, mobile, API, network, cloud, social engineering), conducting attack surface analysis, designing red team exercises mapped to MITRE ATT&CK, hardening ransomware defense, assessing supply chain attack risks, running purple tea",
    "type": "security",
    "path": "skills/08-security/offensive-security",
-   "x": 739.8,
-   "y": 838.5
+   "x": 797.7,
+   "y": 462.6
   },
   {
    "id": "on-device-ai-engineer",
@@ -2176,8 +2176,8 @@
    "desc": "Use when deploying, optimizing, or building AI that runs on hardware you control — local LLMs and edge inference on mobile, desktop, in-browser (WebGPU/WASM), or self-hosted backend/edge servers, and privacy-preserving features that must work offline or keep data on-premises. Han",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/on-device-ai-engineer",
-   "x": 832.4,
-   "y": 879.0
+   "x": 874.4,
+   "y": 464.2
   },
   {
    "id": "options-automation-engineer",
@@ -2186,8 +2186,8 @@
    "desc": "Use when the user wants to build automated options trading systems, design scanner-to-execution pipelines, implement auto-roll logic for decaying positions, construct multi-leg order routing with legging risk protection, or deploy circuit breakers for gamma risk, IV spikes, and e",
    "type": "finance",
    "path": "skills/14-finance/options-automation-engineer",
-   "x": 945.5,
-   "y": 859.7
+   "x": 963.6,
+   "y": 502.6
   },
   {
    "id": "options-quant-engineer",
@@ -2196,8 +2196,8 @@
    "desc": "Use when the user needs derivatives pricing models IMPLEMENTED, calibrated, validated, or productionized — pricing engines, numeric Greeks and risk sensitivities, volatility surface calibration (SABR, local vol), Monte Carlo and finite-difference solvers, model-risk and benchmark",
    "type": "finance",
    "path": "skills/14-finance/options-quant-engineer",
-   "x": 989.0,
-   "y": 872.8
+   "x": 1001.4,
+   "y": 501.1
   },
   {
    "id": "options-risk-engineer",
@@ -2206,8 +2206,8 @@
    "desc": "Use when monitoring options-specific portfolio risk, computing portfolio-level Greeks, detecting pin risk and early assignment exposure, calculating margin requirements across Reg T and Portfolio Margin regimes, managing expiration risk, constructing options-based hedges (protect",
    "type": "finance",
    "path": "skills/14-finance/options-risk-engineer",
-   "x": 981.5,
-   "y": 856.8
+   "x": 991.3,
+   "y": 508.0
   },
   {
    "id": "options-strategist",
@@ -2216,8 +2216,8 @@
    "desc": "Use when the user asks which options strategy fits their market outlook, IV environment, directional conviction, or capital constraints; when the user has a thesis (bullish/ bearish/neutral/volatile) and needs it translated into a specific options structure; or when the user need",
    "type": "finance",
    "path": "skills/14-finance/options-strategist",
-   "x": 978.6,
-   "y": 846.3
+   "x": 990.3,
+   "y": 503.6
   },
   {
    "id": "parenting-strategist",
@@ -2226,8 +2226,8 @@
    "desc": "Use when designing age-appropriate parenting strategies that balance child development frameworks, education planning, financial literacy, and sibling dynamics. Handles strategy, timelines, practical checklists, and family governance. Do NOT use for clinical child psychology or s",
    "type": "relationship-family",
    "path": "skills/32-relationship-family/parenting-strategist",
-   "x": 680.4,
-   "y": 841.9
+   "x": 758.1,
+   "y": 525.5
   },
   {
    "id": "partnerships-manager",
@@ -2236,8 +2236,8 @@
    "desc": "Use when onboarding integration partners, managing co-selling motions, running partner training and certification, or operating deal registration programs. Handles integration partner onboarding, co-selling motion design, partner training and certification, deal registration prog",
    "type": "sales",
    "path": "skills/15-sales/partnerships-manager",
-   "x": 898.6,
-   "y": 792.4
+   "x": 943.6,
+   "y": 467.9
   },
   {
    "id": "patient-community-safety",
@@ -2246,8 +2246,8 @@
    "desc": "Use when building threat models for patient communities, detecting medical misinformation in health forums, protecting vulnerable patient populations, or designing crisis response protocols for platforms where patients share health experiences. Handles threat modeling for patient",
    "type": "trust-safety",
    "path": "skills/23-trust-safety/patient-community-safety",
-   "x": 857.7,
-   "y": 726.6
+   "x": 887.2,
+   "y": 393.9
   },
   {
    "id": "patient-experience-researcher",
@@ -2256,8 +2256,8 @@
    "desc": "Use when conducting research with patient populations, mapping patient journeys for chronic conditions, designing clinical trial recruitment studies, validating patient-reported outcome measures (PROMs), or setting up diary and longitudinal studies. Handles IRB-aware research pro",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/patient-experience-researcher",
-   "x": 875.9,
-   "y": 794.2
+   "x": 900.3,
+   "y": 414.4
   },
   {
    "id": "patient-health-educator",
@@ -2266,8 +2266,8 @@
    "desc": "Use when creating patient-facing health education content, designing treatment adherence programs, building patient onboarding flows, or developing condition-specific education for chronic and rare diseases. Handles health literacy instructional design (teach-back method, plain l",
    "type": "health-clinical",
    "path": "skills/21-health-clinical/patient-health-educator",
-   "x": 881.4,
-   "y": 786.3
+   "x": 915.1,
+   "y": 418.6
   },
   {
    "id": "people-ops",
@@ -2276,8 +2276,8 @@
    "desc": "Use when designing people programs, running performance review cycles, building compensation bands and leveling frameworks, designing onboarding programs, conducting engagement surveys, implementing HRIS, or analyzing retention risk. Handles employee experience from onboarding th",
    "type": "people",
    "path": "skills/16-people/people-ops",
-   "x": 819.7,
-   "y": 746.9
+   "x": 897.2,
+   "y": 558.7
   },
   {
    "id": "performance-engineer",
@@ -2286,8 +2286,8 @@
    "desc": "Use when profiling application performance, diagnosing bottlenecks, running load tests, or establishing performance budgets and SLOs. Handles performance profiling (flame graphs, CPU/memory/I/O analysis), load testing (k6, wrk, Artillery), frontend optimization (Core Web Vitals, ",
    "type": "specialized",
    "path": "skills/13-specialized/performance-engineer",
-   "x": 816.7,
-   "y": 900.7
+   "x": 851.9,
+   "y": 495.5
   },
   {
    "id": "personal-finance",
@@ -2296,8 +2296,8 @@
    "desc": "Use when managing personal finances, building a budget, planning for retirement, optimizing taxes, managing debt, building an emergency fund, choosing investments, evaluating insurance, estate planning, improving credit score, setting financial goals (FIRE, home purchase, college",
    "type": "finance",
    "path": "skills/14-finance/personal-finance",
-   "x": 930.0,
-   "y": 860.2
+   "x": 938.2,
+   "y": 587.9
   },
   {
    "id": "personal-productivity-developer",
@@ -2306,8 +2306,8 @@
    "desc": "Use when building personal productivity and life management applications — habit trackers, goal-setting apps, personal journals and diaries, task management tools, personal dashboards, time tracking, routine builders, life organizers, personal knowledge management systems, digita",
    "type": "development",
    "path": "skills/05-development/personal-productivity-developer",
-   "x": 855.0,
-   "y": 899.9
+   "x": 888.0,
+   "y": 472.9
   },
   {
    "id": "platform-engineer",
@@ -2316,8 +2316,8 @@
    "desc": "Use when designing Internal Developer Platforms, creating golden path templates, implementing developer portals (Backstage, Port), building self-service infrastructure modules, or improving developer experience through scaffolding and automation. Handles IDP architecture, golden ",
    "type": "devops",
    "path": "skills/07-devops/platform-engineer",
-   "x": 787.3,
-   "y": 876.1
+   "x": 843.5,
+   "y": 516.9
   },
   {
    "id": "polyrepo-strategy",
@@ -2326,8 +2326,8 @@
    "desc": "Use when evaluating monorepo, polyrepo, or hybrid repo architecture; when cross-repo coordination overhead causes delivery delays; when deciding whether to split a monorepo or merge polyrepos; when designing cross-repo CI/CD; when managing breaking changes across independently ve",
    "type": "architecture",
    "path": "skills/04-architecture/polyrepo-strategy",
-   "x": 760.9,
-   "y": 886.2
+   "x": 837.2,
+   "y": 544.8
   },
   {
    "id": "portfolio-signal-manager",
@@ -2336,8 +2336,8 @@
    "desc": "Use when synthesizing multiple trading signals (technical + fundamental) into unified portfolio decisions, resolving conflicts between contradictory signals via weighted decision matrix, managing position sizing (Kelly, risk-parity, volatility-adjusted 1/N), connecting broker acc",
    "type": "finance",
    "path": "skills/14-finance/portfolio-signal-manager",
-   "x": 955.1,
-   "y": 852.9
+   "x": 970.9,
+   "y": 508.0
   },
   {
    "id": "presentation-designer",
@@ -2346,8 +2346,8 @@
    "desc": "Use when creating pitch decks, investor presentations, conference talks, webinar slides, board presentations, product demos, sales decks, internal all-hands, or any presentation that needs to persuade, inform, or inspire an audience. Handles narrative structure design (Minto Pyra",
    "type": "creative",
    "path": "skills/24-creative/presentation-designer",
-   "x": 912.7,
-   "y": 847.7
+   "x": 938.6,
+   "y": 467.5
   },
   {
    "id": "pricing-purchase-optimizer",
@@ -2356,8 +2356,8 @@
    "desc": "Use when optimizing SaaS pricing pages for conversion rate improvement, redesigning purchase flows to reduce checkout abandonment, A/B testing pricing page variants (tier count, price points, feature display, CTA copy), implementing behavioral pricing nudges (decoy effect, anchor",
    "type": "growth",
    "path": "skills/10-growth/pricing-purchase-optimizer",
-   "x": 897.6,
-   "y": 896.6
+   "x": 923.9,
+   "y": 456.1
   },
   {
    "id": "privacy-engineer",
@@ -2366,8 +2366,8 @@
    "desc": "Use when implementing BAAs with sub-processors, automating DSAR workflows, building consent management infrastructure, designing data deletion pipelines, or conducting privacy-by-design reviews for health platforms. Handles BAA implementation (checklist, sub-processor inventory, ",
    "type": "security",
    "path": "skills/23-trust-safety/privacy-engineer",
-   "x": 819.6,
-   "y": 801.4
+   "x": 868.7,
+   "y": 450.5
   },
   {
    "id": "privacy-engineering",
@@ -2376,8 +2376,8 @@
    "desc": "Use when implementing privacy-by-design; when conducting a DPIA for GDPR; when implementing data minimization, pseudonymization, or anonymization; when designing consent management for GDPR, CCPA, and ePrivacy; when building data subject rights (access, deletion, portability); wh",
    "type": "trust-safety",
    "path": "skills/23-trust-safety/privacy-engineering",
-   "x": 817.7,
-   "y": 763.1
+   "x": 869.4,
+   "y": 432.4
   },
   {
    "id": "product-analyst",
@@ -2386,8 +2386,8 @@
    "desc": "Use when defining product metrics and KPIs, designing A/B tests and experiments, building product dashboards, performing cohort and retention analysis, conducting funnel and conversion analysis, setting up product analytics tooling (Amplitude, Mixpanel, PostHog), or making data-i",
    "type": "product",
    "path": "skills/02-product/product-analyst",
-   "x": 901.7,
-   "y": 851.5
+   "x": 930.0,
+   "y": 449.8
   },
   {
    "id": "product-manager",
@@ -2396,8 +2396,8 @@
    "desc": "Use when writing PRDs, prioritizing features with RICE scoring, building product roadmaps, managing stakeholders, or crafting user stories with precise acceptance criteria. Handles feature definition, sprint planning, backlog grooming, stakeholder communication, user story mappin",
    "type": "product",
    "path": "skills/02-product/product-manager",
-   "x": 853.7,
-   "y": 831.9
+   "x": 895.0,
+   "y": 468.6
   },
   {
    "id": "product-marketing-manager",
@@ -2406,8 +2406,8 @@
    "desc": "Use when planning health tech product launches, defining competitive positioning in regulated healthcare markets, creating clinical value propositions backed by outcomes data, or building sales enablement collateral for health products. Handles launch tiering (T1/T2/T3), competit",
    "type": "creative",
    "path": "skills/24-creative/product-marketing-manager",
-   "x": 905.8,
-   "y": 834.5
+   "x": 930.2,
+   "y": 439.0
   },
   {
    "id": "product-strategist",
@@ -2416,8 +2416,8 @@
    "desc": "Use when defining product strategy, validating product-market fit, planning OKRs, conducting competitive analysis, modeling product growth, or designing PLG vs SLG motions. Handles product discovery, feature prioritization, Jobs-to-be-Done framework, pricing strategy, customer jo",
    "type": "strategy",
    "path": "skills/01-strategy/product-strategist",
-   "x": 855.7,
-   "y": 841.0
+   "x": 900.0,
+   "y": 491.9
   },
   {
    "id": "productivity-master",
@@ -2426,8 +2426,8 @@
    "desc": "Use when building a personal productivity system. Handles Deep Work, GTD workflows, energy management, time blocking, attention hygiene, tool stack design, and meeting minimization. Do NOT use for team-level productivity or org-wide transformations.",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/productivity-master",
-   "x": 457.5,
-   "y": 782.0
+   "x": 592.9,
+   "y": 576.1
   },
   {
    "id": "project-manager",
@@ -2436,8 +2436,8 @@
    "desc": "Use when creating project plans (WBS/Gantt), managing RAID logs, communicating with stakeholders, allocating resources, tracking budgets with EVM, managing milestones, reporting status, or running project postmortems. Handles PMBOK and agile-hybrid methodologies, critical path an",
    "type": "operations",
    "path": "skills/12-operations/project-manager",
-   "x": 782.6,
-   "y": 801.1
+   "x": 848.6,
+   "y": 501.1
   },
   {
    "id": "property-manager",
@@ -2446,8 +2446,8 @@
    "desc": "Use when operating small to mid-size residential properties: tenant screening, lease design, maintenance systems, vendor management, rent optimization, and legal compliance. Handles checklists, SOPs, and reporting templates. Do NOT use for commercial property management or hotel ",
    "type": "real-estate",
    "path": "skills/33-real-estate/property-manager",
-   "x": 1001.5,
-   "y": 934.8
+   "x": 1001.3,
+   "y": 605.7
   },
   {
    "id": "prototype",
@@ -2456,8 +2456,8 @@
    "desc": "Use when a design question has no clear answer and needs empirical evidence; when comparing two approaches and static analysis is inconclusive; when exploring an unfamiliar API or library before committing; or when a team is debating implementation trade-offs without data. Handle",
    "type": "development",
    "path": "skills/05-development/prototype",
-   "x": 845.7,
-   "y": 896.6
+   "x": 879.4,
+   "y": 470.1
   },
   {
    "id": "public-speaking-coach",
@@ -2466,8 +2466,8 @@
    "desc": "Use when preparing public or virtual presentations. Handles storytelling frameworks, presence and delivery, slide design, audience engagement, impromptu frameworks, TED-style structure, virtual mastery, and anxiety management. Do NOT use for standup comedy or acting coaching.",
    "type": "personal-growth",
    "path": "skills/31-personal-growth/public-speaking-coach",
-   "x": 565.0,
-   "y": 774.0
+   "x": 676.0,
+   "y": 602.1
   },
   {
    "id": "qa-engineer",
@@ -2476,8 +2476,8 @@
    "desc": "Use when designing test strategies, implementing test automation frameworks, configuring Playwright or Cypress for e2e testing, setting up performance testing with k6, or establishing coverage goals and quality metrics. Handles test pyramid design, API contract testing, test data",
    "type": "quality",
    "path": "skills/06-quality/qa-engineer",
-   "x": 820.6,
-   "y": 889.5
+   "x": 858.5,
+   "y": 482.6
   },
   {
    "id": "quantitative-analyst",
@@ -2486,8 +2486,8 @@
    "desc": "Use when pricing options, computing Greeks, constructing implied volatility surfaces, detecting unusual options activity, or generating trade signals from options flow anomalies. Handles pricing models (Black-Scholes, Binomial, Monte Carlo), Greeks computation (Delta, Gamma, Thet",
    "type": "finance",
    "path": "skills/14-finance/quantitative-analyst",
-   "x": 956.3,
-   "y": 845.3
+   "x": 973.4,
+   "y": 497.8
   },
   {
    "id": "react-native-developer",
@@ -2496,8 +2496,8 @@
    "desc": "Use when building cross-platform mobile apps with React Native or Expo, choosing between Expo managed workflow vs bare React Native, migrating to the New Architecture (Fabric, TurboModules, JSI), implementing native modules, optimizing RN performance (Reanimated, FlashList, Herme",
    "type": "development",
    "path": "skills/05-development/react-native-developer",
-   "x": 854.8,
-   "y": 946.0
+   "x": 912.0,
+   "y": 496.5
   },
   {
    "id": "real-estate-investor",
@@ -2506,8 +2506,8 @@
    "desc": "Use when seeking Real Estate Investor guidance in personal finance. Rental property analysis, BRRRR modeling, mortgage optimization, house hacking, REIT vs direct comparison, 1031 basics, and landlord cashflow math. Handles Real Estate Investor execution including planning, analy",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/real-estate-investor",
-   "x": 979.5,
-   "y": 907.5
+   "x": 971.7,
+   "y": 613.6
   },
   {
    "id": "recruiting",
@@ -2516,8 +2516,8 @@
    "desc": "Use when hiring technical or executive roles, building a recruiting function, designing structured interview loops, constructing offer packages with equity components, or optimizing hiring throughput. Handles outcomes-based job descriptions, Boolean and LinkedIn sourcing, rubric-",
    "type": "people",
    "path": "skills/16-people/recruiting",
-   "x": 813.4,
-   "y": 750.5
+   "x": 888.8,
+   "y": 574.0
   },
   {
    "id": "regulatory-specialist",
@@ -2526,8 +2526,8 @@
    "desc": "Use when navigating FDA medical device regulations, EU MDR/IVDR compliance, GxP validation for software systems, HIPAA compliance for health tech, or quality management system design. Handles FDA 21 CFR Part 11, ISO 13485, EU MDR and IVDR, SaMD classification, GxP validation (GAM",
    "type": "legal",
    "path": "skills/11-legal/regulatory-specialist",
-   "x": 841.6,
-   "y": 771.1
+   "x": 896.2,
+   "y": 445.3
   },
   {
    "id": "relationship-architect",
@@ -2536,8 +2536,8 @@
    "desc": "Use when designing relationship systems for partners that need communication frameworks, conflict resolution, attachment-aware strategies, and partnership agreements. Handles checklists, scripts, and maintenance plans. Do NOT use for couples therapy or clinical relationship couns",
    "type": "relationship-family",
    "path": "skills/32-relationship-family/relationship-architect",
-   "x": 579.1,
-   "y": 816.4
+   "x": 683.2,
+   "y": 555.5
   },
   {
    "id": "release-manager",
@@ -2546,8 +2546,8 @@
    "desc": "Use when planning release trains, coordinating deployment schedules, facilitating go/no-go decisions, managing feature flag rollouts, planning rollbacks, or automating release notes and changelogs. Handles release train design, deployment calendar coordination, go/no-go decision ",
    "type": "devops",
    "path": "skills/07-devops/release-manager",
-   "x": 782.3,
-   "y": 876.9
+   "x": 829.8,
+   "y": 486.5
   },
   {
    "id": "repo-scaffolding",
@@ -2556,8 +2556,8 @@
    "desc": "Use when establishing repo creation standards; when new repos take >30m to configure; when repos have inconsistent CI/CD, linting, or security configs; when maintaining a template repo multiple teams derive from; when onboarding teams needing consistent scaffolding; or when audit",
    "type": "devops",
    "path": "skills/07-devops/repo-scaffolding",
-   "x": 747.5,
-   "y": 915.8
+   "x": 822.2,
+   "y": 551.5
   },
   {
    "id": "residential-real-estate-agent",
@@ -2566,8 +2566,8 @@
    "desc": "Use when buying, selling, or leasing residential real estate as an agent or advisor — listing preparation, pricing and market analysis, buyer representation, negotiation, contracts and contingencies, open houses and showings, closing management, and client relationship practice. ",
    "type": "real-estate",
    "path": "skills/33-real-estate/residential-real-estate-agent",
-   "x": 959.9,
-   "y": 896.5
+   "x": 969.6,
+   "y": 570.9
   },
   {
    "id": "resume-writer",
@@ -2576,8 +2576,8 @@
    "desc": "Use when building, optimizing, or tailoring a resume/CV, writing cover letters, preparing for ATS (Applicant Tracking System) screening, translating experience into accomplishment statements, formatting for specific industries (tech, finance, healthcare, creative), or transitioni",
    "type": "career",
    "path": "skills/16-people/resume-writer",
-   "x": 782.3,
-   "y": 736.9
+   "x": 867.8,
+   "y": 600.8
   },
   {
    "id": "retirement-planner",
@@ -2586,8 +2586,8 @@
    "desc": "Use when seeking Retirement Planner guidance in personal finance. Retirement planning: withdrawal sequencing, 401k/IRA optimization, Social Security claiming strategies, pension vs annuity evaluation, and sequence-of-returns risk mitigation. Handles Retirement Planner execution i",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/retirement-planner",
-   "x": 990.0,
-   "y": 903.3
+   "x": 976.4,
+   "y": 615.9
   },
   {
    "id": "revops-manager",
@@ -2596,8 +2596,8 @@
    "desc": "Use when designing revenue operations strategy, architecting CRM systems, building forecasting models, or designing compensation plans. Handles pipeline analytics (funnel conversion, velocity, coverage ratios), CRM architecture (HubSpot/Salesforce), territory planning, attributio",
    "type": "sales",
    "path": "skills/15-sales/revops-manager",
-   "x": 919.0,
-   "y": 820.2
+   "x": 950.4,
+   "y": 476.4
   },
   {
    "id": "roi-gate",
@@ -2606,8 +2606,8 @@
    "desc": "Use when starting any non-emergency coding task to assert Cost of Developer Effort + Cost of Refactoring Risks < Annual Business Value of the Fix. Handles three-tier ROI analysis (Trivial auto-pass, Moderate quick-calculation, Major full business case), over-engineering detection",
    "type": "strategy",
    "path": "skills/01-strategy/roi-gate",
-   "x": 833.3,
-   "y": 846.1
+   "x": 882.7,
+   "y": 508.5
   },
   {
    "id": "saas-monetization-strategist",
@@ -2616,8 +2616,8 @@
    "desc": "Use when designing revenue models for software products — subscription pricing strategy, in-app purchase design, advertising integration, freemium conversion optimization, usage-based pricing architecture, creator revenue share models, marketplace commission structures, or bundli",
    "type": "finance",
    "path": "skills/27-creator-finance/saas-monetization-strategist",
-   "x": 881.1,
-   "y": 848.6
+   "x": 919.7,
+   "y": 494.6
   },
   {
    "id": "sales-engineer",
@@ -2626,8 +2626,8 @@
    "desc": "Use when preparing technical sales engagements, designing proofs-of-concept, conducting technical discovery, or building demo environments. Handles technical demos, proof-of-concept design, RFP responses, technical qualification (MEDDIC, BANT, SPICED), competitive positioning, ob",
    "type": "sales",
    "path": "skills/15-sales/sales-engineer",
-   "x": 896.4,
-   "y": 820.6
+   "x": 933.5,
+   "y": 464.0
   },
   {
    "id": "scrum-master",
@@ -2636,8 +2636,8 @@
    "desc": "Use when facilitating sprint ceremonies, coaching backlog refinement, diagnosing delivery bottlenecks with agile metrics, removing team impediments, assessing team health and psychological safety, or enforcing Definition of Done. Handles Scrum framework implementation, continuous",
    "type": "operations",
    "path": "skills/12-operations/scrum-master",
-   "x": 807.6,
-   "y": 788.0
+   "x": 884.5,
+   "y": 526.2
   },
   {
    "id": "secure-api-design",
@@ -2646,8 +2646,8 @@
    "desc": "Use when designing or reviewing the security of a REST, GraphQL, or gRPC API; when implementing OAuth2 token validation, API key management, or mTLS; when hardening APIs against OWASP API Security Top 10; when implementing API rate limiting and abuse prevention; when implementing",
    "type": "security",
    "path": "skills/04-architecture/secure-api-design",
-   "x": 763.6,
-   "y": 868.8
+   "x": 830.9,
+   "y": 528.7
   },
   {
    "id": "security-engineer",
@@ -2656,8 +2656,8 @@
    "desc": "Use when designing application security controls, conducting threat modeling, architecting IAM policies, managing secrets infrastructure, implementing zero trust networks, or configuring security monitoring. Handles threat modeling (STRIDE), IAM architecture, secrets management, ",
    "type": "security",
    "path": "skills/08-security/security-engineer",
-   "x": 803.0,
-   "y": 834.9
+   "x": 849.1,
+   "y": 481.4
   },
   {
    "id": "security-reviewer",
@@ -2666,8 +2666,8 @@
    "desc": "Use when performing security-focused code reviews, conducting STRIDE threat modeling, auditing authentication and authorization, reviewing data protection and encryption, or assessing API security posture. Handles OWASP Top 10 per-language patterns, dependency and container secur",
    "type": "quality",
    "path": "skills/06-quality/security-reviewer",
-   "x": 799.5,
-   "y": 873.0
+   "x": 845.7,
+   "y": 487.1
   },
   {
    "id": "senior-engineer-mode-router",
@@ -2676,8 +2676,8 @@
    "desc": "Use when a request arrives as a generic senior-engineer mode — build an app from scratch, understand and refactor a codebase, debug a production issue, design a system, optimize performance, rebuild with clean architecture, run a multi-agent workflow, or build production UI compo",
    "type": "framework",
    "path": "skills/00-framework/senior-engineer-mode-router",
-   "x": 806.1,
-   "y": 903.1
+   "x": 841.5,
+   "y": 473.2
   },
   {
    "id": "seo-specialist",
@@ -2686,8 +2686,8 @@
    "desc": "Use when performing technical SEO audits, deploying structured data (JSON-LD/schema), optimizing Core Web Vitals, managing crawl budgets, defining E-E-A-T content strategy, configuring international SEO (hreflang), diagnosing JavaScript SEO issues, or responding to algorithm upda",
    "type": "growth",
    "path": "skills/10-growth/seo-specialist",
-   "x": 892.5,
-   "y": 878.3
+   "x": 922.3,
+   "y": 477.3
   },
   {
    "id": "services-engagement-pricing",
@@ -2696,8 +2696,8 @@
    "desc": "Use when pricing client-facing software engagements for freelancers, agencies, or consultancies — choosing between hourly, fixed-bid, time-and-materials, retainer, and value-based models; converting an effort estimate into a quote range with buffer; building rate cards from salar",
    "type": "sales",
    "path": "skills/15-sales/services-engagement-pricing",
-   "x": 72.5,
-   "y": 678.7
+   "x": 416.5,
+   "y": 77.1
   },
   {
    "id": "shipping-and-launch",
@@ -2706,8 +2706,8 @@
    "desc": "Use when preparing a software release for production, designing staged rollout strategies, managing feature flags through their lifecycle, setting up launch-day monitoring, or making go/no-go decisions. Handles pre-launch checklists spanning code quality, security, performance, a",
    "type": "devops",
    "path": "skills/07-devops/shipping-and-launch",
-   "x": 800.1,
-   "y": 884.6
+   "x": 840.2,
+   "y": 487.4
   },
   {
    "id": "side-hustle-builder",
@@ -2716,8 +2716,8 @@
    "desc": "Use when seeking Side Hustle Builder guidance in personal finance. Side-hustle development: opportunity discovery, MVP validation, pricing, platform selection, entity formation, tax estimation, and scale plan from side income to full-time. Handles Side Hustle Builder execution in",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/side-hustle-builder",
-   "x": 917.5,
-   "y": 902.5
+   "x": 923.9,
+   "y": 549.9
   },
   {
    "id": "site-reliability-engineer",
@@ -2726,8 +2726,8 @@
    "desc": "Use when defining SLOs and SLIs, managing error budgets, reducing toil through automation, planning capacity, conducting blameless postmortems, or designing reliability architectures. Handles SLO/SLI definition, error budget policy, toil automation, incident analysis, capacity pl",
    "type": "devops",
    "path": "skills/07-devops/site-reliability-engineer",
-   "x": 804.8,
-   "y": 862.1
+   "x": 852.5,
+   "y": 506.1
   },
   {
    "id": "skill-levels",
@@ -2736,8 +2736,8 @@
    "desc": "Universal competency taxonomy mapping 5 mastery levels (L1 Apprentice → L5 Transformative) across all role families. Defines scope, autonomy, impact, and craft expectations at each level. Use to calibrate skill output depth, guide career development, and define what world-class m",
    "type": "framework",
    "path": "skills/00-framework/skill-levels",
-   "x": 821.0,
-   "y": 850.0
+   "x": 871.9,
+   "y": 500.3
   },
   {
    "id": "sleep-optimizer",
@@ -2746,8 +2746,8 @@
    "desc": "Use when you need to optimize sleep using circadian science and behavioral interventions. Handles light timing, temperature control, wind-down routines, chronotype alignment, supplement microdosing, and tracker interpretation. Do NOT use for clinical sleep disorders (sleep apnea,",
    "type": "health-wellness",
    "path": "skills/30-health-wellness/sleep-optimizer",
-   "x": 400.5,
-   "y": 806.5
+   "x": 544.4,
+   "y": 557.9
   },
   {
    "id": "smart-contract-auditor",
@@ -2756,8 +2756,8 @@
    "desc": "Use when auditing Solidity/Vyper smart contracts for security vulnerabilities, evaluating DeFi protocol attack surfaces, configuring automated analysis pipelines (Slither, Echidna, Manticore, Foundry), assessing upgradeable contract patterns for storage collision and proxy risks,",
    "type": "specialized",
    "path": "skills/26-web3/smart-contract-auditor",
-   "x": 760.8,
-   "y": 847.9
+   "x": 813.9,
+   "y": 486.9
   },
   {
    "id": "software-maintenance-support-estimator",
@@ -2766,8 +2766,8 @@
    "desc": "Use when estimating the cost of keeping software running after launch — annual maintenance budgets, support/SLA packages, hours-bucket retainers, and enhancement T&M on top — for freelancers, agencies, and vendors who built the software or are taking it over. Handles the 15-25%-o",
    "type": "sales",
    "path": "skills/15-sales/software-maintenance-support-estimator",
-   "x": 60.0,
-   "y": 665.8
+   "x": 397.3,
+   "y": 68.4
   },
   {
    "id": "software-project-estimator",
@@ -2776,8 +2776,8 @@
    "desc": "Use when producing effort, duration, or cost estimates for software projects — from XS to XXL size classes — for quotes, bids, SOWs, or internal planning; when choosing a sizing method (t-shirt vs story points vs three-point vs reference-class); or when converting a scope descrip",
    "type": "operations",
    "path": "skills/12-operations/software-project-estimator",
-   "x": 78.6,
-   "y": 664.5
+   "x": 402.9,
+   "y": 60.0
   },
   {
    "id": "source-driven-development",
@@ -2786,8 +2786,8 @@
    "desc": "Use when integrating new libraries, frameworks, or APIs into a production codebase; when upgrading dependencies across major versions; when debugging framework-specific errors; or when code review reveals undocumented assumptions about library behavior. Handles documentation-firs",
    "type": "development",
    "path": "skills/05-development/source-driven-development",
-   "x": 791.6,
-   "y": 921.6
+   "x": 823.4,
+   "y": 474.3
   },
   {
    "id": "staff-engineer",
@@ -2796,8 +2796,18 @@
    "desc": "Use when setting technical strategy across multiple teams, writing RFCs and ADRs, driving architecture decisions without authority, mentoring senior engineers, or solving the hardest cross-team technical problems as an individual contributor leader. Handles technical strategy and",
    "type": "engineering-leadership",
    "path": "skills/25-engineering-leadership/staff-engineer",
-   "x": 782.5,
-   "y": 835.3
+   "x": 850.3,
+   "y": 532.0
+  },
+  {
+   "id": "statement-of-work-authoring",
+   "domain": "11-legal",
+   "label": "legal",
+   "desc": "Use when drafting a full Statement of Work (SOW) for a client engagement — converting an effort estimate and a pricing block into a contract-ready document with parties and background, scope and deliverables, milestones and dates, exclusions and assumptions, acceptance criteria, ",
+   "type": "legal",
+   "path": "skills/11-legal/statement-of-work-authoring",
+   "x": 423.8,
+   "y": 64.0
   },
   {
    "id": "stoic-practitioner",
@@ -2806,8 +2816,8 @@
    "desc": "Use when you want a practical Stoic routine for resilience and disciplined action. Handles morning/evening journals, negative visualization, voluntary discomfort, role ethics, and workplace adaptations. Do NOT use for academic Stoicism or religious instruction.",
    "type": "philosophy-wisdom",
    "path": "skills/34-philosophy-wisdom/stoic-practitioner",
-   "x": 1540.0,
-   "y": 530.1
+   "x": 1191.2,
+   "y": 1090.0
   },
   {
    "id": "stress-resilience-coach",
@@ -2816,8 +2826,8 @@
    "desc": "Use when you need to build physiological and psychological resilience. Handles vagal-tone training, HRV protocols, breathwork, cold exposure, burnout prevention, and recovery modalities. Do NOT use for clinical anxiety or PTSD treatment.",
    "type": "health-wellness",
    "path": "skills/30-health-wellness/stress-resilience-coach",
-   "x": 452.8,
-   "y": 797.6
+   "x": 587.2,
+   "y": 566.5
   },
   {
    "id": "supply-chain-security",
@@ -2826,8 +2836,8 @@
    "desc": "Use when designing a supply chain security program, implementing SLSA Levels 1-4, generating and signing SBOMs (SPDX/CycloneDX), configuring build provenance with Sigstore/cosign/in-toto, triaging dependency vulns (typosquatting, confusion), hardening CI/CD pipelines, conducting ",
    "type": "security",
    "path": "skills/08-security/supply-chain-security",
-   "x": 812.6,
-   "y": 838.6
+   "x": 864.9,
+   "y": 504.1
   },
   {
    "id": "swing-options-trader",
@@ -2836,8 +2846,8 @@
    "desc": "Use when the user wants to swing trade options on 2-30 day holding periods, select optimal DTE for swing timeframes, trend-follow with options, enter pullback/reversal patterns, rotate sectors using options, or navigate earnings swings. Use when the user asks \"swing trade options",
    "type": "finance",
    "path": "skills/14-finance/swing-options-trader",
-   "x": 983.6,
-   "y": 837.2
+   "x": 994.2,
+   "y": 497.2
   },
   {
    "id": "system-architect",
@@ -2846,8 +2856,8 @@
    "desc": "Use when designing system architectures, making architecture decisions, modeling with C4, writing ADRs, evaluating microservices vs monolith trade-offs, or planning capacity. Handles scalability patterns, event-driven architecture, deployment topology design, trade-off analysis, ",
    "type": "architecture",
    "path": "skills/04-architecture/system-architect",
-   "x": 812.0,
-   "y": 870.2
+   "x": 856.3,
+   "y": 493.2
   },
   {
    "id": "system-design-interview-prep",
@@ -2856,8 +2866,8 @@
    "desc": "Use when preparing for system design interviews — practicing architecture questions, running mock design sessions, drilling the 21 core concepts (system design 101, distributed systems, microservices, DNS, JWT, HTTPS, API design, Redis, message queues, WebSockets, frontend design",
    "type": "architecture",
    "path": "skills/04-architecture/system-design-interview-prep",
-   "x": 782.4,
-   "y": 841.2
+   "x": 843.4,
+   "y": 531.4
   },
   {
    "id": "tax-strategist",
@@ -2866,8 +2876,8 @@
    "desc": "Use when planning personal personal finance strategies, optimizing deductions and tax-advantaged accounts, structuring entity ownership for tax efficiency, or navigating compliance requirements. Handles Tax Strategist planning including deduction maximization, tax-loss harvesting",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/tax-strategist",
-   "x": 971.1,
-   "y": 888.9
+   "x": 959.1,
+   "y": 603.9
   },
   {
    "id": "tdd-guide",
@@ -2876,8 +2886,8 @@
    "desc": "Use when adopting test-driven development practices, writing tests-first for new features, improving test quality through mutation testing, or introducing TDD to a team. Handles red-green-refactor cycles, property-based testing, outside-in TDD patterns, and coverage analysis. Do ",
    "type": "quality",
    "path": "skills/06-quality/tdd-guide",
-   "x": 812.3,
-   "y": 898.2
+   "x": 848.1,
+   "y": 469.0
   },
   {
    "id": "teach",
@@ -2886,8 +2896,8 @@
    "desc": "Use when learning a new programming language, framework, tool, or concept; when onboarding to a new codebase or technology stack; when preparing for a certification or technical interview; when a team needs structured knowledge transfer; or when self-studying a complex topic over",
    "type": "operations",
    "path": "skills/12-operations/teach",
-   "x": 744.4,
-   "y": 833.0
+   "x": 810.5,
+   "y": 440.3
   },
   {
    "id": "technical-program-manager",
@@ -2896,8 +2906,8 @@
    "desc": "Use when coordinating cross-team technical initiatives, managing multi-team dependencies, facilitating ADR/RFC processes, tracking program health metrics, negotiating API contracts across teams, managing migration programs, or communicating program status to executives. Handles p",
    "type": "operations",
    "path": "skills/12-operations/technical-program-manager",
-   "x": 787.8,
-   "y": 789.0
+   "x": 868.5,
+   "y": 543.6
   },
   {
    "id": "technical-signals-engineer",
@@ -2906,8 +2916,8 @@
    "desc": "Use when computing technical indicators (SMA, EMA, RSI, MACD, Bollinger Bands, ATR, OBV, VWAP, Stochastic RSI, ADX), generating buy/sell signals from indicator combinations with confidence scoring, analyzing multi-timeframe alignment (daily, weekly, 4H), detecting market regimes ",
    "type": "finance",
    "path": "skills/14-finance/technical-signals-engineer",
-   "x": 966.7,
-   "y": 834.5
+   "x": 980.8,
+   "y": 500.3
   },
   {
    "id": "technical-writer",
@@ -2916,8 +2926,8 @@
    "desc": "Use when writing API reference documentation from OpenAPI specs, authoring architecture decision records, improving READMEs, creating operational runbooks, building developer onboarding guides, managing changelogs, or organizing documentation site information architecture. Handle",
    "type": "operations",
    "path": "skills/12-operations/technical-writer",
-   "x": 792.0,
-   "y": 841.6
+   "x": 845.3,
+   "y": 455.1
   },
   {
    "id": "threat-intelligence",
@@ -2926,8 +2936,8 @@
    "desc": "Use when producing strategic, operational, or tactical threat intelligence reports, profiling threat actors (APTs, cybercriminals, hacktivists, insiders), mapping TTPs to MITRE ATT&CK, managing IOC/IOA feeds, designing threat hunting hypotheses, monitoring dark web and ransomware",
    "type": "security",
    "path": "skills/08-security/threat-intelligence",
-   "x": 810.4,
-   "y": 825.0
+   "x": 868.9,
+   "y": 511.4
   },
   {
    "id": "token-efficiency",
@@ -2936,8 +2946,8 @@
    "desc": "Use when minimizing LLM token consumption and cost, designing token budgets, optimizing prompt caching, compressing context, controlling output tokens, or measuring cost per request. Handles input/output token budget math, prompt-cache prefix economics, compression and summarizat",
    "type": "ai-engineering",
    "path": "skills/22-ai-engineering/token-efficiency",
-   "x": 734.9,
-   "y": 864.4
+   "x": 803.0,
+   "y": 512.9
   },
   {
    "id": "trade-performance-analyst",
@@ -2946,8 +2956,8 @@
    "desc": "Use when analyzing trading performance, constructing trade journals, computing risk-adjusted return metrics (Sharpe, Sortino, Calmar, MAR), performing attribution analysis, detecting behavioral biases, modeling drawdown dynamics, or building performance dashboards. Handles perfor",
    "type": "finance",
    "path": "skills/14-finance/trade-performance-analyst",
-   "x": 988.8,
-   "y": 851.4
+   "x": 994.5,
+   "y": 489.4
   },
   {
    "id": "translation-manager",
@@ -2956,8 +2966,8 @@
    "desc": "Use when setting up automated translation pipelines without human translators, optimizing machine translation quality, managing translation memory at scale, or automating localization quality gates in CI/CD. Handles MT engine selection, glossary and termbase management, pseudo-lo",
    "type": "development",
    "path": "skills/05-development/translation-manager",
-   "x": 847.2,
-   "y": 920.4
+   "x": 859.8,
+   "y": 458.2
   },
   {
    "id": "travel-designer",
@@ -2966,8 +2976,8 @@
    "desc": "Use when designing optimized leisure or long-stay trips. Handles destination selection matrices, award-booking tactics, itinerary pacing, accommodation and transport optimization. Do NOT use for corporate travel management or legal/tax advice.",
    "type": "travel-adventure",
    "path": "skills/36-travel-adventure/travel-designer",
-   "x": 420.8,
-   "y": 215.8
+   "x": 533.5,
+   "y": 1007.9
   },
   {
    "id": "treasury-manager",
@@ -2976,8 +2986,8 @@
    "desc": "Use when managing startup cash, setting up banking relationships, navigating a cash crunch, evaluating venture debt, implementing fraud prevention, or planning liquidity. Handles thirteen-week cash flow forecasting, investment policy design, foreign exchange management, payment o",
    "type": "corporate-finance",
    "path": "skills/18-corporate-finance/treasury-manager",
-   "x": 893.5,
-   "y": 773.3
+   "x": 933.6,
+   "y": 540.2
   },
   {
    "id": "trust-safety-engineer",
@@ -2986,8 +2996,8 @@
    "desc": "Use when building abuse detection systems for health platforms, implementing account integrity and ATO defense, deploying automated harm detection (CSAM, self-harm, misinformation), or designing moderation tooling with appeal workflows. Handles abuse detection (behavioral analyti",
    "type": "security",
    "path": "skills/23-trust-safety/trust-safety-engineer",
-   "x": 853.1,
-   "y": 779.7
+   "x": 890.4,
+   "y": 429.2
   },
   {
    "id": "ui-ux-designer",
@@ -2996,8 +3006,8 @@
    "desc": "Use when building design systems, defining component specifications, managing design tokens, preparing developer handoff, creating responsive layouts, or specifying interaction patterns. Handles design-to-code workflows, design system governance, pixel-perfect implementation guid",
    "type": "design",
    "path": "skills/03-design/ui-ux-designer",
-   "x": 858.4,
-   "y": 883.5
+   "x": 887.6,
+   "y": 457.8
   },
   {
    "id": "using-agent-skills",
@@ -3006,8 +3016,8 @@
    "desc": "Meta-router — an ASCII decision tree mapping user task types to specific skills. Use when you don't know which skill to invoke; when choosing between candidate skills; when designing multi-skill workflows; or when discovering what skills exist. Handles category-based routing (str",
    "type": "framework",
    "path": "skills/00-framework/using-agent-skills",
-   "x": 810.4,
-   "y": 866.4
+   "x": 856.3,
+   "y": 489.6
   },
   {
    "id": "ux-researcher",
@@ -3016,8 +3026,8 @@
    "desc": "Use when generating user personas, mapping customer journeys, designing usability tests, synthesizing research findings, running competitive UX analysis, or performing heuristic evaluations. Handles qualitative and quantitative research methods, interview guide creation, usabilit",
    "type": "product",
    "path": "skills/02-product/ux-researcher",
-   "x": 865.3,
-   "y": 863.0
+   "x": 892.8,
+   "y": 454.1
   },
   {
    "id": "ux-writer",
@@ -3026,8 +3036,8 @@
    "desc": "Use when writing product copy for digital health products, designing medical disclaimer language, crafting informed consent UX flows, optimizing microcopy for health literacy (≤8th grade reading level), or building content design systems for regulated health apps. Handles error m",
    "type": "creative",
    "path": "skills/24-creative/ux-writer",
-   "x": 864.9,
-   "y": 847.0
+   "x": 895.4,
+   "y": 435.0
   },
   {
    "id": "verification-before-completion",
@@ -3036,8 +3046,8 @@
    "desc": "Use when completing a bug fix, feature implementation, or any code change; when a task is marked as \"done\" but hasn't been verified; when closing issues or pull requests; or when the cost of regression is high (production systems, financial software, healthcare). Handles explicit",
    "type": "quality",
    "path": "skills/06-quality/verification-before-completion",
-   "x": 769.2,
-   "y": 893.4
+   "x": 817.5,
+   "y": 462.5
   },
   {
    "id": "volatility-arbitrage-engineer",
@@ -3046,8 +3056,8 @@
    "desc": "Use when the user wants to exploit volatility surface pricing discrepancies: dispersion trading, variance risk premium harvesting, skew arbitrage, term structure arbitrage, VIX futures/options, or correlation trading. Use when the user asks \"dispersion trading,\" \"variance risk pr",
    "type": "finance",
    "path": "skills/14-finance/volatility-arbitrage-engineer",
-   "x": 993.8,
-   "y": 859.0
+   "x": 997.7,
+   "y": 517.5
   },
   {
    "id": "vp-engineering",
@@ -3056,8 +3066,8 @@
    "desc": "Use when setting engineering strategy for 50-500+ engineers, designing organizational architecture, preparing board communications, planning multi-year budgets and headcount, conducting M&A technical due diligence, or building engineering brand and culture at scale. Handles engin",
    "type": "engineering-leadership",
    "path": "skills/25-engineering-leadership/vp-engineering",
-   "x": 822.7,
-   "y": 785.2
+   "x": 892.8,
+   "y": 550.2
   },
   {
    "id": "vulnerability-management",
@@ -3066,8 +3076,8 @@
    "desc": "Use when establishing a vulnerability management program, triaging CVEs at scale with CVSS+EPSS scoring, defining remediation SLAs, planning penetration tests (internal, external, web, mobile, API, cloud), setting up a vulnerability disclosure program (ISO 29147), integrating sca",
    "type": "security",
    "path": "skills/08-security/vulnerability-management",
-   "x": 773.6,
-   "y": 797.3
+   "x": 829.5,
+   "y": 443.4
   },
   {
    "id": "wallet-infrastructure-engineer",
@@ -3076,8 +3086,8 @@
    "desc": "Use when building wallet and account infrastructure — self-custody wallets, smart accounts and account abstraction (ERC-4337), MPC and multi-sig signing, key management, transaction building and submission, and wallet security. Handles key generation and custody, EOA vs smart-acc",
    "type": "specialized",
    "path": "skills/26-web3/wallet-infrastructure-engineer",
-   "x": 726.0,
-   "y": 847.0
+   "x": 785.5,
+   "y": 478.2
   },
   {
    "id": "wayfinder",
@@ -3086,8 +3096,8 @@
    "desc": "Use when planning large-scale work that spans multiple sessions or agents; when the scope of work has too many unknowns to create implementation tickets; when exploring a new domain or technology before committing to implementation; when breaking down a complex migration or refac",
    "type": "operations",
    "path": "skills/12-operations/wayfinder",
-   "x": 776.4,
-   "y": 817.9
+   "x": 834.1,
+   "y": 457.9
   },
   {
    "id": "wealth-management-advisor",
@@ -3096,8 +3106,8 @@
    "desc": "Use when seeking Wealth Management Advisor guidance in personal finance. Holistic wealth management: multi-goal optimization, asset location, concentrated position management, family office primitives, and philanthropy strategy for high-net-worth individuals. Handles Wealth Manag",
    "type": "personal-finance",
    "path": "skills/29-personal-finance/wealth-management-advisor",
-   "x": 993.4,
-   "y": 898.2
+   "x": 971.3,
+   "y": 620.2
   },
   {
    "id": "website-builder",
@@ -3106,8 +3116,8 @@
    "desc": "Use when building or migrating websites — static, e-commerce, SaaS landing pages, portfolios, or web apps. Handles SSG selection (Astro/Next.js/Hugo/11ty), low-code evaluation, $0-5/mo cost-optimized deployment, Core Web Vitals, SEO-first architecture, and maintenance planning. D",
    "type": "development",
    "path": "skills/05-development/website-builder",
-   "x": 844.4,
-   "y": 882.0
+   "x": 879.6,
+   "y": 482.3
   },
   {
    "id": "workflow-graph-authoring",
@@ -3116,8 +3126,8 @@
    "desc": "Use when composing the skill library into executable workflows — authoring workflow manifests (nodes/edges/loops/parallel/gates/supervisor over skills), choosing graph shapes, writing edge conditions and loop exit conditions, declaring handoff payloads, and mapping manifests to L",
    "type": "framework",
    "path": "skills/13-specialized/workflow-graph-authoring",
-   "x": 738.9,
-   "y": 892.9
+   "x": 797.1,
+   "y": 515.5
   },
   {
    "id": "writing-great-skills",
@@ -3126,8 +3136,8 @@
    "desc": "Use when writing a new skill for an AI agent (Claude Code, Copilot CLI, Cursor, Codex, Gemini CLI); when editing or improving an existing skill; when a skill produces inconsistent results; when designing the invocation pattern for a skill; when setting token budgets and chain con",
    "type": "framework",
    "path": "skills/00-framework/writing-great-skills",
-   "x": 747.1,
-   "y": 851.5
+   "x": 809.2,
+   "y": 460.6
   },
   {
    "id": "zkp-engineer",
@@ -3136,8 +3146,8 @@
    "desc": "Use when designing zero-knowledge proof circuits, selecting ZKP proof systems (Groth16/STARKs/Halo2/Plonky3), writing Circom 2/Noir/Halo2 circuit code, auditing circuits for under-constraint vulnerabilities, implementing on-chain verifiers, or designing zk-identity and privacy-pr",
    "type": "specialized",
    "path": "skills/26-web3/zkp-engineer",
-   "x": 772.2,
-   "y": 849.3
+   "x": 821.0,
+   "y": 494.5
   }
  ],
  "links": [
@@ -10804,6 +10814,11 @@
   {
    "s": "services-engagement-pricing",
    "b": "software-project-estimator",
+   "dir": "both"
+  },
+  {
+   "s": "services-engagement-pricing",
+   "b": "statement-of-work-authoring",
    "dir": "both"
   },
   {
