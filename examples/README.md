@@ -92,6 +92,7 @@ A solo quant trader building an Unusual Options Activity (UOA) detection and exe
 | **DB Create** ([`db-create/`](db-create/)) | 3 | Client: create a DB — schema → human schema-gate → impl → verify → human release |
 | **Support & Maintain** ([`support-maintain/`](support-maintain/)) | 3 | Client: support/maintain — monthly intake → fix-verify loop → human month close |
 | **Goal → Ship** ([`goal-to-ship/`](goal-to-ship/)) | auto | `scripts/goal-to-graph.py` turns a one-line goal into a validated spec-to-ship graph; runs until verification green → human release gate |
+| **Phase 1 Agentic Node** ([`phase1-agentic-node/`](phase1-agentic-node/)) | 3 | Measured proof that a node is an agentic skill, not an API call: real `claude -p` per node, skill-grounded prompt, bounded loop, `--guardrail` + `--memory`; archived run-state, OTel spans, SLIs, 100/100 effectiveness |
 
 **Diagrams:** every executable example has annotated ASCII + Mermaid flow diagrams (legend,
 budgets, loops, gates, escalation arcs, handoff payloads — field-accurate to the manifests).

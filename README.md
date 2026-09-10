@@ -232,10 +232,10 @@ what it consumes from and feeds into.
 - **Open it live:** **[https://zeroes-ones.github.io/Skills/](https://zeroes-ones.github.io/Skills/)** —
   or double-click [`docs/graph-explorer/index.html`](docs/graph-explorer/index.html) locally
   (works offline, no build step).
-- **What's inside (regenerated from live data):** 303 skill nodes, 1,930 directed chain edges
-  (1,567 undirected connections) across 37 domains. Pan/zoom, search, per-domain filter; hovering
-  a skill highlights its whole neighborhood; clicking opens its chain panel — consumes from,
-  feeds into, plus GitHub and skills.sh links.
+- **What's inside (regenerated from live data):** 304 skill nodes, 1,932 directed chain edges
+  (1,577 undirected connections, avg degree 10.38, 0 dangling refs) across 37 domains. Pan/zoom,
+  search, per-domain filter; hovering a skill highlights its whole neighborhood; clicking opens its
+  chain panel — consumes from, feeds into, plus GitHub and skills.sh links.
 - **Always current:** `python3 scripts/emit-skill-graph.py` rebuilds
   `docs/graph-explorer/{index.html,skill-graph.json}` from SKILL.md frontmatter; the `graph-explorer`
   job in [`validate.yml`](.github/workflows/validate.yml) fails CI if committed outputs ever drift
@@ -427,6 +427,10 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`WORKFLOW-SYSTEM.md`](WORKFLOW-SYSTEM.md) | Loops & graphs over the library — node contracts, manifests, run-state, handoff payloads (see [`examples/workflow-runtime/`](examples/workflow-runtime/README.md)) |
 | [`END-TO-END-EXCELLENCE.md`](END-TO-END-EXCELLENCE.md) | The 10/10 start-to-end rubric — content → node → graph → execution → handoff → verification → efficiency, with coverage status and gap register |
 | [`BEYOND-LOOPS-GRAPHS.md`](BEYOND-LOOPS-GRAPHS.md) | Deep research on what comes after loops & graphs — memory, evals-as-gates, self-improvement, observability, edge guardrails, semantic retrieval — with a build map and phased roadmap |
+| [`docs/skill-automation-platform.md`](docs/skill-automation-platform.md) | n8n-class automation platform design — the nine automation primitives, a measured capability map (have vs. gap), why agentic skill nodes beat integration nodes, gap register A1-A9, and a five-phase roadmap with acceptance bars |
+| [`docs/skill-automation-platform-build-log.md`](docs/skill-automation-platform-build-log.md) | Build & verification log — the real agentic run (3 turns, 100/100 effectiveness, SLI escalation 0.00), defects D1-D3 with fixes and proofs, node contracts 30→43, contract enforcement, the 10-gate verification matrix, library statistics, real-time profile, open findings |
+| [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md) | Longer plain-language guide — a real run walked through step by step, what every script does, what changed, what is real vs. not yet, and a glossary |
+| [`docs/START-HERE.md`](docs/START-HERE.md) | **Start here** — the short version: what this repo is, what we built, how it works, what is required vs. optional per skill, and how to see it work in 60 seconds |
 | [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | Quality bar, domain-calibrated scoring rubric, and external reviewer guide |
 | [`personas/README.md`](personas/README.md) | Persona architecture — 3-layer design, parallel fan-out, merge patterns |
 | [`hooks/SIMPLIFY-IGNORE.md`](hooks/SIMPLIFY-IGNORE.md) | Code block protection — marking sections as immutable during simplification |
