@@ -40,6 +40,17 @@ chain:
     - iterative-task-execution
     - workflow-graph-authoring
 
+workflow:
+  artifacts:
+    inputs: [task-graph]
+    outputs: [orchestration-design]
+  completion:
+    criteria:
+      - Topology documented with agent roles, edges, and failure modes
+      - Typed state schema declares field ownership per agent
+      - Delegation depth and turn caps enforced with cycle detection
+    evidence: required
+  escalate_to: [human-gate]
 ---
 **(QUICK: 30s)** Route: run Core Workflow with standard checks.
 **(QUICK: 5min)** Standard: full workflow including verification.

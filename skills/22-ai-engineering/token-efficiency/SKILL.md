@@ -24,6 +24,17 @@ chain:
   examples:
   - examples/token-efficiency/
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+workflow:
+  artifacts:
+    inputs: [traffic-signal]
+    outputs: [token-budget]
+  completion:
+    criteria:
+      - Baseline measurement reproduces the provider bill within 10 percent
+      - Input, output, and margin caps declared for every production task type
+      - Cache hit rate reported over the last 50 requests
+    evidence: required
+  escalate_to: [human-gate]
 ---
 
 # Token Efficiency

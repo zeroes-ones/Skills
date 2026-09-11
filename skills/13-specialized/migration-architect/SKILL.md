@@ -26,6 +26,17 @@ token_budget: 2010
 chain:
   consumes_from: ["system-architect", "database-designer", "devops-engineer", cross-repo-refactoring, deprecation-engineer, git-submodules, using-agent-skills]
   feeds_into: ["devops-engineer", "database-reliability-engineer", "backend-developer", deprecation-engineer]
+workflow:
+  artifacts:
+    inputs: [migration-scope]
+    outputs: [migration-plan]
+  completion:
+    criteria:
+      - Source and target row counts match within 0.01 percent per table
+      - Rollback plan tested, with a measured rollback window
+      - Cutover runbook lists per-step timing and rollback triggers
+    evidence: required
+  escalate_to: [human-gate]
 ---
 # Migration Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
@@ -54,8 +65,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -70,6 +79,7 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
 ```
@@ -81,8 +91,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Route the Request
 <!-- STANDARD: 3min -->

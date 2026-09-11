@@ -40,6 +40,17 @@ chain:
     - platform-engineer
     - staff-engineer
 
+workflow:
+  artifacts:
+    inputs: [agent-candidate]
+    outputs: [eval-report]
+  completion:
+    criteria:
+      - Baseline and candidate scored on the same scenario set
+      - Every metric reported as a delta against baseline, not in absolute terms
+      - Safety-critical scenarios pass at 100%
+    evidence: required
+  escalate_to: [human-gate]
 ---
 **(QUICK: 30s)** Route: run Core Workflow with standard checks.
 **(QUICK: 5min)** Standard: full workflow including verification.

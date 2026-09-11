@@ -41,6 +41,17 @@ chain:
   feeds_into: [cross-skill-communication, dynamic-skill-creator]
   alternatives: []
 
+workflow:
+  artifacts:
+    inputs: [skill-draft]
+    outputs: [skill-review]
+  completion:
+    criteria:
+      - Description follows the use-when format with no process language
+      - Every ground rule has a mechanical trigger
+      - Verification script passes with all reference links resolving
+    evidence: required
+  escalate_to: [human-gate]
 ---
 **(QUICK: 30s)** Route: run Core Workflow with standard checks.
 **(QUICK: 5min)** Standard: full workflow including verification.

@@ -39,6 +39,17 @@ chain:
     - system-design-interview-prep
     - backend-developer
     - security-reviewer
+workflow:
+  artifacts:
+    inputs: [api-design]
+    outputs: [security-review]
+  completion:
+    criteria:
+      - Every endpoint authenticates with pinned algorithms, never alg none
+      - Every endpoint has explicit authorization, not just authentication
+      - Zero string-concatenated queries, all parameterized
+    evidence: required
+  escalate_to: [human-gate]
 ---
 # Secure API Design
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
@@ -66,8 +77,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -82,6 +91,7 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
 ```
@@ -93,8 +103,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->
@@ -236,6 +244,7 @@ What type of API are you securing?
 |   |-- EdDSA (Ed25519): modern, fast, compact, recommended for new implementations
 |   |-- HS256: symmetric HMAC — ONLY use for service-to-service where key distribution is solved
 |   |-- NEVER: accept `alg: "none"` — always pin expected algorithms in validation library
+
 ```
 
 ### API Key Management Strategy
@@ -263,6 +272,7 @@ What is the API key used for?
 |   |-- Register with GitHub secret scanning partner program (free for public repos)
 |   |-- On detection: auto-revoke the key via webhook, notify user, create incident ticket
 |   |-- Pre-commit hook: scan for key patterns before commit — `git-secrets` or `detect-secrets`
+
 ```
 
 ### CORS Policy Design
@@ -298,6 +308,7 @@ Is the API called from browser-based clients?
 |   |   |-- Reflecting Origin without validation -> allows any origin to access the API
 |   |   |-- `Access-Control-Allow-Origin: null` -> allows sandboxed iframes, `file://` origins
 |   |   |-- Regex matching on Origin (e.g., `/.*\.example\.com$/`) -> `attacker.example.com.evil.com` matches
+
 ```
 
 ### Rate Limiting Architecture
@@ -331,6 +342,7 @@ What is your deployment topology?
 |   |-- `X-RateLimit-Reset: 1620000000` — Unix timestamp when the window resets
 |   |-- `Retry-After: 30` — seconds until the client should retry (on 429 response)
 |   |-- On 429: return HTTP 429 Too Many Requests, not 403 (auth) or 503 (server error)
+
 ```
 
 ### GraphQL Security Hardening
@@ -369,6 +381,7 @@ Are you running a GraphQL API in production?
 |   |-- Eliminates query injection: attackers cannot craft arbitrary queries
 |   |-- Whitelist approach: CI/CD pipeline registers queries; server rejects unregistered hashes
 |   |-- Apollo APQ, Relay persisted queries, GraphQL Persisted Query Link
+
 ```
 
 ### API Error Handling Strategy
@@ -404,6 +417,7 @@ What should an API error response contain?
 |   |-- Response: `{"error": {"code": "INTERNAL_ERROR", "message": "An unexpected error occurred.", "request_id": "req_abc123"}}`
 |   |-- NEVER: expose `err.message`, `err.stack`, `err.toString()` in the response
 |   |-- Status: always 500 for unhandled errors (never 200 with error body, never 404 for server crash)
+
 ```
 
 ## Error Recovery
@@ -559,6 +573,7 @@ API Security Learning Progression:
 |   |-- Lead a post-mortem for an API security incident; prevent recurrence
 |   |-- Contribute security improvements to open-source OAuth2/Gateway projects
 |   |-- Goal: API security is a solved problem across your organization
+
 ```
 
 ## Gotchas — Highest-Value Content

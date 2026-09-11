@@ -27,6 +27,17 @@ chain:
     - context-optimizer
     - iterative-task-execution
 
+workflow:
+  artifacts:
+    inputs: [context-window]
+    outputs: [compaction-plan]
+  completion:
+    criteria:
+      - Token budget declared for every active skill
+      - Security and NEVER / MUST NOT constraints preserved verbatim
+      - Context saturation reported against the healthy operating band
+    evidence: required
+  escalate_to: [human-gate]
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI). No vendor-specific frontmatter fields.
 <!-- QUICK: 30s -->
