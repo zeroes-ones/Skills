@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-11T15:40:56Z
+# Generated: 2026-09-11T19:42:20Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    915e35dcc251679891debe2a47fad37ff279d73b
+# Commit:    4ee594b11baedcf4ebbf3a7b670f6159baca18bd
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -163,6 +163,7 @@ c398221082b84560c1c49a2c42a581247c3af349847ac2151a490737ff1376ed  skills/07-devo
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/build-system-design/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/ci-cd-builder/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/cloud-architect/scripts/verify-skill.sh
+d2cbbdcea67c65d34531d7dae0d5c622ab665ab53ff9227f5008f3ffb22e218a  skills/07-devops/configuration-change-safety/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/dependency-governance/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/devops-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/docker-kubernetes/scripts/verify-skill.sh
