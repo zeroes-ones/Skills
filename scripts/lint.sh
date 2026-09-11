@@ -170,9 +170,13 @@ fi
 
 # ── Run Linters ────────────────────────────────────────────────────────────
 OVERALL_EXIT=0
-declare -A RESULTS
+# Parallel to SELECTED_CATEGORIES. Deliberately an indexed array, not an associative one: macOS
+# still ships bash 3.2, which has no `declare -A`, and this script runs on the publish path
+# (package.json prepublishOnly), so `declare -A` here made `npm publish` fail on any stock Mac.
+RESULTS=()
 
-for category in "${SELECTED_CATEGORIES[@]}"; do
+for _i in "${!SELECTED_CATEGORIES[@]}"; do
+    category="${SELECTED_CATEGORIES[$_i]}"
     linter_script="$SCRIPT_DIR/lib/lint-${category}.py"
 
     if [[ ! -f "$linter_script" ]]; then
@@ -202,7 +206,7 @@ for category in "${SELECTED_CATEGORIES[@]}"; do
         echo ""
     fi
 
-    RESULTS[$category]=$exit_code
+    RESULTS[$_i]=$exit_code
     if [[ $exit_code -ne 0 ]]; then
         OVERALL_EXIT=1
     fi
@@ -211,11 +215,12 @@ done
 # ── Summary ────────────────────────────────────────────────────────────────
 if ! $JSON_FLAG; then
     echo -e "${BOLD}━━━ Lint Summary ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    for category in "${SELECTED_CATEGORIES[@]}"; do
-        if [[ ${RESULTS[$category]:-2} -eq 0 ]]; then
+    for _i in "${!SELECTED_CATEGORIES[@]}"; do
+        category="${SELECTED_CATEGORIES[$_i]}"
+        if [[ ${RESULTS[$_i]:-2} -eq 0 ]]; then
             echo -e "  ${GREEN}✓${NC} $category"
         else
-            echo -e "  ${RED}✗${NC} $category (exit code: ${RESULTS[$category]})"
+            echo -e "  ${RED}✗${NC} $category (exit code: ${RESULTS[$_i]})"
         fi
     done
 

@@ -345,16 +345,36 @@ def get_changed_skill_files():
         return []
 
 
+def get_all_skill_files():
+    """Every skills/**/SKILL.md in the repository (the `--all` scope)."""
+    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    skills_dir = os.path.join(root, 'skills')
+    found = []
+    for dirpath, _dirs, files in os.walk(skills_dir):
+        for name in files:
+            if name == 'SKILL.md':
+                found.append(os.path.join(dirpath, name))
+    return sorted(found)
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description='Skill template compliance checker')
     parser.add_argument('files', nargs='*', help='SKILL.md files to check')
+    parser.add_argument('--all', action='store_true',
+                        help='Check every skills/**/SKILL.md (scope flag shared by all linters)')
     parser.add_argument('--changed', action='store_true', help='Check git-staged SKILL.md files')
     parser.add_argument('--no-color', action='store_true', help='Disable colors')
     parser.add_argument('--json', action='store_true', help='Output as JSON')
     args = parser.parse_args()
 
-    if args.changed:
+    # Scope precedence mirrors the other lib/lint-*.py linters: --all, then explicit files, then
+    # --changed. Accepting --all is what lets scripts/lint.sh drive every linter with one uniform
+    # scope flag; without it this linter exited 2 on `lint.sh --all`, which made `npm run lint` —
+    # and therefore prepublishOnly — impossible to pass.
+    if args.all:
+        target_files = get_all_skill_files()
+    elif args.changed:
         target_files = get_changed_skill_files()
     elif args.files:
         target_files = [f for f in args.files if f.endswith('/SKILL.md') or os.path.basename(f) == 'SKILL.md']

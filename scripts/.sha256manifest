@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-10T21:35:59Z
+# Generated: 2026-09-11T15:32:36Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    a001ac6a2a93b5c6ead236a077a25b88809afdc6
+# Commit:    1267a103d0161086687f970c97342b7da2806903
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -45,13 +45,14 @@ c0713f12c06d91d78a1b3e7872ca7f3861fbce3d9cbe913640f1fbe8a7297641  scripts/lib/li
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
 0bb1042e1e108645dc1a862cea231e7dc7be7c08552f5d9bf3274a30555ae34f  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
-34616440c7e3a5d1b2d7871aef8b3cd9501dad1e672e907912705f2d5da7e2b0  scripts/lib/lint-template.py
+b55f651af0490445d18bd3a9004d12e400fbbc3b52f569448d41c2deaf9d7d67  scripts/lib/lint-template.py
 e5ef422fedad81411d061b2cc53fcc9dbc55cd8be60ae6e14e3e4cb6af774507  scripts/lib/lint-workflow.py
 866980c7f79fa95f65a8a64f207cb047332c8bfd7267c93dcfef9e340fddfed2  scripts/lib/lint-yaml.py
 647393b289d48afb22217dfbad156da5d4eeb59a9330529da89fba7b4d30e0e9  scripts/lib/safe_yaml.py
 79b5cf6db04974cd871b66f8f518640c80afce10194589a83de470eadcaa1b96  scripts/lib/validate-skill-examples.sh
-5f2ffb808c267412a2fe61d40a51fa5ebaf76836bcc32a191f02202200b7a5b0  scripts/lint.sh
+d5dad28ecf59ed29d462a1b78dfcad164654a16298eb2e55691a939a078c8be1  scripts/lint.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
+18e59f02f0a5cd9a61eed3752dc31f7997777794df512bf8963ffc170b9d15f9  scripts/mcp-skill-server.py
 2c41832b2a048defec53bdba4b35d9d9be486431ef58685cdf2ea460c7d6501f  scripts/npx-skills.sh
 8e8e66508163e9685bb107f39629e560c17e44fc43ef938530f0b32847e0b586  scripts/project-init.sh
 7dae5539646a2ce7ad55df1dd31e630b50ea47c724128035f23c67669a5300a9  scripts/regression-scope.py
@@ -243,6 +244,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-spec
 fc8479400bf4176b902a6126a1f767977f625ac9ab25f6c9f6f720d580e14e3b  skills/13-specialized/multi-agent-orchestration/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/multirepo-designer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/performance-engineer/scripts/verify-skill.sh
+c84886fd08a5baea885344cc550da1ee322d72580071ca2e8c02e82868291d7c  skills/13-specialized/resilience-pattern-engineer/scripts/verify-skill.sh
 6ff106754d150332391f0836000bbfc841cffbe5f51fbeced2740d74969edfa8  skills/13-specialized/workflow-graph-authoring/scripts/verify-skill.sh
 2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/advanced-options-structures/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/algorithmic-trader/scripts/verify-skill.sh
