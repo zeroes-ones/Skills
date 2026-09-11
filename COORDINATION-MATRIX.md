@@ -15,7 +15,7 @@ chain:
   feeds_into: [frontend-developer, fullstack-developer, code-reviewer, qa-engineer, devops-engineer]
 ```
 
-If skill A `feeds_into` skill B, then skill B `consumes_from` skill A. All 1,130 chain edges are symmetric.
+If skill A `feeds_into` skill B, then skill B `consumes_from` skill A. All 1,932 chain edges are symmetric.
 
 ## Phase 1: Ideation & Validation
 
@@ -176,6 +176,7 @@ If skill A `feeds_into` skill B, then skill B `consumes_from` skill A. All 1,130
 ## Escalation Paths
 
 ### Technical Escalation
+
 ```
 Developer → Engineering Manager → Director Engineering → VP Engineering → CTO → CEO
 Security finding → Security Engineer → CTO → CEO + Legal Advisor
@@ -185,6 +186,7 @@ Clinical data issue → Clinical Informatics → Medical Content Reviewer → Le
 ```
 
 ### Product Escalation
+
 ```
 Feature request → Product Manager → Product Strategist → CEO
 Pivot decision → Product Strategist → CEO + Board Manager
@@ -193,6 +195,7 @@ Clinical feature → Clinical Informatics + Medical Content Reviewer → Product
 ```
 
 ### Revenue Escalation
+
 ```
 Pipeline gap → Sales Engineer → RevOps Manager → Marketing Manager → CEO
 Churn signal → Customer Success Manager → Account Manager → Product Manager
@@ -200,6 +203,7 @@ Partnership opportunity → Partnerships Manager → BizDev Manager → CEO
 ```
 
 ### Risk Escalation
+
 ```
 Bug → QA Engineer → Project Manager → Product Manager
 SEV incident → Incident Responder → CTO + CEO + Legal Advisor
@@ -221,8 +225,8 @@ When an agent invokes a skill:
 
 ## Chain Statistics
 
-- **106 skills** across **25 domains**
-- **1032 total chain edges** (516 consumes_from + 516 feeds_into)
-- **5.1 avg consumes_from per skill**
-- **5.1 avg feeds_into per skill**
+- **304 skills** across **37 domains**
+- **1,932 total chain edges** (966 consumes_from + 966 feeds_into)
+- **6.4 avg consumes_from per skill**
+- **6.4 avg feeds_into per skill**
 - **0 asymmetries** (all `A feeds_into B` ↔ `B consumes_from A` verified)

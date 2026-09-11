@@ -57,6 +57,7 @@ chain:
   - mobile-developer
   - qa-engineer
   - technical-writer
+  - resilience-pattern-engineer
 workflow:
   artifacts:
     inputs: [domain-model]

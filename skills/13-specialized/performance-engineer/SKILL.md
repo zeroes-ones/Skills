@@ -43,6 +43,7 @@ chain:
   - marketplace-platform-builder
   - observability-engineer
   - website-builder
+  - resilience-pattern-engineer
   feeds_into:
   - shipping-and-launch
   - gameplay-programmer

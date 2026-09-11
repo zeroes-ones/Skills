@@ -50,6 +50,7 @@ chain:
   - security-engineer
   - security-reviewer
   - site-reliability-engineer
+  - resilience-pattern-engineer
   feeds_into:
   - threat-intelligence
   - supply-chain-security

@@ -46,6 +46,7 @@ chain:
   - mlops-engineer
   - platform-engineer
   - site-reliability-engineer
+  - resilience-pattern-engineer
   feeds_into:
   - threat-intelligence
   - algorithmic-trader
@@ -56,6 +57,7 @@ chain:
   - performance-engineer
   - platform-engineer
   - site-reliability-engineer
+  - resilience-pattern-engineer
 workflow:
   artifacts:
     inputs: [service-design]

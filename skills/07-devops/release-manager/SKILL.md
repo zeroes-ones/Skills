@@ -42,6 +42,7 @@ chain:
   - project-manager
   - qa-engineer
   - site-reliability-engineer
+  - resilience-pattern-engineer
   feeds_into:
   - shipping-and-launch
   - feature-flag-architect

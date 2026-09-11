@@ -36,6 +36,7 @@ chain:
   - performance-engineer
   - qa-engineer
   - security-engineer
+  - resilience-pattern-engineer
 
 ---
 **(QUICK: 30s)** Route: run Core Workflow with standard checks.
