@@ -1,0 +1,8 @@
+effectiveness: 85/100 for resilience-design (outcome=complete, escalated=False)
+   25  completion: run reached a terminal 'complete' state
+   20  clean: no escalation/guardrail in the log
+   15  exit-by-design: exit condition, not exhaustion
+    0  handoffs: payload present at the final boundary
+   10  questions: no dangling open questions
+   10  budget: steps_used <= max_steps
+    5  memory: run memory entry written

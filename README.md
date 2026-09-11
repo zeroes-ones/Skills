@@ -431,6 +431,8 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/skill-automation-platform-build-log.md`](docs/skill-automation-platform-build-log.md) | Build & verification log — the real agentic run (3 turns, 100/100 effectiveness, SLI escalation 0.00), defects D1-D3 with fixes and proofs, node contracts 30→43, contract enforcement, the 10-gate verification matrix, library statistics, real-time profile, open findings |
 | [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md) | Longer plain-language guide — a real run walked through step by step, what every script does, what changed, what is real vs. not yet, and a glossary |
 | [`docs/START-HERE.md`](docs/START-HERE.md) | **Start here** — the short version: what this repo is, what we built, how it works, what is required vs. optional per skill, and how to see it work in 60 seconds |
+| [`docs/mcp-server.md`](docs/mcp-server.md) | MCP server — drive the library from any MCP client: install (`.mcp.json`), the eight tools with examples, protocol notes, security posture, and the three defects it fixes versus the common naive implementation |
+| [`docs/missing-skills-research.md`](docs/missing-skills-research.md) | Deep research + build plan — why production systems actually fail (incident-data evidence), a 304-skill coverage audit, 16 verified gaps ranked by evidence, a defensible L1–L8 target in place of "zero bugs", and a phased plan with what *not* to build |
 | [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | Quality bar, domain-calibrated scoring rubric, and external reviewer guide |
 | [`personas/README.md`](personas/README.md) | Persona architecture — 3-layer design, parallel fan-out, merge patterns |
 | [`hooks/SIMPLIFY-IGNORE.md`](hooks/SIMPLIFY-IGNORE.md) | Code block protection — marking sections as immutable during simplification |
@@ -450,6 +452,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`scripts/project-init.sh`](scripts/project-init.sh) | One command: attach the workflow layer to ANY project (`.agent/` scaffold + starter manifest) |
 | [`scripts/skill-factory.py`](scripts/skill-factory.py) | Create a skill draft on demand (workflow: contract included); use it as a node/sub-agent |
 | [`scripts/validate-commands.js`](scripts/validate-commands.js) | Cross-tool command parity validator |
+| [`scripts/mcp-skill-server.py`](scripts/mcp-skill-server.py) | **MCP server** (stdlib, no Node) — exposes the library + engine over stdio: search/read skills, inspect contracts, validate and run manifests. Config: [`.mcp.json`](.mcp.json); docs: [`docs/mcp-server.md`](docs/mcp-server.md) |
 | [`.githooks/pre-commit`](.githooks/pre-commit) | Git pre-commit hook — 16-gate lint & validate before every commit |
 
 ## Linting & Validation

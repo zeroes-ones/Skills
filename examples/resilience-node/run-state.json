@@ -1,0 +1,77 @@
+{
+  "workflow": "resilience-design",
+  "manifest_sha": "420103f31943",
+  "created": "2026-09-11T15:26:14Z",
+  "updated": "2026-09-11T15:31:03Z",
+  "node": "human-gate",
+  "phase": "complete",
+  "iteration": 0,
+  "budget": {
+    "max_steps": 12,
+    "steps_used": 3,
+    "iterations": {}
+  },
+  "nodes": {
+    "design": {
+      "status": "done",
+      "iterations": 1,
+      "verdict": "changes_requested",
+      "evidence": [
+        "agent-turn:design"
+      ],
+      "summary": "Design node blocked by the skill's own pre-generation guardrails. I verified the run context and repo state before refusing:\n\n- **No input artifacts provided.** The contract declares `inputs: [architecture, dependency-inventory]`; the run context carries neither. Decision Tree 1 requires the user-facing deadline before any pattern selection \u2014 no deadline is stated anywhere.\n- **No target system ex",
+      "sha": "dbefaddecec4"
+    },
+    "verify": {
+      "status": "done",
+      "iterations": 1,
+      "verdict": "changes_requested",
+      "evidence": [
+        "agent-turn:verify"
+      ],
+      "summary": "Verified the verify-node inputs for run `resilience-design` (iteration 0): handoff payload from `design` is `null`, `artifacts` is empty, and `examples/resilience-node/run-summary.json` is a 0-byte file. The upstream design node (resilience-pattern-engineer) returned `changes_requested` \u2014 it refused to generate a design because the contract's declared inputs (`architecture`, `dependency-inventory`",
+      "sha": "93b2ad13c5a5"
+    },
+    "human-gate": {
+      "status": "done",
+      "iterations": 1,
+      "verdict": "changes_requested",
+      "evidence": [
+        "agent-turn:human-gate"
+      ],
+      "summary": "Gate review of run `resilience-design` (iteration 0). Evidence checked: `examples/resilience-node/run-state.json` and `agent-transcript.jsonl`.\n\n- **design** (resilience-pattern-engineer) \u2192 `changes_requested`: refused generation because the contract's declared inputs (`architecture`, `dependency-inventory`) were never supplied, and the skill's R2 guardrail requires a user-facing deadline before d",
+      "sha": "b1dc3531bb1b"
+    }
+  },
+  "fields": {},
+  "artifacts": {},
+  "decisions": [],
+  "open_questions": [],
+  "handoff": {
+    "from": "verify",
+    "to": "human-gate",
+    "payload": null,
+    "sha": "2534f91f189d"
+  },
+  "reroutes": {},
+  "log": [
+    {
+      "step": 0,
+      "node": "design",
+      "action": "done",
+      "detail": "verdict=changes_requested"
+    },
+    {
+      "step": 1,
+      "node": "verify",
+      "action": "done",
+      "detail": "verdict=changes_requested"
+    },
+    {
+      "step": 2,
+      "node": "human-gate",
+      "action": "done",
+      "detail": "verdict=changes_requested"
+    }
+  ]
+}

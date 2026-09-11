@@ -1,0 +1,28 @@
+name: resilience-design
+version: "1.0.0"
+description: "Design resilience patterns for a service's dependencies, then verify them with chaos"
+budget:
+  max_steps: 12
+start: design
+nodes:
+  - id: design
+    skill: resilience-pattern-engineer
+    inputs: [architecture]
+    outputs: [resilience-plan]
+  - id: verify
+    skill: chaos-engineer
+    inputs: [resilience-plan]
+    outputs: [verification-report]
+gates:
+  - id: human-gate
+    type: gate
+    kind: human
+    requires: [verification-report]
+edges:
+  - from: design
+    to: verify
+    when: design.status == done
+  - from: verify
+    to: human-gate
+    when: verify.status == done
+end: [human-gate]

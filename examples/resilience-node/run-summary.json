@@ -1,0 +1,30 @@
+{
+  "workflow": "resilience-design",
+  "outcome": "complete",
+  "steps_used": 3,
+  "iterations": {},
+  "nodes": {
+    "design": {
+      "status": "done",
+      "verdict": "changes_requested",
+      "iterations": 1
+    },
+    "verify": {
+      "status": "done",
+      "verdict": "changes_requested",
+      "iterations": 1
+    },
+    "human-gate": {
+      "status": "done",
+      "verdict": "changes_requested",
+      "iterations": 1
+    }
+  },
+  "open_questions": [],
+  "handoff": {
+    "from": "verify",
+    "to": "human-gate",
+    "payload": null,
+    "sha": "2534f91f189d"
+  }
+}

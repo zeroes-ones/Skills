@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "zeroes-ones-skills": {
+      "command": "python3",
+      "args": ["scripts/mcp-skill-server.py"],
+      "env": {}
+    }
+  }
+}

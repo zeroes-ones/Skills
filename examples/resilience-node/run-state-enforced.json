@@ -1,0 +1,54 @@
+{
+  "workflow": "resilience-design",
+  "manifest_sha": "420103f31943",
+  "created": "2026-09-11T15:31:19Z",
+  "updated": "2026-09-11T15:31:19Z",
+  "node": "design",
+  "phase": "escalated",
+  "iteration": 0,
+  "budget": {
+    "max_steps": 12,
+    "steps_used": 1,
+    "iterations": {}
+  },
+  "nodes": {
+    "design": {
+      "status": "needs_review",
+      "iterations": 1,
+      "verdict": "contract-violation",
+      "evidence": [],
+      "summary": "contract violation: completion.evidence is 'required' but the node reported no evidence; completion.criteria declares 4 criteria (c1, c2, c3, c4) but the node reported no criteria_met coverage",
+      "sha": "f0a39e5e26a5"
+    },
+    "verify": {
+      "status": "pending",
+      "iterations": 0
+    }
+  },
+  "fields": {},
+  "artifacts": {},
+  "decisions": [],
+  "open_questions": [],
+  "handoff": null,
+  "reroutes": {},
+  "log": [
+    {
+      "step": 0,
+      "node": "design",
+      "action": "contract-warning",
+      "detail": "declared artifacts.outputs not produced: resilience-plan"
+    },
+    {
+      "step": 0,
+      "node": "design",
+      "action": "contract",
+      "detail": "completion.evidence is 'required' but the node reported no evidence; completion.criteria declares 4 criteria (c1, c2, c3, c4) but the node reported no criteria_met coverage"
+    },
+    {
+      "step": 0,
+      "node": "design",
+      "action": "done",
+      "detail": "verdict=contract-violation"
+    }
+  ]
+}
