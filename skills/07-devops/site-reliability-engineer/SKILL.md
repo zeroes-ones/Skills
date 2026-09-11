@@ -39,6 +39,7 @@ chain:
   - observability-engineer
   - performance-engineer
   - release-manager
+  - configuration-change-safety
   feeds_into:
   - debugging-and-error-recovery
   - chaos-engineer

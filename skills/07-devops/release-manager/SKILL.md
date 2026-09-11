@@ -43,6 +43,7 @@ chain:
   - qa-engineer
   - site-reliability-engineer
   - resilience-pattern-engineer
+  - configuration-change-safety
   feeds_into:
   - shipping-and-launch
   - feature-flag-architect

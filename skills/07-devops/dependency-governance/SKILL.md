@@ -44,6 +44,7 @@ chain:
     - security-engineer
     - incident-responder
     - platform-engineer
+    - configuration-change-safety
   alternatives: []
 ---
 # Dependency Governance
@@ -73,8 +74,6 @@ Before you act, you MUST execute every applicable research step. Research-before
 
 > **Compliance:** Research must be executed before any substantial output. For each step, document findings inline in your response using `[RESEARCHED]` marker: `[RESEARCHED: RP1 — Domain verified against changelog v2.4. No breaking changes since cutoff.]`. Partial research = partial quality. Zero research = zero credibility.
 
-
-
 ### 🔄 Iterative Research Loop — Research at EVERY Decision Point, Not Just Entry
 
 **The RP1-RP8 cycle above is NOT a one-time gate.** It fires continuously at every material decision point throughout the workflow:
@@ -89,6 +88,7 @@ Before you act, you MUST execute every applicable research step. Research-before
 **Integration into Core Workflow:**
 
 Every decision point in a skill's Core Workflow must be marked with:
+
 ```
 [RESEARCH LOOP: Re-execute RP1-RP8 before proceeding to next phase]
 ```
@@ -100,8 +100,6 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 **Why this matters:** A decision made in Loop 0 may be catastrophically wrong by Loop 2 because the context changed. Markets move. Requirements shift. Dependencies update. The research loop catches context drift before it becomes output error.
 
 > **Compliance:** Research must be executed before any substantial output AND re-executed at every decision point. For each research loop, document findings inline. Partial research = partial quality. Zero research = zero credibility. Stale research = dangerous confidence.
-
-
 
 ## Ground Rules — Read Before Anything Else
 <!-- STANDARD: 3min -->
@@ -164,7 +162,6 @@ Do NOT use dependency-governance for monorepo workspace configuration (route to 
 ## Route the Request
 <!-- STANDARD: 3min -->
 
-
 ## Auto-Route by Artifacts (Check Filesystem First)
 <!-- STANDARD: 3min -->
 
@@ -177,7 +174,6 @@ Do NOT use dependency-governance for monorepo workspace configuration (route to 
 | A5 | `file_contains(".github/workflows/", "sbom\|spdx\|cyclonedx")` | SBOM pipeline exists -> Jump to **Decision Trees: SBOM & Supply Chain** |
 | A6 | `grep -rn "TODO.*remove\|FIXME.*dependency"` across repos | Technical debt markers -> Jump to **Decision Trees: Dependency Removal** |
 | A7 | No dependency management tooling found | Greenfield governance setup -> Go to **Core Workflow: Phase 1** |
-
 
 ## Intent Route (Ask the User)
 <!-- STANDARD: 3min -->
@@ -198,7 +194,6 @@ What dependency governance task are you working on?
 ## Core Workflow **(STANDARD)**
 <!-- STANDARD: 3min -->
 <!-- Full 103 lines extracted to references/core-workflow.md -->
-
 
 ## Phase 1: Dependency Inventory
 <!-- STANDARD: 3min -->
@@ -306,7 +301,6 @@ upgrades across all
 repos via migration
 sprint
 
-
 ## Gotchas
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
@@ -359,7 +353,6 @@ How critical is version consistency for this dependency?
 |   |-- Solution: Tiered policy. Only enforce alignment where it matters.
 ```
 
-
 ## Renovate/Dependabot at Scale
 <!-- STANDARD: 3min -->
 
@@ -399,7 +392,6 @@ Configuring automated dependency updates across 10+ repos.
 |   |-- Deploying an unverified React major version at 3 AM breaks production.
 ```
 
-
 ## License Compliance
 <!-- STANDARD: 3min -->
 
@@ -428,7 +420,6 @@ How to enforce license compliance across your dependency graph?
 |   |-- Licenses change. Projects relicense. Monthly re-scan is non-negotiable.
 ```
 
-
 ## CVE Triage Decision Tree
 <!-- STANDARD: 3min -->
 
@@ -456,7 +447,6 @@ A new CVE is reported. Is it critical?
 |   |-- CVSS Medium, any exploitability -> Fix in next planned update cycle.
 |   |-- CVSS Low -> Fix when convenient. Do not disrupt sprint.
 ```
-
 
 ## Dependency Removal
 <!-- STANDARD: 3min -->
@@ -489,7 +479,6 @@ Can this dependency be safely removed?
 |-- ANTI-PATTERN: "Remove from package.json and declare victory."
 |   |-- Without bundle verification, you did not actually remove the dependency.
 ```
-
 
 ## SBOM & Supply Chain Security
 <!-- STANDARD: 3min -->
@@ -601,7 +590,6 @@ If a command or approach fails, follow this escalation path before giving up:
 
 This skill maintains a **decision ledger** to prevent context drift and ensure recall across sessions. Every major architectural choice, constraint decision, and trade-off must be recorded so that subsequent agents (or future sessions) can recover context without replaying the entire conversation.
 
-
 ## How the State Log Works
 <!-- STANDARD: 3min -->
 <!-- AGENT: Read this before starting work, update after each phase -->
@@ -626,7 +614,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 3. **Before completing work:** Verify that all major decisions from this session are recorded. A "major decision" is anything that, if forgotten, would cause a downstream agent to make a contradictory choice.
 4. **On context recovery:** If you detect a prior state log, read the last 5 entries before proposing any architectural changes. Cite the prior decisions you're building on.
 
-
 ## State Log Schema
 <!-- STANDARD: 3min -->
 
@@ -640,7 +627,6 @@ This skill maintains a **decision ledger** to prevent context drift and ensure r
 | `constraints` | What limits apply | `["Must support 10K writes/sec", "GDPR data residency: EU only"]` |
 | `alternatives_considered` | What was rejected | `["MongoDB (no transactions)", "MySQL 8 (weaker JSON support)"]` |
 | `reversible` | Can this be changed later? | `true` (migration possible) or `false` (irreversible choice) |
-
 
 ## Anti-Drift Check
 <!-- STANDARD: 3min -->

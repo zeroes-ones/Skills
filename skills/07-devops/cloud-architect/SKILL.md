@@ -50,6 +50,7 @@ chain:
   - security-engineer
   - site-reliability-engineer
   - resilience-pattern-engineer
+  - configuration-change-safety
 ---
 # Cloud Architect
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

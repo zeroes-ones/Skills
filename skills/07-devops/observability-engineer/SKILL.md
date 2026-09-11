@@ -58,6 +58,7 @@ chain:
   - platform-engineer
   - site-reliability-engineer
   - resilience-pattern-engineer
+  - configuration-change-safety
 workflow:
   artifacts:
     inputs: [service-design]

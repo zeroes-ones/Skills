@@ -85,6 +85,7 @@ chain:
   - security-engineer
   - security-reviewer
   - site-reliability-engineer
+  - configuration-change-safety
 workflow:
   artifacts:
     inputs: [runtime-requirements]

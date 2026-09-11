@@ -54,6 +54,7 @@ chain:
   - qa-engineer
   - security-engineer
   - translation-manager
+  - configuration-change-safety
   feeds_into:
   - supply-chain-security
   - repo-scaffolding

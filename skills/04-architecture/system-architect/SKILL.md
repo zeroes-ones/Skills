@@ -82,6 +82,7 @@ chain:
   - staff-engineer
   - technical-program-manager
   - resilience-pattern-engineer
+  - configuration-change-safety
 workflow:
   artifacts:
     inputs: [requirements, non-functional-requirements]

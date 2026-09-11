@@ -40,6 +40,7 @@ chain:
     - event-driven-architect
     - observability-engineer
     - site-reliability-engineer
+    - configuration-change-safety
   feeds_into:
     - chaos-engineer
     - incident-responder
