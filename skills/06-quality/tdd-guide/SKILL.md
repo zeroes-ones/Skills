@@ -30,6 +30,7 @@ chain:
   - fullstack-developer
   - idea-to-spec
   - qa-engineer
+  - verification-independence-engineer
   feeds_into:
   - verification-before-completion
   - incremental-implementation

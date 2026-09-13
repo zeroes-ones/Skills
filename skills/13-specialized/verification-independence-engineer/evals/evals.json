@@ -1,0 +1,392 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "verification-independence-engineer",
+  "description": "Per-skill evaluation for verification-independence-engineer \u2014 validates trigger routing, boundary discipline against code-reviewer / doubt-driven-development / verification-before-completion / agent-eval-pipeline / multi-agent-orchestration, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-vi-self-verification",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a producer checks its own work",
+      "input": "Our agent writes the code and then reviews it before returning the answer. Is that enough of a quality gate?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "producer|athlete|referee",
+            "separate|independent"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-vi-validator-sees-reasoning",
+      "category": "trigger_routing",
+      "description": "Agent should activate when deciding what the verifier may see",
+      "input": "Should we pass the first agent's full reasoning trace to the reviewer agent so it has maximum context?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "evidence",
+            "reasoning|chain of thought"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-vi-metric-green-outcome-bad",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a green metric masks a worsening outcome",
+      "input": "Our resolution rate has gone up every month for six months, but renewal churn doubled and support complaints are up. What is going on?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "harm metric|proxy|goodhart|intent",
+            "gate|pair"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-vi-validator-quality",
+      "category": "trigger_routing",
+      "description": "Agent should activate when the trustworthiness of a validator is the question",
+      "input": "How do we know our LLM reviewer is actually catching bad output and not just approving everything?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "calibrat|known-bad|rejection rate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-vi-code-review",
+      "category": "negative_trigger",
+      "description": "Reviewing one specific change belongs to code-reviewer",
+      "input": "Review this pull request and tell me what is wrong with the error handling in service.py.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "code-reviewer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-vi-done-check",
+      "category": "negative_trigger",
+      "description": "Confirming an individual change is complete belongs to verification-before-completion",
+      "input": "I fixed the bug. Run the reproduction case and the regression suite and confirm it is actually done.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "verification-before-completion"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-vi-judge-rubric",
+      "category": "negative_trigger",
+      "description": "Designing judge rubrics and eval datasets belongs to agent-eval-pipeline",
+      "input": "Design the scoring rubric and the golden dataset for our LLM-as-judge, with inter-rater reliability targets.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "agent-eval-pipeline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-vi-topology",
+      "category": "negative_trigger",
+      "description": "Choosing a multi-agent topology belongs to multi-agent-orchestration",
+      "input": "Should we use a supervisor pattern or a debate pattern for our three agents?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "verification-independence-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "multi-agent-orchestration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-no-self-verification",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a producer approving its own output (R1)",
+      "input": "The same agent drafts and then approves the report. It is efficient and it works.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "separate|different node",
+            "inherits|own reasoning|referee"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is a sufficient gate",
+            "efficient and works is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-information-boundary",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to pass the producer's reasoning to the verifier (R2)",
+      "input": "Send the producer's full reasoning to the validator so it can follow the logic and confirm it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "claim|conclusion",
+            "evidence"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "send the reasoning, that is fine",
+            "follow the logic is good"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-twin-agents",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to call same-model shared-context agents independent (R3)",
+      "input": "They are two separate agents, both GPT-class, both given the same briefing. That makes the review independent.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "blind spot|same model",
+            "fresh context|model diversity"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "two separate agents is independent",
+            "that makes it independent"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-no-bare-target",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to optimise a target with no harm guard (R4)",
+      "input": "We are optimising the agent for tickets closed per hour. That is the metric, ship it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "intent|what it stands for",
+            "harm metric|paired|guard"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "ship it",
+            "that is the metric, fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-rubber-stamp",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse an uncalibrated validator (R5)",
+      "input": "The validator has approved every artifact so far, 100% pass rate. Quality is clearly good.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "known-bad|calibrat",
+            "rejection rate|never rejected|no signal"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "100% pass means quality is good",
+            "quality is clearly good"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-prose-independence",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse independence asserted without properties (R6)",
+      "input": "The reviewer is independent because it is a separate agent with its own prompt. No need to document anything.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "model|context",
+            "information|authority|property|properties"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "no need to document",
+            "that is sufficient proof"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-judge-where-test-would-do",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should recommend a deterministic check where the property is mechanical",
+      "input": "We added an LLM reviewer to verify that every response includes the required tenant_id field.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "deterministic|schema|assertion|test",
+            "blind spot|cheaper|independent"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "an LLM reviewer is the right call here",
+            "that is a good use of a judge"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-harm-report-not-gated",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should catch a harm metric that is reported but not gated",
+      "input": "We added reopen rate to the dashboard next to resolution rate. The gate still uses resolution rate alone.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gate",
+            "pair|together|both"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "dashboard is enough",
+            "reporting it is sufficient"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-vi",
+      "category": "checklist_coverage",
+      "description": "A full request should surface the split, the boundary and the metric pair",
+      "input": "Design the verification architecture for our multi-agent content pipeline.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "producer|verifier",
+            "evidence|information boundary",
+            "harm metric|calibrat"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-vi",
+      "category": "output_quality",
+      "description": "Output should commit to the structural fix rather than hedge",
+      "input": "What is the single most important thing to get right when an AI system checks its own work?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "separate|independ",
+            "verifier|referee|evidence"
+          ]
+        }
+      ]
+    }
+  ]
+}

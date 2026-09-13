@@ -53,4 +53,4 @@ For every medical claim in an AI output:
 
 - **Definition**: software intended to be used for medical purposes without being part of a hardware medical device
 
-> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+> See [references/core-workflow.md](core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.

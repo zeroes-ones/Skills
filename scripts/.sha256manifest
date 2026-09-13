@@ -1,13 +1,13 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-13T21:04:10Z
+# Generated: 2026-09-13T21:54:54Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    652069e6a021a80b146dd3e7698402dc03041698
+# Commit:    6b6d0cc649aecd34315cd4a270507bdc02148ecf
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
 e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
-80f42a7181d82c9a85d81b4c9654142c252d77772859445011239e6a2792f5e2  .githooks/pre-commit
+1b835d9830699a4a580a4fc131bed23e52eb2444703c2d235f1649f3c2df8cf1  .githooks/pre-commit
 ef8c6e4ace23f0c4d14b8865f2e543c4ea94b2d8850bfd0241e695e461e940a7  .githooks/pre-push
 63bad0ccc35c995cc82645b621ebdc014a7c7d2fe32dec985d6a3a246d161cb2  scripts/_compile_skill.py
 ffd847830fc4daa5ff70cdde91f58597623f5103959130f1240d1b9d82e6ea25  scripts/add-finance-rp-extensions.py
@@ -43,7 +43,7 @@ a60361886a6e36365d9290a4ff85e2731236de01cdaddf7cd62a186d186a9183  scripts/lib/de
 1487e3b07dd4f47596b3c7d4ecfd6139ac23524b56779f5d4d658344c023c36c  scripts/lib/guardrails.py
 c0713f12c06d91d78a1b3e7872ca7f3861fbce3d9cbe913640f1fbe8a7297641  scripts/lib/library-version-check.sh
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
-f488a8107aa3a9464da231b9fc763f8f17e6137ddc318cb53761b37cc2103d46  scripts/lib/lint-markdown.py
+567e75f6448ed0204a6a7c8f7bee66c6b8d23e59f54857357a7e7d54205126e9  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
 681a627a1f7595d5497321347214a3137cb614ac2dc3f2a76cfa494fd964b956  scripts/lib/lint-template.py
 e5ef422fedad81411d061b2cc53fcc9dbc55cd8be60ae6e14e3e4cb6af774507  scripts/lib/lint-workflow.py
@@ -111,7 +111,7 @@ eb5c4563134c83608f4e53b737fce5ba8b0484bea4cdf9421d71740e06848c3d  skills/03-desi
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/ui-ux-designer/scripts/verify-skill.sh
 2b2676c731145dfde546758f1cb71c507dbcfe22863aa286f49aacbf1eac76b0  skills/03-design/ui-ux-excellence/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/api-designer/scripts/verify-skill.sh
-38bfb71e2d0ab88159a11c6fe768a0f96c313efe835be46984423927bee6e0db  skills/04-architecture/caching-architect/scripts/verify-skill.sh
+a9a55567c701f706b80a5b3c9030e8eac79009df98d5a5d428e92cb012234fdd  skills/04-architecture/caching-architect/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/codebase-design/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/04-architecture/database-designer/scripts/verify-skill.sh
 fd1a37efb948b55d4c6944b31d04e3cbfa0dc5222ec7149e90831933ba5ec5e1  skills/04-architecture/desktop-architecture-patterns/scripts/verify-skill.sh
@@ -257,7 +257,7 @@ fc8479400bf4176b902a6126a1f767977f625ac9ab25f6c9f6f720d580e14e3b  skills/13-spec
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/multirepo-designer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/performance-engineer/scripts/verify-skill.sh
 c84886fd08a5baea885344cc550da1ee322d72580071ca2e8c02e82868291d7c  skills/13-specialized/resilience-pattern-engineer/scripts/verify-skill.sh
-f7bc4c7bf2f2dd2049bbfd21a4b5b3caa90ef4e337f332601fd2b90ed91f4b76  skills/13-specialized/verification-independence-engineer/scripts/verify-skill.sh
+7ffe70175df74a26ddaac7781c1aa10e3e617fbe50268452015709a83648720a  skills/13-specialized/verification-independence-engineer/scripts/verify-skill.sh
 6ff106754d150332391f0836000bbfc841cffbe5f51fbeced2740d74969edfa8  skills/13-specialized/workflow-graph-authoring/scripts/verify-skill.sh
 2452c8a97ce21c3432922237e8943ec7d76de6e95c6a2e724b1abb3c5a3b4f75  skills/14-finance/advanced-options-structures/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/14-finance/algorithmic-trader/scripts/verify-skill.sh

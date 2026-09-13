@@ -39,6 +39,7 @@ chain:
   - ux-writer
   - typography-designer
   - platform-hig-architect
+
 ---
 # Brand Guidelines
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

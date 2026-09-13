@@ -1,6 +1,6 @@
 ## 8. Lag Compensation & Hit Registration
 
-**Reference:** [lag-compensation-techniques.md](references/lag-compensation-techniques.md)
+**Reference:** [lag-compensation-techniques.md](lag-compensation-techniques.md)
 
 ### The Rewind Algorithm
 

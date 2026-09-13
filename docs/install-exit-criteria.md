@@ -29,10 +29,10 @@ The three public distribution channels documented in `README.md` (Distribution s
   `skills-update`.
   *Verify:* isolated-`HOME` end-to-end run — CI `test-shell-install` job does exactly this.
 - **EC-3** Installed `skills-init` (copied from `scripts/init-project.sh`) supports **both**
-  activation modes: default = all 303 skills (flat, one level deep); `--solo` = 8,
+  activation modes: default = all 320 skills (flat, one level deep); `--solo` = 8,
   `--grow` = 18 by name; `--status` reports tier + count; switching modes replaces this
   script's own links; pre-existing user content in an agent dir is never deleted.
-  *Verify:* counts after each mode via `find -L <agent-dir> -name SKILL.md | wc -l` → 303 / 8 / 18 —
+  *Verify:* counts after each mode via `find -L <agent-dir> -name SKILL.md | wc -l` → 320 / 8 / 18 —
   CI `test-shell-install` job.
 
 ### EC-4 … EC-7 — npm package (EC-6/EC-7 are external gates)

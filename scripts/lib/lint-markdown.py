@@ -234,18 +234,12 @@ def check_no_tabs(filepath, lines):
 
 # ── Lint Engine ────────────────────────────────────────────────────────────
 
-def lint_file(filepath, rules_to_run=None, fix=False, disabled_rules=None):
-    """Run all rules against a single file. Returns list of (line, code, severity, message).
+def lint_text(filepath, lines, rules_to_run=None, disabled_rules=None):
+    """Run all rules against already-read `lines`. Returns (line, code, severity, message) tuples.
 
-    `disabled_rules` holds rule codes the repository's config turns off (see
-    load_disabled_rules); they are skipped so this linter matches CI's verdict.
+    Split out from lint_file so the delta check can lint a baseline revision's text through the
+    exact same rules, instead of re-reading a file that no longer holds that revision.
     """
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-    except (UnicodeDecodeError, IOError) as e:
-        return [(0, "MD000", "error", f"Cannot read file: {e}")]
-
     disabled = disabled_rules or set()
     all_errors = []
     for code, severity, template, check_fn in RULES:
@@ -260,6 +254,21 @@ def lint_file(filepath, rules_to_run=None, fix=False, disabled_rules=None):
             all_errors.append((0, code, "error", f"Rule {code} crashed: {e}"))
 
     return sorted(all_errors, key=lambda x: (x[0], x[1]))
+
+
+def lint_file(filepath, rules_to_run=None, fix=False, disabled_rules=None):
+    """Run all rules against a single file. Returns list of (line, code, severity, message).
+
+    `disabled_rules` holds rule codes the repository's config turns off (see
+    load_disabled_rules); they are skipped so this linter matches CI's verdict.
+    """
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except (UnicodeDecodeError, IOError) as e:
+        return [(0, "MD000", "error", f"Cannot read file: {e}")]
+
+    return lint_text(filepath, lines, rules_to_run, disabled_rules)
 
 
 def get_changed_files():
@@ -290,6 +299,88 @@ def get_all_md_files(root='.'):
             if f.endswith('.md'):
                 files.append(os.path.join(dirpath, f))
     return sorted(files)
+
+
+def _repo_relative(filepath):
+    """Return `filepath` relative to the repository root, or None when it is outside it."""
+    try:
+        root = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True
+        )
+    except Exception:
+        return None
+    if root.returncode != 0:
+        return None
+    top = os.path.realpath(root.stdout.strip())
+    abs_path = os.path.realpath(filepath)
+    if abs_path != top and not abs_path.startswith(top + os.sep):
+        return None
+    return os.path.relpath(abs_path, top)
+
+
+def baseline_content(filepath, ref='HEAD'):
+    """Return the file's content at `ref`, or None when it is new at that ref.
+
+    Used for delta checking: a violation that already exists at the baseline is debt the commit
+    did not introduce, so it is reported but does not block. A violation absent from the baseline
+    is new, and does block. This is what makes the gate usable on a corpus that carries known
+    pre-existing debt, without weakening it for new files (which have no baseline, so every
+    violation in them counts).
+    """
+    rel = _repo_relative(filepath)
+    if rel is None:
+        return None
+    try:
+        result = subprocess.run(
+            ['git', 'show', f'{ref}:{rel}'],
+            capture_output=True, text=True
+        )
+    except Exception:
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def _violation_fingerprint(err):
+    """Identity of a violation, independent of its line number.
+
+    Line numbers shift whenever unrelated text is added or removed above a violation, so keying
+    on them would make every pre-existing violation look newly introduced after any edit. The
+    fingerprint keeps the rule code and the message with its embedded line references stripped.
+    """
+    line_num, code, severity, msg = err
+    normalized = re.sub(r'\bline \d+\b', 'line N', msg)
+    normalized = re.sub(r'\s+', ' ', normalized).strip()
+    return (code, severity, normalized)
+
+
+def check_with_delta(filepath, ref='HEAD', rules_to_run=None, disabled_rules=None):
+    """Check a file and split its errors into (errors, warnings, new_errors).
+
+    `new_errors` are those whose violation identity is not reproducible from the baseline
+    revision of the same file, so the caller can treat only those as blocking.
+    """
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            current_lines = f.readlines()
+    except (UnicodeDecodeError, IOError) as e:
+        err = (0, "MD000", "error", f"Cannot read file: {e}")
+        return [err], [], [err]
+
+    errors = lint_text(filepath, current_lines, rules_to_run, disabled_rules)
+    warnings = [e for e in errors if e[2] != 'error']
+
+    base = baseline_content(filepath, ref)
+    if base is None:
+        # New file: no baseline, so every violation is introduced by this change.
+        return errors, warnings, [e for e in errors if e[2] == 'error']
+
+    base_errors = lint_text(filepath, base.splitlines(keepends=True), rules_to_run, disabled_rules)
+    base_set = {_violation_fingerprint(e) for e in base_errors if e[2] == 'error'}
+    new_errors = [e for e in errors if e[2] == 'error' and _violation_fingerprint(e) not in base_set]
+    return errors, warnings, new_errors
 
 
 def format_output(filepath, errors, show_code=True, color=True):
@@ -323,6 +414,11 @@ def main():
     parser.add_argument('--rules', help='Comma-separated rule codes to run (default: all)')
     parser.add_argument('--no-config', action='store_true',
                         help='Ignore .markdownlint.json and run every rule in this linter')
+    parser.add_argument('--delta', action='store_true',
+                        help='Block only on violations this change introduces (compare against '
+                             '--delta-base); pre-existing violations are reported but non-blocking')
+    parser.add_argument('--delta-base', default='HEAD',
+                        help='Revision to compare against in --delta mode (default: HEAD)')
     args = parser.parse_args()
 
     # Determine files to lint
@@ -347,14 +443,23 @@ def main():
 
     total_errors = 0
     total_warnings = 0
+    total_blocking = 0
+    total_preexisting = 0
     all_results = []
 
     for filepath in target_files:
         if not os.path.exists(filepath):
             continue
-        errors = lint_file(filepath, rule_filter, fix=args.fix, disabled_rules=disabled_rules)
+        if args.delta:
+            errors, _warnings, blocking = check_with_delta(
+                filepath, ref=args.delta_base,
+                rules_to_run=rule_filter, disabled_rules=disabled_rules)
+        else:
+            errors = lint_file(filepath, rule_filter, fix=args.fix, disabled_rules=disabled_rules)
+            blocking = [e for e in errors if e[2] == 'error']
         if args.errors_only:
             errors = [e for e in errors if e[2] == 'error']
+            blocking = [e for e in blocking if e[2] == 'error']
 
         if errors:
             error_count = sum(1 for e in errors if e[2] == 'error')
@@ -362,13 +467,31 @@ def main():
             total_errors += error_count
             total_warnings += warn_count
 
+            blocking_set = set(blocking)
+            pre_existing = [e for e in errors if e[2] == 'error' and e not in blocking_set]
+            total_blocking += len(blocking)
+            total_preexisting += len(pre_existing)
+
             if args.json:
                 all_results.append({
                     'file': filepath,
                     'errors': error_count,
                     'warnings': warn_count,
+                    'new_errors': len(blocking),
+                    'pre_existing_errors': len(pre_existing),
                     'issues': [{'line': e[0], 'code': e[1], 'severity': e[2], 'message': e[3]} for e in errors]
                 })
+            elif pre_existing and not args.errors_only:
+                RED = '\033[0;31m' if not args.no_color else ''
+                YELLOW = '\033[1;33m' if not args.no_color else ''
+                NC = '\033[0m' if not args.no_color else ''
+                print(f"{filepath}:")
+                for e in blocking:
+                    print(f"  {RED}{e[0]}:{e[0]}  error  {e[1]}  {e[3]}{NC}")
+                for e in pre_existing:
+                    print(f"  {YELLOW}{e[0]}:{e[0]}  error  {e[1]}  {e[3]}  (pre-existing; does not block){NC}")
+                for e in [x for x in errors if x[2] == 'warning']:
+                    print(f"  {YELLOW}{e[0]}:{e[0]}  warning  {e[1]}  {e[3]}{NC}")
             else:
                 output = format_output(filepath, errors, color=not args.no_color)
                 if output:
@@ -381,6 +504,8 @@ def main():
             'files_with_issues': len(all_results),
             'total_errors': total_errors,
             'total_warnings': total_warnings,
+            'new_errors': total_blocking,
+            'pre_existing_errors': total_preexisting,
             'results': all_results
         }, indent=2))
 
@@ -395,9 +520,13 @@ def main():
                 parts.append(f"\033[0;31m{total_errors} error(s)\033[0m")
             if total_warnings:
                 parts.append(f"\033[1;33m{total_warnings} warning(s)\033[0m")
+            if args.delta and total_preexisting:
+                parts.append(f"\033[1;33m{total_preexisting} pre-existing\033[0m")
             print(f"{len(target_files)} files checked, {', '.join(parts)}")
 
-    sys.exit(1 if total_errors > 0 else 0)
+    # Only newly-introduced violations block in --delta mode. With --delta off, `blocking` is
+    # every error, so behaviour is unchanged for callers that do not opt in.
+    sys.exit(1 if total_blocking > 0 else 0)
 
 
 if __name__ == '__main__':

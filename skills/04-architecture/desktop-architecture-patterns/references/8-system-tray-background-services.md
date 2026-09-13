@@ -25,6 +25,6 @@
 - macOS: Menu bar app (`NSStatusBar`) + `LSUIElement` for background-only
 - Linux: `StatusNotifier` (KDE) / `AppIndicator` (Ubuntu) — fragmented ecosystem
 
-See: [reference/system-tray-background-services.md](reference/system-tray-background-services.md)
+See: [reference/system-tray-background-services.md](system-tray-background-services.md)
 
 ---

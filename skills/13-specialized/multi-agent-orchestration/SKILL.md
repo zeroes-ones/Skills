@@ -32,6 +32,7 @@ chain:
     - context-engineering
     - workflow-graph-authoring
     - agentic-complexity-ladder
+    - verification-independence-engineer
   feeds_into:
     - agent-handoff-protocol
     - cross-skill-communication
@@ -41,6 +42,7 @@ chain:
     - iterative-task-execution
     - workflow-graph-authoring
     - agentic-complexity-ladder
+    - verification-independence-engineer
 
 workflow:
   artifacts:
@@ -282,6 +284,8 @@ If a command or approach fails, follow this escalation path before giving up:
 | Agent delegates to another agent without passing sufficient context — Agent A says "Fix the auth bug in the user service" but doesn't pass the stack trace, the failing test case, or the git blame for the last change. Agent B starts from scratch, re-discovers the bug, and arrives at a different fix that reintroduces an older regression. | $15K-$40K per incident in redundant investigation time plus regression risk. The fix is worse than the original because the second agent lacked the context the first one had. | Implement a context pass-through protocol: every delegation message must include (1) the original problem statement, (2) what's already been tried, (3) log/error output, (4) relevant file paths with line numbers, and (5) the hypothesized root cause. Never delegate with less than these five elements. |
 | Parallel agents operate on the same file without coordination — Agents A, B, and C each read `config.yaml`, each modify it differently, each write it back. Only the last write survives. The changes from A and B are silently lost. | $20K-$50K in lost work and corrupted state when concurrent file modifications are lost without detection. In the worst case, the corruption isn't discovered until a deployment fails hours later. | Implement file-level locking: before an agent writes to a file, it acquires a lock (flock, advisory lock, or explicit coordinator check). If lock is held by another agent, wait or escalate. Prefer sequential phases that operate on non-overlapping files. Run `git diff --stat` after all agents complete to verify no unexpected collisions. |
 | Agent failure is silent — Agent C encounters a tool error and returns empty output. The orchestrator interprets empty output as "nothing to do" and proceeds. Three hours later, the orchestrator "completes" successfully while Agent C's assigned task (security scanning, data validation) was never performed. | $30K-$100K in undetected failures when a critical agent silently drops out. If the security scan agent fails silently, code ships un-scanned. If the data validation agent fails silently, corrupt data propagates. | Require explicit output from every agent: each agent must return a structured result with status (success/failure/partial) and artifact list. Orchestrator validates that every expected agent produced a result. Empty output = failure, not success. Implement a heartbeat check: if an agent hasn't produced output in 5 minutes, poll its status. |
+| The evaluator is the producer wearing a different name — Agent A writes the artifact and Agent A′ "reviews" it, sharing the same model, the same context preamble, and receiving Agent A's reasoning in the handoff. A′ approves 99.8% of artifacts and every escaped defect had been approved by it. | $50K-$500K per escaped release in the class of defect that survives review. The approval *manufactures* evidence: the orchestrator reports a verified artifact that was never actually verified. | Enforce the four independence properties (7.3): a distinct node, a fresh context, claim + evidence only (never the reasoning), and a different model for judgment-shaped checks. Test by hiding the reasoning — if the verdict moves, the boundary is not enforced. |
+| The convergence metric is gamed — A Debate topology is optimised to "reduce disagreement". One agent learns to capitulate immediately; disagreement drops to zero, convergence is "achieved" every time, and the group now outputs the loudest answer rather than the right one. | The topology looks healthier the more it degrades. Re-work and wrong-answer cost compounds silently until a downstream failure traces back — commonly **$20K-$120K** in lost work plus the trust cost. | State the metric's intent before wiring it into an exit condition, find the cheapest betraying path, and pair the target with a harm metric (7.4). For Debate, gate on convergence rate AND independent-answer retention; for verify loops, pass rate AND rejection rate. |
 
 ## Best Practices
 <!-- STANDARD: 3min -->
@@ -345,17 +349,27 @@ Run these checks before declaring work complete. ALL must pass.
 - **agent-handoff-protocol:** State serialization and handoff contracts
 - **context-compaction-strategies:** Token budget management across agents
 - **agent-eval-pipeline:** Multi-agent behavioral evaluation
+- **verification-independence-engineer:** Producer/verifier independence, information boundaries, and metric pairing (Sections 7.3–7.4)
 - **mcp-management:** Shared MCP server configuration
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
 | `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
+| `verification-independence-engineer` | Independence properties and calibration requirements for any evaluator node | When the topology includes a reviewer, judge, or verify loop (7.3) |
+| `product-analyst` | The metric's stated intent | Before wiring a convergence or quality metric into an exit condition (7.4) |
+
+| Downstream Skill | What You Hand Off | When to Involve |
+|---|---|---|
+| `verification-independence-engineer` | The topology's producer→evaluator pairs and their handoff payloads | Before trusting any evaluator in the graph |
+| `agent-eval-pipeline` | Multi-agent transcripts to assert evaluator behaviour | After the topology runs |
 
 ## Proactive Triggers
 <!-- STANDARD: 3min -->
 - "add another agent" → Ask: What topology? What state contract?
 - "agents disagree" → Surface: Conflict resolution pattern (Section 7)
 - "agent costs rising" → Audit: Delegation loops, hallucination cascades
+- "the verifier approves everything" → Audit evaluator independence: role, context, information, model (7.3)
+- "a metric is green but the outcome got worse" → Find the metric's intent and pair it with a harm metric (7.4)
 
 ## Error Decoder — War Stories from the Trenches
 <!-- STANDARD: 3min -->
@@ -421,6 +435,8 @@ This skill provides the architecture, protocols, and failure mode prevention to 
                   ┌──────────────┐
                   │  SUPERVISOR  │
 ...
+```
+
 > 📎 **Full content (166 lines):** [references/3-five-agent-topology-patterns.md](references/3-five-agent-topology-patterns.md)
 
 ## 4. Typed Shared State Architecture
@@ -434,6 +450,8 @@ This skill provides the architecture, protocols, and failure mode prevention to 
 from typing import TypedDict, Annotated, Sequence
 from langgraph.checkpoint.memory import MemorySaver
 ...
+```
+
 > 📎 **Full content (57 lines):** [references/4-typed-shared-state-architecture.md](references/4-typed-shared-state-architecture.md)
 
 ## 5. Agent Delegation Protocol
@@ -447,6 +465,8 @@ from langgraph.checkpoint.memory import MemorySaver
 Input Task
     │
 ...
+```
+
 > 📎 **Full content (81 lines):** [references/5-agent-delegation-protocol.md](references/5-agent-delegation-protocol.md)
 
 ## 6. State Synchronization Strategies
@@ -520,6 +540,53 @@ def resolve(agents: list, threshold: float = 0.5) -> str:
     return escalate_to_human(votes)
 
 ```
+
+### 7.3 The Evaluator-Optimizer Trap — Who Judges, and What They May See
+
+Every topology that includes an evaluator (Debate, Supervisor-with-reviewer, any verify loop)
+carries a structural risk that the topology choice alone does not fix: **the evaluator is often the
+producer wearing a different name.** Two failure shapes:
+
+| Shape | What it looks like | Why it fails | Fix |
+|-------|--------------------|--------------|-----|
+| **Self-verification** | One node produces the artifact and returns its own verdict; a loop's exit condition reads that verdict | The evaluation uses the same reasoning that produced the output, so a flawed producer produces a flawed approval | Separate verifier node (Ground Rule 9) |
+| **Verifier that adopts the reasoning** | The verifier is a distinct agent, but its handoff includes the producer's transcript or reasoning trace | It reasons along the producer's path and agrees for the same wrong reason — agreement between two agents that is really one opinion | Claim + evidence only in the handoff (Ground Rule 10) |
+
+**The four independence properties to declare per evaluator pair:**
+
+- **Role** — a different node, with its own verdict field.
+- **Context** — a fresh context, never seeded from the producer's session.
+- **Information** — the claim and the evidence; the reasoning is withheld.
+- **Model** — a different model for judgment-shaped checks; for mechanical properties use a
+  deterministic task node instead, which has no blind spots at all.
+
+Enforcement is a topology-level test, not a prompt-level request: hide the producer's reasoning and
+re-run the verifier. If its verdict moves, the boundary is not enforced. Delegate the full
+design — calibration, rejection-rate monitoring, metric pairing — to
+`verification-independence-engineer`; this section tells you where it plugs into the topology.
+
+### 7.4 Goal Blindness — the Metric a Topology Optimises
+
+A topology optimised on a convergence metric will converge on that metric by whatever path the
+environment allows, including paths that betray the metric's intent. In a Debate topology, "reduce
+disagreement" is satisfied by one agent capitulating. In a verify loop, "increase pass rate" is
+satisfied by weaker verification. This is not a rogue agent; it is the metric working as specified.
+
+Before wiring any convergence, quality, or reward metric into an exit condition, answer:
+
+```
+1. What does this metric stand for?                     (state the intent, not the number)
+2. What is the cheapest path that satisfies the number while betraying the intent?
+3. Is that path measurable?
+   ├── YES → pair the target with that harm metric and gate on BOTH.
+   └── NO  → record it as an accepted risk with a named owner. Do not let
+             "unmeasurable" read as "not happening".
+```
+
+For a Debate topology, the pair is typically **convergence rate AND independent-answer retention**
+(did the group agree, and did it keep the answer that was right rather than the answer that was
+loudest). For a verify loop it is **pass rate AND rejection rate** — a validator that stops rejecting
+is a topology that has stopped verifying.
 
 ## 8. Observability & Instrumentation
 <!-- STANDARD: 3min -->
@@ -742,6 +809,9 @@ Task batch received: [T1, T2, T3, T4]
 | 6 | No handoff without state hash verification | `handoff.source_hash != handoff.target_received_hash` | Reject handoff; replay from last verified checkpoint |
 | 7 | No idle agents beyond timeout | `time.now() - agent.last_active > IDLE_TIMEOUT` | Evict agent from pool; re-instantiate if needed |
 | 8 | No parallel execution of dependent tasks | Dependency graph has edge between tasks in parallel batch | Sequentialize; insert completion gate |
+| 9 | No producer verifying its own artifact | A node's verdict reads the artifact it produced, or a loop's exit condition reads the producing node's verdict | Insert a distinct verifier node; route irreversible outcomes to a human gate (see `verification-independence-engineer`) |
+| 10 | No verifier fed the producer's reasoning | Verifier's context includes the producer's transcript, scratchpad, or self-assessment — or is seeded from the producer's session | Reduce the handoff to claim + evidence; a verifier that reads the reasoning inherits its blind spots |
+| 11 | No optimised metric without a paired harm metric | A reward, gate, or convergence metric has no counter-metric guarding the intent it could betray | Pair the target with a harm metric before the loop optimises it |
 
 ## 13. Gotchas
 <!-- STANDARD: 3min -->

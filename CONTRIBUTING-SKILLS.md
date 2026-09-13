@@ -198,6 +198,11 @@ python3 scripts/lib/lint-workflow.py skills/<domain>/<skill-name>/SKILL.md  # if
 
 ```
 
+The pre-commit hook runs the same linters in `--changed --delta` mode: a violation the commit did
+not introduce (reproducible from the file's revision at `HEAD`) is reported as pre-existing and does
+not block, while a new file or a newly-introduced violation blocks exactly as before. Run a linter
+with `--delta` yourself to see which of its findings your change is actually responsible for.
+
 Run before committing:
 
 ```bash

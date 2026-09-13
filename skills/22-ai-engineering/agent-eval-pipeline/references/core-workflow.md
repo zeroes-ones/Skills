@@ -139,7 +139,7 @@ rubric:
 
 ### Phase 3: Statistical Evaluation Setup (~1 hour)
 
-Replace binary pass/fail with statistical detection. See [Statistical Evaluation Methodology](references/statistical-eval-methodology.md) for full details.
+Replace binary pass/fail with statistical detection. See [Statistical Evaluation Methodology](statistical-eval-methodology.md) for full details.
 
 ```python
 # SPRT: Sequential testing saves 40-60% cost
@@ -163,7 +163,7 @@ result = agent_assay_test(baseline_scores, candidate_scores)
 
 ### Phase 4: CI/CD Evaluation Gates (~1 hour)
 
-Configure gates that block, warn, and auto-rollback. See [CI/CD Evaluation Gates](references/ci-cd-eval-gates.md) for full configuration.
+Configure gates that block, warn, and auto-rollback. See [CI/CD Evaluation Gates](ci-cd-eval-gates.md) for full configuration.
 
 ```yaml
 gates:
@@ -210,7 +210,7 @@ cost_management:
 
 ### Phase 5: Behavioral Drift Detection (~45 min)
 
-Daily CI that catches silent agent degradation. See [Behavioral Drift Detection](references/behavioral-drift-detection.md) for full implementation.
+Daily CI that catches silent agent degradation. See [Behavioral Drift Detection](behavioral-drift-detection.md) for full implementation.
 
 Five drift dimensions monitored daily:
 
@@ -247,7 +247,7 @@ jobs:
 
 ### Phase 6: Eval Harness Architecture (~1.5 hours)
 
-Containerized eval with mock environments and gotcha injection. See [Eval Harness Architecture](references/eval-harness-architecture.md) for full architecture.
+Containerized eval with mock environments and gotcha injection. See [Eval Harness Architecture](eval-harness-architecture.md) for full architecture.
 
 ```yaml
 # eval-harness-config.yml

@@ -1,6 +1,6 @@
 ## 10. Interest Management & Bandwidth Optimization
 
-**Reference:** [interest-management.md](references/interest-management.md)
+**Reference:** [interest-management.md](interest-management.md)
 
 ### The Bandwidth Budget
 

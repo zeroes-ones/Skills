@@ -49,6 +49,7 @@ chain:
   - resilience-pattern-engineer
   - app-launch-performance-engineer
   - cost-accounting
+  - verification-independence-engineer
   feeds_into:
   - threat-intelligence
   - algorithmic-trader
@@ -63,6 +64,7 @@ chain:
   - configuration-change-safety
   - cost-accounting
   - caching-architect
+  - verification-independence-engineer
 workflow:
   artifacts:
     inputs: [service-design]

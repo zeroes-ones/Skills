@@ -1,6 +1,6 @@
 ## 9. Snapshot Interpolation & Jitter Management
 
-**Reference:** [snapshot-interpolation.md](references/snapshot-interpolation.md)
+**Reference:** [snapshot-interpolation.md](snapshot-interpolation.md)
 
 ### The Interpolation Buffer
 

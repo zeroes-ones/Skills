@@ -1,6 +1,6 @@
 ## 13. Dedicated Server Operations
 
-**Reference:** [dedicated-server-infrastructure.md](references/dedicated-server-infrastructure.md)
+**Reference:** [dedicated-server-infrastructure.md](dedicated-server-infrastructure.md)
 
 ### Orchestration
 

@@ -174,7 +174,7 @@ You do not need to read code to use these. Each is a command you run from the re
 | `python3 scripts/export-traces.py --state <file>` | Converts a run into standard observability "spans" | To feed a monitoring tool |
 | `python3 scripts/skill-sli-report.py --dir <dir>` | Reports reliability stats across runs: how many completed, how many escalated | To answer "is this workflow reliable?" |
 | `python3 scripts/run-effectiveness.py --state <file>` | Scores a run 0–100 | To check a run actually did its job |
-| `python3 scripts/audit-library.py` | Produces the quality scorecard for all 304 skills | To see the health of the library |
+| `python3 scripts/audit-library.py` | Produces the quality scorecard for all 320 skills | To see the health of the library |
 | `python3 scripts/emit-skill-graph.py` | Rebuilds the interactive picture of how skills depend on each other | After adding or moving skills |
 
 ---
@@ -336,7 +336,7 @@ Honest status. This matters more than the list of successes.
 - Loops retry, respect limits, detect stagnation, and escalate instead of hanging (16 self-tests).
 - Runs are scored, traced, and can be reported on (100/100, 4 spans, escalation rate 0.00).
 - Declared completion criteria are now **enforced** when switched on (§10), verified by 4 tests.
-- 304 skills, 37 domains, 9.9/10 quality score, 100% portability-declared.
+- 320 skills, 37 domains, 9.8/10 quality score, 100% portability-declared.
 
 ### Not real yet — do not assume these
 
@@ -346,11 +346,11 @@ Honest status. This matters more than the list of successes.
 | **The engine is not a service** | It runs once and exits. There is no scheduler, no queue, no always-on process, no API |
 | **A "human gate" isn't really human** | Declaring a step as needing human approval doesn't pause anything. In our real run, the "human ship gate" was auto-approved and consumed an AI turn instead. A real pause-and-approve queue does not exist |
 | **Enforcement is off by default** | Turning it on requires every executor to report per-criterion evidence, which only the human-driven path does today |
-| **Only 3 of 304 skills have regression tests** | A change to a skill is checked for structure, not for whether it still produces good work |
+| **Only 3 of 320 skills have executable golden regression suites** (224 carry per-skill trigger/anti-pattern evals) | A change to a skill is checked for structure, not for whether it still produces good work |
 | **Reliance on one AI provider in testing** | The real run used one agent backend (`claude -p`). The design is provider-neutral but that is not yet exercised |
 | **Cost and latency are placeholders** | Runs record tokens/latency fields that a real executor does not yet fill in |
-| **`COORDINATION-MATRIX.md` is out of date** | It describes 106 skills / 25 domains; there are 304 / 37. There is no script to regenerate it |
-| **The library has drifted numbers in places** | `README.md` says 303 skills; the measured count is 304. The graph section was corrected this session; other mentions were left |
+| **`COORDINATION-MATRIX.md` is partly out of date** | Its per-domain narrative was written against a 106-skill / 25-domain corpus; the live figures (320 / 37, 2,142 edges) are stated at the top of the file and there is still no script to regenerate the domain sections |
+| **Library counts are now synced** | `README.md`, `QUICKSTART.md`, and the graph section state the measured count (320 skills / 2,142 edges), regenerated from live data. Dated build logs intentionally keep their original figures |
 
 ### Known limitation in the enforcement we just added
 

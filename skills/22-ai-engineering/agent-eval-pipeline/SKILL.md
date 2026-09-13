@@ -36,6 +36,7 @@ chain:
     - workflow-graph-authoring
     - cost-accounting
     - agentic-complexity-ladder
+    - verification-independence-engineer
   feeds_into:
     - agent-handoff-protocol
     - devops-engineer
@@ -43,6 +44,7 @@ chain:
     - staff-engineer
     - cost-accounting
     - agentic-complexity-ladder
+    - verification-independence-engineer
 
 workflow:
   artifacts:
@@ -134,6 +136,9 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 | 1 | **No eval without baseline** — Every evaluation MUST compare against a frozen golden baseline. Running evals in isolation produces scores with no reference point. | `eval_config.yaml` missing `baseline:` key OR baseline file not found | STOP — Create baseline first: `python scripts/capture_baseline.py --agent-version <version>` |
 | 2 | **No deployment without statistical decision** — Never deploy on a raw pass-rate comparison. Binary pass/fail comparison across N runs is statistically underpowered. Use SPRT or bootstrap CI. | Deployment decision based on raw pass rate comparison (e.g., "95% > 93%") | STOP — Run statistical eval: `python scripts/run_eval.py --method sprt` |
 | 3 | **No judge without calibration** — LLM-as-judge MUST be calibrated against 3+ human raters on 50+ examples per dimension. Uncalibrated judges produce scores that correlate poorly with real quality. | `judge_config.yaml` missing `calibration:` block OR kappa < 0.70 | STOP — Calibrate judge: `python scripts/calibrate_judge.py --human-raters 3 --samples 50` |
+| 3b | **No judge that sees the producer's reasoning** — an evaluator MUST receive the artifact and its evidence, never the producer's chain of thought, scratchpad, or self-assessment. A judge that reads the reasoning inherits its blind spots and agrees for the same wrong reason. | Judge input includes the producer's reasoning trace or full transcript, rather than the artifact + evidence | STOP — reduce the judge's input to claim + evidence. Verify by hiding the reasoning and re-scoring: if the score moves, the boundary is not enforced |
+| 3c | **No judge that has never rejected** — a judge whose rejection rate is unmeasured or zero provides no signal; it makes failure harder to see, not easier. | Judge rejection rate unmeasured, or 0 rejects across the window on consequential work | STOP — build a known-bad set (≥10 historical failures/near-misses/seeded defects), measure the rejection rate per artifact class, and instrument it |
+| 3d | **No metric gated alone** — every target the pipeline gates on MUST be paired with a harm metric guarding the intent it stands for. A bare target is an instruction to satisfy the number by the cheapest available path. | A gate or reward reads a metric with no paired counter-metric, and the metric has no written intent | STOP — state the metric's intent, find the cheapest betraying path, and gate on the pair (e.g. pass rate AND rejection rate; resolution rate AND reopen/churn) |
 | 4 | **No drift detection without frozen baseline** — Behavioral drift detection requires a frozen golden baseline committed to version control. Without it, drift is undefined. | `drift_config.yaml` missing `baseline_commit:` key | STOP — Establish baseline: `python scripts/capture_baseline.py --freeze` |
 | 5 | **Budget gates are hard stops** — Monthly eval budget cap is non-negotiable. When reached, non-blocking evals become advisory-only; blocking evals continue. | Monthly spend >= $500 (from LLM API billing) | HARD STOP — L3 E2E evals become warn-only; L1+L2 continue as blocking |
 | 6 | **No deployment without canary** — Never deploy agent changes to 100% of traffic without 5% canary validation. | Deployment targeting 100% traffic without prior 5% canary run | STOP — Run canary deployment first: `python scripts/canary_deploy.py --percentage 5 --duration 10m` |
@@ -452,12 +457,14 @@ If a command or approach fails, follow this escalation path before giving up:
 | `qa-engineer` | Test pyramid foundation, statistical test theory, CI/CD integration | Testing methodology transfers directly with agent-specific adaptations |
 | `observability-engineer` | Metrics collection, dashboard design, alert configuration | Drift detection dashboards, eval metrics visualization, Prometheus setup |
 | `ci-cd-builder` | Pipeline design, quality gates, canary deployment patterns | CI/CD eval gates, canary rollout configuration, artifact management |
+| `verification-independence-engineer` | Independence properties for evaluators (model, context, information, authority) and the metric-pair rule | Before wiring a judge or a gate — determines what the judge may see and what the gate reads |
 
 ### Downstream (skills that depend on this one)
 
 | Skill | What They Need | How You Provide It |
 |-------|---------------|-------------------|
 | `code-reviewer` | Review guidelines for agent-generated code | Agent capability limits, detectable error patterns, hallucination signatures |
+| `verification-independence-engineer` | Judge calibration results and rejection rates | The measured rejection rate per artifact class and the calibration record a validator's independence claim depends on |
 | `security-reviewer` | Prompt injection detection, safety boundary testing | Prompt injection test suite output, safety drift reports, red-team eval results |
 | `platform-engineer` | Agent deployment readiness signals | CI/CD gate results, canary eval metrics, deployment confidence scores |
 | `release-manager` | Go/no-go criteria for agent releases | SPRT decisions, drift reports, quality score trends, budget status |
@@ -547,6 +554,12 @@ graph LR
 
 10. **Version your eval scenarios alongside your agent code.** A scenario that tests "does the agent handle git merge conflicts?" depends on the agent's git integration. When the git tool changes, the scenario must change too. Store scenarios as versioned artifacts in the same repo as agent code. Tag scenario versions with the agent versions they validate.
 
+11. **Give the judge the artifact and its evidence, never the producer's reasoning.** A judge that receives the chain of thought reasons along the producer's path and inherits its errors — it will agree for the same wrong reason the producer was wrong. Enforce it as an input boundary, then test it: hide the reasoning, re-score, and confirm the score does not move. A moving score is proof the boundary leaked. (Full design: `verification-independence-engineer`.)
+
+12. **Track the judge's rejection rate per artifact class, not just its agreement.** Kappa tells you the judge agrees with humans *on the cases you measured*. The live rejection rate tells you whether it is still discriminating at all — a judge that stops rejecting is indistinguishable from a judge that is not running. Alert on a rejection rate that collapses toward zero on consequential work.
+
+13. **Never gate on a metric alone — pair it with the harm it can cause.** Every metric a gate reads is a proxy for something someone cared about, and the cheapest path to the number may betray the intent (a "pass rate" satisfied by weaker verification; a "resolution rate" satisfied by closing conversations). Write the metric's intent, name the betraying path, and gate on both the target and its harm metric. A harm metric that is *reported* but not *gated* changes nothing.
+
 ## Production Checklist
 **(STANDARD)**
 
@@ -622,6 +635,9 @@ Before any production agent deployment, verify ALL of:
 | Judge model kappa drops below 0.70 after provider update | $100K-$200K in incorrect deployment decisions from unreliable judge scores | Pin judge model version with dated suffix. Run monthly recalibration against 50 human-rated examples. Alert on kappa drop > 0.05 between runs. |
 | Drift detection fires but no dimension attribution — hours wasted investigating "something changed" | $75K-$150K per quarter in engineering time chasing false positives | Implement per-dimension drift scoring (correctness, tool usage, safety, efficiency, tokens). Each dimension has own threshold. Aggregate drift is a notification, not actionable. |
 | Eval budget silently exceeds $500/month cap — surprise cost overrun | $50K-$200K annualized overspend on eval infrastructure | Implement hard budget cap at eval harness level. Set 80% ($400) warning alert with automatic downgrade of expensive eval tiers at threshold. |
+| Judge input includes the producer's reasoning trace | The judge approves for the producer's reason, so its scores confirm the producer's errors — an escaped-defect class commonly **$50K-$500K** per release | Reduce judge input to artifact + evidence; test by hiding the reasoning and confirming the score does not move |
+| Judge rejection rate collapses toward zero on consequential work | The gate reports "quality green" while nothing is being checked — failure becomes harder to see, not easier. Rework and diagnosis typically **$10K-$75K** | Instrument rejection rate per artifact class; alert when it collapses. Build a known-bad set (≥10 cases) it must reject |
+| A gate reads a metric with no paired harm metric | The pipeline optimises the number against the intent it stood for; the harm surfaces only at the next business cycle | State the metric's intent, name the betraying path, and gate on the pair (target AND harm metric) |
 
 ## Verification
 

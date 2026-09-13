@@ -48,6 +48,7 @@ chain:
     - tdd-guide
     - code-formatting-and-linting
     - access-modifiers
+    - verification-independence-engineer
   feeds_into:
     - doubt-driven-development
     - debugging-and-error-recovery

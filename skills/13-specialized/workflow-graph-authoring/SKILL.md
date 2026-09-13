@@ -28,11 +28,13 @@ chain:
     - using-agent-skills
     - cost-accounting
     - agentic-complexity-ladder
+    - verification-independence-engineer
   feeds_into:
     - agent-eval-pipeline
     - cross-agent-skills-packaging
     - multi-agent-orchestration
     - cost-accounting
+    - verification-independence-engineer
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
 ---
@@ -95,12 +97,13 @@ matches, escalate to human.
 |----|----------------|----------|
 | W1 | "make this flow a workflow" / "compose these skills" | [Core Workflow](#core-workflow) |
 | W2 | "should this be a loop, a gate, or a chain?" | [Decision Tree 1: Graph Shape](#decision-trees) |
-| W3 | "when does this edge fire?" | [Decision Tree 2: Edge Conditions](#decision-trees) |
-| W4 | "how do I loop until quality passes?" | [Decision Tree 3: Loop Design](#decision-trees) |
-| W5 | "can these run in parallel?" | [Decision Tree 4: Parallel vs. Sequential](#decision-trees) |
-| W6 | "do I need a supervisor?" | [Decision Tree 5: Supervisor vs. Flat](#decision-trees) |
-| W7 | "validate this manifest" | [Verification](#verification) — run `scripts/validate-workflows.py` |
-| W8 | "run this in LangGraph/CrewAI" | LangGraph mapping section in `examples/workflow-runtime/references/langgraph-mapping.md` |
+| W3 | "who verifies this, and what may they see?" | [Decision Tree 2: Who verifies](#decision-trees) |
+| W4 | "when does this edge fire?" | [Decision Tree 3: Edge Conditions](#decision-trees) |
+| W5 | "how do I loop until quality passes?" | [Decision Tree 4: Loop Design](#decision-trees) |
+| W6 | "can these run in parallel?" | [Decision Tree 5: Parallel vs. Sequential](#decision-trees) |
+| W7 | "do I need a supervisor?" | [Decision Tree 6: Supervisor vs. Flat](#decision-trees) |
+| W8 | "validate this manifest" | [Verification](#verification) — run `scripts/validate-workflows.py` |
+| W9 | "run this in LangGraph/CrewAI" | LangGraph mapping section in `examples/workflow-runtime/references/langgraph-mapping.md` |
 
 ### Intent Route Tree
 
@@ -124,12 +127,14 @@ Request to compose skills
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|---------------------|--------------------|--------------------|
-| G1 | **Never ship an unbounded loop.** Every loop has `exit_when`, `max_iterations`, and a resolution for `escalate_to`; if you cannot write the exit condition, you do not understand the loop. | A draft loop lacks exit_when or max_iterations | STOP. Write them, or change the graph shape (Decision Tree 3) |
+| G1 | **Never ship an unbounded loop.** Every loop has `exit_when`, `max_iterations`, and a resolution for `escalate_to`; if you cannot write the exit condition, you do not understand the loop. | A draft loop lacks exit_when or max_iterations | STOP. Write them, or change the graph shape (Decision Tree 1); for exit-condition design see Decision Tree 4 |
 | G2 | **Never invent a node.** Every `skill:` reference must resolve to a real skill under `skills/`; nodes come from the chain graph and skill descriptions, not from vibes. | You are about to reference a skill you cannot locate | STOP. Use `using-agent-skills`/router to find the real skill; log a coverage gap if none exists |
 | G3 | **Never share writers.** Two parallel members writing the same field/artifact is a corruption waiting to happen — static rule, not a style preference. | Parallel members declare overlapping `outputs` | STOP. Re-partition outputs or merge at the join |
 | G4 | **Never hand off without a declared payload.** Edges that move real artifacts name a payload from the registry (`payloads:`), so required keys are fixed per edge. | An edge carries artifacts but no payload name | STOP. Register a payload or use the canonical registry defaults |
 | G5 | **Never let gates be decorative.** A human gate must have `requires` (what must exist before it fires); an auto gate must have a pass condition and a fallthrough target. | Gate with neither requires nor pass_when | STOP. Define the gate's purpose or delete it |
 | G6 | **Never skip validation.** Manifests are checked by code: run `python3 scripts/validate-workflows.py --manifest <file>` before shipping. | You are about to commit an unvalidated manifest | STOP. Run the validator; fix every error |
+| G7 | **Never let a producer verify its own artifact.** A node that produced an artifact may not be the node whose verdict approves it, and no gate/`exit_when` may read the producing node's own verdict. | A gate, `exit_when`, or edge condition reads the verdict of the node that produced the artifact | STOP. Add a distinct verifier node, or route to a human gate. A self-check is a draft, not a verification (see `verification-independence-engineer`) |
+| G8 | **Never hand a verifier the producer's reasoning.** A verifier node's inputs are the artifact and its evidence — not the producer's scratchpad, transcript, or self-assessment. | A verifier node declares the producer's reasoning/transcript as an input, or shares the producer's context lineage | STOP. Reduce the payload to claim + evidence; a verifier that reads the reasoning inherits its blind spots |
 
 ## The Expert's Mindset
 
@@ -256,7 +261,11 @@ Translate the dependency structure into manifest sections, minimal-first:
                                                    GATE (human) on the edge
 ```
 
-### Decision Tree 2: Edge Conditions
+### Decision Tree 2: Who verifies — and what may they see?
+
+A mechanically checkable property → a **deterministic node** (schema, type, assertion); prefer it over any verdict, since it has no blind spots to share. A judgment-shaped property on a non-consequential artifact → a self-check is fine, labelled a draft. A judgment-shaped property on a **consequential** artifact → a distinct **verifier node** carrying four independence properties: role (≠ producer, G7), a fresh context, claim + evidence only (G8), and stated authority — and gate only on a target that is paired with a harm metric. Full design: `verification-independence-engineer`.
+
+### Decision Tree 3: Edge Conditions
 
 ```
         ┌── INPUT: transition A → B
@@ -291,7 +300,7 @@ Translate the dependency structure into manifest sections, minimal-first:
       edge — make it a gate or an auto-gate node.
 ```
 
-### Decision Tree 3: Loop Design
+### Decision Tree 4: Loop Design
 
 ```
         ┌── INPUT: rework cycle R (e.g., review → fix)
@@ -330,7 +339,7 @@ Translate the dependency structure into manifest sections, minimal-first:
    convergence: { window: 2, require_delta: true }
 ```
 
-### Decision Tree 4: Parallel vs. Sequential
+### Decision Tree 5: Parallel vs. Sequential
 
 ```
         ┌── INPUT: work items W1..Wn
@@ -358,7 +367,7 @@ Translate the dependency structure into manifest sections, minimal-first:
    └───────────────────────────────────┘
 ```
 
-### Decision Tree 5: Supervisor vs. Flat
+### Decision Tree 6: Supervisor vs. Flat
 
 ```
         ┌── INPUT: multiple specialist nodes
@@ -408,11 +417,13 @@ gap worth surfacing, not a manifest hack).
 | `agent-handoff-protocol` | Payload/context conventions for edges | Phase 3 when wiring payloads |
 | `multi-agent-orchestration` | Topology + typed-state guidance | When adding supervisors or shared state |
 | `iterative-task-execution` | Loop protocol semantics your loops rely on | Designing exit conditions and budgets |
+| `verification-independence-engineer` | Producer/verifier independence properties (model, context, information, authority) | Whenever a manifest places a gate, a `verdict` read, or a verifier node — G7/G8 |
 
 | Downstream Skill | What You Hand Off | When to Involve |
 |------------------|-------------------|-----------------|
 | `iterative-task-execution` | Manifests whose nodes must run the loop protocol | When the workflow executes |
 | `agent-eval-pipeline` | Manifests + transcripts to assert loop/graph behavior | After first runs |
+| `verification-independence-engineer` | The manifest's producer→verifier wiring and `exit_when` targets | Before trusting any gate the graph declares |
 | `multi-agent-orchestration` | Supervisor graphs needing engine-level state | When mapping to LangGraph/CrewAI |
 | `cross-agent-skills-packaging` | Reusable graph shapes worth packaging | When a shape recurs across flows |
 
@@ -465,6 +476,9 @@ graph LR
 | Supervisor that does content work | Bottleneck + duplicate effort — $200-$2,000 per run in redundant tokens | Supervisors route only; content lives in workers |
 | Registering payloads nobody enforces | Payload keys drift per edge — handoffs silently lose context over time | Payload registry + validator V8 + runner hash checks |
 | Parallel members sharing a config file | Silent last-write-wins corruption — $5K-$50K if it reaches a shared pipeline | Disjoint writers, statically checked (V6) |
+| A gate whose verdict is the producer's own | Self-approval passes every check while the defect ships — commonly **$50K-$500K** | Distinct verifier node (G7) |
+| A verifier node fed the producer's transcript | It agrees with the producer's reasoning and inherits its blind spots | Claim + evidence only in the payload (G8) |
+| An `exit_when` on a bare metric | The loop satisfies the number by the cheapest path and betrays its intent | Pair the target with a harm metric first |
 
 ## Anti-Patterns
 
@@ -475,6 +489,9 @@ graph LR
 | ❌ Parallel members writing the same report file | ✅ Disjoint outputs per member; the join owns the merge (validator V6) |
 | ❌ A human gate with nothing to review | ✅ Gates declare `requires` artifacts; an empty gate is deleted, not shipped |
 | ❌ A manifest nobody runs ("pretty YAML documentation") | ✅ Validated by code and executed by the runner; manifests earn their place by running |
+| ❌ A gate that reads the producing node's own verdict | ✅ A distinct verifier node whose verdict the gate reads (G7) |
+| ❌ A verifier node handed the producer's transcript | ✅ Claim + evidence in the payload; reasoning withheld (G8) |
+| ❌ An `exit_when` on a bare metric | ✅ Gate together with the harm metric that guards the metric's intent |
 
 ## Anti-Hallucination
 

@@ -89,6 +89,7 @@ chain:
   - agentic-complexity-ladder
   - access-modifiers
   - caching-architect
+  - verification-independence-engineer
 workflow:
   artifacts:
     inputs: [requirements, non-functional-requirements]

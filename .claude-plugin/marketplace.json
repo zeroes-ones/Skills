@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "zeroes-ones-all",
-      "description": "All 303 skills in one plugin (flat discovery layer)",
+      "description": "All 320 skills in one plugin (flat discovery layer)",
       "source": "./plugins/zeroes-ones-all"
     },
     {
@@ -33,27 +33,27 @@
     },
     {
       "name": "design",
-      "description": "8 skills: accessibility-auditor, apple-hig-expert, brand-guidelines, fintech-ui-designer, game-ui-designer, healthcare-ui-designer, \u2026 (03-design)",
+      "description": "12 skills: accessibility-auditor, apple-hig-expert, brand-guidelines, fintech-ui-designer, game-ui-designer, healthcare-ui-designer, \u2026 (03-design)",
       "source": "./plugins/design"
     },
     {
       "name": "architecture",
-      "description": "12 skills: api-designer, codebase-design, database-designer, desktop-architecture-patterns, event-driven-architect, feature-flag-architect, \u2026 (04-architecture)",
+      "description": "15 skills: api-designer, caching-architect, codebase-design, database-designer, desktop-architecture-patterns, event-driven-architect, \u2026 (04-architecture)",
       "source": "./plugins/architecture"
     },
     {
       "name": "development",
-      "description": "28 skills: android-developer, backend-developer, blockchain-developer, casual-game-developer, coding-interview-prep, desktop-developer, \u2026 (05-development)",
+      "description": "30 skills: access-modifiers, android-developer, backend-developer, blockchain-developer, casual-game-developer, coding-interview-prep, \u2026 (05-development)",
       "source": "./plugins/development"
     },
     {
       "name": "quality",
-      "description": "10 skills: accessibility-testing, api-test-suite-builder, browser-testing-with-devtools, code-reviewer, code-simplification, debugging-and-error-recovery, \u2026 (06-quality)",
+      "description": "12 skills: accessibility-testing, api-test-suite-builder, app-launch-performance-engineer, browser-testing-with-devtools, code-formatting-and-linting, code-reviewer, \u2026 (06-quality)",
       "source": "./plugins/quality"
     },
     {
       "name": "devops",
-      "description": "17 skills: automation-engineer, build-system-design, ci-cd-builder, cloud-architect, dependency-governance, devops-engineer, \u2026 (07-devops)",
+      "description": "18 skills: automation-engineer, build-system-design, ci-cd-builder, cloud-architect, configuration-change-safety, dependency-governance, \u2026 (07-devops)",
       "source": "./plugins/devops"
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "name": "legal",
-      "description": "3 skills: gdpr-privacy, legal-advisor, regulatory-specialist, \u2026 (11-legal)",
+      "description": "4 skills: gdpr-privacy, legal-advisor, regulatory-specialist, statement-of-work-authoring, \u2026 (11-legal)",
       "source": "./plugins/legal"
     },
     {
@@ -83,7 +83,7 @@
     },
     {
       "name": "specialized",
-      "description": "16 skills: agent-handoff-protocol, brownfield-adoption-planner, chaos-engineer, cross-agent-skills-packaging, cross-repo-refactoring, deprecation-engineer, \u2026 (13-specialized)",
+      "description": "18 skills: agent-handoff-protocol, brownfield-adoption-planner, chaos-engineer, cross-agent-skills-packaging, cross-repo-refactoring, deprecation-engineer, \u2026 (13-specialized)",
       "source": "./plugins/specialized"
     },
     {
@@ -128,7 +128,7 @@
     },
     {
       "name": "ai-engineering",
-      "description": "15 skills: agent-eval-pipeline, ai-engineer, ai-safety-engineer, ai-safety-health-reviewer, ai-security, business-intelligence-engineer, \u2026 (22-ai-engineering)",
+      "description": "17 skills: agent-eval-pipeline, agentic-complexity-ladder, ai-engineer, ai-safety-engineer, ai-safety-health-reviewer, ai-security, \u2026 (22-ai-engineering)",
       "source": "./plugins/ai-engineering"
     },
     {

@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**303 skills across 37 domains. 9.9/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — the 948 pre-existing asymmetric edges were repaired in a dedicated 2026 pass).
+**320 skills across 37 domains. 9.8/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — 2,142 chain edges, all symmetric).
 
 ### 🚀 Quick Links
 
@@ -101,7 +101,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 ## Quality Status
 
-**Library rating: 9.9/10** (live domain-calibrated audit over 303 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
+**Library rating: 9.8/10** (live domain-calibrated audit over 320 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
 
 > The "Quality Status" numbers below are from an earlier generation of the audit (214-skill baseline). The authoritative current numbers come from `python3 scripts/audit-library.py` (live) and `skills-audit-report.txt`; see [GAP-ANALYSIS.md](GAP-ANALYSIS.md) for the 2026 delta analysis.
 
@@ -232,8 +232,8 @@ what it consumes from and feeds into.
 - **Open it live:** **[https://zeroes-ones.github.io/Skills/](https://zeroes-ones.github.io/Skills/)** —
   or double-click [`docs/graph-explorer/index.html`](docs/graph-explorer/index.html) locally
   (works offline, no build step).
-- **What's inside (regenerated from live data):** 304 skill nodes, 1,932 directed chain edges
-  (1,577 undirected connections, avg degree 10.38, 0 dangling refs) across 37 domains. Pan/zoom,
+- **What's inside (regenerated from live data):** 320 skill nodes, 2,142 directed chain edges
+  (1,753 undirected connections, avg degree 10.96, 0 dangling refs) across 37 domains. Pan/zoom,
   search, per-domain filter; hovering a skill highlights its whole neighborhood; clicking opens its
   chain panel — consumes from, feeds into, plus GitHub and skills.sh links.
 - **Always current:** `python3 scripts/emit-skill-graph.py` rebuilds
@@ -328,7 +328,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 303 skills in current project (team/company default) |
+| `skills-init` | Activate all 320 skills in current project (team/company default) |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
 | `skills-init --status` | Show current tier and skill count |
@@ -336,7 +336,7 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 ### Tiered Activation — Match Skills to Project Maturity
 
-Two modes, pick per project: `skills-init` with no flags activates **all 303 skills** (team/company
+Two modes, pick per project: `skills-init` with no flags activates **all 320 skills** (team/company
 default — one flat layer every agent discovers). Want a lean start? Activate a tier, then expand
 as you grow:
 
@@ -348,8 +348,8 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 303 skills
-skills-init               # All 37 domains, 303 skills, full lifecycle coverage
+# Startup or team project — full 320 skills
+skills-init               # All 37 domains, 320 skills, full lifecycle coverage
 
 ```
 
@@ -432,7 +432,8 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md) | Longer plain-language guide — a real run walked through step by step, what every script does, what changed, what is real vs. not yet, and a glossary |
 | [`docs/START-HERE.md`](docs/START-HERE.md) | **Start here** — the short version: what this repo is, what we built, how it works, what is required vs. optional per skill, and how to see it work in 60 seconds |
 | [`docs/mcp-server.md`](docs/mcp-server.md) | MCP server — drive the library from any MCP client: install (`.mcp.json`), the eight tools with examples, protocol notes, security posture, and the three defects it fixes versus the common naive implementation |
-| [`docs/missing-skills-research.md`](docs/missing-skills-research.md) | Deep research + build plan — why production systems actually fail (incident-data evidence), a 304-skill coverage audit, 16 verified gaps ranked by evidence, a defensible L1–L8 target in place of "zero bugs", and a phased plan with what *not* to build |
+| [`docs/missing-skills-research.md`](docs/missing-skills-research.md) | Deep research + build plan — why production systems actually fail (incident-data evidence), a 320-skill coverage audit, 16 verified gaps ranked by evidence, a defensible L1–L8 target in place of "zero bugs", and a phased plan with what *not* to build |
+| [`docs/code-loading-and-launch-research.md`](docs/code-loading-and-launch-research.md) | Deep research + build plan — how code reaches memory and when: the static/dynamic linkage decision, library form, cold/warm/hot launch cost, plugin and FFI boundaries, and the four unowned skills it identifies (all four since delivered) |
 | [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) | Quality bar, domain-calibrated scoring rubric, and external reviewer guide |
 | [`personas/README.md`](personas/README.md) | Persona architecture — 3-layer design, parallel fan-out, merge patterns |
 | [`hooks/SIMPLIFY-IGNORE.md`](hooks/SIMPLIFY-IGNORE.md) | Code block protection — marking sections as immutable during simplification |
@@ -440,7 +441,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`scripts/lint.sh`](scripts/lint.sh) | Master lint runner — 5 categories (files, markdown, yaml, shell, template) with --fix, --json, --ci |
 | [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates |
 | [`scripts/run-evals.sh`](scripts/run-evals.sh) | 3-tier evaluation harness — structural, routing, behavioral |
-| [`scripts/validate-workflows.py`](scripts/validate-workflows.py) | Workflow manifest validator — structure, cycles, loop budgets, payloads, `--coverage` (303/303 skills referenceable) |
+| [`scripts/validate-workflows.py`](scripts/validate-workflows.py) | Workflow manifest validator — structure, cycles, loop budgets, payloads, `--coverage` (320/320 skills referenceable) |
 | [`scripts/workflow-runner.py`](scripts/workflow-runner.py) | Deterministic loop engine — parallel join, budgets, checkpoints, `--memory`, `--guardrail` |
 | [`scripts/export-traces.py`](scripts/export-traces.py) | Run-state → OTel-shaped span exporter (agent-run observability) |
 | [`scripts/skill-sli-report.py`](scripts/skill-sli-report.py) | Per-workflow SLIs + escalation-rate gate over run checkpoints |

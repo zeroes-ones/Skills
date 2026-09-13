@@ -39,7 +39,7 @@ Mobile architecture solves three problems simultaneously: managing state across 
 
 ```
 ...
-> 📎 **Full content (92 lines):** [references/6-mvvm-pattern.md](references/6-mvvm-pattern.md)
+> 📎 **Full content (92 lines):** [references/6-mvvm-pattern.md](6-mvvm-pattern.md)
 
 ## 7. Clean Architecture on Mobile
 <!-- Full 30 lines extracted to references/7-clean-architecture-on-mobile.md -->
@@ -51,7 +51,7 @@ Clean Architecture on mobile adds domain and data layers around the presentation
 ┌─────────────────────────────────────────────────────┐
 │  PRESENTATION (iOS: SwiftUI/UIKit, Android: Compose) │
 ...
-> 📎 **[references/7-clean-architecture-on-mobile.md](references/7-clean-architecture-on-mobile.md)** — 30 lines of detailed guidance
+> 📎 **[references/7-clean-architecture-on-mobile.md](7-clean-architecture-on-mobile.md)** — 30 lines of detailed guidance
 
 ## 8. VIPER Architecture (iOS)
 

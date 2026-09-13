@@ -1,0 +1,416 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "caching-architect",
+  "description": "Per-skill evaluation for caching-architect \u2014 validates trigger routing, boundary discipline against database-designer / performance-engineer / cloud-architect / capacity-planning-engineer / resilience-pattern-engineer, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-caching-invalidation",
+      "category": "trigger_routing",
+      "description": "Agent should activate when users see stale data after an update",
+      "input": "Our dashboard shows old numbers for a few minutes after a record is updated. The Redis entry has a 300 second TTL. How do we fix this?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "invalidation",
+            "staleness"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-caching-key-design",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a cache-key design question",
+      "input": "How should we structure the cache key for a multi-tenant resource so tenants never share an entry?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "key",
+            "tenant"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-caching-stampede",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a cold cache takes down the origin",
+      "input": "Every time we deploy, the database gets hammered for about a minute and latency spikes. It only happens right after a restart.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stampede|thundering",
+            "single-flight|coalesc"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-caching-coherence",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a multi-layer disagreement",
+      "input": "We have a browser cache, a CDN and a service-level Redis, and they disagree about a product price. Which one is right and how do we make them agree?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "precedence",
+            "propagat"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-caching-indexing",
+      "category": "negative_trigger",
+      "description": "Slow queries with no repeat access belong to database-designer",
+      "input": "This report query takes 40 seconds. There is no repeat access pattern and it runs once a night. How do we make it faster?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "database-designer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-caching-capacity",
+      "category": "negative_trigger",
+      "description": "Headroom and autoscaling belong to capacity-planning-engineer",
+      "input": "What instance size and autoscaling policy do we need to handle a 5x traffic spike next quarter?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "capacity-planning-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-caching-cdn-delivery",
+      "category": "negative_trigger",
+      "description": "CDN edge configuration for delivery belongs to cloud-architect",
+      "input": "How do we configure our CDN edge locations and origin shield for global static asset delivery?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cloud-architect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-caching-runtime-defense",
+      "category": "negative_trigger",
+      "description": "Timeouts, breakers and degradation belong to resilience-pattern-engineer",
+      "input": "A downstream dependency keeps timing out and it is cascading into our other calls. How do we design the runtime defence?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "caching-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "resilience-pattern-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-ttl-is-not-invalidation",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a TTL as the whole invalidation strategy (R1)",
+      "input": "We set a 5 minute TTL on the profile cache. That is our invalidation strategy, done.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "staleness",
+            "acceptance|budget|invalidation event"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is a complete strategy",
+            "TTL is sufficient"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-key-schema",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse an ad-hoc inline cache key (R2)",
+      "input": "The key is just \"user:\" + user.id. That is simple enough, right?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "key schema|components",
+            "tenant|scope"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "simple enough",
+            "that key is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-stampede-defence",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a cache with no stampede defence (R3)",
+      "input": "Misses just go to the database. We have never had a problem with that.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cold start|simultaneous|at once",
+            "single-flight|coalesc|probabilistic"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "misses are cheap",
+            "no problem with that"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-staleness-budget",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a numeric staleness budget with an owner (R4)",
+      "input": "It is eventually consistent, that is the freshness story. Everyone is fine with it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budget|number|seconds",
+            "owner"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "eventually consistent is fine",
+            "everyone is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-layer-coherence",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a second cache layer with no coherence rule (R5)",
+      "input": "We are putting a client-side cache in front of the existing service cache. Each layer manages its own TTL, no coordination needed.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "precedence",
+            "propagat"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "no coordination needed",
+            "that works fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-measure-first",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse retuning a TTL or size without a measured hit rate (R6)",
+      "input": "Let us double the cache size and drop the TTL to 30 seconds, that should fix the slowness. Just make the change.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hit rate",
+            "measure|baseline|by key class"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "I will make that change",
+            "that should fix it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-negative-caching-transient-failure",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should catch a transient failure cached as a definitive negative",
+      "input": "When the lookup times out we cache the empty result for an hour so we do not keep retrying. That protects the database, right?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "transient|timeout",
+            "negative"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that protects the database, yes",
+            "good idea"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-global-hit-rate",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should catch aggregate hit rate hiding a hot key",
+      "input": "Our hit rate is 97%, so caching is healthy. There is nothing to look at.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "by key class|per key",
+            "origin load|hot key|burst"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "97% is healthy",
+            "nothing to look at"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "escalation-security-scoped-key",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must escalate rather than approve caching beyond an authz boundary",
+      "input": "The key cannot include the tenant because the cache layer sits before authentication. We will just share the entry and filter after.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "tenant|isolation",
+            "appsec-engineer|escalat"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "filtering after is acceptable",
+            "that will work"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-cache-design",
+      "category": "checklist_coverage",
+      "description": "A full cache-design request should surface budget, key schema and stampede defence",
+      "input": "Design the caching layer for our multi-tenant product catalog API.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "staleness budget",
+            "key schema",
+            "stampede"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-caching",
+      "category": "output_quality",
+      "description": "Output should commit to a mechanism rather than hedge",
+      "input": "What is the single most important thing to get right when adding a cache?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "invalidation|staleness",
+            "correctness"
+          ]
+        }
+      ]
+    }
+  ]
+}

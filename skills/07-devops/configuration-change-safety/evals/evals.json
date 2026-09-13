@@ -1,0 +1,370 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "configuration-change-safety",
+  "description": "Per-skill evaluation for configuration-change-safety \u2014 validates trigger routing, boundary discipline against ci-cd-builder / automation-engineer / release-manager / resilience-pattern-engineer / incident-responder, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-config-change-rollback",
+      "category": "trigger_routing",
+      "description": "Agent should activate when reversibility of a change is the question",
+      "input": "We are about to run a data migration and flip a feature flag in the same deploy. Can we just roll back if it goes wrong?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "reversib|irreversib",
+            "forward-fix|rollback"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-config-change-drift",
+      "category": "trigger_routing",
+      "description": "Agent should activate when live config differs from its declaration",
+      "input": "Someone hotfixed a production config value by hand three months ago and it was never put back in the repo. How do we handle this?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "drift",
+            "detect|alert"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-config-change-staged-rollout",
+      "category": "trigger_routing",
+      "description": "Agent should activate for blast-radius and staged application of config",
+      "input": "We need to change a timeout value that every one of our 400 services reads. How should we apply it?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "progressive|staged|blast radius",
+            "selector|canary"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-config-change-post-incident",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a config change caused an incident",
+      "input": "A config push last night took down sign-in for 40 minutes across our whole fleet. How do we make sure that cannot happen again?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "config change",
+            "progressive|schema|drift|reversib"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-config-pipeline",
+      "category": "negative_trigger",
+      "description": "Pipeline construction belongs to ci-cd-builder",
+      "input": "How do we build the GitHub Actions workflow that runs our test matrix in parallel with caching?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ci-cd-builder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-config-release-train",
+      "category": "negative_trigger",
+      "description": "Release trains and versioning belong to release-manager",
+      "input": "How should we version and schedule our releases across three teams next quarter?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "release-manager"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-config-runtime-defense",
+      "category": "negative_trigger",
+      "description": "Runtime timeouts and breakers belong to resilience-pattern-engineer",
+      "input": "A dependency is flapping and we need circuit breakers and jittered retries at runtime.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "resilience-pattern-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-config-live-incident",
+      "category": "negative_trigger",
+      "description": "Live incident command belongs to incident-responder",
+      "input": "Production is down right now and I am the on-call. Walk me through commanding the incident channel.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "configuration-change-safety"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "incident-responder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-reversibility-classified",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to proceed without classifying reversibility (R1)",
+      "input": "We can just roll back the certificate revocation if it goes wrong. Let us proceed.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "irreversib",
+            "forward-fix|classified"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "just roll back is fine",
+            "proceeding is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-config-schema",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse configuration with no schema (R2)",
+      "input": "We will add a new config key for the retry count. We will just read it as a string and parse it at runtime.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "schema|type|range|allowed",
+            "validat"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "parsing at runtime is fine",
+            "that will work"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-no-all-at-once",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a change applied to 100% of targets at once (R3)",
+      "input": "We will push this config change to all instances simultaneously, it is only a small value change.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "progressi|staged|canary",
+            "selector|blast radius"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "all at once is fine",
+            "small change is safe"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-drift-detection",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to leave drift undetected (R4)",
+      "input": "Our environments differ from the declared config in a few places. Nobody has noticed for a year, so it is not really a problem.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "drift",
+            "unmanaged change|detect|alert"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "not really a problem",
+            "no one has noticed so it is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-flag-owner-and-date",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a feature flag with no owner or removal date (R5)",
+      "input": "We added a flag for this rollout. We will leave it in, it might be useful later.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "owner",
+            "removal|remove|date"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "leaving it in is fine",
+            "useful later is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-config-not-lower-risk",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to treat config as lower-risk than code (R6)",
+      "input": "It is only a config change, so we do not need the full review or a staged rollout. We will just apply it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "higher severity|same review|not lower-risk",
+            "staged|rollback"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "only a config change so it is safe",
+            "no review needed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-unverified-selector",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should catch a blast-radius percentage with an unverified selector",
+      "input": "We will roll out to 1% of instances, so the blast radius is small by definition.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "selector",
+            "dependency graph|sole leader|measured"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "1% is small so it is safe",
+            "by definition"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-config-change",
+      "category": "checklist_coverage",
+      "description": "A full config-change request should surface schema, staging and rollback",
+      "input": "Review our plan to change the connection-pool size across the fleet.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "schema|validat",
+            "progressi|staged",
+            "rollback|reversib"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-config-change",
+      "category": "output_quality",
+      "description": "Output should commit to a safety property rather than hedge",
+      "input": "What is the most important thing to get right when applying a configuration change?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "reversib|rollback",
+            "progressi|staged|blast radius"
+          ]
+        }
+      ]
+    }
+  ]
+}

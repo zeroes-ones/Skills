@@ -35,6 +35,7 @@ chain:
   - data-visualization-engineer
   - growth-engineer
   - product-manager
+  - verification-independence-engineer
 
 ---
 **(QUICK: 30s)** Route: run Core Workflow with standard checks.

@@ -74,7 +74,7 @@ CREATE TABLE corporate_actions (
         'split', 'reverse_split', 'cash_dividend', 'stock_dividend',
         'merger', 'spin_off', 'ticker_change', 'delis
 
-> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+> See [references/core-workflow.md](core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
 
   Complete when: Architecture diagram finalized, technology choices documented with rationale, and design reviewed by peers.
   Complete when: Backtest results validated against live trading data with < 5% slippage deviation.
@@ -84,4 +84,3 @@ CREATE TABLE corporate_actions (
   Complete when: Compliance review completed — strategy does not violate market manipulation rules.
   Complete when: Performance attribution report identifies alpha sources (factor, sector, timing).
   Complete when: Disaster recovery plan tested — can fail over to backup data source within RTO.
-

@@ -51,6 +51,7 @@ chain:
     - mlops-engineer
     - product-manager
     - agentic-complexity-ladder
+
 ---
 # AI Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

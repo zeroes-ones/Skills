@@ -6,7 +6,7 @@ The three fundamental multiplayer topologies, each with distinct tradeoffs in ch
 
 The industry standard for competitive multiplayer. A headless game process runs on cloud infrastructure, accepting client inputs, simulating game state, and broadcasting authoritative snapshots.
 
-**Reference:** [client-server-architecture-games.md](references/client-server-architecture-games.md)
+**Reference:** [client-server-architecture-games.md](client-server-architecture-games.md)
 
 **Key equation — Per-player bandwidth:**
 ```

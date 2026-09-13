@@ -1,6 +1,6 @@
 # Dependency Management & Package Architecture
 
-Deep dives on dependency strategies, package boundaries, versioning, and migration are in **[references/monorepo-patterns.md](references/monorepo-patterns.md)**:
+Deep dives on dependency strategies, package boundaries, versioning, and migration are in **[references/monorepo-patterns.md](monorepo-patterns.md)**:
 
 | Section | What's Covered |
 |---------|---------------|

@@ -32,6 +32,7 @@ chain:
   - context-engineering
   - iterative-task-execution
   - agentic-complexity-ladder
+  - verification-independence-engineer
   feeds_into:
   - multi-agent-orchestration
   - cross-skill-communication

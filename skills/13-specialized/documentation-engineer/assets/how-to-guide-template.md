@@ -15,6 +15,9 @@ tags: [deploy, production, kubernetes, docker]
 
 Before starting, ensure you have:
 
+<!-- Illustrative cross-reference paths for the generated docs site. They are examples of the
+     shape a docs page uses, not files in this repository. -->
+
 - [ ] **GitHub account** with write access to the service repository
 - [ ] **kubectl** installed locally (`v1.28+`) — [Install guide](https://kubernetes.io/docs/tasks/tools/)
 - [ ] **Docker** installed locally (`v24+`) — [Install guide](https://docs.docker.com/get-docker/)
@@ -264,6 +267,9 @@ kubectl -n production rollout undo deployment/my-service
 ## Next Steps
 
 Now that your service is deployed to production:
+
+<!-- Illustrative cross-reference paths for the generated docs site. They are examples of the
+     shape a docs page uses, not files in this repository. -->
 
 - **[Set Up Monitoring](./set-up-monitoring)** — Configure dashboards and alerts for your service
 - **[Configure Auto-Scaling](./configure-auto-scaling)** — Enable HPA for automatic scaling based on CPU/memory

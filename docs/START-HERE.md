@@ -225,7 +225,7 @@ So a skill without it **still works as a step**. The engine falls back to that s
 | **The engine is not a service** | It runs once and exits. No always-on process, no queue, no API |
 | **A "human approval" step isn't really human** | Marking a step as needing human approval doesn't pause anything. In our real run, the "human ship gate" auto-approved and used an AI turn instead |
 | **Enforcement is off by default** | And in headless mode a run with violations still reports "finished" — the violation is recorded and the score collapses, but the run doesn't fail loudly |
-| **Only 3 of 304 skills have regression tests** | Changes to a skill are checked for *structure*, not for whether it still produces good work |
+| **Only 3 of 320 skills have executable golden regression suites** | Changes to a skill are checked for *structure*, not for whether it still produces good work (224 skills do carry trigger/anti-pattern evals) |
 | **Tested against one AI provider** | The design is provider-neutral, but only one backend was actually exercised |
 
 ---

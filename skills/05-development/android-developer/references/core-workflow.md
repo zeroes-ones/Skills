@@ -15,7 +15,7 @@
 3. **LazyColumn**: `key = { it.id }` for stable recomposition. `remember` for expensive calcs inside items.
 4. **Scaffold pattern**: `Scaffold` with `topBar`, `bottomBar`, `floatingActionButton`, `snackbarHostState`.
 5. **Side effects**: `LaunchedEffect(key)` for one-shot, `DisposableEffect` for cleanup, `rememberCoroutineScope()` for user-triggered suspend calls.
-> See [references/jetpack-compose-patterns.md](references/jetpack-compose-patterns.md) for the full catalog.
+> See [references/jetpack-compose-patterns.md](jetpack-compose-patterns.md) for the full catalog.
 
 ### Phase 3 (~20 min): ViewModel & State
 1. **ViewModel lifecycle**: `@HiltViewModel class VM @Inject constructor(repo: Repo) : ViewModel()`. Survives config changes.

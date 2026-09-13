@@ -44,9 +44,6 @@ chain:
     - system-architect
     - backend-developer
     - observability-engineer
-    - futures-trader
-    - forex-trader
-    - crypto-trader
     - macro-strategist
     - advanced-options-structures
     - leaps-strategist

@@ -31,7 +31,7 @@ The dominant pattern for data-binding-native frameworks (WPF, WinUI 3, SwiftUI, 
 - Models that know about data binding — tight coupling to presentation
 - Views with logic beyond simple property/event wiring
 
-See: [reference/desktop-mvvm-patterns.md](reference/desktop-mvvm-patterns.md)
+See: [reference/desktop-mvvm-patterns.md](desktop-mvvm-patterns.md)
 
 ### 5.2 Redux-Style / Unidirectional Data Flow
 
@@ -53,7 +53,7 @@ Best for complex state with undo/redo, time-travel debugging, or multi-window sy
 - Middleware for persistence (redux-persist with SQLite adapter)
 - Action serialization for undo stack (keep actions, not snapshots)
 
-See: [reference/desktop-state-management.md](reference/desktop-state-management.md)
+See: [reference/desktop-state-management.md](desktop-state-management.md)
 
 ### 5.3 MVP (Model-View-Presenter)
 

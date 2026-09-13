@@ -1,6 +1,6 @@
 ## 12. Matchmaking Architecture
 
-**Reference:** [matchmaking-architecture.md](references/matchmaking-architecture.md)
+**Reference:** [matchmaking-architecture.md](matchmaking-architecture.md)
 
 ### The Matchmaking Pipeline
 

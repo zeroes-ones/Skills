@@ -48,6 +48,7 @@ chain:
     - performance-engineer
     - qa-engineer
     - native-interop-engineer
+
 ---
 # Embedded Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

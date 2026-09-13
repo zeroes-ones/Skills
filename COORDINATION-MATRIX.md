@@ -1,6 +1,6 @@
 # Cross-Skill Coordination Matrix
 
-> **Generated from actual YAML `chain:` data across 106 skills, 25 domains.**
+> **Generated from actual YAML `chain:` data. The corpus has since grown: the live figures are 320 skills / 37 domains / 2,142 chain edges — regenerate with `python3 scripts/emit-skill-graph.py`, verify symmetry with `python3 scripts/validate_chains.py`. The per-domain sections below were written against the earlier 106-skill corpus.**
 > **Last updated:** 2026-07-22
 
 Every skill declares its `consumes_from` (upstream dependencies) and `feeds_into` (downstream consumers).
@@ -15,7 +15,7 @@ chain:
   feeds_into: [frontend-developer, fullstack-developer, code-reviewer, qa-engineer, devops-engineer]
 ```
 
-If skill A `feeds_into` skill B, then skill B `consumes_from` skill A. All 1,932 chain edges are symmetric.
+If skill A `feeds_into` skill B, then skill B `consumes_from` skill A. All 2,142 chain edges are symmetric (verify with `python3 scripts/validate_chains.py`).
 
 ## Phase 1: Ideation & Validation
 
@@ -225,8 +225,8 @@ When an agent invokes a skill:
 
 ## Chain Statistics
 
-- **304 skills** across **37 domains**
-- **1,932 total chain edges** (966 consumes_from + 966 feeds_into)
-- **6.4 avg consumes_from per skill**
-- **6.4 avg feeds_into per skill**
+- **320 skills** across **37 domains**
+- **2,142 total chain edges** (1,071 consumes_from + 1,071 feeds_into)
+- **6.7 avg consumes_from per skill**
+- **6.7 avg feeds_into per skill**
 - **0 asymmetries** (all `A feeds_into B` ↔ `B consumes_from A` verified)

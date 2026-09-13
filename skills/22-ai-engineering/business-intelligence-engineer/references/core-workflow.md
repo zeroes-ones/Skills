@@ -104,4 +104,4 @@ view: fct_orders {
 | Metabase | Mid-market, simplicity | Open-source or hosted | Moderate — collections, permissions |
 | Lightdash |
 
-> See [references/core-workflow.md](references/core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.
+> See [references/core-workflow.md](core-workflow.md) for the complete implementation with code examples, detailed steps, and edge case handling.

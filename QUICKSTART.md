@@ -33,7 +33,7 @@ skills-init
 
 ```
 
-This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover all 303 skills.
+This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover all 320 skills.
 
 ---
 
@@ -88,11 +88,11 @@ As your project grows, activate more skills:
 ```bash
 
 skills-init --grow   # 18 skills: add business strategy, UX research, design, architecture, backend, DevOps
-skills-init --full   # 303 skills: full enterprise coverage
+skills-init --full   # 320 skills: full enterprise coverage
 
 ```
 
-See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to full coverage (303 skills).
+See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to full coverage (320 skills).
 
 ---
 
@@ -117,4 +117,4 @@ See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a c
 
 ---
 
-*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 303 skills, 37 domains, 9.9/10 quality.*
+*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 320 skills, 37 domains, 9.8/10 quality.*

@@ -355,6 +355,9 @@ When rate limited (429), the response includes `retry_after_seconds` in the erro
 
 ## See Also
 
+<!-- Illustrative cross-reference paths for the generated docs site. They are examples of the
+     shape a docs page uses, not files in this repository. -->
+
 - [List Users](./list-users) — `GET /api/v1/users`
 - [Get User](./get-user) — `GET /api/v1/users/{id}`
 - [Update User](./update-user) — `PATCH /api/v1/users/{id}`

@@ -1,6 +1,6 @@
 # Build System & CI/CD
 
-Deep dives on task orchestration, caching architecture, and CI/CD pipelines are in **[references/monorepo-tooling.md](references/monorepo-tooling.md)**:
+Deep dives on task orchestration, caching architecture, and CI/CD pipelines are in **[references/monorepo-tooling.md](monorepo-tooling.md)**:
 
 | Section | What's Covered |
 |---------|---------------|

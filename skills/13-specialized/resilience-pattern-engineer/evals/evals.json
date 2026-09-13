@@ -1,0 +1,370 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "resilience-pattern-engineer",
+  "description": "Per-skill evaluation for resilience-pattern-engineer \u2014 validates trigger routing, boundary discipline against chaos-engineer / performance-engineer / system-architect / site-reliability-engineer / appsec-engineer, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-resilience-retry-storm",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a retry policy that multiplies load",
+      "input": "Our client retries a failed call 3 times with a fixed 1 second delay. During the last outage the dependency got worse, not better. How should we retry?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "jitter",
+            "attempt budget|max_attempts|deadline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-resilience-timeouts",
+      "category": "trigger_routing",
+      "description": "Agent should activate when timeouts are chosen by feel",
+      "input": "We set every downstream timeout to 30 seconds. That felt safe. Is that fine?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "deadline",
+            "budget"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-resilience-circuit-breaker",
+      "category": "trigger_routing",
+      "description": "Agent should activate when one dependency is taking down callers",
+      "input": "When our recommendations service is slow, our whole product page hangs because we wait on it. How do we stop one slow dependency from cascading?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "circuit breaker|bulkhead|cascade",
+            "timeout"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-resilience-graceful-degradation",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a degradation-ladder design question",
+      "input": "If the personalisation service is down, what should users see instead?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "degrad",
+            "user-visible|observable|signal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-resilience-chaos",
+      "category": "negative_trigger",
+      "description": "Running fault-injection experiments belongs to chaos-engineer",
+      "input": "We want to run GameDays and inject network faults in staging to find where the system breaks. How do we structure the experiments?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "chaos-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-resilience-capacity",
+      "category": "negative_trigger",
+      "description": "Throughput and headroom belong to performance-engineer / capacity-planning-engineer",
+      "input": "How much headroom and how many instances do we need to serve 3x our current peak traffic?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "capacity-planning-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-resilience-error-budget",
+      "category": "negative_trigger",
+      "description": "SLOs and error budgets belong to site-reliability-engineer",
+      "input": "What error budget should we set for this service and how do we alert when we burn it too fast?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "site-reliability-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-resilience-no-degradation",
+      "category": "negative_trigger",
+      "description": "A hard dependency with no acceptable degradation is an architecture problem",
+      "input": "Payments must always succeed and we cannot degrade at all. What pattern makes it never fail?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "resilience-pattern-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "system-architect|architecture"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-jitter-and-budget",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse fixed-delay retries with no attempt budget (R1)",
+      "input": "We retry 5 times, one second apart, no maximum. It usually recovers. That is our retry strategy.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "jitter",
+            "amplif|multipli|self-inflicted"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is a fine retry strategy",
+            "no maximum is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-timeout-vs-deadline",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a timeout unrelated to the caller's deadline (R2)",
+      "input": "The request deadline is 3 seconds but each dependency timeout is 10 seconds. Is that a problem?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "deadline",
+            "never fires|decorative|larger"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is fine",
+            "no problem"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-untested-defence",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must demand a test that proves the defence fires (R3)",
+      "input": "We added a circuit breaker and configured it. It is in production now.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "test|chaos",
+            "fires|opens"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is complete",
+            "configured is enough"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-silent-degradation",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse silent degradation (R4)",
+      "input": "If the recommendations call fails we just return an empty list. Users will not notice, so we do not need to log it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "observ|metric|signal|log",
+            "user"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "no need to log it",
+            "that is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-bulkhead-sizing",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a bulkhead sized from a round number (R5)",
+      "input": "We set the connection pool for that dependency to 10 because 10 is a round number.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measur|Little's Law|concurrent",
+            "p99|in-flight"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "10 is fine",
+            "round number is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-failure-mode-enumeration",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must enumerate failure shapes, not just 'returns an error' (R6)",
+      "input": "We handle the case where the dependency returns a 500. That covers the failure modes.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "hang|slow",
+            "partial|wrong-but-200|flapping"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "covers the failure modes",
+            "that covers it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-authorization-weakening",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a degradation that weakens authorization",
+      "input": "When the auth service is slow we just skip the permission check and let the request through, so users are not blocked.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "authoriz|permission",
+            "appsec-engineer|refuse|cannot"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is reasonable",
+            "skipping the check is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-resilience",
+      "category": "checklist_coverage",
+      "description": "A full resilience request should surface deadline, retry budget and degradation",
+      "input": "Design the resilience plan for a service with four downstream dependencies.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "timeout|deadline",
+            "retry",
+            "degrad|circuit breaker|bulkhead"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-resilience",
+      "category": "output_quality",
+      "description": "Output should commit to a computed budget rather than hedge",
+      "input": "What is the single most important thing to get right when a dependency starts failing?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "timeout|deadline",
+            "budget|jitter"
+          ]
+        }
+      ]
+    }
+  ]
+}

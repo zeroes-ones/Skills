@@ -140,7 +140,12 @@ sys.exit(min(errs, 1))
     # ── G5: Markdown style ────────────────────────────────────────────────
     # lint-markdown.py honours .markdownlint.json (the config CI runs), so this gate now agrees
     # with CI's verdict instead of being stricter than it.
-    md_output=$(python3 "$REPO_ROOT/scripts/lib/lint-markdown.py" --changed --errors-only --no-color 2>/dev/null) && md_ok=true || md_ok=false
+    # --delta compares each file against its revision at HEAD: a violation the commit did not
+    # introduce is reported as pre-existing and does not block, while a new file (no baseline)
+    # or a newly-introduced violation blocks exactly as before. This mirrors G6/G13/G14, so the
+    # gate is usable on a corpus that carries known pre-existing markdown debt without weakening
+    # it for the files a commit actually changes.
+    md_output=$(python3 "$REPO_ROOT/scripts/lib/lint-markdown.py" --changed --delta --errors-only --no-color 2>/dev/null) && md_ok=true || md_ok=false
     if $md_ok; then
         pass "G5  Markdown style (repo .markdownlint.json rules, headings, code fences, no tabs)"
     else

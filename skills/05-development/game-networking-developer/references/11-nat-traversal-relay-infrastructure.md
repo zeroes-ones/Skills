@@ -1,6 +1,6 @@
 ## 11. NAT Traversal & Relay Infrastructure
 
-**Reference:** [nat-traversal-relay.md](references/nat-traversal-relay.md)
+**Reference:** [nat-traversal-relay.md](nat-traversal-relay.md)
 
 ### The Connectivity Stack
 

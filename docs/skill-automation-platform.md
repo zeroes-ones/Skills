@@ -424,7 +424,7 @@ AGENT_CMD='claude -p' python3 scripts/workflow-runner.py \
 
 | Layer | Today | After this plan |
 |-------|-------|-----------------|
-| P0 Library | 304 skills, chain graph, handoff protocol | unchanged |
+| P0 Library | 320 skills, chain graph, handoff protocol | unchanged |
 | P1 Contract | 6 manifests + schema + validator; 30 declared contracts | + triggers, credentials, A8 coverage growth |
 | P2 Content | real agent executor, skill-grounded, per-node | + cost/latency reporting into run-state |
 | P3 Execute | loops, budgets, checkpoints, guardrails, memory, resume | + `--resume-from <node>` |
