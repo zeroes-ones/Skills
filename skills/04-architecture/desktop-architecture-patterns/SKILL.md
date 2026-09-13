@@ -15,10 +15,12 @@ chain:
     - desktop-developer
     - macos-developer
     - frontend-developer
+    - library-linkage-architect
   feeds_into:
     - desktop-developer
     - macos-developer
     - frontend-developer
+    - app-launch-performance-engineer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
@@ -628,7 +630,7 @@ The dominant pattern for data-binding-native frameworks (WPF, WinUI 3, SwiftUI, 
 - Window lifecycle events: `created` → `shown` → `focused` → `blurred` → `minimized` → `closed` → `destroyed`
 - Parent-child window relationships for modality (macOS sheets, Windows modal dialogs)
 
-See: [reference/multi-window-architecture.md](reference/multi-window-architecture.md)
+See: [references/multi-window-architecture.md](references/multi-window-architecture.md)
 
 ---
 
@@ -658,7 +660,7 @@ See: [reference/multi-window-architecture.md](reference/multi-window-architectur
 
 ```
 
-See: [reference/desktop-ipc-architecture.md](reference/desktop-ipc-architecture.md)
+See: [references/desktop-ipc-architecture.md](references/desktop-ipc-architecture.md)
 
 ---
 
@@ -700,7 +702,7 @@ See: [reference/desktop-ipc-architecture.md](reference/desktop-ipc-architecture.
 - Rollback capability if new version fails to start
 - Background download with progress and resume support
 
-See: [reference/desktop-auto-update-patterns.md](reference/desktop-auto-update-patterns.md)
+See: [references/desktop-auto-update-patterns.md](references/desktop-auto-update-patterns.md)
 
 ---
 
@@ -725,7 +727,7 @@ See: [reference/desktop-auto-update-patterns.md](reference/desktop-auto-update-p
 
 ```
 
-See: [reference/desktop-security-architecture.md](reference/desktop-security-architecture.md)
+See: [references/desktop-security-architecture.md](references/desktop-security-architecture.md)
 
 ---
 
@@ -753,7 +755,7 @@ See: [reference/desktop-security-architecture.md](reference/desktop-security-arc
 
 ```
 
-See: [reference/cross-platform-desktop-strategies.md](reference/cross-platform-desktop-strategies.md)
+See: [references/cross-platform-desktop-strategies.md](references/cross-platform-desktop-strategies.md)
 
 ---
 
@@ -772,7 +774,7 @@ See: [reference/cross-platform-desktop-strategies.md](reference/cross-platform-d
 | Secrets (tokens, keys) | OS Keychain | OS-managed | Never in renderer memory |
 | Application Cache | App data dir | Filesystem | LRU eviction, size-capped |
 
-See: [reference/desktop-state-management.md](reference/desktop-state-management.md)
+See: [references/desktop-state-management.md](references/desktop-state-management.md)
 
 ---
 

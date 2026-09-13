@@ -1,0 +1,337 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "platform-hig-architect",
+  "description": "Per-skill evaluation for platform-hig-architect \u2014 validates trigger routing, boundary discipline against apple-hig-expert / material-design-expert / ui-ux-excellence, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-platform-hig-architect-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a cross-platform convention decision",
+      "input": "We are shipping the same app on iOS and Android. How do we decide what stays the same and what differs?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "platform-hig-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "convention",
+            "navigation",
+            "matrix"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-platform-hig-architect-tablet",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a form-factor adaptation problem",
+      "input": "Our iPad version is basically the phone layout stretched out. Where do we start?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "platform-hig-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "size class",
+            "split view"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-platform-hig-architect-tv",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a reduced surface like TV or watch",
+      "input": "We want to add a TV app for our streaming product. What changes compared to the phone app?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "platform-hig-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "focus",
+            "remote"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-platform-apple-depth",
+      "category": "negative_trigger",
+      "description": "Deep Apple-only HIG detail belongs to apple-hig-expert",
+      "input": "Audit our iOS 26 app against the Apple Human Interface Guidelines and Liquid Glass, including the exact Apple control and colour specifics.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "platform-hig-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "apple-hig-expert"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-platform-material-depth",
+      "category": "negative_trigger",
+      "description": "Deep Material 3 detail belongs to material-design-expert",
+      "input": "Implement the Material 3 dynamic colour system and component tokens across our Android app in detail.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "platform-hig-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "material-design-expert"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-platform-craft",
+      "category": "negative_trigger",
+      "description": "Platform-agnostic craft and heuristics belong to ui-ux-excellence",
+      "input": "Run a heuristic evaluation of our onboarding flow and score it against Nielsen's ten heuristics.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "platform-hig-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ui-ux-excellence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-platform-wcag",
+      "category": "negative_trigger",
+      "description": "WCAG conformance auditing belongs to accessibility-auditor",
+      "input": "Audit our product against WCAG 2.2 AA and assess our ADA legal exposure.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "platform-hig-architect"
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-matrix-first",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a convention matrix before UI work on a multi-platform product (R1)",
+      "input": "Start building the iOS and Android screens for our new feature this sprint; we can sort out platform differences later.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "matrix",
+            "convention"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "we can sort out platform differences later"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-no-stretched-layout",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse treating a form factor as a scaled copy (R2)",
+      "input": "Just reuse the phone layout for the tablet and the watch at a bigger and smaller size, it will be fine.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "form factor",
+            "size class"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "reuse the phone layout"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-documented-deviation",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require deviations to be documented (R3)",
+      "input": "Replace the system back gesture with our own swipe because it feels more premium. No need to write it down.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "deviation",
+            "rationale"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "no need to write it down"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-input-modalities",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse touch-only input coverage (R4)",
+      "input": "We support tap gestures, so input is covered. Are there other things to check?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "keyboard",
+            "modality"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "input is covered"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-text-resize",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must preserve the platform text-size setting when replacing the system font (R5)",
+      "input": "Swap the platform system font for our brand font everywhere, including body text.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "text size",
+            "resize"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "just swap the font"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-platform-accessibility",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must apply the platform's accessibility contract (R6)",
+      "input": "Our app passes a WCAG audit, so platform accessibility is handled too.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "label",
+            "role"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "accessibility is handled"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-platform",
+      "category": "checklist_coverage",
+      "description": "A full multi-platform request should surface the matrix, form factors and input modalities",
+      "input": "Give us a complete plan for shipping our product on iOS, Android, tablet, web and TV.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "matrix",
+            "size class",
+            "focus"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-system-affordance",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse reimplementing a system affordance",
+      "input": "Build our own permission prompt so it matches our brand instead of using the system one.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "system affordance"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "build our own permission prompt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-platform",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable, and must not state recalled platform dimensions as fact",
+      "input": "What is the most important thing to know about platform conventions?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "convention",
+            "platform"
+          ]
+        }
+      ]
+    }
+  ]
+}

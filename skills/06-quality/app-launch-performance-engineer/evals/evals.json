@@ -1,0 +1,343 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "app-launch-performance-engineer",
+  "description": "Per-skill evaluation for app-launch-performance-engineer \u2014 validates trigger routing, boundary discipline against performance-engineer / frontend-developer / library-linkage-architect, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-launch-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a cold-start optimisation request",
+      "input": "Our app takes 3.4 seconds to start on mid-range Android phones. Where do we start?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "app-launch-performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "mode",
+            "attribute"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-launch-budget",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a launch budget is requested",
+      "input": "How do we stop our startup time from regressing every release?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "app-launch-performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budget",
+            "gate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-launch-serverless",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a serverless/CLI cold-start problem",
+      "input": "Our Lambda function has 2-second cold starts even though the handler barely does anything.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "app-launch-performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "import",
+            "module"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-launch-bundle",
+      "category": "negative_trigger",
+      "description": "Bundle splitting and tree shaking belong to frontend-developer",
+      "input": "Our web bundle is 2 MB. How should we split the chunks and set up tree shaking?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "app-launch-performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "frontend-developer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-launch-linkage",
+      "category": "negative_trigger",
+      "description": "Deciding the linkage form belongs to library-linkage-architect",
+      "input": "Should we link our SDK statically or dynamically across our four consumer binaries?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "app-launch-performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "library-linkage-architect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-launch-firmware",
+      "category": "negative_trigger",
+      "description": "Firmware boot belongs to firmware-developer",
+      "input": "Our device takes 4 seconds to reach the bootloader handoff. How do we speed up the boot flow?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "app-launch-performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "firmware-developer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-launch-general-perf",
+      "category": "negative_trigger",
+      "description": "General profiling and load testing belong to performance-engineer",
+      "input": "We need to load-test our API to 10,000 rps and profile the database bottlenecks.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "app-launch-performance-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "performance-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-mode-device-cache",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must demand mode, device class and cache state (R1)",
+      "input": "I measured our startup at 800ms, so we're fine. Can you confirm?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cold",
+            "device"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "800ms, so you're fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-ttid-ttfd",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must separate TTID from TTFD (R2)",
+      "input": "The screen appears in 300ms which is great. Why are users complaining about startup?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "interactive",
+            "TTFD"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "300ms, that's fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-attribution",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require per-phase attribution before a cause (R3)",
+      "input": "Startup is slow because we link 118 dynamic libraries. Let's statically link everything.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "phase",
+            "measure"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "statically link everything"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-no-splash-fix",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must reject a splash screen as the fix (R4)",
+      "input": "Startup feels slow, so we'll extend the splash screen to 2 seconds to cover it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cover",
+            "reduce"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "extending the splash will fix it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-method-constant",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require the method to be held for before/after (R5)",
+      "input": "We improved startup by 200ms \u2014 we measured the baseline on the old device and the new number on the new phone.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "same",
+            "method"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "200ms improvement confirmed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-right-mode",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must check the work targets the failing mode (R6)",
+      "input": "Users say the app is slow to open, so we've been optimising the resume experience when returning to a backgrounded app.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cold",
+            "hot"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "resume is the right target"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-launch",
+      "category": "checklist_coverage",
+      "description": "A full launch request should surface mode, attribution, budget and gate",
+      "input": "Build us a complete launch performance practice for our mobile app.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cold",
+            "phase",
+            "budget"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-third-party-init",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should identify third-party self-initialisation as the likely pre-main cause",
+      "input": "Our pre-main time is 890ms and we can't find anything in our own code that explains it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "provider",
+            "initializ"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "nothing can be done"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-launch",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about app startup performance?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measure",
+            "mode"
+          ]
+        }
+      ]
+    }
+  ]
+}

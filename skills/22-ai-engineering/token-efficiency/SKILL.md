@@ -15,12 +15,14 @@ chain:
   - context-compaction-strategies
   - context-optimizer
   - llm-engineer
+  - cost-accounting
   feeds_into:
   - context-engineering
   - context-optimizer
   - dynamic-skill-creator
   - cross-agent-skills-packaging
   - agent-handoff-protocol
+  - cost-accounting
   examples:
   - examples/token-efficiency/
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

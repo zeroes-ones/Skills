@@ -55,6 +55,10 @@ chain:
     - security-reviewer
     - ui-ux-designer
     - ux-researcher
+    - typography-designer
+    - ui-ux-excellence
+    - inclusive-design-engineer
+    - app-launch-performance-engineer
 workflow:
   artifacts:
     inputs: [product-spec, brand-assets]

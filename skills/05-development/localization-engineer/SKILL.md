@@ -39,6 +39,7 @@ chain:
   - mobile-developer
   - qa-engineer
   - translation-manager
+  - typography-designer
 ---
 # Localization / i18n-L10n Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

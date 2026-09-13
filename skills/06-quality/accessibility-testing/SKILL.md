@@ -36,6 +36,7 @@ chain:
   - ci-cd-builder
   - qa-engineer
   - tdd-guide
+  - inclusive-design-engineer
   feeds_into:
   - accessibility-auditor
   - frontend-developer

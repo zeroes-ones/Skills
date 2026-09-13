@@ -30,6 +30,8 @@ chain:
     - ui-ux-designer
     - data-visualization-engineer
     - content-strategist
+    - typography-designer
+    - ui-ux-excellence
   feeds_into:
     - product-marketing-manager
     - sales-engineer

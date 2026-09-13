@@ -31,6 +31,7 @@ chain:
   - token-efficiency
   - context-engineering
   - iterative-task-execution
+  - agentic-complexity-ladder
   feeds_into:
   - multi-agent-orchestration
   - cross-skill-communication

@@ -39,6 +39,7 @@ chain:
     - hardware-architect
     - performance-engineer
     - qa-engineer
+    - library-linkage-architect
   feeds_into:
     - game-engine-architect
     - environmental-tech-developer
@@ -46,6 +47,7 @@ chain:
     - hardware-architect
     - performance-engineer
     - qa-engineer
+    - native-interop-engineer
 ---
 # Embedded Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

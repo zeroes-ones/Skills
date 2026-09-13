@@ -36,6 +36,7 @@ chain:
     - data-scientist
     - quantitative-analyst
     - mlops-engineer
+    - native-interop-engineer
   feeds_into:
     - trust-safety-engineer
     - on-device-ai-engineer

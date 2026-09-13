@@ -26,10 +26,13 @@ chain:
     - agent-handoff-protocol
     - multi-agent-orchestration
     - using-agent-skills
+    - cost-accounting
+    - agentic-complexity-ladder
   feeds_into:
     - agent-eval-pipeline
     - cross-agent-skills-packaging
     - multi-agent-orchestration
+    - cost-accounting
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
 ---

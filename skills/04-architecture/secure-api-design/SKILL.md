@@ -35,10 +35,12 @@ chain:
   consumes_from:
     - api-designer
     - security-reviewer
+    - library-linkage-architect
   feeds_into:
     - system-design-interview-prep
     - backend-developer
     - security-reviewer
+    - plugin-ecosystem-architect
 workflow:
   artifacts:
     inputs: [api-design]

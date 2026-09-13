@@ -37,11 +37,13 @@ chain:
     - monorepo-manager
     - ci-cd-builder
     - platform-engineer
+    - code-formatting-and-linting
   feeds_into:
     - ci-cd-builder
     - platform-engineer
     - monorepo-manager
     - polyrepo-strategy
+    - code-formatting-and-linting
   alternatives: []
 ---
 # Repo Scaffolding & Templates

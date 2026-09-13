@@ -82,6 +82,7 @@ chain:
   - translation-manager
   - website-builder
   - browser-testing-with-devtools
+  - inclusive-design-engineer
   feeds_into:
   - verification-before-completion
   - debugging-and-error-recovery

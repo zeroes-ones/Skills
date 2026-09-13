@@ -26,6 +26,10 @@ chain:
   - mobile-developer
   - ios-developer
   - android-developer
+  - platform-hig-architect
+  - app-launch-performance-engineer
+  - native-interop-engineer
+  - access-modifiers
   feeds_into:
   - mobile-developer
   examples:
@@ -620,6 +624,7 @@ A chat app parses a 4MB message history JSON on the UI isolate at startup; the a
 - [Testing Matrix](references/testing-matrix.md) — Unit/widget/integration test setup and release gates
 - [Version Matrix Reference](references/version-matrix.md) — Flutter/Dart compatibility and upgrade protocol
 - [Widget Architecture](references/widget-architecture.md) — Composition, const, rebuild scopes, theming
+- [Access Modifiers in Dart](references/access-modifiers-dart.md) — `_` is library-scoped (one file), `lib/src/` as the implementation convention, `@visibleForTesting` as an analyzer hint, and the absence of a test-visibility mechanism
 - **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---

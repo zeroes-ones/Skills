@@ -42,6 +42,8 @@ chain:
   - mlops-engineer
   - context-engineering
   - context-optimizer
+  - cost-accounting
+  - agentic-complexity-ladder
   feeds_into:
   - ai-engineer
   - multi-agent-orchestration

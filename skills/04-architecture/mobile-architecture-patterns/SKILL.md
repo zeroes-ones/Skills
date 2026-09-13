@@ -15,11 +15,13 @@ chain:
     - ios-developer
     - android-developer
     - mobile-developer
+    - library-linkage-architect
   feeds_into:
     - ios-developer
     - android-developer
     - mobile-developer
     - frontend-developer
+    - app-launch-performance-engineer
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 

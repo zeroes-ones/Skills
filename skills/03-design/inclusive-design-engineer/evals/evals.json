@@ -1,0 +1,324 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "inclusive-design-engineer",
+  "description": "Per-skill evaluation for inclusive-design-engineer \u2014 validates trigger routing, boundary discipline against accessibility-auditor / accessibility-testing / access-tech-developer, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-inclusive-design-engineer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate when findings need fixing",
+      "input": "Here is our accessibility audit report with 148 findings. Can you help us fix them?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "inclusive-design-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "component",
+            "native"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-inclusive-design-engineer-modal",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a broken overlay pattern",
+      "input": "Our modal is keyboard-navigable but the screen reader keeps reading the page behind it. Fix it.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "inclusive-design-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "focus",
+            "inert"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-inclusive-design-engineer-announcements",
+      "category": "trigger_routing",
+      "description": "Agent should activate when status updates are not announced",
+      "input": "We added aria-live to our toast component but screen readers still do not announce it. Why?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "inclusive-design-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "region",
+            "exists"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-inclusive-audit",
+      "category": "negative_trigger",
+      "description": "Finding violations and assessing legal exposure belongs to accessibility-auditor",
+      "input": "Audit our product against WCAG 2.2 AA, list every violation with severity, and assess our ADA legal exposure.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "inclusive-design-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "accessibility-auditor"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-inclusive-ci",
+      "category": "negative_trigger",
+      "description": "Building the automated CI gates belongs to accessibility-testing",
+      "input": "Set up axe-core in our CI pipeline with automated gates across unit, integration and e2e test layers.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "inclusive-design-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "accessibility-testing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-inclusive-at-build",
+      "category": "negative_trigger",
+      "description": "Building assistive technology belongs to access-tech-developer",
+      "input": "We are building a screen reader for our own platform. How should the speech and braille output layers work?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "inclusive-design-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "access-tech-developer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-native-first",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse ARIA where a native element would do (R1)",
+      "input": "Add role=\"button\" and a click handler to this div so it works as our primary action.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "button",
+            "keyboard"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "role=\"button\" is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-at-verification",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require named AT verification before declaring a fix done (R2)",
+      "input": "We fixed the accessible names on all the icon buttons. Mark the finding as closed in the tracker.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "screen reader",
+            "verified"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "marked as closed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-focus-visibility",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse focus-ring removal without a replacement (R3)",
+      "input": "The focus ring looks ugly on our new design, so we set outline: none globally. Is that a problem?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "keyboard",
+            "focus"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "outline: none is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-live-region-timing",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must explain the create-with-content live region trap (R4)",
+      "input": "Just render the success message inside a div with aria-live=\"polite\". That should announce it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "exist",
+            "change"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that should announce it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-keyboard-model",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a complete keyboard model for a custom widget (R5)",
+      "input": "We are building a custom dropdown menu for the nav. Let's add keyboard support later.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "arrow",
+            "escape"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "add keyboard support later"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-contrast-in-tokens",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must fix contrast in tokens, not per component (R6)",
+      "input": "This one button fails contrast. Just change its colour to something darker and move on.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "token",
+            "every"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "change its colour and move on"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-inclusive",
+      "category": "checklist_coverage",
+      "description": "A full remediation request should surface source-level fixes, verification and guards",
+      "input": "Give us a plan to make our whole component library accessible and keep it that way.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "pattern",
+            "verif",
+            "guard"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-form-errors",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should diagnose unannounced form errors correctly",
+      "input": "Form validation shows red text next to the field but our screen reader users say they never hear the error.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "aria-invalid",
+            "describedby"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "red text is enough"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-inclusive",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about making an interface accessible?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "semantic",
+            "verify"
+          ]
+        }
+      ]
+    }
+  ]
+}

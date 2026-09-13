@@ -20,6 +20,7 @@ chain:
   consumes_from:
     - git-workflow
     - code-reviewer
+    - code-formatting-and-linting
   feeds_into:
     - ci-cd-builder
     - release-manager

@@ -26,6 +26,10 @@ chain:
   - frontend-developer
   - ios-developer
   - android-developer
+  - platform-hig-architect
+  - app-launch-performance-engineer
+  - native-interop-engineer
+  - access-modifiers
   feeds_into:
   - mobile-developer
   examples:

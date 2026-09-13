@@ -34,6 +34,7 @@ chain:
     - system-architect
     - performance-engineer
     - embedded-engineer
+    - native-interop-engineer
   feeds_into:
     - game-networking-developer
     - game-developer

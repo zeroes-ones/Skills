@@ -32,6 +32,10 @@ chain:
     - security-reviewer
     - system-architect
     - ui-ux-designer
+    - platform-hig-architect
+    - app-launch-performance-engineer
+    - code-formatting-and-linting
+    - access-modifiers
   feeds_into:
     - mobile-architecture-patterns
     - access-tech-developer
@@ -591,6 +595,7 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 | `references/accessibility-voiceover.md` | Labels, hints, traits, Dynamic Type, Rotor, Accessibility Inspector | Accessibility audit |
 | `references/instruments-profiling.md` | Time Profiler, Allocations, Leaks, SwiftUI, Core Animation, Energy Log | Performance profiling |
 | `references/xcode-build-settings.md` | xcconfig, SWIFT_OPTIMIZATION_LEVEL, privacy manifest, provisioning | Build configuration |
+| `references/access-modifiers-swift.md` | `open` vs `public`, `internal(set)`, `fileprivate`, the guiding principle, `@testable` | Deciding visibility, or reviewing an over-exposed API |
 
 
 ## Apple Documentation (Official)

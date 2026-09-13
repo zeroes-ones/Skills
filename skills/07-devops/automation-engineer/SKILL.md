@@ -50,6 +50,7 @@ chain:
     - ml-ai-engineer
     - marketing-manager
     - data-engineer
+    - plugin-ecosystem-architect
   feeds_into:
     - ci-cd-builder
     - release-manager

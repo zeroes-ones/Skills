@@ -70,6 +70,11 @@ chain:
     - staff-engineer
     - system-architect
     - tdd-guide
+    - library-linkage-architect
+    - native-interop-engineer
+    - code-formatting-and-linting
+    - access-modifiers
+    - caching-architect
   feeds_into:
     - explore-tools
     - event-driven-architect
@@ -829,6 +834,7 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Footguns**: See [footguns.md](references/footguns.md)
+- **Access Modifiers (Java, Python, Go, Node)**: See [access-modifiers.md](references/access-modifiers.md) — the restraint ladder, per-language defaults, and the erasure/permeability traps
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 

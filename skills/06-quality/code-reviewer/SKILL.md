@@ -46,6 +46,8 @@ chain:
     - security-reviewer
     - staff-engineer
     - tdd-guide
+    - code-formatting-and-linting
+    - access-modifiers
   feeds_into:
     - doubt-driven-development
     - debugging-and-error-recovery
@@ -61,6 +63,8 @@ chain:
     - security-reviewer
     - staff-engineer
     - tdd-guide
+    - code-formatting-and-linting
+    - access-modifiers
 workflow:
   artifacts:
     inputs: [change]

@@ -55,6 +55,7 @@ chain:
   - security-engineer
   - translation-manager
   - configuration-change-safety
+  - code-formatting-and-linting
   feeds_into:
   - supply-chain-security
   - repo-scaffolding
@@ -74,6 +75,7 @@ chain:
   - monorepo-manager
   - qa-engineer
   - release-manager
+  - code-formatting-and-linting
 workflow:
   artifacts:
     inputs: [delivery-pipeline, repository]

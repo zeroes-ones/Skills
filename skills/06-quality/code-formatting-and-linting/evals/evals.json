@@ -1,0 +1,357 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "code-formatting-and-linting",
+  "description": "Per-skill evaluation for code-formatting-and-linting \u2014 validates trigger routing, boundary discipline against code-reviewer / build-system-design / repo-scaffolding, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-formatting-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a style standard is being established",
+      "input": "How do we set up formatting and linting across our repo so we stop arguing about style?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "code-formatting-and-linting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "formatter",
+            "editorconfig"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-formatting-enforcement",
+      "category": "trigger_routing",
+      "description": "Agent should activate for an enforcement-location question",
+      "input": "Should our formatter run in a pre-commit hook, in CI, or both?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "code-formatting-and-linting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "CI",
+            "authority"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-formatting-polyglot",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a cross-language policy question",
+      "input": "We have Swift, Kotlin, TypeScript and Python in one repo. How do we have one standard?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "code-formatting-and-linting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "per-language",
+            "policy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-formatting-legacy",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a legacy reformat",
+      "input": "Our codebase has never been formatted and we have 40 open branches. How do we adopt Prettier?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "code-formatting-and-linting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "isolat",
+            "blame"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-formatting-review",
+      "category": "negative_trigger",
+      "description": "Reviewing the substance of a change belongs to code-reviewer",
+      "input": "Review this PR for security vulnerabilities and error-handling gaps.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "code-formatting-and-linting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "code-reviewer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-formatting-build",
+      "category": "negative_trigger",
+      "description": "Build speed and build-system choice belong to build-system-design",
+      "input": "Our CI takes 40 minutes. Should we move to Bazel with remote caching?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "code-formatting-and-linting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "build-system-design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-formatting-scaffold",
+      "category": "negative_trigger",
+      "description": "Scaffolding a specific repo belongs to repo-scaffolding",
+      "input": "Generate the full directory structure and starter files for our new Go service.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "code-formatting-and-linting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "repo-scaffolding"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-formatting-deps",
+      "category": "negative_trigger",
+      "description": "Dependency versions and CVEs belong to dependency-governance",
+      "input": "We have version sprawl across 40 repos and a critical CVE to triage.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "code-formatting-and-linting"
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-automate-style",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse style enforced by review (R1)",
+      "input": "We have a style guide and reviewers check it in every PR. That works for us.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "automat",
+            "tool"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that works for us"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-ci-authority",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must establish CI as the authority, not the hook (R2)",
+      "input": "We have a pre-commit hook that runs Prettier, so our code is always formatted.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "skippable",
+            "CI"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "always formatted"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-reformat-isolation",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require reformat isolation (R3)",
+      "input": "I'll just run Prettier across the repo in the same PR as my feature. It's fine.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "isolat",
+            "blame"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that's fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-suppressions",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require bounded, reasoned suppressions (R4)",
+      "input": "We just add eslint-disable at the top of the file whenever there's a finding we don't like.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "rule",
+            "reason"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "top of the file is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-per-language-tools",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must not stretch one tool across languages (R5)",
+      "input": "Can we just use Prettier for our Go, Swift and Python too so we have one tool?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "gofmt",
+            "per-language"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "one tool for everything"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-generated-files",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must exclude generated code (R6)",
+      "input": "The linter flags 800 generated files and it's really noisy. We're thinking of turning it off.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "exclude",
+            "generated"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "turning it off is reasonable"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security-rule-not-suppressible",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse suppressing a security-relevant lint rule",
+      "input": "The SQL injection lint rule is blocking our release. Can we just disable it in the config for now?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "security",
+            "appsec"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "disable it for now"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-formatting",
+      "category": "checklist_coverage",
+      "description": "A full policy request should surface the intent layer, enforcement and suppressions",
+      "input": "Give us a complete formatting and linting policy for our polyglot monorepo.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "editorconfig",
+            "CI",
+            "suppress"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-formatting",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about code formatting and linting?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "automat",
+            "CI"
+          ]
+        }
+      ]
+    }
+  ]
+}

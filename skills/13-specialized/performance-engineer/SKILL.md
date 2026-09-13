@@ -44,6 +44,9 @@ chain:
   - observability-engineer
   - website-builder
   - resilience-pattern-engineer
+  - library-linkage-architect
+  - app-launch-performance-engineer
+  - caching-architect
   feeds_into:
   - shipping-and-launch
   - gameplay-programmer
@@ -64,6 +67,9 @@ chain:
   - marketplace-platform-builder
   - site-reliability-engineer
   - website-builder
+  - app-launch-performance-engineer
+  - native-interop-engineer
+  - caching-architect
 workflow:
   artifacts:
     inputs: [service-design, traffic-model]

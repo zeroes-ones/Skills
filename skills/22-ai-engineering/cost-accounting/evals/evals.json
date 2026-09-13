@@ -1,0 +1,337 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "cost-accounting",
+  "description": "Per-skill evaluation for cost-accounting \u2014 validates trigger routing, boundary discipline against token-efficiency / finops-engineer / agentic-complexity-ladder, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-cost-accounting-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a run's spend must be measured",
+      "input": "How do we find out what our agent workflow actually costs per run?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cost-accounting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measured",
+            "per-node"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cost-accounting-cap",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a spend-bound or budget request",
+      "input": "We need to stop a runaway agent from spending without limit. How do we cap it?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cost-accounting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "budget",
+            "halt"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-cost-accounting-attribution",
+      "category": "trigger_routing",
+      "description": "Agent should activate when cost must be attributed",
+      "input": "One workflow is eating most of our agent budget. How do we work out which part is expensive?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "cost-accounting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "attribut",
+            "loop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-cost-token-efficiency",
+      "category": "negative_trigger",
+      "description": "Per-request token minimisation belongs to token-efficiency",
+      "input": "How do we trim our system prompt and get better prompt-cache hit rates to cut per-request cost?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cost-accounting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "token-efficiency"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-cost-finops",
+      "category": "negative_trigger",
+      "description": "Cloud infrastructure spend belongs to finops-engineer",
+      "input": "Our AWS bill is climbing. How should we right-size instances and plan reserved capacity?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cost-accounting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "finops-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-cost-ladder",
+      "category": "negative_trigger",
+      "description": "Choosing the architecture belongs to agentic-complexity-ladder",
+      "input": "Should this task be a single LLM call or a multi-agent graph?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cost-accounting"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "agentic-complexity-ladder"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-cost-context-optimizer",
+      "category": "negative_trigger",
+      "description": "Minimising a context payload belongs to context-optimizer",
+      "input": "How do we cut this 200k-token context down while holding answer quality constant?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "cost-accounting"
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-unmeasured-not-zero",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to treat a silent counter as zero cost (R1)",
+      "input": "Our dashboard shows $0.00 agent spend this month, so the workflow is basically free. Can you confirm?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measured",
+            "unmeasured"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "basically free"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-proxy-labelling",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must label a proxy and state its drift condition (R2)",
+      "input": "We track cost by counting agent steps. That's good enough to gate a budget on, right?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "proxy",
+            "drift"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "good enough to gate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-cost-per-success",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must move the metric to cost per successful outcome (R3)",
+      "input": "We cut cost per API call by 40%. Can we report that as a 40% saving?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "success",
+            "retry"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "40% saving"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-enforced-budget",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require enforcement and an increase path (R4)",
+      "input": "We set a max_cost_usd of $2 in the manifest but it never seems to do anything. Is that okay?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "enforce",
+            "measured"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that's fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-attribution",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require attribution rather than a total (R5)",
+      "input": "The run cost $0.28. Make it cheaper.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "node",
+            "phase"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "just use a cheaper model"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-forecast-from-units",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must forecast from a measured unit (R6)",
+      "input": "Our demo run cost $0.05. We expect 100,000 runs a month, so that's $5,000 total, right?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measured",
+            "unit"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "$5,000 total, correct"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security-not-traded-for-saving",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a saving that weakens a security control",
+      "input": "We can cut cost a lot by caching agent responses across all tenants and skipping output validation on the cheap path.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "tenant",
+            "security"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that should be fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-cost",
+      "category": "checklist_coverage",
+      "description": "A full cost-practice request should surface measurement, attribution, budget and gate",
+      "input": "Set up cost accounting and control for our agent fleet.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measured",
+            "attribut",
+            "budget"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-cost",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about agent cost accounting?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measured",
+            "outcome"
+          ]
+        }
+      ]
+    }
+  ]
+}

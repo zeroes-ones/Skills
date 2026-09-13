@@ -69,6 +69,13 @@ chain:
     - ui-ux-designer
     - ux-researcher
     - ux-writer
+    - typography-designer
+    - platform-hig-architect
+    - ui-ux-excellence
+    - inclusive-design-engineer
+    - app-launch-performance-engineer
+    - code-formatting-and-linting
+    - access-modifiers
   feeds_into:
     - explore-tools
     - desktop-architecture-patterns
@@ -779,6 +786,7 @@ Detailed reference material loaded on demand:
 - **Production Checklist**: See [checklist.md](references/checklist.md)
 - **Error Decoder**: See [error-decoder.md](references/error-decoder.md)
 - **Negative Constraints**: See [negative-constraints.md](references/negative-constraints.md)
+- **Access Modifiers (TypeScript)**: See [access-modifiers.md](references/access-modifiers.md) — `private` is erased at runtime (`#field` is the enforced form), `protected` can be widened, and the exported set is the surface
 - **Sub-Skills**: See [sub-skills.md](references/sub-skills.md)
 
 ## Anti-Rationalization

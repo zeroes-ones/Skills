@@ -50,6 +50,7 @@ chain:
   - product-manager
   - product-strategist
   - ui-ux-designer
+  - ui-ux-excellence
 workflow:
   artifacts:
     inputs: [product-context]

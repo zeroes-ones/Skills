@@ -1,0 +1,359 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "agentic-complexity-ladder",
+  "description": "Per-skill evaluation for agentic-complexity-ladder \u2014 validates trigger routing, boundary discipline against workflow-graph-authoring / multi-agent-orchestration / cost-accounting, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ladder-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate when the architecture rung is the question",
+      "input": "Do we need an agent for this task, or is a single LLM call enough?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "agentic-complexity-ladder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "simplest",
+            "measure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ladder-over-built",
+      "category": "trigger_routing",
+      "description": "Agent should activate for an over-engineering audit",
+      "input": "Our agent system has six nodes and feels over-engineered. How do we tell if we need all of them?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "agentic-complexity-ladder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "failure",
+            "remove"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ladder-workflow-vs-agent",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a workflow-versus-agent decision",
+      "input": "Should this be a deterministic workflow or an autonomous agent that decides its own steps?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "agentic-complexity-ladder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "knowable",
+            "predictab"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-ladder-manifest",
+      "category": "negative_trigger",
+      "description": "Authoring the manifest belongs to workflow-graph-authoring",
+      "input": "Write the YAML manifest with the nodes, edges and loop exit conditions for our review workflow.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "agentic-complexity-ladder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "workflow-graph-authoring"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-ladder-cost",
+      "category": "negative_trigger",
+      "description": "Measuring and bounding run cost belongs to cost-accounting",
+      "input": "We need per-node cost attribution and a spend cap on each run.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "agentic-complexity-ladder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "cost-accounting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-ladder-topology",
+      "category": "negative_trigger",
+      "description": "Topology detail once multi-agent is warranted belongs to multi-agent-orchestration",
+      "input": "We're definitely using multiple agents. Which topology \u2014 supervisor, hierarchical or peer-to-peer?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "agentic-complexity-ladder"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "multi-agent-orchestration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-ladder-context",
+      "category": "negative_trigger",
+      "description": "Minimising a context payload belongs to context-optimizer",
+      "input": "How do we reduce this 150k-token prompt while keeping answer quality?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "agentic-complexity-ladder"
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-measured-baseline",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a measured baseline before climbing (R1)",
+      "input": "Let's go straight to a multi-agent architecture. It'll be more capable than a single call.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "baseline",
+            "measure"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "more capable, let's do it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-no-agency-for-knowable-steps",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse agency where steps are knowable (R2)",
+      "input": "Give the agent a planner so it can decide its own steps through our fixed 4-stage pipeline.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "workflow",
+            "deterministic"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "give it a planner"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-one-rung-at-a-time",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse climbing two rungs at once (R3)",
+      "input": "Let's add prompt chaining, routing and an orchestrator in this one change.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "attribut",
+            "one rung"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "add all three"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-exit-criteria",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require exit criteria for every rung (R4)",
+      "input": "We added routing two years ago. Nobody knows if it's still needed, but we won't touch it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "exit condition",
+            "audit"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "won't touch it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-unmeasured-scale",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse complexity justified by unmeasured scale (R5)",
+      "input": "We might have a lot of users later, so we should build the full graph now.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "volume",
+            "measured"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "build it now"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-named-failure",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a named measured failure per rung (R6)",
+      "input": "Adding the extra validation node will make the system more robust overall.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "failing case",
+            "eval"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "more robust overall"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "parallelism-for-quality-refused",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse parallelism offered for a quality problem",
+      "input": "Our answers are inaccurate sometimes, so let's run the same prompt 5 times and take the majority vote.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "correlat",
+            "latency"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "majority vote will fix accuracy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-action-space-refused",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must treat an open action space as a security decision",
+      "input": "Give the agent shell access so it can figure out how to fix the failing tests by itself.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "allow-list",
+            "security"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "shell access is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-ladder",
+      "category": "checklist_coverage",
+      "description": "A full architecture decision should surface baseline, classification and exit criteria",
+      "input": "Give us a complete recommendation for how much agentic machinery this task needs.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "baseline",
+            "failure",
+            "exit"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-ladder",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about choosing how complex an agent system should be?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "simplest",
+            "measured"
+          ]
+        }
+      ]
+    }
+  ]
+}

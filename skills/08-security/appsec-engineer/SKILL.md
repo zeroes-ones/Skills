@@ -41,6 +41,7 @@ chain:
     - vulnerability-management
     - security-engineer
     - qa-engineer
+    - plugin-ecosystem-architect
   alternatives:
     - security-reviewer
 ---

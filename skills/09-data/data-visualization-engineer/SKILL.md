@@ -34,6 +34,7 @@ chain:
     - environmental-tech-developer
     - data-scientist
     - analytics-engineer
+    - typography-designer
   feeds_into:
     - fintech-ui-designer
     - environmental-tech-developer

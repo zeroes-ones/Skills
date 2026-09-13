@@ -33,6 +33,7 @@ chain:
   - product-marketing-manager
   - technical-writer
   - ui-ux-designer
+  - ui-ux-excellence
   feeds_into:
   - content-strategist
   - frontend-developer

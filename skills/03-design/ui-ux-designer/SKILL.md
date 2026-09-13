@@ -35,6 +35,9 @@ chain:
     - brand-guidelines
     - product-manager
     - ux-researcher
+    - typography-designer
+    - platform-hig-architect
+    - ui-ux-excellence
   feeds_into:
     - website-builder
     - browser-testing-with-devtools
@@ -59,6 +62,10 @@ chain:
     - medical-illustrator
     - mobile-developer
     - ux-writer
+    - typography-designer
+    - platform-hig-architect
+    - ui-ux-excellence
+    - inclusive-design-engineer
 workflow:
   artifacts:
     inputs: [product-spec, user-research]

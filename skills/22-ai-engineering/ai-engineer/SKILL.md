@@ -38,6 +38,9 @@ chain:
     - product-manager
     - ui-ux-designer
     - mlops-engineer
+    - plugin-ecosystem-architect
+    - cost-accounting
+    - agentic-complexity-ladder
   feeds_into:
     - trust-safety-engineer
     - on-device-ai-engineer
@@ -47,6 +50,7 @@ chain:
     - llm-engineer
     - mlops-engineer
     - product-manager
+    - agentic-complexity-ladder
 ---
 # AI Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

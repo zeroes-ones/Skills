@@ -33,6 +33,8 @@ chain:
   - database-designer
   - idea-to-spec
   - system-architect
+  - plugin-ecosystem-architect
+  - access-modifiers
   feeds_into:
   - deprecation-engineer
   - website-builder
@@ -58,6 +60,9 @@ chain:
   - qa-engineer
   - technical-writer
   - resilience-pattern-engineer
+  - plugin-ecosystem-architect
+  - access-modifiers
+  - caching-architect
 workflow:
   artifacts:
     inputs: [domain-model]

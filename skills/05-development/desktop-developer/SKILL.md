@@ -20,6 +20,9 @@ chain:
     - security-reviewer
     - system-architect
     - on-device-ai-engineer
+    - app-launch-performance-engineer
+    - native-interop-engineer
+    - access-modifiers
   feeds_into:
   - desktop-architecture-patterns
   - macos-developer
@@ -604,6 +607,7 @@ Detailed reference material loaded on demand:
 - **Desktop Window Management**: See [references/desktop-window-management.md](references/desktop-window-management.md) — Multi-window, frameless, DPI scaling, tray, menu bar, focus management
 - **Cross-Platform Testing**: See [references/cross-platform-testing.md](references/cross-platform-testing.md) — Spectron, Playwright, platform matrix, GPU testing, power-state simulation
 - **Windows-Native & Linux-Native Depth**: See [references/windows-linux-native.md](references/windows-linux-native.md) — when to go native vs cross-platform; WinUI 3/WPF/Win32 essentials (Snap Layouts, taskbar, toasts, MSIX/MSI signing, DPI); Linux GTK4/libadwaita vs Qt by desktop environment, Flatpak/portals, Wayland and AT-SPI; cross-cutting native checklist and war stories
+- **Access Modifiers (C#, Swift, TS)**: See [references/access-modifiers.md](references/access-modifiers.md) — `internal` vs `sealed`, the two C# two-word modifiers, `#field` for the Electron/TS side, and the IPC bridge as a real surface
 
 ## State Log
 <!-- STANDARD: 3min -->

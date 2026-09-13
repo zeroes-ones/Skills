@@ -31,6 +31,7 @@ chain:
     - llm-engineer
     - context-engineering
     - workflow-graph-authoring
+    - agentic-complexity-ladder
   feeds_into:
     - agent-handoff-protocol
     - cross-skill-communication
@@ -39,6 +40,7 @@ chain:
     - platform-engineer
     - iterative-task-execution
     - workflow-graph-authoring
+    - agentic-complexity-ladder
 
 workflow:
   artifacts:

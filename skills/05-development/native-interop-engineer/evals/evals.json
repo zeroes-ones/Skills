@@ -1,0 +1,340 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "native-interop-engineer",
+  "description": "Per-skill evaluation for native-interop-engineer \u2014 validates trigger routing, boundary discipline against library-linkage-architect / plugin-ecosystem-architect / api-designer, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-native-interop-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate when native code is called from a managed runtime",
+      "input": "We need to call a Rust image library from our Python service. How should we structure the boundary?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "native-interop-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ownership",
+            "boundary"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-native-interop-ownership",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a memory-ownership question at a boundary",
+      "input": "Our JNI wrapper returns a pointer that the Java side frees. Is that correct?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "native-interop-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "allocator",
+            "free"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-native-interop-crash",
+      "category": "trigger_routing",
+      "description": "Agent should activate for an intermittent boundary crash",
+      "input": "Our native extension crashes under load but never in our unit tests. Where do we look?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "native-interop-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "thread",
+            "attach"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-interop-linkage",
+      "category": "negative_trigger",
+      "description": "The linkage form and ABI versioning belong to library-linkage-architect",
+      "input": "Should we statically or dynamically link our crypto library, and what soname policy should we use?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "native-interop-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "library-linkage-architect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-interop-platform",
+      "category": "negative_trigger",
+      "description": "Designing the extension platform belongs to plugin-ecosystem-architect",
+      "input": "Design the plugin marketplace and capability model for third-party extensions to our app.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "native-interop-engineer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "plugin-ecosystem-architect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-interop-network",
+      "category": "negative_trigger",
+      "description": "A network API contract belongs to api-designer",
+      "input": "Design our REST API for the inference service and its versioning strategy.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "native-interop-engineer"
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-ownership",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a named allocator and owner (R1)",
+      "input": "We'll just pass the pointer back to Python and let Python's GC free it. That should be fine.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "allocator",
+            "corrupt"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that should be fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-measured-cost",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a measured per-crossing cost (R2)",
+      "input": "We're moving our hot loop to C++ for speed. The FFI overhead shouldn't matter.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measure",
+            "crossing"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "overhead shouldn't matter"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-no-unwind",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse exceptions crossing a foreign frame (R3)",
+      "input": "If the Rust code panics, the exception just propagates up through the JNI layer. It's handled at the top.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "catch",
+            "undefined"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "propagates up, that's fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-sentinel",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a colliding sentinel error value (R3)",
+      "input": "We return -1 to mean an error. The valid range is 0 to 1000 so -1 is safe.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "distinguishable",
+            "result"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "so -1 is safe"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-reentrancy",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must catch the guard re-entrancy deadlock (R4)",
+      "input": "Our native library calls a callback back into Python while it's iterating our list. Sometimes it hangs.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "GIL",
+            "queue"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "hangs are expected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-wrapper-not-contract",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must not treat a binding library as the whole contract (R5)",
+      "input": "We're using a PyO3 binding library, so the memory management is handled for us.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "guarantee",
+            "own"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "handled for us, nothing to do"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-justify-boundary",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must demand justification before adding a boundary (R6)",
+      "input": "Let's add a Rust FFI layer for this feature. Rust is faster than our Go service.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measure",
+            "alternative"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "Rust is faster so let's do it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-native-interop",
+      "category": "checklist_coverage",
+      "description": "A full boundary design should surface ownership, errors, threads and cost",
+      "input": "Design the complete FFI boundary between our C++ engine and our .NET service.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ownership",
+            "error",
+            "thread"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-callback-lifetime",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should identify the callback-lifetime use-after-free",
+      "input": "Our callback sometimes fires after we've already shut down the object it references. We just log a warning.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "unregister",
+            "drain"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "logging a warning is enough"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-native-interop",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about writing a native language binding?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ownership",
+            "contract"
+          ]
+        }
+      ]
+    }
+  ]
+}

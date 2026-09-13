@@ -43,6 +43,7 @@ chain:
     - qa-engineer
     - ui-ux-designer
     - ux-researcher
+    - inclusive-design-engineer
   feeds_into:
     - accessibility-testing
     - qa-engineer

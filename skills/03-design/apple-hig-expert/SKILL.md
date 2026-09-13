@@ -33,6 +33,7 @@ chain:
     - accessibility-auditor
     - brand-guidelines
     - mobile-developer
+    - platform-hig-architect
   feeds_into:
     - ios-developer
     - macos-developer

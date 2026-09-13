@@ -1,0 +1,324 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "plugin-ecosystem-architect",
+  "description": "Per-skill evaluation for plugin-ecosystem-architect \u2014 validates trigger routing, boundary discipline against library-linkage-architect / api-designer / developer-relations-advocate, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-plugin-ecosystem-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a plugin-platform design request",
+      "input": "We want third-party developers to build extensions for our product. Where do we start?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "plugin-ecosystem-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "capability",
+            "extension point"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-plugin-ecosystem-capabilities",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a capability-model question",
+      "input": "How should extensions declare what they are allowed to access in our app?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "plugin-ecosystem-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "enforce",
+            "consent"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-plugin-ecosystem-breakage",
+      "category": "trigger_routing",
+      "description": "Agent should activate when extensions keep breaking",
+      "input": "Every time we release, half our third-party integrations break. How do we fix that?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "plugin-ecosystem-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "stability",
+            "version"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-plugin-abi",
+      "category": "negative_trigger",
+      "description": "The binary ABI shape belongs to library-linkage-architect",
+      "input": "Should our plugin boundary use a C ABI or pass C++ objects across it?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "plugin-ecosystem-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "library-linkage-architect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-plugin-network-api",
+      "category": "negative_trigger",
+      "description": "Network API versioning belongs to api-designer",
+      "input": "How should we version our public REST API for v2 so existing clients keep working?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "plugin-ecosystem-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "api-designer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-plugin-one-integration",
+      "category": "negative_trigger",
+      "description": "Building one integration belongs to automation-engineer",
+      "input": "Build us a Zapier-style integration that syncs our tickets to the customer's Slack.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "plugin-ecosystem-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "automation-engineer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-boundary-early",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse to retrofit an extension boundary after the core ships (R1)",
+      "input": "We've shipped v1 of the product. Now let's bolt on a plugin system so partners can extend it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "abstraction",
+            "internal"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "just bolt on a plugin system"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-stability-tiers",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require stability tiers and version negotiation (R2)",
+      "input": "We'll just try not to break the plugin API. Do we need to formalize anything?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "tier",
+            "version"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "just try not to break"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-enforced-capabilities",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse declared-but-unenforced capabilities (R3)",
+      "input": "Our plugin manifest lists permissions like 'network' and 'files', and the docs say plugins shouldn't abuse them.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "enforce",
+            "chokepoint"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "documenting them is enough"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-removal-path",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a removal/revocation path (R4)",
+      "input": "Plugins can be installed from our store. If one turns out to be malicious we'll just handle it then.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "revoke",
+            "disable"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "handle it then"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-isolation",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse in-process untrusted code without isolation (R5)",
+      "input": "Plugins will run in-process with full access to our app's memory. It's much faster that way.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "isolation",
+            "sandbox"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "in-process is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-developer-experience",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a DX deliverable (R6)",
+      "input": "We'll publish the plugin API docs. Developers should be able to figure out the rest.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "scaffold",
+            "local"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "figure out the rest"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-plugin-ecosystem",
+      "category": "checklist_coverage",
+      "description": "A full platform request should surface capabilities, contract, lifecycle and DX",
+      "input": "Design our complete extension platform, end to end.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "capability",
+            "stability",
+            "lifecycle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-silent-capability-expansion",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should flag silent capability expansion on update",
+      "input": "When we push a plugin update that needs a new permission, we just grant it automatically to avoid interrupting users.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "consent",
+            "change"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "grant it automatically"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-plugin-ecosystem",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about building a plugin platform?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "contract",
+            "capability"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -24,8 +24,12 @@ chain:
   - mobile-developer
   - android-developer
   - backend-developer
+  - platform-hig-architect
+  - native-interop-engineer
+  - access-modifiers
   feeds_into:
   - mobile-developer
+  - native-interop-engineer
   examples:
   - examples/kotlin-multiplatform/
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
@@ -607,6 +611,7 @@ Shared state "protected" with `freeze()` under the old model behaves differently
 - [Testing Shared Logic](references/testing-shared-logic.md) — commonTest setup and platform test strategy
 - [Version Matrix Reference](references/version-matrix.md) — Kotlin/Gradle/kotlinx compatibility and upgrade protocol
 - [Compose Multiplatform](references/compose-multiplatform.md) — Shared UI strategy and maturity guidance
+- [Access Modifiers in a Shared Module](references/access-modifiers-kmp.md) — `internal` as the shared-module boundary, `expect`/`actual` visibility, and the Java/Swift permeability of a shared internal
 - **Library Freshness Policy** (`scripts/references/library-freshness-policy.md`) — canonical "always use updated libraries" rule + `scripts/lib/library-version-check.sh` (shared checker)
 
 ---

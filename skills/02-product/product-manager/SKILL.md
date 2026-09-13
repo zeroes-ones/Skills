@@ -50,6 +50,7 @@ chain:
     - qa-engineer
     - sales-engineer
     - ux-researcher
+    - plugin-ecosystem-architect
   feeds_into:
     - saas-monetization-strategist
     - product-analyst
@@ -79,6 +80,9 @@ chain:
     - ui-ux-designer
     - ux-researcher
     - ux-writer
+    - typography-designer
+    - platform-hig-architect
+    - ui-ux-excellence
 workflow:
   artifacts:
     inputs: [market-context]

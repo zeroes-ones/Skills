@@ -40,6 +40,8 @@ chain:
   - performance-engineer
   - release-manager
   - configuration-change-safety
+  - cost-accounting
+  - caching-architect
   feeds_into:
   - debugging-and-error-recovery
   - chaos-engineer

@@ -28,6 +28,9 @@ chain:
     - security-reviewer
     - system-architect
     - ui-ux-designer
+    - platform-hig-architect
+    - app-launch-performance-engineer
+    - access-modifiers
   feeds_into:
     - desktop-architecture-patterns
     - performance-engineer
@@ -710,3 +713,4 @@ Detailed reference material loaded on demand:
 - **XPC Services Patterns**: See [xpc-services-patterns.md](references/xpc-services-patterns.md)
 - **Metal on macOS**: See [metal-on-macos.md](references/metal-on-macos.md)
 - **macOS Accessibility**: See [macos-accessibility.md](references/macos-accessibility.md)
+- **Access Modifiers (Swift)**: See [access-modifiers-swift.md](references/access-modifiers-swift.md) — app vs framework targets, `open` vs `public`, `internal(set)`, and the XPC message protocol as the real interface

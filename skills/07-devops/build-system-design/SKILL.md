@@ -46,6 +46,8 @@ chain:
     - ci-cd-builder
     - monorepo-manager
     - platform-engineer
+    - library-linkage-architect
+    - code-formatting-and-linting
   alternatives: []
 ---
 # Build System Design

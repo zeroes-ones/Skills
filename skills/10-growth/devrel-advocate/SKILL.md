@@ -28,6 +28,7 @@ chain:
   - documentation-engineer
   - frontend-developer
   - technical-writer
+  - plugin-ecosystem-architect
   feeds_into:
   - content-strategist
   - documentation-engineer

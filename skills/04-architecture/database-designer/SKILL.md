@@ -56,6 +56,7 @@ chain:
   - fullstack-developer
   - migration-architect
   - performance-engineer
+  - caching-architect
 workflow:
   artifacts:
     inputs: [domain-model, access-patterns]

@@ -28,6 +28,7 @@ chain:
   - data-engineer
   - product-manager
   - ux-researcher
+  - ui-ux-excellence
   feeds_into:
   - analytics-engineer
   - data-scientist

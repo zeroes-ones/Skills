@@ -23,12 +23,16 @@ chain:
     - senior-engineer-mode-router
     - system-architect
     - code-reviewer
+    - access-modifiers
   feeds_into:
     - brownfield-adoption-planner
     - backend-developer
     - frontend-developer
     - fullstack-developer
     - code-reviewer
+    - library-linkage-architect
+    - access-modifiers
+    - caching-architect
   alternatives: []
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---

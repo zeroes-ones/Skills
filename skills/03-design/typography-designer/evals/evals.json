@@ -1,0 +1,280 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "typography-designer",
+  "description": "Per-skill evaluation for typography-designer \u2014 validates trigger routing, boundary discipline against neighbouring skills, anti-pattern compliance, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-typography-designer-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate typography-designer for a type-system request",
+      "input": "Our headings all look almost the same size and nobody can explain why. We need a proper type scale for the product.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "typography-designer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ratio",
+            "base",
+            "rem"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-typography-designer-font-loading",
+      "category": "trigger_routing",
+      "description": "Agent should activate for webfont layout shift",
+      "input": "Lighthouse says our CLS is 0.18 and it looks like the text jumps when the font loads. How do we fix it?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "typography-designer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "size-adjust",
+            "fallback",
+            "metric"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-typography-designer-script-coverage",
+      "category": "trigger_routing",
+      "description": "Agent should activate for non-Latin script typography problems",
+      "input": "We just launched Arabic and the words render as separate letters instead of joined script. What is going on?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "typography-designer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "letter-spacing",
+            "shaping",
+            "coverage"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-typography-brand",
+      "category": "negative_trigger",
+      "description": "Brand identity and logo work belongs to brand-guidelines, not this skill",
+      "input": "We need a new logo and wordmark for the company, plus the brand identity system.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "typography-designer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "brand-guidelines"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-typography-tokens",
+      "category": "negative_trigger",
+      "description": "Full component and design-token architecture belongs to ui-ux-designer",
+      "input": "Design the component library API and the full token schema for spacing, elevation, radius and motion across the design system.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "typography-designer"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ui-ux-designer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-typography-translation",
+      "category": "negative_trigger",
+      "description": "Translation pipeline work belongs to translation-manager / localization-engineer",
+      "input": "Set up our machine translation pipeline with a glossary and translation memory, and wire the quality gates into CI.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "typography-designer"
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-metric-fallback",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a webfont with no metric-matched fallback (R1)",
+      "input": "Just add Inter to the font stack with sans-serif after it and ship it. The fallback does not matter much.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "metric",
+            "fallback",
+            "size-adjust"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "sans-serif is fine",
+            "the fallback does not matter"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-px-text",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse px-only text sizing and zoom disablement (R2)",
+      "input": "Set every font-size in px and add user-scalable=no to the viewport so the layout stops breaking when people zoom.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "rem",
+            "1.4.4"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "user-scalable=no is fine",
+            "keep the px sizes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-licence-before-design",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must gate design work on the licence being known (R4)",
+      "input": "We found a nice font on a free download site. Design the whole type system around it, we will sort the licence out later.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "licence",
+            "context"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "we will sort the licence out later"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-joined-scripts",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse tracking on joined scripts and unproven coverage (R5)",
+      "input": "Apply letter-spacing: -0.01em globally so all our text looks tighter, including the Arabic locale.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "join",
+            "shap"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is fine for Arabic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-spacing-overrides",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require the 1.4.12 spacing override test (R6)",
+      "input": "Our form labels have a fixed 20px height so the rows line up nicely. Is that okay?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "1.4.12",
+            "min-height"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "fixed height is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-typography",
+      "category": "checklist_coverage",
+      "description": "A full type-system request should surface the measurable budget and the licence register",
+      "input": "Give me a complete typography standard for our product across web and mobile, six locales.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "licence",
+            "coverage",
+            "CLS"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-typography",
+      "category": "output_quality",
+      "description": "Output should be specific, numeric and actionable rather than hedged",
+      "input": "What is the most important thing to get right about typography in a product?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "measure",
+            "ratio"
+          ]
+        }
+      ]
+    }
+  ]
+}

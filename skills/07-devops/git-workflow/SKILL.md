@@ -34,11 +34,13 @@ chain:
     - ci-cd-builder
     - devops-engineer
     - monorepo-manager
+    - code-formatting-and-linting
   feeds_into:
     - merge-conflict-resolver
     - ci-cd-builder
     - release-manager
     - devops-engineer
+    - code-formatting-and-linting
   alternatives: []
 ---
 # Git Workflow and Versioning

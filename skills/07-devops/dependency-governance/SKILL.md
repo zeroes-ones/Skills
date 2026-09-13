@@ -39,12 +39,14 @@ chain:
     - ci-cd-builder
     - security-engineer
     - legal-advisor
+    - code-formatting-and-linting
   feeds_into:
     - ci-cd-builder
     - security-engineer
     - incident-responder
     - platform-engineer
     - configuration-change-safety
+    - library-linkage-architect
   alternatives: []
 ---
 # Dependency Governance

@@ -1,0 +1,364 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "access-modifiers",
+  "description": "Per-skill evaluation for access-modifiers \u2014 validates trigger routing, boundary discipline against codebase-design / library-linkage-architect / iam-architect, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-access-modifiers-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a visibility decision",
+      "input": "Should this helper be private, internal or public in our Kotlin module?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "consumer",
+            "narrowest"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-access-modifiers-surface",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a public API surface is being designed",
+      "input": "We're shipping an SDK. How do we decide what our public API should be?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "surface",
+            "promise"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-access-modifiers-erasure",
+      "category": "trigger_routing",
+      "description": "Agent should activate when privacy is relied on for safety",
+      "input": "We marked the token field private in TypeScript, so it's protected, right?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "#field",
+            "runtime"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-access-modifiers-subclass",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a subclassability question",
+      "input": "Should we make this class open so third parties can extend it?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "contract",
+            "subclass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-access-modifiers-tests",
+      "category": "trigger_routing",
+      "description": "Agent should activate when tests need internals",
+      "input": "Our unit test can't reach this internal method. Should we just make it public?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "test",
+            "mechanism"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-access-authorization",
+      "category": "negative_trigger",
+      "description": "Runtime authorization belongs to iam-architect, not this skill",
+      "input": "Design our RBAC model so only admins can delete accounts at runtime.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "iam-architect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-access-binary",
+      "category": "negative_trigger",
+      "description": "Binary symbol export belongs to library-linkage-architect",
+      "input": "Which symbols should the shared library actually export, and how do we keep the ABI stable?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "library-linkage-architect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-access-modules",
+      "category": "negative_trigger",
+      "description": "Module decomposition belongs to codebase-design",
+      "input": "How should we split this monolith into modules and where do the seams go?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "access-modifiers"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "codebase-design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-named-consumer",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a widening with no named consumer (R1)",
+      "input": "Let's make it public in case someone needs it later.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "consumer",
+            "narrowest"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "in case someone needs it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-explicit-surface",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a surface defined by exclusion (R2)",
+      "input": "Our public API is just everything that isn't marked private. That's fine, right?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "explicit",
+            "list"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "everything that isn't private is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-no-public-field",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a public mutable field (R3)",
+      "input": "It's just a public field on the config class. Same as a getter, really.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "representation",
+            "accessor"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "same as a getter"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-kotlin-permeability",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must flag Kotlin internal as Java-permeable (R4)",
+      "input": "We marked the API internal in Kotlin, so Java code in our repo can't call it.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "Java",
+            "classpath"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "can't call it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-test-mechanism",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse widening for tests (R5)",
+      "input": "The test needs to see this private method, so let's make it public.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "@testable",
+            "InternalsVisibleTo"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "make it public"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-subclass-contract",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must treat subclassability as a separate contract (R6)",
+      "input": "It's public so it's subclassable. That's the same thing, isn't it?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "open",
+            "contract"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "same thing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "porting-mapped-not-translated",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should map a port by promise, not by keyword",
+      "input": "We used internal in Kotlin, so we'll just use internal in C# too for the same thing.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "assembly",
+            "module"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "internal maps to internal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-access-modifiers",
+      "category": "checklist_coverage",
+      "description": "A full visibility request should surface consumers, the surface list and the traps",
+      "input": "Give us a complete visibility and API-surface standard for our polyglot codebase.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "consumer",
+            "surface",
+            "test"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-access-modifiers",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about access modifiers?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "narrowest",
+            "promise"
+          ]
+        }
+      ]
+    }
+  ]
+}

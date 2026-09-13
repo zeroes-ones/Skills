@@ -41,6 +41,8 @@ chain:
   - security-reviewer
   - performance-engineer
   - release-manager
+  - app-launch-performance-engineer
+  - plugin-ecosystem-architect
   feeds_into:
   - feature-flag-architect
   - automation-engineer

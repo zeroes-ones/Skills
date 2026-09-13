@@ -38,6 +38,7 @@ chain:
   - product-manager
   - security-engineer
   - staff-engineer
+  - caching-architect
   feeds_into:
   - wayfinder
   - grilling
@@ -83,6 +84,11 @@ chain:
   - technical-program-manager
   - resilience-pattern-engineer
   - configuration-change-safety
+  - library-linkage-architect
+  - plugin-ecosystem-architect
+  - agentic-complexity-ladder
+  - access-modifiers
+  - caching-architect
 workflow:
   artifacts:
     inputs: [requirements, non-functional-requirements]

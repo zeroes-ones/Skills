@@ -1,0 +1,320 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "ui-ux-excellence",
+  "description": "Per-skill evaluation for ui-ux-excellence \u2014 validates trigger routing, boundary discipline against ui-ux-designer / ux-researcher / accessibility-auditor, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-ui-ux-excellence-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate for a heuristic evaluation request",
+      "input": "Can you review our onboarding flow and tell us where the UX problems are?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ui-ux-excellence"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "heuristic",
+            "task",
+            "evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ui-ux-excellence-slow",
+      "category": "trigger_routing",
+      "description": "Agent should activate for perceived-performance complaints",
+      "input": "Users say the app feels slow but our API metrics all look fine. What is going on?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ui-ux-excellence"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "perceiv",
+            "skeleton"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-ui-ux-excellence-errors",
+      "category": "trigger_routing",
+      "description": "Agent should activate for error experience problems",
+      "input": "Support says our error messages are unhelpful and users give up. How do we fix the errors?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "ui-ux-excellence"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "remedy",
+            "recover"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-excellence-design-system",
+      "category": "negative_trigger",
+      "description": "Building the design system and component specs belongs to ui-ux-designer",
+      "input": "Build our design system: the token schema, component specs, and the Figma-to-code handoff package.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ui-ux-excellence"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ui-ux-designer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-excellence-research",
+      "category": "negative_trigger",
+      "description": "Designing and running user research belongs to ux-researcher",
+      "input": "Design a usability study: recruit 12 participants, write the screener, and moderate the sessions.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ui-ux-excellence"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "ux-researcher"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-excellence-wcag",
+      "category": "negative_trigger",
+      "description": "WCAG conformance auditing belongs to accessibility-auditor",
+      "input": "Audit our site against WCAG 2.2 AA and report our legal exposure under the ADA.",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "ui-ux-excellence"
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-no-aesthetic-finding",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse an aesthetic-only finding (R1)",
+      "input": "The dashboard just feels cluttered. Can you write that up as a finding for the engineering team?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "evidence",
+            "screen"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "feels cluttered"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-state-enumeration",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require state enumeration before approving a screen (R2)",
+      "input": "The new reports screen is done and looks great. Sign it off for release.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "empty",
+            "error",
+            "loading"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "signed off"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-motion-purpose",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require motion to explain a change (R3)",
+      "input": "Add a slide animation to every screen transition because it makes the product feel premium.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "explain",
+            "context"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "animate everything"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-legible-waits",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a legible wait within the patience threshold (R4)",
+      "input": "The report generation takes about 20 seconds. We are just showing a spinner in the middle of the screen.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "progress",
+            "leave"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "spinner is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-baseline-metric",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require a baseline and a metric before claiming improvement (R5)",
+      "input": "We redesigned the checkout and it is much better now. Please write the release notes claim.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "baseline",
+            "metric"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "much better now"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-score-needs-evidence",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a heuristic score without evidence (R6)",
+      "input": "Score the heuristics out of ten for us: visibility 3, error recovery 1, everything else 4. That is enough detail.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "reproduce",
+            "evidence"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that is enough detail"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-excellence",
+      "category": "checklist_coverage",
+      "description": "A ship-readiness request should surface tasks, states and measurement",
+      "input": "Is our app good enough to ship? Give us the full assessment.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "task",
+            "state",
+            "baseline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-no-data-empty",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should flag a 'No data' empty state",
+      "input": "Our empty states all just say 'No data'. Is that a problem?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "onboarding",
+            "action"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "'No data' is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-excellence",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about UI and UX quality?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "evidence",
+            "measure"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -52,6 +52,12 @@ chain:
     - tdd-guide
     - ui-ux-designer
     - apple-hig-expert
+    - typography-designer
+    - platform-hig-architect
+    - ui-ux-excellence
+    - inclusive-design-engineer
+    - app-launch-performance-engineer
+    - native-interop-engineer
   feeds_into:
     - mobile-architecture-patterns
     - material-design-expert

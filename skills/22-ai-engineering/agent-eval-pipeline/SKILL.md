@@ -34,11 +34,15 @@ chain:
     - llm-engineer
     - iterative-task-execution
     - workflow-graph-authoring
+    - cost-accounting
+    - agentic-complexity-ladder
   feeds_into:
     - agent-handoff-protocol
     - devops-engineer
     - platform-engineer
     - staff-engineer
+    - cost-accounting
+    - agentic-complexity-ladder
 
 workflow:
   artifacts:

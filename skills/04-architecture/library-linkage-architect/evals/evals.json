@@ -1,0 +1,324 @@
+{
+  "$schema": "https://agentskills.io/schemas/evals/v1",
+  "version": "1.0.0",
+  "skill": "library-linkage-architect",
+  "description": "Per-skill evaluation for library-linkage-architect \u2014 validates trigger routing, boundary discipline against build-system-design / dependency-governance / api-designer, and the ground rules R1-R6 the skill exists to enforce.",
+  "train_split": 0.6,
+  "trigger_threshold": 0.5,
+  "runs_per_query": 3,
+  "scenarios": [
+    {
+      "id": "trigger-library-linkage-primary",
+      "category": "trigger_routing",
+      "description": "Agent should activate when the linkage form is the question",
+      "input": "Should our shared utility code be a static library or a shared library? We have three teams using it.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "library-linkage-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "update model",
+            "consumer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-library-linkage-abi",
+      "category": "trigger_routing",
+      "description": "Agent should activate for an ABI compatibility question",
+      "input": "Can we add a field to this public struct in a patch release? It compiles fine everywhere.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "library-linkage-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "breaking",
+            "layout"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trigger-library-linkage-cve",
+      "category": "trigger_routing",
+      "description": "Agent should activate when a vendored dependency needs remediation",
+      "input": "There's a critical CVE in the OpenSSL we link. How quickly can we get users protected?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "skill_activated",
+          "skill": "library-linkage-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "remediation",
+            "exposure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-linkage-buildspeed",
+      "category": "negative_trigger",
+      "description": "Build speed and build-system selection belong to build-system-design",
+      "input": "Our CI takes 40 minutes. Should we move from Make to Bazel, and how do we set up remote caching?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "library-linkage-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "build-system-design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-linkage-versionpolicy",
+      "category": "negative_trigger",
+      "description": "Dependency version policy and licence compliance belong to dependency-governance",
+      "input": "We have 40 repos with version sprawl and a licence compliance audit due. How do we establish an org-wide dependency policy?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "library-linkage-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "dependency-governance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "negative-trigger-linkage-networkapi",
+      "category": "negative_trigger",
+      "description": "Network API versioning belongs to api-designer",
+      "input": "How should we version our REST API and model errors for v2 without breaking existing clients?",
+      "expected_behavior": "skill_not_activated",
+      "assertions": [
+        {
+          "type": "skill_not_activated",
+          "skill": "library-linkage-architect"
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "api-designer"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r1-no-inherited-default",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse an inherited default as a decision (R1)",
+      "input": "The project template made everything static. Just confirm that's fine and move on.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "constraint",
+            "record"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that's fine, moving on"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r2-update-model",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must require the update model to be named (R2)",
+      "input": "We'll use static linking because it's simpler, and we'll deal with security patches if they come up.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "rebuild",
+            "consumers"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "deal with security patches if they come up"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r3-abi-policy",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a public surface with no ABI policy (R3)",
+      "input": "We'll keep the library compatible, everyone knows not to break it. No need for a formal policy.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "policy",
+            "breaking"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "no need for a formal policy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r4-unload",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must challenge an unload-dependent plugin design (R4)",
+      "input": "Our plugin host unloads and reloads plugins so users get updates without restarting. That's the design.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "unload",
+            "version"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that's a solid design"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r5-visibility",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must refuse a broad export surface (R5)",
+      "input": "We export everything from the library, it's easier than maintaining a list. Why would we hide symbols?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "collision",
+            "hidden"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "exporting everything is fine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r6-platform-rule",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must confirm platform constraints before choosing a form (R6)",
+      "input": "We'll build a plugin system that downloads native plugins from our CDN at runtime for the mobile app.",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "channel",
+            "permit"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "that will work on mobile"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checklist-coverage-linkage",
+      "category": "checklist_coverage",
+      "description": "A full linkage request should surface the update model, ABI policy and visibility",
+      "input": "Design the library strategy for our SDK that four teams will embed.",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "update model",
+            "ABI",
+            "visibility"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "anti-pattern-silent-abi-break",
+      "category": "anti_pattern_compliance",
+      "description": "Agent should identify the struct-addition ABI break correctly",
+      "input": "Adding a parameter to this exported C function is backwards compatible since callers just ignore it, right?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "calling convention",
+            "breaking"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "callers just ignore it"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "output-quality-linkage",
+      "category": "output_quality",
+      "description": "Output should be specific and actionable rather than hedged",
+      "input": "What is the most important thing to know about choosing static or dynamic linking?",
+      "expected_behavior": "skill_activated",
+      "assertions": [
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "it depends",
+            "could be anything",
+            "I'm not sure",
+            "maybe"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "update model",
+            "remediation"
+          ]
+        }
+      ]
+    }
+  ]
+}

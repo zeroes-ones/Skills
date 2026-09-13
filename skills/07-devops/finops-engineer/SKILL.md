@@ -31,6 +31,7 @@ chain:
   - cloud-architect
   - devops-engineer
   - fp-and-a-analyst
+  - cost-accounting
   feeds_into:
   - roi-gate
   - cloud-architect

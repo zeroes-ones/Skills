@@ -35,6 +35,8 @@ chain:
   - material-design-expert
   - ui-ux-designer
   - browser-testing-with-devtools
+  - platform-hig-architect
+  - inclusive-design-engineer
   feeds_into:
   - healthcare-ui-designer
   - game-ui-designer
@@ -52,6 +54,7 @@ chain:
   - material-design-expert
   - qa-engineer
   - ui-ux-designer
+  - inclusive-design-engineer
 workflow:
   artifacts:
     inputs: [design-assets]

@@ -39,6 +39,7 @@ chain:
     - qa-engineer
     - security-engineer
     - security-reviewer
+    - library-linkage-architect
   feeds_into:
     - embedded-engineer
     - hardware-architect

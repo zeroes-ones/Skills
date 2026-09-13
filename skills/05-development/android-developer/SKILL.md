@@ -24,6 +24,10 @@ chain:
     - qa-engineer
     - security-reviewer
     - ui-ux-designer
+    - platform-hig-architect
+    - app-launch-performance-engineer
+    - code-formatting-and-linting
+    - access-modifiers
   feeds_into:
   - mobile-architecture-patterns
   - access-tech-developer
@@ -726,6 +730,7 @@ Detailed reference material loaded on demand:
 - **Android Architecture Patterns**: See [references/android-architecture-patterns.md](references/android-architecture-patterns.md) — MVVM with ViewModel+StateFlow+sealed UiState, MVI with Intent+State+Effect Channel, Clean Architecture (domain/data/presentation layers), UseCase pattern, Repository with offline-first caching, DI with Hilt, SavedStateHandle for process death
 - **Kotlin Coroutines & Flow**: See [references/kotlin-coroutines-flow.md](references/kotlin-coroutines-flow.md) — Dispatcher selection (Main/IO/Default/Unconfined), structured concurrency, Flow vs StateFlow vs SharedFlow vs Channel, cold vs hot streams, exception handling (try/catch, catch operator, CoroutineExceptionHandler), cancellation, `callbackFlow`, `flowOn`, testing with `runTest` and Turbine
 - **Room Database Guide**: See [references/room-database-guide.md](references/room-database-guide.md) — Entity, DAO, Database, embedded types, type converters, FTS (full-text search), SQL queries (raw and generated), multi-table JOINs and @Relation, migrations (Migration, AutoMigration, destructive fallback), exportSchema, testing with in-memory database
+- **Access Modifiers (Kotlin)**: See [references/access-modifiers-kotlin.md](references/access-modifiers-kotlin.md) — `internal` module scope and its Java permeability, `private set`, `val` over `var`, `final` by default, and the test source set
 - **Android Build Variants**: See [references/android-build-variants.md](references/android-build-variants.md) — Build types (debug/release), product flavors (environment/region), flavor dimensions, signing configs (debug/release/CI env vars), build variants matrix, convention plugins via buildSrc, version catalogs (libs.versions.toml), resourceConfigs, abiFilters, splits (density/ABI)
 - **Play Store Deployment**: See [references/play-store-deployment.md](references/play-store-deployment.md) — Play App Signing (upload key vs app signing key), AAB generation, internal/alpha/beta/production tracks, staged rollout (10%→50%→100%), in-app review API, Billing 7.x subscriptions/one-time, pre-launch report, policy compliance, Data safety form, IARC content rating, managed publishing
 - **Android Accessibility**: See [references/android-accessibility.md](references/android-accessibility.md) — TalkBack navigation, contentDescription best practices, Compose semantics (semantics, mergeDescendants, invisibleToUser), touch target minimums (48dp), color contrast (4.5:1 text, 3:1 large text), focus order, live regions (AccessibilityLiveRegion), testing with Accessibility Scanner, WCAG 2.2 AA mapped to Android
