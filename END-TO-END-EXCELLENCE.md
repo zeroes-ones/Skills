@@ -147,8 +147,8 @@ scenarios are data today, runs are manual (`run-evals.sh`).
 
 - Token budgets per skill (2500-5000) with honest body lengths.
 - Progressive disclosure so agents load QUICK first, DEEP only when needed.
-- Compiled representations for execution: `.skills-compiled/` (76-80% token reduction on the new
-  skills; metadata + XML per skill).
+- Compiled representations for execution: `.skills-compiled/` (**78.0%** measured token reduction,
+  320/320 skills; metadata + XML per skill).
 - Context machinery as *skills*: `context-engineering` (hierarchy), `context-optimizer`
   (minimize while holding quality, retention ≥90%), `context-compaction-strategies`
   (algorithms), `token-efficiency` (budgets/cost/caching) — with clean "Do NOT use" boundaries
@@ -199,7 +199,7 @@ rules, then add.
 | Loop/engine self-tests | 5/5 + validator 23/23 + lint 9/9 | `--selftest` flags |
 | Chain symmetry | PASSED (297) | `validate_chains.py` |
 | Library rating | 9.9/10 (297) | `audit-library.py` |
-| Compile reduction (new skills) | 76-80% | `compile-skills.sh` metadata |
+| Compile reduction (measured, `cl100k_base`) | 78.0% | `docs/token-context-benchmark.md` |
 | Template + YAML lint on new skills | 0 issues | `lint-template.py` / `lint-yaml.py` |
 
 ## 10. Gap register — what it needs next to reach end-to-end 10/10 for *all* skills

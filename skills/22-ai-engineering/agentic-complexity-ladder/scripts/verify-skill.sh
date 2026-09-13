@@ -2,7 +2,7 @@
 # Verification harness for agentic-complexity-ladder
 #
 # Asserts this skill's domain INVARIANTS — not just that section headings exist,
-# but that the skill actually encodes the rules it claims (ground rules R1-R6,
+# but that the skill actually encodes the rules it claims (ground rules R1-R7,
 # the three separate axes, the ABI-breaking-change list, the unload reality,
 # the update model, and the reference depth G14 requires).
 #
@@ -87,7 +87,7 @@ check "guardrail: Never guess security" grep -q 'Never guess security' "$S"
 check "guardrail: [VERIFIED] provenance" grep -q '\[VERIFIED\]' "$S"
 
 # ── Ground rules ─────────────────────────────────────────────────────────────
-for r in R1 R2 R3 R4 R5 R6; do
+for r in R1 R2 R3 R4 R5 R6 R7; do
     check "ground rule $r present" grep -q "\*\*$r\*\*" "$S"
 done
 check "Ground Rules has Mechanical Trigger column" grep -q 'Mechanical Trigger' "$S"
@@ -112,6 +112,8 @@ check "names parallelisation" grep -qi 'parallel' "$S"
 check "names the bounded graph" grep -qi 'graph' "$S"
 check "asserts each rung has its OWN failure mode" grep -qi 'new failure mode\|own failure' "$S"
 check "asserts the action space must be bounded" grep -qi 'action space' "$S"
+check "asserts tool width degrades selection (R7)" grep -qi 'tool overload\|tool-choice accuracy\|selection accuracy' "$S"
+check "references the tool-overload deep dive" test -f "$SKILL_DIR/references/tool-overload.md"
 check "asserts a security decision, not architecture" grep -qi 'security' "$S"
 check "asserts the clustering test for routing" grep -qi 'cluster' "$S"
 check "asserts the 20-input test for orchestrators" grep -qi '20 real inputs\|20.input\|decompose 20' "$S"

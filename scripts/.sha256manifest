@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-13T21:54:54Z
+# Generated: 2026-09-13T22:38:03Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    6b6d0cc649aecd34315cd4a270507bdc02148ecf
+# Commit:    34f92ba097b31a7d7763b0b63b81d1cbac98135d
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -250,10 +250,10 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-spec
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/documentation-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/dynamic-skill-creator/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/explore-tools/scripts/verify-skill.sh
-6580a741c2cf08ac972caf111930327d7ac6b9273979f09337c5457481332caf  skills/13-specialized/iterative-task-execution/scripts/verify-skill.sh
+fac18b1bd88236570abafaf9caafdfbb9a3712f03c2ac17a79586551a78eb349  skills/13-specialized/iterative-task-execution/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/migration-architect/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/monorepo-manager/scripts/verify-skill.sh
-fc8479400bf4176b902a6126a1f767977f625ac9ab25f6c9f6f720d580e14e3b  skills/13-specialized/multi-agent-orchestration/scripts/verify-skill.sh
+08a5e007f4f754da3610a95a2434217daf07677ea56c5f631bc1c1d47aeca0e7  skills/13-specialized/multi-agent-orchestration/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/multirepo-designer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/13-specialized/performance-engineer/scripts/verify-skill.sh
 c84886fd08a5baea885344cc550da1ee322d72580071ca2e8c02e82868291d7c  skills/13-specialized/resilience-pattern-engineer/scripts/verify-skill.sh
@@ -330,7 +330,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/21-heal
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/21-health-clinical/patient-experience-researcher/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/21-health-clinical/patient-health-educator/scripts/verify-skill.sh
 4148d39b99e8146104018bd16e92550f05036b490f1a4d5d4406619e90839bac  skills/22-ai-engineering/agent-eval-pipeline/scripts/verify-skill.sh
-1f9e7cf016602725723f48a66ae684e03b54f927a05e109c422bef226258f7b8  skills/22-ai-engineering/agentic-complexity-ladder/scripts/verify-skill.sh
+d195129ed30a2140b109e24140447867f812384398b2478236793203f620b9ee  skills/22-ai-engineering/agentic-complexity-ladder/scripts/verify-skill.sh
 d9209adf5443e2f20788282a4ccee5abce5025337e7e5c78c6bda6d25524154c  skills/22-ai-engineering/ai-engineer/scripts/benchmark_latency.py
 00c7daecb50f80c7d397bcc8e274d5ff60f8dfc54130883c4af81b3aad192b34  skills/22-ai-engineering/ai-engineer/scripts/estimate_cost.py
 316311a06053f9df4162b9ceca97cd74fb66cc73568f5fd8dbf1c72f02555fea  skills/22-ai-engineering/ai-engineer/scripts/eval_correctness.py

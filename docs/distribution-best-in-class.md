@@ -9,11 +9,11 @@ methodology/curation strengths of the other two. Companion to `COMPARISON.md` (m
 
 | Capability | zeroes-ones/Skills | anthropics/skills | obra/superpowers | mattpocock/skills |
 |---|---|---|---|---|
-| Prompts | 297 | 19 | 14 | 37 |
-| Avg raw body words (load cost) | 8,976 | 1,969 | 1,457 | 638 |
-| Compiled coverage & saving | 233/297, 63.4% load saving | — | — | — |
-| Executable-node eligible | 294 | — | — | — |
-| `workflow:` node contracts | 30 | 0 | 0 | 0 |
+| Prompts | 320 | 19 | 14 | 37 |
+| Avg raw body words (load cost) | 8,773 | 1,969 | 1,457 | 638 |
+| Compiled coverage & saving | 320/320, **78.0%** measured token saving | — | — | — |
+| Executable-node eligible | 317 | — | — | — |
+| `workflow:` node contracts | 59 | 0 | 0 | 0 |
 | Governance gates | 16/16 pre-commit; validate-skills 0 fails; markdownlint 0/297 | curation bar | methodology consistency | use-tested |
 | Executable workflow engine (loops/graphs/parallel joins/guardrails) | **unique** | none | methodology as prose plans | none |
 | Evals + telemetry + verifier-gated self-improvement | golden evals, OTel exporter, SLIs, skill-evolve promote | none published | none | none |

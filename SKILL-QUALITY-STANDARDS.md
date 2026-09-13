@@ -64,6 +64,12 @@ Every section has three depth levels marked inline:
 ### The Token Budget Test
 The skill's frontmatter declares a `token_budget` (how many tokens the agent should expect to spend). Quick sections are under 500 tokens. The full skill is under 3000 tokens.
 
+> **Measured caveat (2026-09-13):** the declared `token_budget` values in this library are
+> **word-count-derived** and understate real cost ~2.9× against a real tokenizer (mean declared
+> 4,630 vs mean measured 13,559 tokens per skill). The "under 3000 tokens" expectation above does
+> not hold for the current corpus — mean body is ~13,559 tokens. See
+> [`docs/token-context-benchmark.md`](docs/token-context-benchmark.md).
+
 ### The "What Good Looks Like" Test
 Every Quickstart section ends with a concrete description of what success produces — the visual outcome, expected file size, opened in what app, etc.
 

@@ -80,7 +80,7 @@ Measured on the flagship graph (all runs 16 steps because budgets bound them):
 
 | Cost center | Lever | Measured effect |
 |---|---|---|
-| Skill prompt loading | `.skills-compiled/` + progressive disclosure | 65-80% token reduction |
+| Skill prompt loading | `.skills-compiled/` + progressive disclosure | **78.0% measured** token reduction (320/320) |
 | Context carried forward | memory entries + handoff payloads (no transcripts) | ~6× smaller than full state |
 | Runaway loops | max_iterations + stagnation + step budget | capped by construction (16/16 steps) |
 | Bad output propagation | edge guardrails | downstream nodes never run |
@@ -95,7 +95,7 @@ python3 - <<'PY'
 import json, os
 for n in ["iterative-task-execution", "workflow-graph-authoring", "agent-handoff-protocol"]:
     m = json.load(open(".skills-compiled/%s/metadata.json" % n))
-    print(n, m["original_tokens"], "->", m["compiled_tokens"], "tokens (%d%%)" % m["reduction_pct"])
+    print(n, m["original_tokens"], "->", m["compiled_tokens"], "words (%d%%)" % m["reduction_pct"])
 PY
 
 # memory entry vs checkpoint size

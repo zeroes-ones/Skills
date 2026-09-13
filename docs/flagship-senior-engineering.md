@@ -61,10 +61,15 @@ Executable story: [`workflow/manifests/senior-dev-loop.yaml`](../workflow/manife
 | staff-engineer | senior-systems | engineering-leadership | 4000 | 11 | 10,184 |
 
 Totals: 30 skills · Σ token_budget = 123,225 · Σ body words = 283,519. All 30 pass the
-library's governance suite (14/0) as part of the 298. Note: these are **deep** skills; agents
+library's governance suite (14/0) as part of the 320. Note: these are **deep** skills; agents
 never load full bodies — they load only the invoked skill's needed sections (progressive
-disclosure) or the compiled excerpts (`.skills-compiled/`, 63.4% load saving), so the flagship
-story is *density on demand*, not 283k tokens in context.
+disclosure) or the compiled excerpts (`.skills-compiled/`, **78.0%** measured token saving), so
+the flagship story is *density on demand*, not 283k tokens in context.
+
+> **Declared budgets understate real cost.** Across all 320 skills the declared `token_budget`
+> (mean 4,630) is **2.9× below** the measured body token count (mean 13,559). The flagship's
+> Σ token_budget of 123,225 is therefore an underestimate of true load; see
+> [`token-context-benchmark.md`](token-context-benchmark.md).
 
 ## What "superior" means here (acceptance criteria)
 

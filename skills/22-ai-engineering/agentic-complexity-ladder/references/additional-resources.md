@@ -15,6 +15,7 @@
 | `routing-decisions.md` | The clustering test, separability, the traffic question, and when routing is the wrong rung |
 | `parallelism-thresholds.md` | Sectioning versus voting, the slowest-branch arithmetic, and the aggregation policy |
 | `orchestrator-costs.md` | Planning tokens, the cost tail, the debugging penalty, and the 20-input test |
+| `tool-overload.md` | Tool-choice accuracy against menu width, near-duplicate descriptions, and the measurement that decides (R7) |
 | `graph-justification.md` | The five justifications, the governance case, and the tells of an unjustified graph |
 | `over-build-audit.md` | Reading a design for removal candidates, the graph tells, and the two-list comparison |
 | `anti-patterns.md` | Fifteen complexity anti-patterns with detection heuristics and a sweep script |
@@ -42,8 +43,9 @@ unnecessary now. Confirm a current capability before relying on it.
 
 ## Verification harness
 
-`scripts/verify-skill.sh` asserts this skill's own invariants: that all six ground rules are present
+`scripts/verify-skill.sh` asserts this skill's own invariants: that all seven ground rules are present
 with enforcement columns, that the burden of proof sits on the complexity rather than the simplicity,
 that each rung must name a measured failure, that agency is refused where the steps are knowable, that
-every rung has a falsifiable exit condition, and that an open action space is treated as a security
-decision rather than an architecture one. Run it before relying on the skill's output.
+every rung has a falsifiable exit condition, that the tool menu is a measured surface rather than an
+accumulated one, and that an open action space is treated as a security decision rather than an
+architecture one. Run it before relying on the skill's output.

@@ -117,6 +117,7 @@ Start at the simplest rung that could work, and climb only when a measurement sa
 | **R4** | **REFUSE to keep complexity that a lower rung has outgrown.** Every rung needs an exit condition, and de-escalation is a legitimate outcome. | A system whose complexity persists with no exit criteria and no re-evaluation | STOP. Respond: "What would have to become true for a simpler design to be sufficient? Without that, the complexity is permanent by default — and it will outlive the reason it was added. Name the exit condition, and re-evaluate against it." |
 | **R5** | **REFUSE to build for scale that is not measured.** Unmeasured scale assumptions build the wrong system. | Complexity justified by anticipated volume or load rather than measured or derived figures | STOP. Respond: "What is the measured volume, and what does the simpler design cost at that volume? Scaling questions are arithmetic, not architecture. Give me the volume and I will show where the simpler design actually breaks — which is the only justification for the complexity." |
 | **R6** | **REFUSE a rung with no passing eval on the one below.** A rung is a response to a measured shortfall, so it must be shown that the shortfall exists. | A higher-rung design where no eval demonstrates the lower rung failing | STOP. Respond: "Show me the eval the lower rung fails. A rung is an answer to a specific, measured shortfall — without it, the complexity is speculative, and you will not know when to remove it. Add the failing case first. For an orchestrator, that means decomposing 20 real inputs by hand and showing they differ; if they repeat, the decomposition was knowable and you needed a chain." |
+| **R7** | **REFUSE an action space wider than the model can select from reliably.** Tool selection accuracy falls as the menu grows, and two tools with similar descriptions are worse than either alone. Widening the tool set is a rung cost, not a free capability. | A single agent handed more than ~15 tools, or a tool set containing near-duplicate descriptions, with no selection-accuracy measurement | STOP. Respond: "Selection accuracy is a measurable property of the tool set, not a hope. At this width the model picks wrong tools for reasons unrelated to the task. Either narrow the set, merge the near-duplicates, or split the agent so each holds a coherent subset — and measure selection accuracy on a labelled set of tool-choice cases before and after." |
 
 ## Anti-Hallucination
 
@@ -267,8 +268,14 @@ Can you write down the steps, in order, before seeing the input?
     │   └── This is most "we need an agent" cases: the categories ARE knowable
     └── No, it is genuinely open ↓
         Is the ACTION SPACE bounded (a known, allow-listed set of tools)?
-        ├── Yes → a BOUNDED AGENT: agency over which tool, not over what it may do
-        │   └── This is the safe form of agency — the autonomy is inside a fence
+        ├── Yes → is the tool menu WIDE enough to degrade selection?
+        │         ├── No (≤ ~15 coherent tools, no near-duplicates) → a BOUNDED AGENT:
+        │         │   agency over which tool, not over what it may do.
+        │         │   └── This is the safe form of agency — the autonomy is inside a fence
+        │         └── Yes → NARROW IT FIRST (R7). Either merge near-duplicate tools, split the
+        │             agent so each holds a coherent subset, or add routing in front (Rung 3).
+        │             Tool width is a rung cost: more tools is not more capability if the model
+        │             cannot select reliably.
         └── No → STOP. An unbounded agent with an open action space is a security
                  decision, not an architecture one. Escalate to appsec-engineer.
 Finally, ALWAYS:
@@ -363,8 +370,9 @@ Does every node/rung in the system map to a measured failure of a simpler design
 6. **Write the exit condition when you climb.** Nobody removes complexity whose justification is forgotten (R4).
 7. **Audit by removal, not by argument.** Taking a node out and re-running the eval is faster and more convincing than debating whether it is needed.
 8. **Bound the action space whenever you grant agency.** Agency over *which tool* is safe; agency over *what may be done* is a security decision.
-9. **Prefer deletion to rewriting.** Subtracting a rung is safer than reworking it in place.
-10. **Re-evaluate against the exit condition periodically.** A rung can outlive its reason, and only a scheduled check notices.
+9. **Count the tools, and measure the selection.** Tool-choice accuracy falls as the menu widens, and near-duplicate descriptions make an otherwise correct agent pick wrong. A tool set is a rung cost you measure, not a capability you accumulate (R7).
+10. **Prefer deletion to rewriting.** Subtracting a rung is safer than reworking it in place.
+11. **Re-evaluate against the exit condition periodically.** A rung can outlive its reason, and only a scheduled check notices.
 
 ## Error Decoder **(STANDARD)**
 
@@ -437,6 +445,7 @@ The four ways a complexity decision fails, each with its detection signal. An un
 | **Agency without cause** | An agent or planner used where steps are knowable | Non-convergence, unpredictable cost, undebuggable failures | R2: predictability decides workflow versus agent |
 | **Unattributable change** | Two rungs added in one step | An improvement or regression nobody can assign to a rung | R3: climb one rung at a time |
 | **Permanent complexity** | No exit criteria recorded when climbing | Nobody can say what would allow simplification | R4: write the exit condition at entry, and re-evaluate |
+| **Tool overload** | A single agent handed a wide or near-duplicate tool menu | Wrong-tool selection that rises with tool count, not with task difficulty; two similar descriptions chosen unpredictably | R7: narrow, merge near-duplicates, or split the agent; measure selection accuracy on labelled tool-choice cases |
 
 **Edge case to state explicitly:** a *regulated or auditable* flow may legitimately warrant an explicit graph where a single call would produce the same answer, because the requirement is a reviewable, repeatable path rather than the outcome. State the requirement as the justification — that is a rung justified by governance, not by capability.
 
@@ -454,8 +463,9 @@ Run this sequence. Do not proceed past a failure.
 6. **Scale check.** Is every complexity justified by measured or derived volume rather than anticipation? If anticipated only, stop (R5).
 7. **New-failure check.** Does each rung have a test for the failure mode it introduces? If not, stop.
 8. **Autonomy check.** Is the action space bounded and allow-listed wherever agency is granted? If open, stop and escalate (Anti-Hallucination).
+9. **Tool-width check.** Is the tool menu narrow enough, and free of near-duplicates, to select from reliably — measured on a labelled tool-choice set rather than assumed? If not, narrow, merge or split before accepting the design (R7).
 
-**Pass criteria:** All eight checks pass before the design is accepted.
+**Pass criteria:** All nine checks pass before the design is accepted.
 
 ## Verification Guardrails **(STANDARD)**
 
@@ -482,6 +492,7 @@ Run this sequence. Do not proceed past a failure.
 - `references/routing-decisions.md` — when a classifier earns its maintenance cost
 - `references/parallelism-thresholds.md` — sectioning versus voting, and when aggregation is the cost
 - `references/orchestrator-costs.md` — planning tokens, unpredictable latency, and the debugging penalty
+- `references/tool-overload.md` — tool-choice accuracy against menu width, near-duplicates, and the measurement (R7)
 - `references/graph-justification.md` — when an auditable graph is warranted, including for governance
 - `references/over-build-audit.md` — the removal audit, and reading a graph for unjustified nodes
 - `references/anti-patterns.md` — the complexity anti-pattern catalogue with detection heuristics

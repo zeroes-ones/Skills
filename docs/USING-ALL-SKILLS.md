@@ -177,5 +177,5 @@ skills must pass the 16 pre-commit gates (template sections, examples, chain edg
   Fallback for any agent: `skills-init --principles`.
 - **Big context** → skills load their full body by default; prefer `(QUICK)` sections and
   tell the agent "use only the (QUICK)/decision-tree sections first". Compiled/minified
-  loading (86% smaller) is available via `scripts/compile-skills.sh` for executors that
-  read the compiled artifact.
+  loading (**78% measured token reduction**, 320/320 skills) is available via
+  `scripts/compile-skills.sh` for executors that read the compiled artifact.

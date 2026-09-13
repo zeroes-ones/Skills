@@ -123,6 +123,7 @@ Task received
 | G4 | **Never loop on an external blocker.** Missing credentials, missing upstream artifact, ambiguous requirement = blocked, not "try again". | Root cause of failure is outside your control | Escalate with context (escalate template). Retrying is not a strategy |
 | G5 | **Never hand off without a payload.** Every boundary crossing writes the handoff payload: status, summary, artifacts, decisions, open_questions, verification_evidence, context, budget. | You are about to finish and no handoff payload exists | STOP. Write payload per handoff-out template + payload registry (WORKFLOW-SYSTEM.md Section 5) |
 | G6 | **Never let state drift silently.** Every write updates run-state `updated`, appends to `log`, and re-hashes records; a hash mismatch aborts, never propagates. | You detect a state hash mismatch or a field written by a non-owner | STOP. Replay from the last verified checkpoint; report the corruption |
+| G7 | **Never vary without diagnosing.** Varying parameters after an error without naming *why* the error occurred is not a revision — it is an error cascade, and it burns the most budget for the least information. | A REVISE whose justification is a different value/flag/order but no stated root cause, or three passes where the *error* is unchanged though the *parameters* differ | STOP. Name the actual failure mechanism before the next attempt. If you cannot, one diagnostic pass is allowed; if that does not produce the mechanism, ESCALATE. Different parameters over the same unfixed cause is thrashing, not progress |
 
 ## The Expert's Mindset
 
@@ -335,6 +336,8 @@ If an approach or check fails, follow this escalation path before giving up:
 |---------|-------------|---------------|-------------|
 | Verification fails with no obvious cause | Re-read the failing criterion and its evidence; re-run the exact check and capture output | Narrow scope: verify one criterion at a time | Treat as REVISE with a changed approach; do not mark done |
 | Same failure repeats across passes | Compare last two diagnostics sets — what changed? | If nothing changed, you violated G2 | ESCALATE with both diagnostics sets attached |
+| Parameters change every pass but the error never does | This is an error cascade, not iteration (G7): you are sampling, not diagnosing | Stop changing parameters. One diagnostic pass: reproduce the error deliberately, read the full message, name the mechanism | If the mechanism is still unnamed, ESCALATE with the error text — do not spend another pass guessing |
+| An error in one step is consumed as input by the next, compounding | The failure crossed a boundary before it was caught | Verify at the boundary, not only at the end: the consumer checks the producer's artifact, never trusts it | Insert a verify step between producer and consumer; a self-check by the producer is a draft, not verification (`verification-independence-engineer`) |
 | Node "done" but downstream reports missing artifacts | Check the handoff payload artifacts list against actual files | Check state hashes — corruption or silent drop? | Report corruption; replay from last verified checkpoint |
 | Budget nearly gone, criteria almost met | Prioritize remaining criteria by risk; finish the cheapest provable ones | Ask: is partial completion + honest `needs_review` better than a fake "done"? | Mark `needs_review` with exact gaps — never fabricate evidence |
 | External blocker (no credentials, no access, missing decision) | Escalate immediately with the blocker and what unblocks it | Follow the manifest's escalation target | Human gate with full context report |
@@ -415,6 +418,8 @@ graph LR
 | ❌ "Done!" declared with no evidence map | ✅ Exit only through verify-node: every criterion is paired with an artifact path+sha or command output before any done claim |
 | ❌ Identical retry sold as a "revision" | ✅ Each REVISE names the one changed lever (approach, inputs, or scope); if nothing changes, escalate |
 | ❌ Retrying an external blocker ("one more try after lunch") | ✅ Classify the root cause once; external blocker ⇒ escalate immediately with the blocker and the unblock path |
+| ❌ An error cascade sold as iteration — every pass changes a parameter, none names the cause | ✅ G7: name the failure mechanism before varying anything; one bounded diagnostic pass if it is unnamed, then escalate |
+| ❌ A downstream step consumes an upstream failure as if it were an input | ✅ Verify at each boundary: the consumer checks the producer's artifact, and an independent verifier (not the producer) confirms it |
 | ❌ Handing over raw transcripts as "context" | ✅ Handoff payload with artifacts, decisions, and open questions — structured state, never transcripts |
 | ❌ Forgiving budget overruns ("just one more pass") | ✅ max_iterations and step budgets are hard stops; exhaustion escalates with full context |
 
@@ -528,6 +533,8 @@ recorded so subsequent agents recover context without replaying the conversation
   lifecycle enums, hash rules, resume semantics
 - [boundary-templates.md](references/boundary-templates.md) — when and how to apply the six
   `workflow/templates/` files inside the node protocol
+- [error-cascading.md](references/error-cascading.md) — the failure iteration does not fix:
+  single-chain and cross-boundary cascades, their signals, and the diagnose-before-vary rule (G7)
 
 ### External References
 

@@ -418,18 +418,19 @@ three questions and refuses to start work until `artifacts` and `open_questions`
 Canonical semantics are framework-agnostic. For teams that want hard guarantees from an engine, the
 same manifest maps onto execution frameworks:
 
-| Canonical concept | LangGraph | CrewAI |
-|-------------------|-----------|--------|
-| Manifest | `StateGraph` definition | `Process.sequential` / hierarchical crew |
-| Node (skill) | Graph node calling the skill prompt | Task with agent bound to the skill |
-| Edge `when:` | Conditional edge function | Task context / conditions |
-| Loop with `exit_when` | Cycle with conditional break to `END` | Sequential loop in process |
-| Parallel + join | Fan-out nodes + reducer on shared state | `Process.hierarchical` |
-| Gate (human) | `interrupt_before` | Human-in-the-loop task |
-| Run-state | Typed state + checkpointer | Task outputs aggregation |
+| Canonical concept | LangGraph | CrewAI | Google ADK |
+|-------------------|-----------|--------|------------|
+| Manifest | `StateGraph` definition | `Process.sequential` / hierarchical crew | `Workflow` (graph) or a prebuilt workflow agent |
+| Node (skill) | Graph node calling the skill prompt | Task with agent bound to the skill | Node function/agent in `edges` |
+| Edge `when:` | Conditional edge function | Task context / conditions | Router node emitting `route=[...]`; dict-dispatch edges |
+| Loop with `exit_when` | Cycle with conditional break to `END` | Sequential loop in process | Loop workflow agent, or a cycle with a route out |
+| Parallel + join | Fan-out nodes + reducer on shared state | `Process.hierarchical` | Parallel workflow agent; join node for fan-in |
+| Gate (human) | `interrupt_before` | Human-in-the-loop task | Human-input graph step |
+| Run-state | Typed state + checkpointer | Task outputs aggregation | Session state + events (with context compression/memory) |
 
 `examples/workflow-runtime/references/langgraph-mapping.md` and `graph.py` scaffold translate the
 flagship manifest 1:1. The scaffold is illustrative reference code, not a dependency of this repo.
+For ADK, see `skills/13-specialized/multi-agent-orchestration/references/adk-patterns.md`.
 
 ## 7. Prompt-Engineering Layer (boundary templates)
 

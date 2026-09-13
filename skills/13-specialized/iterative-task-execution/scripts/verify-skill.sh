@@ -80,6 +80,23 @@ else
     log_fail "Dollar-quantified references: ${dollar_count} (< 5)"
 fi
 
+# Ground rules G1-G7, and the error-cascade rule the skill exists to enforce.
+for g in G1 G2 G3 G4 G5 G6 G7; do
+    if grep -q "| ${g} |" "$SKILL_FILE"; then
+        log_pass "Ground rule ${g} present"
+    else
+        log_fail "Ground rule ${g} missing"
+    fi
+done
+if grep -qi 'error cascade' "$SKILL_FILE" && grep -qi 'diagnos' "$SKILL_FILE"; then
+    log_pass "Error-cascade guidance present (diagnose before varying, G7)"
+else
+    log_fail "Missing error-cascade guidance"
+fi
+[[ -f "$REFERENCES_DIR/error-cascading.md" ]] \
+    && log_pass "error-cascading.md reference present" \
+    || log_fail "references/error-cascading.md missing"
+
 quick_count=$(grep -c 'QUICK' "$SKILL_FILE" || true)
 if [ "$quick_count" -ge 3 ]; then
     log_pass "QUICK markers: ${quick_count} (>= 3)"

@@ -20,7 +20,7 @@ type: framework
 status: stable
 version: 1.0.0
 updated: 2026-07-24
-tags: [multi-agent, orchestration, langgraph, crewai, autogen, state-synchronization, topology]
+tags: [multi-agent, orchestration, langgraph, crewai, autogen, google-adk, state-synchronization, topology]
 token_budget: 4700
 chain:
   examples:
@@ -402,28 +402,34 @@ Design a 5-agent hierarchical topology for a code review pipeline. Implement typ
 
 ## References
 <!-- STANDARD: 3min -->
-See the References section at the end of this skill and references/ directory for deep-dive reference files on LangGraph, CrewAI, AutoGen, and swarm patterns.
+See the References section at the end of this skill and references/ directory for deep-dive reference files on LangGraph, CrewAI, AutoGen, Google ADK, and swarm patterns.
 
 ## 1. Problem Statement
 <!-- STANDARD: 3min -->
 
 Multi-agent systems fail silently without deliberate orchestration. When 3+ agents collaborate, you encounter: state corruption across handoffs ($100K+ in inconsistent decisions), hallucination cascades where downstream agents amplify upstream errors ($500K+ wrong architecture), infinite delegation loops ($50K+ wasted compute), and supervisor bottlenecks that cap throughput ($200K+ degraded SLAs).
 
-This skill provides the architecture, protocols, and failure mode prevention to build production multi-agent systems across LangGraph 0.2+, CrewAI 0.30+, AutoGen 0.4+, and OpenAI Swarm.
+This skill provides the architecture, protocols, and failure mode prevention to build production multi-agent systems across LangGraph 0.2+, CrewAI 0.30+, AutoGen 0.4+, OpenAI Swarm, and Google ADK 2.0+ (including its graph-workflow API).
 
 **Portability target:** All patterns work with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI.
 
 ## 2. Quick Reference Card
 <!-- STANDARD: 3min -->
 
-| Concern | LangGraph | CrewAI | AutoGen |
-|---------|-----------|--------|---------|
-| State model | TypedDict + checkpoint | Pydantic BaseModel | Message-bus dict |
-| Topology | Graph edges | Hierarchical crew | ConversableAgent group |
-| Sync mechanism | Channel-based + checkpoint | Sequential task output | Publish/subscribe |
-| Delegation | Conditional edges | Task delegation | handoff() method |
-| Conflict resolution | Custom reducer | Manager LLM | GroupChat selector |
-| Trace/audit | LangSmith/LangFuse | CrewAI telemetry | AutoGen runtime log |
+| Concern | LangGraph | CrewAI | AutoGen | Google ADK |
+|---------|-----------|--------|---------|------------|
+| State model | TypedDict + checkpoint | Pydantic BaseModel | Message-bus dict | Session state + events |
+| Topology | Graph edges | Hierarchical crew | ConversableAgent group | `Workflow` edges, or prebuilt sequential/parallel/loop agents |
+| Sync mechanism | Channel-based + checkpoint | Sequential task output | Publish/subscribe | Session state + context assembly |
+| Delegation | Conditional edges | Task delegation | handoff() method | Route-dict dispatch (`route=[...]`) |
+| Conflict resolution | Custom reducer | Manager LLM | GroupChat selector | Router node + explicit route |
+| Trace/audit | LangSmith/LangFuse | CrewAI telemetry | AutoGen runtime log | Cloud Trace / ADK observability |
+| Guardrail hook | Graph interceptors | Task guards | Runtime hooks | Callbacks (`before_agent`, `after_model`) + plugins |
+
+> **ADK** is the fourth framework this skill covers, and the one most often omitted from
+> LangChain-centric comparisons. Deep dive: [`references/adk-patterns.md`](references/adk-patterns.md)
+> (single agents, prebuilt workflow agents, ADK 2.0 graph workflows, and the per-language
+> differences). ADK 2.0 added the graph API, so verify against the installed version.
 
 ## 3. Five Agent Topology Patterns
 <!-- STANDARD: 3min -->
@@ -870,10 +876,11 @@ Detailed patterns in **references/**:
 - [observability-multi-agent.md](references/observability-multi-agent.md) — Agent-level tracing, latency, audit trail
 - [cost-optimization-reference.md](references/cost-optimization-reference.md) — Parallel/sequential costing, eviction patterns
 - [swarm-advanced-patterns.md](references/swarm-advanced-patterns.md) — OpenAI Swarm advanced routing patterns
+- [adk-patterns.md](references/adk-patterns.md) — Google ADK: single agents, prebuilt workflow agents, and the ADK 2.0 graph API
 
 ---
 
-*Version 1.0.0 | Author: Sandeep Kumar Penchala | License: MIT | Built on LangGraph 0.2+, CrewAI 0.30+, AutoGen 0.4+*
+*Version 1.0.0 | Author: Sandeep Kumar Penchala | License: MIT | Built on LangGraph 0.2+, CrewAI 0.30+, AutoGen 0.4+, Google ADK 2.0+*
 
 ## Anti-Rationalization
 

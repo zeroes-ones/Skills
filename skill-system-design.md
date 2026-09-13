@@ -117,7 +117,7 @@ chain:
 | `dependencies` | Prevents "command not found" midway through execution. |
 | `output` | Enables chain-of-skills automation (skills pipeline). |
 | `chain` | The skill graph — essential for the pipeline architecture. |
-| `token_budget` | Informs the agent how many tokens this skill consumes (~word_count × 0.75). Enables token-aware loading. |
+| `token_budget` | Informs the agent how many tokens this skill consumes. **The stated `~word_count × 0.75` formula is wrong and must not be used** — measured English prose here is ~1.55 tokens/word, i.e. `words × 1.55` (and `chars / 4` over-counts by 1.29×). Current declared values understate real cost ~2.9×; see `docs/token-context-benchmark.md`. |
 
 ---
 

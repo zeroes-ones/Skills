@@ -100,7 +100,7 @@ for ref in five-agent-topologies.md langgraph-typed-state-patterns.md \
     crewai-pydantic-task-outputs.md agent-delegation-protocol.md \
     state-synchronization-strategies.md conflict-resolution-patterns.md \
     failure-mode-prevention.md observability-multi-agent.md \
-    cost-optimization-reference.md swarm-advanced-patterns.md; do
+    cost-optimization-reference.md swarm-advanced-patterns.md adk-patterns.md; do
     if [ -f "$REFS_DIR/$ref" ]; then
         REF_LINES=$(wc -l < "$REFS_DIR/$ref" | tr -d ' ')
         if [ "$REF_LINES" -ge 30 ]; then
@@ -113,6 +113,14 @@ for ref in five-agent-topologies.md langgraph-typed-state-patterns.md \
         ERRORS=$((ERRORS + 1))
     fi
 done
+
+# The framework matrix must cover Google ADK, not only the LangChain-centric three.
+if grep -q "Google ADK" "$SKILL_MD" && grep -qi "adk-patterns.md" "$SKILL_MD"; then
+    green "  PASS: Google ADK covered in the framework matrix"
+else
+    red "  FAIL: Google ADK missing from the framework matrix"
+    ERRORS=$((ERRORS + 1))
+fi
 
 # 9. Reference links resolve
 echo ""

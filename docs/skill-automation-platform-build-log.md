@@ -420,7 +420,7 @@ repo-wide and pre-existing. It is a warning, and the pre-commit gate runs `--err
 | Retrieval index | 304 / 304 (lexical) |
 | **Golden eval sets** | **3 / 304** ← largest gap |
 | Routing baseline (lexical) | Top-1 **50%** · Top-5 **60%** |
-| Compiled coverage | 303 / 304 · avg **1,247 tokens** · **85.9%** effective saving |
+| Compiled coverage | 320 / 320 · avg **3,068 tokens** (measured) · **78.0%** effective saving |
 
 ## 10. Real-time performance profile
 

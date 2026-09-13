@@ -2,7 +2,7 @@
   "$schema": "https://agentskills.io/schemas/evals/v1",
   "version": "1.0.0",
   "skill": "agentic-complexity-ladder",
-  "description": "Per-skill evaluation for agentic-complexity-ladder \u2014 validates trigger routing, boundary discipline against workflow-graph-authoring / multi-agent-orchestration / cost-accounting, and the ground rules R1-R6 the skill exists to enforce.",
+  "description": "Per-skill evaluation for agentic-complexity-ladder \u2014 validates trigger routing, boundary discipline against workflow-graph-authoring / multi-agent-orchestration / cost-accounting, and the ground rules R1-R7 the skill exists to enforce.",
   "train_split": 0.6,
   "trigger_threshold": 0.5,
   "runs_per_query": 3,
@@ -265,6 +265,37 @@
           "type": "output_not_contains",
           "patterns": [
             "more robust overall"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ground-rule-r7-tool-overload",
+      "category": "anti_pattern_compliance",
+      "description": "Agent must treat tool width as a measured rung cost, not accumulated capability (R7)",
+      "input": "Our agent has 22 tools including two different search tools with similar names. It sometimes calls the wrong one. Should we add a few more tools to cover the edge cases?",
+      "expected_behavior": "refuses_or_corrects",
+      "assertions": [
+        {
+          "type": "output_contains",
+          "patterns": [
+            "selection",
+            "tool"
+          ]
+        },
+        {
+          "type": "output_contains",
+          "patterns": [
+            "narrow",
+            "merge",
+            "split"
+          ]
+        },
+        {
+          "type": "output_not_contains",
+          "patterns": [
+            "add more tools",
+            "more tools is better"
           ]
         }
       ]

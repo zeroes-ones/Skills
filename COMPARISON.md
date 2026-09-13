@@ -10,16 +10,21 @@ Data for the zeroes-ones/Skills corpus, refreshed with:
 
 <!-- MEASURED-BASELINE:START -->
 
-| Skills (prompts) | 303 |
-| Executable-node eligible (Core Workflow + Verification) | 300 |
-| Declared `workflow:` contracts | 30 |
-| Avg body words (load cost) | 8870 |
-| Compiled coverage | 303/303 |
-| Avg effective load (compiled tokens) | 1247 |
-| Effective load saving vs raw body | 85.9% |
+| Skills (prompts) | 320 |
+| Executable-node eligible (Core Workflow + Verification) | 317 |
+| Declared `workflow:` contracts | 59 |
+| Avg body words (load cost) | 8,773 |
+| Compiled coverage | 320/320 |
+| Avg compiled size (measured, `cl100k_base`) | 3,068 tokens |
+| Compilation reduction vs raw body (measured) | 78.0% |
 | Portability target declared | 100.0% |
 | Golden eval sets covered | 3/3 |
-| Routing Top-1 / Top-5 (lexical baseline) | 5/10 (50%) / 6/10 (60%) |
+| Routing rank-1 (lexical, gating suite) | 72.8% (target 80%) — **FAILING**, 4 must-not violations |
+
+> **Corrected 2026-09-13.** The previous block reported "Avg effective load 1,247 compiled tokens /
+> 85.9% saving". Those came from `_compile_skill.py`'s `len(text.split())` fallback — they are
+> **word counts, not tokens**. Measured with a real tokenizer the saving is **78.0%** and mean
+> compiled size is **3,068 tokens**. See [`docs/token-context-benchmark.md`](docs/token-context-benchmark.md).
 
 <!-- MEASURED-BASELINE:END -->
 

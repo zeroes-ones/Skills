@@ -25,8 +25,10 @@ everything else lives in state/memory on disk.
 
 ## 2. Context saving — the four levers
 
-1. **Load compiled, not raw.** Skills compile to 65-90% fewer tokens (avg effective load 3,545
-   vs ~8,976 raw body words; 63.4% measured saving). Compiled copies are what agents should read.
+1. **Load compiled, not raw.** Measured with a real tokenizer (`cl100k_base`, 2026-09-13): skills
+   compile from a mean of **13,935 tokens down to 3,068** — a **78.0% saving** (range 54.8–95.1%).
+   Compiled copies are what agents should read. *(Earlier figures of "3,545 vs 8,976 / 63.4%" were
+   word counts, not tokens — see [`token-context-benchmark.md`](token-context-benchmark.md).)*
 2. **Progressive disclosure.** Read Route the Request + Ground Rules (QUICK) first; drill into
    DEEP sections only when the task needs them — routing decisions cost a fraction of the body.
 3. **Compact each hop.** `context-compaction-strategies` between nodes keeps handoff context
