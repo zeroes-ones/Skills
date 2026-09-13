@@ -10,8 +10,12 @@ can ingest agent-run telemetry. Stable naming is part of the contract:
     node span    : workflow.<workflow>.node.<id> (one per executed node, incl. gates)
 
 Attributes are stable keys: status, verdict, evidence, iterations, and (where present) step.
-Cost/latency are placeholders (0) until a real executor reports them; sampling policy is 100% for
-escalations/guardrail trips (the state log's 'escalate'/'guardrail' actions), default otherwise.
+Cost/tokens are executor-reported: the runner accumulates `usage` from each node into run-state and
+this exporter surfaces it per span and rolled up on the session span. `usage_reported` /
+`cost_measured` distinguish "spent nothing" from "not measured" — an unmeasured run must never be
+read as a free one. Latency remains a placeholder (0) until a real executor reports it. Sampling
+policy is 100% for escalations/guardrail trips (the state log's 'escalate'/'guardrail' actions),
+default otherwise.
 
 Usage:
     python3 scripts/export-traces.py --state examples/workflow-runtime/state/happy-run-state.json
@@ -51,6 +55,13 @@ def export(state):
             "iterations": state.get("budget", {}).get("iterations", {}),
             "created": state.get("created"),
             "updated": state.get("updated"),
+            # run-level cost rollup (executor-reported). `cost_measured` false means the
+            # executor reported nothing — the run's cost is UNKNOWN, not zero.
+            "cost_usd": (state.get("budget", {}).get("cost") or {}).get("cost_usd"),
+            "tokens_in": (state.get("budget", {}).get("cost") or {}).get("tokens_in", 0),
+            "tokens_out": (state.get("budget", {}).get("cost") or {}).get("tokens_out", 0),
+            "cost_measured": (state.get("budget", {}).get("cost") or {}).get("measured", False),
+            "max_cost_usd": (state.get("budget") or {}).get("max_cost_usd"),
         },
         "sampled": True,
     })
@@ -71,8 +82,14 @@ def export(state):
                 "evidence": rec.get("evidence") or [],
                 "iterations": rec.get("iterations", 0),
                 "latency_ms": 0,   # reported by the executor in real deployments
-                "tokens": 0,       # reported by the executor in real deployments
-                "cost": 0.0,       # reported by the executor in real deployments
+                # executor-reported usage (None when the executor reported nothing, so an
+                # unreported span is distinguishable from a genuinely free one)
+                "tokens_in": (rec.get("cost") or {}).get("tokens_in"),
+                "tokens_out": (rec.get("cost") or {}).get("tokens_out"),
+                "tokens": (((rec.get("cost") or {}).get("tokens_in") or 0)
+                           + ((rec.get("cost") or {}).get("tokens_out") or 0)),
+                "cost_usd": (rec.get("cost") or {}).get("cost_usd"),
+                "usage_reported": (rec.get("cost") or {}).get("reported", False),
             },
             "sampled": sampled,
         })

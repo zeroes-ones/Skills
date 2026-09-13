@@ -17,6 +17,20 @@ artifacts (list[{name, path, sha, type}]), diagnostics (list[str]).
 Without --executor, every node is a no-op stub returning status=done, verdict="pass"
 so traversal/loop/budget logic can be exercised without content.
 
+Cost accounting (executor-reported)
+-----------------------------------
+A real executor spends tokens and money per node and should report them, so a run's cost is
+measured rather than proxied by step count. The returned dict may additionally set:
+
+    usage = {"tokens_in": int, "tokens_out": int, "cost_usd": float}
+
+The runner accumulates these into `state.budget.cost` and per-node `cost`, and enforces an
+optional `budget.max_cost_usd` manifest budget the same way `budget.max_steps` is enforced. Absent
+usage is recorded as zero and flagged (`cost.measured: false`) rather than silently treated as
+free — an unmeasured run must never be reported as a cheap one. Cost is only meaningful paired
+with the outcome, so the summary reports `cost_usd` and `outcome` together (cost per successful
+run is the metric; cost per step is a proxy).
+
 Execution semantics (implemented)
 ---------------------------------
 - Nodes run when their incoming edges are satisfied (`when` condition true against run-state).
@@ -247,6 +261,9 @@ def fresh_state(manifest, text, budget):
         "phase": "idle",
         "iteration": 0,
         "budget": {"max_steps": budget, "steps_used": 0,
+                   "max_cost_usd": ((manifest.get("budget") or {}).get("max_cost_usd")),
+                   "cost": {"tokens_in": 0, "tokens_out": 0, "cost_usd": 0.0,
+                            "measured": False, "unreported_nodes": []},
                    "iterations": {lp["id"]: 0 for lp in manifest.get("loops") or []}},
         "nodes": {n["id"]: {"status": "pending", "iterations": 0}
                   for n in manifest.get("nodes") or []},
@@ -258,6 +275,65 @@ def fresh_state(manifest, text, budget):
         "reroutes": {},            # kind: agent gates -> {gate: {used, tried, last_signature}}
         "log": [],
     }
+
+
+def record_usage(state, nid, result):
+    """Accumulate executor-reported usage into run-state (cost accounting).
+
+    A real executor reports what it spent; the runner's job is to accumulate it truthfully and to
+    mark what was NOT reported, so an unmeasured run is never presented as a free one. Returns the
+    node's accumulated usage dict.
+    """
+    usage = (result or {}).get("usage") or {}
+    try:
+        tin = int(usage.get("tokens_in") or 0)
+        tout = int(usage.get("tokens_out") or 0)
+        cusd = float(usage.get("cost_usd") or 0.0)
+    except (TypeError, ValueError):
+        tin, tout, cusd = 0, 0, 0.0
+    cost = state["budget"].setdefault(
+        "cost", {"tokens_in": 0, "tokens_out": 0, "cost_usd": 0.0,
+                 "measured": False, "unreported_nodes": []})
+    cost["tokens_in"] += tin
+    cost["tokens_out"] += tout
+    cost["cost_usd"] = round(cost["cost_usd"] + cusd, 6)
+    reported = bool(usage)
+    if reported:
+        cost["measured"] = True
+        if nid in cost["unreported_nodes"]:
+            cost["unreported_nodes"].remove(nid)
+    elif nid not in cost["unreported_nodes"]:
+        cost["unreported_nodes"].append(nid)
+    rec = state["nodes"].setdefault(nid, {"status": "pending", "iterations": 0})
+    rec["cost"] = {"tokens_in": tin, "tokens_out": tout, "cost_usd": cusd,
+                   "reported": reported}
+    return rec["cost"]
+
+
+def cost_exceeded(state):
+    """True when the manifest's max_cost_usd budget is set and has been reached or passed.
+
+    Cost is only enforceable when it was measured: a run whose executor reported nothing has
+    cost 0.0 and therefore cannot trip a cost budget — recorded as `measured: false` so the
+    distinction is visible rather than implied.
+
+    The cap is coerced to float: manifest values arrive from a YAML shim that may hand back a
+    string, and comparing a string cap to a numeric cost would either raise or silently compare
+    the wrong way.
+    """
+    cap = (state.get("budget") or {}).get("max_cost_usd")
+    if cap in (None, ""):
+        return False
+    try:
+        cap = float(cap)
+    except (TypeError, ValueError):
+        return False
+    if cap <= 0:
+        return False
+    cost = (state.get("budget") or {}).get("cost") or {}
+    if not cost.get("measured"):
+        return False
+    return float(cost.get("cost_usd") or 0.0) >= cap
 
 
 def save_state(state, path):
@@ -290,6 +366,7 @@ def write_memory(memory_dir, state, summary):
         "outcome": summary.get("outcome"),
         "steps_used": summary.get("steps_used"),
         "iterations": summary.get("iterations"),
+        "cost": summary.get("cost"),      # executor-reported; measured:false when unreported
         "nodes": summary.get("nodes"),
         "artifact_count": len(state.get("artifacts", {})),
         "open_question_count": len(state.get("open_questions", [])),
@@ -537,6 +614,7 @@ class Runner(object):
                    "skill": (self.nodes.get(nid) or {}).get("skill")}
             try:
                 result = self.executor.execute_node(nid, self.state, ctx)
+                record_usage(self.state, nid, result)
                 guard_reason = self._apply_guardrail(nid, result)
                 if guard_reason is not None:
                     save_state(self.state, self._state_path)
@@ -548,6 +626,9 @@ class Runner(object):
                 self._crash_checkpoint(nid, exc)
                 raise
             save_state(self.state, self._state_path)  # per-node checkpoint (D2)
+            if cost_exceeded(self.state):
+                self._loop_exit_reason = "cost-budget"
+                return "exhaust"
         self.state["budget"]["iterations"][loop["id"]] += 1
         self.state["iteration"] = self.state["budget"]["iterations"][loop["id"]]
         if eval_condition(loop.get("exit_when", "always"), self.state, loop["id"]):
@@ -732,6 +813,7 @@ class Runner(object):
                     result = self.executor.execute_node(
                         nid, state, {"loop_id": None, "pass": 0,
                                      "skill": (self.nodes.get(nid) or {}).get("skill")})
+                    record_usage(state, nid, result)
                     guard_reason = self._apply_guardrail(nid, result)
                     if guard_reason is not None:
                         save_state(state, self._state_path)
@@ -743,6 +825,14 @@ class Runner(object):
                     self._crash_checkpoint(nid, exc)
                     raise
                 save_state(state, self._state_path)  # per-node checkpoint (D2)
+                if cost_exceeded(state):
+                    state["phase"] = "escalated"
+                    state["log"].append({"step": state["budget"]["steps_used"], "node": nid,
+                                         "action": "escalate",
+                                         "detail": "cost budget exhausted ($%.4f of $%s)"
+                                                   % (state["budget"]["cost"]["cost_usd"],
+                                                      state["budget"]["max_cost_usd"])})
+                    return self._summary("cost-budget")
                 if violation is not None:
                     # Outside a loop there is no retry to grant: an unsubstantiated completion
                     # claim escalates rather than silently advancing the graph.
@@ -820,13 +910,23 @@ class Runner(object):
 
     def _summary(self, reason):
         state = self.state
+        cost = (state.get("budget") or {}).get("cost") or {}
         return {
             "workflow": self.manifest["name"],
             "outcome": reason,
             "steps_used": state["budget"]["steps_used"],
             "iterations": state["budget"]["iterations"],
+            "cost": {
+                "tokens_in": cost.get("tokens_in", 0),
+                "tokens_out": cost.get("tokens_out", 0),
+                "cost_usd": cost.get("cost_usd", 0.0),
+                "measured": bool(cost.get("measured")),
+                "unreported_nodes": list(cost.get("unreported_nodes") or []),
+                "max_cost_usd": (state["budget"] or {}).get("max_cost_usd"),
+            },
             "nodes": {nid: {"status": rec.get("status"), "verdict": rec.get("verdict"),
-                            "iterations": rec.get("iterations")}
+                            "iterations": rec.get("iterations"),
+                            "cost_usd": (rec.get("cost") or {}).get("cost_usd", 0.0)}
                       for nid, rec in state["nodes"].items()},
             "open_questions": state["open_questions"],
             "handoff": state.get("handoff"),
@@ -1134,6 +1234,53 @@ def _selftest():
     results.append(("contract enforcement is opt-in (default mode unchanged)",
                     s2["outcome"] == "complete"
                     and st2["nodes"]["spec"]["status"] == "done"))
+
+    # 5d) Executor-reported cost accounting: cost is MEASURED, accumulated, and enforceable.
+    # Before this, run-state carried no token/cost field at all and the only cost proxy was
+    # step count, so a "70% cheaper" claim could not be checked against a real run.
+    def priced(node_id, state, ctx):
+        return {"status": "done", "verdict": "pass", "evidence": ["stub:%s" % node_id],
+                "usage": {"tokens_in": 1000, "tokens_out": 250, "cost_usd": 0.012}}
+
+    m_cost_m = _make_manifest_fixture("t-cost-measured",
+                               [{"id": "a", "skill": "code-reviewer"},
+                                {"id": "b", "skill": "qa-engineer"}],
+                               edges=[{"from": "a", "to": "b", "when": "always"}],
+                               start="a", end=["b"])
+    s, st = run_fixture(m_cost_m, priced)
+    results.append(("executor-reported cost is accumulated and marked measured",
+                    s["outcome"] == "complete"
+                    and s["cost"]["cost_usd"] == 0.024
+                    and s["cost"]["tokens_in"] == 2000
+                    and s["cost"]["tokens_out"] == 500
+                    and s["cost"]["measured"] is True
+                    and st["nodes"]["a"]["cost"]["cost_usd"] == 0.012))
+
+    # 5e) An unreported run must NOT be presented as a free one.
+    s2, st2 = run_fixture(m_cost_m, clean)          # `clean` reports no usage
+    results.append(("unreported cost is flagged, never treated as free",
+                    s2["outcome"] == "complete"
+                    and s2["cost"]["measured"] is False
+                    and s2["cost"]["cost_usd"] == 0.0
+                    and sorted(s2["cost"]["unreported_nodes"]) == ["a", "b"]))
+
+    # 5f) A manifest cost budget halts the run like a step budget does.
+    m_cost = _make_manifest_fixture("t-cost-budget",
+                                    [{"id": "a", "skill": "code-reviewer"},
+                                     {"id": "b", "skill": "qa-engineer"}],
+                                    edges=[{"from": "a", "to": "b", "when": "always"}],
+                                    start="a", end=["b"],
+                                    budget={"max_cost_usd": 0.02})
+    cs3, cst3 = run_fixture(m_cost, priced)    # $0.012/node: trips after the second node
+    results.append(("a manifest max_cost_usd budget halts the run",
+                    cs3["outcome"] == "cost-budget"
+                    and any_action(cst3, "b", "escalate")))
+
+    # 5g) A cost budget cannot trip on an unmeasured run (0.0 is not "under budget").
+    cs4, cst4 = run_fixture(m_cost, clean)
+    results.append(("a cost budget does not trip when nothing was measured",
+                    cs4["outcome"] == "complete"
+                    and cs4["cost"]["measured"] is False))
 
     def substantiated(node_id, state, ctx):
         return {"status": "done", "verdict": "pass", "evidence": ["check:all"],
