@@ -14,6 +14,7 @@ Usage:
 import os
 import re
 import sys
+import json
 import subprocess
 from collections import defaultdict
 
@@ -21,6 +22,29 @@ from collections import defaultdict
 # Each rule: (code, severity, message_template, check_function)
 # severity: 'error' (blocks commit) or 'warning' (advisory)
 RULES = []
+
+# Rules disabled by the repository's own markdownlint config (.markdownlint.json — the config
+# CI actually runs via `markdownlint-cli2 --config`). Honouring it keeps this linter's verdict
+# consistent with CI; without it the local gate was stricter than CI and red on clean HEAD.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CONFIG_PATH = os.path.join(REPO_ROOT, '.markdownlint.json')
+
+
+def load_disabled_rules(config_path=CONFIG_PATH):
+    """Return the set of rule codes set to false in .markdownlint.json (empty if unavailable).
+
+    Only `"MDxxx": false` disables a rule. `"MD024": {"siblings_only": true}` is a configuration,
+    not a disablement, so it stays enabled here. Fail-open: a missing or malformed config
+    disables nothing, so a broken config can never silently switch the linter off.
+    """
+    try:
+        with open(config_path, 'r', encoding='utf-8') as fh:
+            config = json.load(fh)
+    except (OSError, ValueError):
+        return set()
+    if not isinstance(config, dict):
+        return set()
+    return {k for k, v in config.items() if re.fullmatch(r'MD\d+', k) and v is False}
 
 def rule(code, severity, message):
     """Decorator to register a lint rule."""
@@ -210,16 +234,23 @@ def check_no_tabs(filepath, lines):
 
 # ── Lint Engine ────────────────────────────────────────────────────────────
 
-def lint_file(filepath, rules_to_run=None, fix=False):
-    """Run all rules against a single file. Returns list of (line, code, severity, message)."""
+def lint_file(filepath, rules_to_run=None, fix=False, disabled_rules=None):
+    """Run all rules against a single file. Returns list of (line, code, severity, message).
+
+    `disabled_rules` holds rule codes the repository's config turns off (see
+    load_disabled_rules); they are skipped so this linter matches CI's verdict.
+    """
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             lines = f.readlines()
     except (UnicodeDecodeError, IOError) as e:
         return [(0, "MD000", "error", f"Cannot read file: {e}")]
 
+    disabled = disabled_rules or set()
     all_errors = []
     for code, severity, template, check_fn in RULES:
+        if code in disabled:
+            continue
         if rules_to_run and code not in rules_to_run:
             continue
         try:
@@ -290,6 +321,8 @@ def main():
     parser.add_argument('--no-color', action='store_true', help='Disable colors')
     parser.add_argument('--errors-only', action='store_true', help='Only show errors, not warnings')
     parser.add_argument('--rules', help='Comma-separated rule codes to run (default: all)')
+    parser.add_argument('--no-config', action='store_true',
+                        help='Ignore .markdownlint.json and run every rule in this linter')
     args = parser.parse_args()
 
     # Determine files to lint
@@ -309,6 +342,8 @@ def main():
         sys.exit(0)
 
     rule_filter = set(args.rules.split(',')) if args.rules else None
+    # Honour the repository's own markdownlint config so this gate agrees with CI.
+    disabled_rules = set() if args.no_config else load_disabled_rules()
 
     total_errors = 0
     total_warnings = 0
@@ -317,7 +352,7 @@ def main():
     for filepath in target_files:
         if not os.path.exists(filepath):
             continue
-        errors = lint_file(filepath, rule_filter, fix=args.fix)
+        errors = lint_file(filepath, rule_filter, fix=args.fix, disabled_rules=disabled_rules)
         if args.errors_only:
             errors = [e for e in errors if e[2] == 'error']
 

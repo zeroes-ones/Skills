@@ -138,9 +138,11 @@ sys.exit(min(errs, 1))
     fi
 
     # ── G5: Markdown style ────────────────────────────────────────────────
+    # lint-markdown.py honours .markdownlint.json (the config CI runs), so this gate now agrees
+    # with CI's verdict instead of being stricter than it.
     md_output=$(python3 "$REPO_ROOT/scripts/lib/lint-markdown.py" --changed --errors-only --no-color 2>/dev/null) && md_ok=true || md_ok=false
     if $md_ok; then
-        pass "G5  Markdown style (headings, blank lines, code fences, no duplicate headings, no tabs)"
+        pass "G5  Markdown style (repo .markdownlint.json rules, headings, code fences, no tabs)"
     else
         fail "G5  Markdown style"
         echo "$md_output" | head -15
@@ -148,8 +150,11 @@ sys.exit(min(errs, 1))
     fi
 
     # ── G6: Template compliance (14 sections + anti-hallucination + gotchas + ground rules) ──
+    # --delta compares each file against its revision at HEAD: a violation the commit did not
+    # introduce is reported as pre-existing and does not block, while a new file (no baseline)
+    # or a newly-introduced violation blocks exactly as before.
     if [ -n "$NON_FW_SKILLS" ]; then
-        tmpl_output=$(python3 "$REPO_ROOT/scripts/lib/lint-template.py" --changed --no-color 2>/dev/null) && tmpl_ok=true || tmpl_ok=false
+        tmpl_output=$(python3 "$REPO_ROOT/scripts/lib/lint-template.py" --changed --delta --no-color 2>/dev/null) && tmpl_ok=true || tmpl_ok=false
         if $tmpl_ok; then
             pass "G6  Template compliance (14 sections, anti-hallucination, ground rules structure)"
         else
@@ -300,10 +305,18 @@ sys.exit(min(errs, 1))
     fi
 
     # ── G13: Example validation (new skills must have real-world examples) ──
+    # Exit codes from the script: 0 = all good, 1 = a NEW skill lacks a valid example (blocking),
+    # 2 = warnings only (pre-existing skills without examples — advisory). Treating 2 as a failure
+    # is what made this gate red on a clean checkout.
     if [ -f "$REPO_ROOT/scripts/lib/validate-skill-examples.sh" ]; then
-        example_output=$(bash "$REPO_ROOT/scripts/lib/validate-skill-examples.sh" --changed --no-color --errors-only 2>&1) && ex_ok=true || ex_ok=false
-        if $ex_ok; then
+        # `|| true` keeps `set -e` from aborting on the non-zero exit we intend to inspect.
+        example_output=$(bash "$REPO_ROOT/scripts/lib/validate-skill-examples.sh" --changed --no-color --errors-only 2>&1) && ex_code=0 || ex_code=$?
+        if [ "$ex_code" -eq 0 ]; then
             pass "G13 Example validation (real-world backtest example present)"
+        elif [ "$ex_code" -eq 2 ]; then
+            pass "G13 Example validation (new skills have examples; pre-existing gaps are advisory)"
+            echo "$example_output" | grep -E 'Warnings:|advisory' | head -3
+            warnings=$((warnings + 1))
         else
             fail "G13 Example validation — new/missing skills require backtest-verified examples"
             echo "$example_output" | head -15

@@ -89,22 +89,35 @@ if [ -z "$SKILL_FILES" ]; then
 fi
 
 # ── Helper: Extract chain.examples from YAML frontmatter ────────────────────
-# Returns space-separated example paths, or empty string
+# Returns space-separated example paths, or empty string.
+# Uses the repository's yaml_shim fallback when PyYAML is absent, matching the other checks:
+# a missing third-party module must not silently turn this gate into "every skill lacks examples".
 extract_examples() {
     local skill_file="$1"
+    local scripts_dir="$SCRIPT_DIR/.."
+    # `python3 -c` matches this repo's established pattern (see scripts/validate-skills.sh) and is
+    # recognised by lint-shell's non-shell-context detection, unlike a heredoc with a trailing
+    # redirect. The shim fallback keeps this gate working without PyYAML installed.
     python3 -c "
-import sys, yaml
+import sys
+sys.path.insert(0, '$scripts_dir')
+try:
+    import yaml
+except ImportError:
+    import yaml_shim as yaml
 try:
     with open('$skill_file') as fh:
         content = fh.read()
-    # Extract frontmatter between --- delimiters
-    parts = content.split('---')
-    if len(parts) < 3:
+    # Anchor on the delimiter LINES: a bare split('---') also splits on every horizontal rule in
+    # the body (some skills have ~170), so the wrong slice would be parsed as frontmatter.
+    if not content.startswith('---'):
         sys.exit(1)
-    fm = yaml.safe_load(parts[1])
+    end = content.find('\n---', 3)
+    if end == -1:
+        sys.exit(1)
+    fm = yaml.safe_load(content[3:end]) or {}
     chain = fm.get('chain', {}) or {}
-    examples = chain.get('examples', []) or []
-    for ex in examples:
+    for ex in (chain.get('examples', []) or []):
         print(ex)
 except Exception:
     sys.exit(1)
@@ -143,18 +156,55 @@ has_scenarios_content() {
     return 1
 }
 
-# ── Helper: Determine if a skill is "new" (added in current branch vs main) ─
+# ── Helper: Determine if a skill is "new" (added relative to the base revision) ─
+# The base ref is resolved rather than hardcoded: `origin/main` may not exist (a fresh clone
+# without a remote, a detached checkout, CI), in which case the old code fell through to
+# "not on origin/main" and classified EVERY skill as new — which made every missing-examples
+# warning a blocking error. Preference order: an explicit $BASE_REF, then origin/main,
+# then main, then the empty tree (everything is new) only as a last resort.
+resolve_base_ref() {
+    if [ -n "${BASE_REF:-}" ] && git rev-parse --verify --quiet "$BASE_REF" >/dev/null 2>&1; then
+        printf '%s' "$BASE_REF"; return 0
+    fi
+    local candidate
+    for candidate in origin/main main origin/HEAD; do
+        if git rev-parse --verify --quiet "$candidate" >/dev/null 2>&1; then
+            printf '%s' "$candidate"; return 0
+        fi
+    done
+    printf '%s' ""; return 0
+}
+
 is_new_skill() {
     local skill_file="$1"
-    if git rev-parse --git-dir >/dev/null 2>&1; then
-        # Check if this file was added (not modified) vs main or origin/main
-        if git log --diff-filter=A --name-only --pretty=format: origin/main..HEAD 2>/dev/null | grep -qF "$skill_file"; then
-            return 0
-        fi
-        # Also check if it exists on main branch
-        if ! git show "origin/main:$skill_file" >/dev/null 2>&1; then
-            return 0
-        fi
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        return 1
+    fi
+    # Paths arrive repo-relative ("./a/b", "a/b") or absolute ("/repo/a/b"), depending on whether
+    # the caller used `git diff` or `find`. Resolve the repo root and strip it, so `git show` gets
+    # the `<rev>:<path>` form it expects. Getting this wrong silently reclassifies every skill as
+    # new, which is what made every missing-examples warning a blocking error.
+    local repo_root rel
+    repo_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+    rel="${skill_file#./}"
+    if [ -n "$repo_root" ]; then
+        rel="${rel#"$repo_root"/}"
+        # Tolerate a symlinked root (e.g. /tmp -> /private/tmp on macOS).
+        rel="${rel#"$(cd "$repo_root" && pwd -P 2>/dev/null)"/}"
+    fi
+    local base
+    base="$(resolve_base_ref)"
+    if [ -z "$base" ]; then
+        # No base to compare against: cannot prove the skill is new, so do not claim it is.
+        return 1
+    fi
+    # Added (not merely modified) between the base and HEAD?
+    if git log --diff-filter=A --name-only --pretty=format: "$base..HEAD" 2>/dev/null | grep -qxF "$rel"; then
+        return 0
+    fi
+    # Still absent from the base revision => new.
+    if ! git show "$base:$rel" >/dev/null 2>&1; then
+        return 0
     fi
     return 1
 }

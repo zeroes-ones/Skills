@@ -52,10 +52,13 @@ ANTI_HALLUCINATION_PHRASES = [
 # ── Checks ─────────────────────────────────────────────────────────────────
 
 class SkillChecker:
-    def __init__(self, filepath):
+    def __init__(self, filepath, content=None):
         self.filepath = filepath
         self.errors = []
         self.warnings = []
+        if content is not None:
+            self.content = content
+            return
         try:
             with open(filepath, 'r', encoding='utf-8') as f:
                 self.content = f.read()
@@ -357,6 +360,68 @@ def get_all_skill_files():
     return sorted(found)
 
 
+def _repo_relative(filepath):
+    """Return `filepath` relative to the repository root, as git expects for `<rev>:<path>`.
+
+    Both sides are canonicalised with realpath: on macOS `/tmp` is a symlink to `/private/tmp`,
+    so a raw prefix comparison between the git root and an abspath silently fails.
+    """
+    root = subprocess.run(['git', 'rev-parse', '--show-toplevel'],
+                          capture_output=True, text=True)
+    if root.returncode != 0:
+        return None
+    top = os.path.realpath(root.stdout.strip())
+    abs_path = os.path.realpath(filepath)
+    if abs_path != top and not abs_path.startswith(top + os.sep):
+        return None
+    return os.path.relpath(abs_path, top)
+
+
+def baseline_content(filepath, ref='HEAD'):
+    """Return the file's content at `ref`, or None when it is new at that ref.
+
+    Used for delta checking: a violation that already exists at the baseline is debt the commit
+    did not introduce, so it is reported but does not block. A violation absent from the baseline
+    is new, and does block. This is what makes the gate usable on a corpus that carries known
+    pre-existing debt, without weakening it for new files (which have no baseline, so every
+    violation in them counts).
+    """
+    rel = _repo_relative(filepath)
+    if rel is None:
+        return None
+    try:
+        result = subprocess.run(
+            ['git', 'show', f'{ref}:{rel}'],
+            capture_output=True, text=True
+        )
+    except Exception:
+        return None
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def check_with_delta(filepath, ref='HEAD'):
+    """Check a file and split its errors into (new_errors, pre_existing_errors).
+
+    Returns (all_errors, all_warnings, new_errors). `new_errors` are those not reproducible from
+    the baseline revision of the same file, so the caller can treat only those as blocking.
+    """
+    checker = SkillChecker(filepath)
+    errors, warnings = checker.run_all()
+
+    base = baseline_content(filepath, ref)
+    if base is None:
+        # New file: no baseline, so every violation is introduced by this change.
+        return errors, warnings, list(errors)
+
+    base_checker = SkillChecker(filepath, content=base)
+    base_errors, _ = base_checker.run_all()
+    base_set = set(base_errors)
+    new_errors = [e for e in errors if e not in base_set]
+    return errors, warnings, new_errors
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description='Skill template compliance checker')
@@ -366,6 +431,11 @@ def main():
     parser.add_argument('--changed', action='store_true', help='Check git-staged SKILL.md files')
     parser.add_argument('--no-color', action='store_true', help='Disable colors')
     parser.add_argument('--json', action='store_true', help='Output as JSON')
+    parser.add_argument('--delta', action='store_true',
+                        help='Block only on violations this change introduces (compare against '
+                             '--delta-base); pre-existing violations are reported but non-blocking')
+    parser.add_argument('--delta-base', default='HEAD',
+                        help='Revision to compare against in --delta mode (default: HEAD)')
     args = parser.parse_args()
 
     # Scope precedence mirrors the other lib/lint-*.py linters: --all, then explicit files, then
@@ -398,34 +468,51 @@ def main():
 
     total_errors = 0
     total_warnings = 0
+    total_blocking = 0
+    total_preexisting = 0
 
     for filepath in target_files:
         if not os.path.exists(filepath):
             continue
 
-        checker = SkillChecker(filepath)
-        errors, warnings = checker.run_all()
+        if args.delta:
+            errors, warnings, blocking = check_with_delta(filepath, ref=args.delta_base)
+        else:
+            checker = SkillChecker(filepath)
+            errors, warnings = checker.run_all()
+            blocking = errors
+
+        blocking_set = set(blocking)
+        pre_existing = [e for e in errors if e not in blocking_set]
 
         if errors or warnings:
             print(f"\n{filepath}:")
-            for e in errors:
+            for e in blocking:
                 print(f"  {RED}✗{NC} {e}")
-                total_errors += 1
+                total_blocking += 1
+            for e in pre_existing:
+                print(f"  {YELLOW}•{NC} {e}  {YELLOW}(pre-existing; does not block){NC}")
+                total_preexisting += 1
             for w in warnings:
                 print(f"  {YELLOW}⚠{NC} {w}")
                 total_warnings += 1
+        total_errors += len(errors)
 
     if total_errors == 0 and total_warnings == 0:
         print(f"{GREEN}✓{NC} {len(target_files)} skill(s) pass template compliance")
         sys.exit(0)
     else:
         parts = []
-        if total_errors:
-            parts.append(f"{RED}{total_errors} error(s){NC}")
+        if total_blocking:
+            parts.append(f"{RED}{total_blocking} new error(s){NC}")
+        if total_preexisting:
+            parts.append(f"{YELLOW}{total_preexisting} pre-existing{NC}")
         if total_warnings:
             parts.append(f"{YELLOW}{total_warnings} warning(s){NC}")
         print(f"\n{len(target_files)} skill(s) checked: {', '.join(parts)}")
-        sys.exit(1 if total_errors > 0 else 0)
+        # Only newly-introduced violations block. With --delta off, `blocking` is every error,
+        # so behaviour is unchanged for callers that do not opt in.
+        sys.exit(1 if total_blocking > 0 else 0)
 
 
 if __name__ == '__main__':

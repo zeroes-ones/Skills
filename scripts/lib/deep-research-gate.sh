@@ -3,20 +3,22 @@
 # G14: Deep Research Gate — Superior Decision Quality Enforcement
 # ============================================================================
 # This gate runs BEFORE any trading/finance skill change is committed.
-# It enforces research depth, data provenance, regime awareness, and 
-# anti-hallucination guardrails. This is NOT a lint check — it's a 
-# THINKING QUALITY check. If you can't prove you researched it, you 
+# It enforces research depth, data provenance, regime awareness, and
+# anti-hallucination guardrails. This is NOT a lint check — it's a
+# THINKING QUALITY check. If you can't prove you researched it, you
+# can't commit it.
+set -euo pipefail
 # can't commit it.
 #
 # Architecture: G14 runs after G0-G13. G0-G13 check structure.
-# G14 checks DEPTH. A structurally valid skill that fails G14 is 
+# G14 checks DEPTH. A structurally valid skill that fails G14 is
 # a skill that hasn't been properly researched.
 #
 # Research quality dimensions checked:
 #   RQ1: DATA PROVENANCE — Every number must have a source tag
 #   RQ2: REGIME COVERAGE — Every strategy must address all market regimes
 #   RQ3: PATTERN RECOGNITION — Pattern engine must be consulted
-#   RQ4: CROSS-SKILL WIRING — Upstream/downstream references complete 
+#   RQ4: CROSS-SKILL WIRING — Upstream/downstream references complete
 #   RQ5: FAILURE MODES — What breaks this strategy must be documented
 #   RQ6: DOLLAR QUANTIFICATION — Risk/reward in dollars, not just %
 #   RQ7: ANTI-HALLUCINATION — Limitations explicitly stated
@@ -31,7 +33,6 @@
 #   2 = WARN (research adequate but improvable — warn but don't block)
 # ============================================================================
 
-set -euo pipefail
 
 # --- Configuration ---
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -62,10 +63,49 @@ MIN_REFERENCE_FILES=9
 
 # --- Helper Functions ---
 pass_msg()  { echo -e "  ${GREEN}[PASS]${NC} $1"; PASS=$((PASS + 1)); }
-block_msg() { echo -e "  ${RED}[BLOCK]${NC} $1"; BLOCK=$((BLOCK + 1)); }
+# A BLOCK on a NEW skill is blocking; on a pre-existing skill it is advisory, matching the
+# convention G13 already uses ("new skill requires examples" blocks, "existing skill missing
+# examples" warns). Without this, touching a skill for any unrelated reason re-audited its whole
+# pre-existing research posture and blocked the commit — the gate was red on a clean checkout.
+block_msg() {
+  if [[ "${CURRENT_SKILL_IS_NEW:-true}" == "true" ]]; then
+    echo -e "  ${RED}[BLOCK]${NC} $1"; BLOCK=$((BLOCK + 1))
+  else
+    echo -e "  ${YELLOW}[WARN]${NC} $1  ${YELLOW}(pre-existing; does not block)${NC}"; WARN=$((WARN + 1))
+  fi
+}
 warn_msg()  { echo -e "  ${YELLOW}[WARN]${NC} $1"; WARN=$((WARN + 1)); }
 info_msg()  { echo -e "  ${CYAN}[INFO]${NC} $1"; }
 total_msg() { TOTAL=$((TOTAL + 1)); }
+
+# --- Is this skill new relative to the resolved base revision? ---
+# Mirrors scripts/lib/validate-skill-examples.sh: resolve a real base ref rather than hardcoding
+# origin/main, and compare repo-relative paths.
+resolve_base_ref() {
+  if [[ -n "${BASE_REF:-}" ]] && git -C "$REPO_ROOT" rev-parse --verify --quiet "$BASE_REF" >/dev/null 2>&1; then
+    printf '%s' "$BASE_REF"; return 0
+  fi
+  local candidate
+  for candidate in origin/main main origin/HEAD; do
+    if git -C "$REPO_ROOT" rev-parse --verify --quiet "$candidate" >/dev/null 2>&1; then
+      printf '%s' "$candidate"; return 0
+    fi
+  done
+  printf '%s' ""
+}
+
+is_new_skill_dir() {
+  local skill_dir="$1"
+  local rel="${skill_dir#"$REPO_ROOT"/}"
+  local base
+  base="$(resolve_base_ref)"
+  if [[ -z "$base" ]]; then
+    # No base to compare against: cannot prove it is new, so do not hold it to the new-skill bar.
+    return 1
+  fi
+  git -C "$REPO_ROOT" show "$base:$rel/SKILL.md" >/dev/null 2>&1 && return 1
+  return 0
+}
 
 # --- Check if a file is a skill ---
 # ALL skills are subject to deep research quality checks.
@@ -94,7 +134,7 @@ get_skill_domain() {
 # Thresholds derived from 226-skill ecosystem scan (2026-08-01):
 #   Finance: p75-derived (top 25% pass, rest must improve)
 #   Strategy: p90-derived (strategic decisions carry outsized risk)
-#   Engineering: p75-derived 
+#   Engineering: p75-derived
 #   General: p50-derived (baseline research consciousness)
 get_thresholds() {
   local domain="$1"
@@ -145,7 +185,7 @@ get_thresholds() {
 check_provenance() {
   local skill_file="$1"
   local skill_name="$2"
-  
+
   # Count provenance tags
   local verified; verified=$(grep -c '\[VERIFIED\]' "$skill_file" 2>/dev/null) || verified=0
   local computed; computed=$(grep -c '\[COMPUTED\]' "$skill_file" 2>/dev/null) || computed=0
@@ -153,7 +193,7 @@ check_provenance() {
   local broker; broker=$(grep -c '\[BROKER-VERIFIED\]' "$skill_file" 2>/dev/null) || broker=0
   local common; common=$(grep -c '\[COMMON-PRACTICE\]' "$skill_file" 2>/dev/null) || common=0
   local total_tags=$((verified + computed + estimated + broker + common))
-  
+
   # Count untagged numbers using python
   local untagged; untagged=$(python3 -c "
 import re, sys
@@ -169,20 +209,20 @@ with open('$skill_file') as f:
 matches = re.findall(r'\\\$\d[\d,]*\s', content)
 print(len(matches))
 " 2>/dev/null) || untagged_dollar=0
-  
+
   if [[ $total_tags -lt $MIN_PROVENANCE_TAGS ]]; then
     block_msg "RQ1: Only $total_tags provenance tags (min $MIN_PROVENANCE_TAGS required). [VERIFIED]=$verified [COMPUTED]=$computed [ESTIMATED]=$estimated [BROKER-VERIFIED]=$broker [COMMON-PRACTICE]=$common"
   else
     pass_msg "RQ1: $total_tags provenance tags ([VERIFIED]=$verified [COMPUTED]=$computed [ESTIMATED]=$estimated)"
   fi
-  
+
   # Check for specific anti-hallucination markers
   if grep -q 'Anti-Hallucination\|Anti-Hallucination' "$skill_file" 2>/dev/null; then
     pass_msg "RQ1: Anti-Hallucination section present"
   else
     block_msg "RQ1: Missing Anti-Hallucination section — all trading skills MUST declare limitations"
   fi
-  
+
   # Check for knowledge cutoff
   if grep -qi 'knowledge cutoff\|data.*as of\|verified.*as of\|accurate.*as of' "$skill_file" 2>/dev/null; then
     pass_msg "RQ1: Knowledge cutoff declared"
@@ -206,13 +246,13 @@ check_regime_coverage() {
   local skill_file="$1"
   local skill_name="$2"
   local domain="$3"
-  
+
   # Skip regime check for non-market domains — regime coverage doesn't apply
   if ! is_market_domain "$domain"; then
     pass_msg "RQ2: N/A — non-market domain (regime coverage not applicable)"
     return 0
   fi
-  
+
   local bull; bull=$(python3 -c "
 import re, sys
 with open('$skill_file') as f:
@@ -242,7 +282,7 @@ matches = re.findall(r'crash|[-−][2-3][5-9]%|[-−][4-9][0-9]%|black[\s-]swan|
 print(len(matches))
 " 2>/dev/null) || crash=0
   local total_regimes=$(( (bull > 0) + (correction > 0) + (bear > 0) + (crash > 0) ))
-  
+
   if [[ $total_regimes -ge 4 ]]; then
     pass_msg "RQ2: All 4 regimes covered (bull=$bull, correction=$correction, bear=$bear, crash=$crash)"
   elif [[ $total_regimes -ge 3 ]]; then
@@ -256,7 +296,7 @@ print(len(matches))
 check_pattern_engine() {
   local skill_file="$1"
   local skill_name="$2"
-  
+
   # Check if pattern-recognition-engine.md is referenced
   if grep -q 'pattern-recognition-engine\|pattern.recognition.engine\|Pattern Recognition Engine' "$skill_file" 2>/dev/null; then
     pass_msg "RQ3: Pattern Recognition Engine referenced"
@@ -265,7 +305,7 @@ check_pattern_engine() {
   else
     warn_msg "RQ3: Pattern Recognition Engine not referenced — consider consulting the meta-layer"
   fi
-  
+
   # Check for evidence of data-driven threshold derivation
   local has_derived; has_derived=$(python3 -c "
 import re, sys
@@ -285,14 +325,14 @@ print(1 if found else 0)
 check_cross_skill() {
   local skill_file="$1"
   local skill_name="$2"
-  
+
   # Check for upstream references in chain
   if grep -q 'consumes_from\|Consumes From\|upstream' "$skill_file" 2>/dev/null; then
     pass_msg "RQ4: Upstream dependencies declared"
   else
     warn_msg "RQ4: No upstream dependencies — is this skill truly standalone?"
   fi
-  
+
   if grep -q 'feeds_into\|Feeds Into\|downstream' "$skill_file" 2>/dev/null; then
     pass_msg "RQ4: Downstream consumers declared"
   else
@@ -305,7 +345,7 @@ check_failure_modes() {
   local skill_file="$1"
   local skill_name="$2"
   local domain="$3"
-  
+
   local failure_count; failure_count=$(python3 -c "
 import re, sys
 with open('$skill_file') as f:
@@ -313,13 +353,13 @@ with open('$skill_file') as f:
 matches = re.findall(r'failure[\s-]mode|what[\s-].*go[\s-].*wrong|when[\s-].*fails|when[\s-].*break|loses[\s-].*money|worst[\s-]case|exit[\s-]condition|stop[\s-]loss|close[\s-]position|edge[\s-]case|known[\s-]limitation|what[\s-].*break', content, re.I)
 print(len(matches))
 " 2>/dev/null) || failure_count=0
-  
+
   if [[ $failure_count -ge $MIN_FAILURE_MODES ]]; then
     pass_msg "RQ5: $failure_count failure modes documented (min $MIN_FAILURE_MODES)"
   else
     block_msg "RQ5: Only $failure_count failure modes documented (min $MIN_FAILURE_MODES). Every strategy has failure modes. Document them."
   fi
-  
+
   # Check for stop-loss or exit condition (domain-aware)
   if is_market_domain "$domain"; then
     # Market domains: need explicit stop-loss / exit rules
@@ -356,7 +396,7 @@ print(1 if found else 0)
 check_dollar_quantification() {
   local skill_file="$1"
   local skill_name="$2"
-  
+
   local dollar_examples; dollar_examples=$(python3 -c "
 import re, sys
 with open('$skill_file') as f:
@@ -364,7 +404,7 @@ with open('$skill_file') as f:
 matches = re.findall(r'\\\$\d[\d,]*\s*(?:loss|profit|gain|saved|cost|risk|P&L|drawdown|premium|debit|credit|value|worth)', content, re.I)
 print(len(matches))
 " 2>/dev/null) || dollar_examples=0
-  
+
   if [[ $dollar_examples -ge $MIN_DOLLAR_EXAMPLES ]]; then
     pass_msg "RQ6: $dollar_examples dollar-quantified examples (min $MIN_DOLLAR_EXAMPLES)"
   else
@@ -376,7 +416,7 @@ print(len(matches))
 check_anti_hallucination() {
   local skill_file="$1"
   local skill_name="$2"
-  
+
   # Check for estimation acknowledgment
   local has_uncertainty; has_uncertainty=$(python3 -c "
 import re, sys
@@ -390,7 +430,7 @@ print(1 if found else 0)
   else
     block_msg "RQ7: No uncertainty acknowledgment — trading skills must admit what they don't know"
   fi
-  
+
   # Check for data source citations
   local citations; citations=$(python3 -c "
 import re, sys
@@ -399,7 +439,7 @@ with open('$skill_file') as f:
 matches = re.findall(r'source.*\:|data[\s-].*from|verified[\s-].*against|CBOE|Yahoo[\s-]Finance|Bloomberg|published[\s-].*by|exchange[\s-].*rules', content, re.I)
 print(len(matches))
 " 2>/dev/null) || citations=0
-  
+
   if [[ $citations -ge $MIN_RESEARCH_CITATIONS ]]; then
     pass_msg "RQ7: $citations data source citations (min $MIN_RESEARCH_CITATIONS)"
   else
@@ -411,7 +451,7 @@ print(len(matches))
 check_reference_depth() {
   local skill_dir="$1"
   local skill_name="$2"
-  
+
   local ref_dir="$skill_dir/references"
   if [[ -d "$ref_dir" ]]; then
     local ref_count=$(ls "$ref_dir"/*.md 2>/dev/null | wc -l | tr -d ' ')
@@ -425,7 +465,7 @@ check_reference_depth() {
   else
     warn_msg "RQ8: No references/ directory — where is the supporting research?"
   fi
-  
+
   # Check example coverage
   local examples_dir="$REPO_ROOT/examples"
   local skill_example_count=$(find "$examples_dir" -name "*.md" -path "*$(echo $skill_name | tr '-' '*')*" 2>/dev/null | wc -l | tr -d ' ')
@@ -443,10 +483,17 @@ check_skill() {
   local skill_name=$(basename "$skill_dir")
   local domain=$(get_skill_domain "$skill_dir")
   get_thresholds "$domain"
-  
+
+  # Whether this skill predates the base revision decides whether a BLOCK blocks. See block_msg.
+  if is_new_skill_dir "$skill_dir"; then
+    CURRENT_SKILL_IS_NEW=true
+  else
+    CURRENT_SKILL_IS_NEW=false
+  fi
+
   echo ""
   echo -e "${BOLD}${CYAN}═══ Deep Research Gate: $skill_name [$domain] ═══${NC}"
-  
+
   check_provenance "$skill_file" "$skill_name"
   check_regime_coverage "$skill_file" "$skill_name" "$domain"
   check_pattern_engine "$skill_file" "$skill_name"
@@ -463,7 +510,7 @@ main() {
   echo "Research quality requires: data provenance, regime coverage, pattern engine,"
   echo "failure modes, dollar quantification, anti-hallucination, and research depth."
   echo ""
-  
+
   if [[ "$MODE" == "all" ]]; then
     # Check ALL skills across all domains
     local skills_dir="$REPO_ROOT/skills"
@@ -483,12 +530,12 @@ main() {
     if [[ -z "$changed_files" ]]; then
       changed_files=$(git -C "$REPO_ROOT" diff --name-only --cached 2>/dev/null | grep 'skills/.*/SKILL.md' || true)
     fi
-    
+
     if [[ -z "$changed_files" ]]; then
       echo -e "  ${GREEN}[PASS]${NC} No skill changes detected — skipping deep research gate"
       return 0
     fi
-    
+
     # Extract unique skill directories
     local skill_dirs=$(echo "$changed_files" | sed 's|/SKILL.md||' | sort -u)
     for dir in $skill_dirs; do
@@ -505,12 +552,12 @@ main() {
       return 0
     fi
   fi
-  
+
   # --- Gate Decision ---
   echo ""
   echo -e "${BOLD}═══ G14 Gate Decision ═══${NC}"
   echo -e "  Checks passed: ${GREEN}$PASS${NC}  Warnings: ${YELLOW}$WARN${NC}  Blocks: ${RED}$BLOCK${NC}"
-  
+
   if [[ $BLOCK -gt 0 ]]; then
     echo ""
     echo -e "${RED}${BOLD}⛔ G14 BLOCKED: $BLOCK critical research gap(s)${NC}"

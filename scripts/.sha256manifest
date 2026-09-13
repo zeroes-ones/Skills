@@ -1,13 +1,13 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-13T19:57:03Z
+# Generated: 2026-09-13T20:58:54Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    5d9578c09df7efa8314d4460c31904ec061ce9ef
+# Commit:    e19d34048da1749c79281a53a4df3817d5e5a763
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
 e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
-e317a3f98a8b39365f708f97950e21e7248c49227a724ca79218abf522b82668  .githooks/pre-commit
+80f42a7181d82c9a85d81b4c9654142c252d77772859445011239e6a2792f5e2  .githooks/pre-commit
 ef8c6e4ace23f0c4d14b8865f2e543c4ea94b2d8850bfd0241e695e461e940a7  .githooks/pre-push
 63bad0ccc35c995cc82645b621ebdc014a7c7d2fe32dec985d6a3a246d161cb2  scripts/_compile_skill.py
 ffd847830fc4daa5ff70cdde91f58597623f5103959130f1240d1b9d82e6ea25  scripts/add-finance-rp-extensions.py
@@ -38,18 +38,18 @@ b3086ad80f9f95906fb1592e1ff19fd9117e5fd0f8a303ea8cc92262cb7630f3  scripts/goal-t
 a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject-anti-hallucination.py
 129cab96cfa4784974cc0d539b44d7ee24897cb6fe659e4aca88ab214fef2f94  scripts/install-hooks.sh
 081fd8193ed7185c28574f1607f19b95a8bfeb5b9a3c52dc1253c1bc2d507164  scripts/install.sh
-cc63951ce1b92eea4d9fae4af852a57ca4b66a28e34bf5270951dd1372e00fe4  scripts/lib/deep-research-gate.sh
+a60361886a6e36365d9290a4ff85e2731236de01cdaddf7cd62a186d186a9183  scripts/lib/deep-research-gate.sh
 4401693116769e6c5fece0929968d1902112619fe3d0633789e4bcc7ed82cb47  scripts/lib/eval-golden.py
 1487e3b07dd4f47596b3c7d4ecfd6139ac23524b56779f5d4d658344c023c36c  scripts/lib/guardrails.py
 c0713f12c06d91d78a1b3e7872ca7f3861fbce3d9cbe913640f1fbe8a7297641  scripts/lib/library-version-check.sh
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
-0bb1042e1e108645dc1a862cea231e7dc7be7c08552f5d9bf3274a30555ae34f  scripts/lib/lint-markdown.py
+f488a8107aa3a9464da231b9fc763f8f17e6137ddc318cb53761b37cc2103d46  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
-b55f651af0490445d18bd3a9004d12e400fbbc3b52f569448d41c2deaf9d7d67  scripts/lib/lint-template.py
+681a627a1f7595d5497321347214a3137cb614ac2dc3f2a76cfa494fd964b956  scripts/lib/lint-template.py
 e5ef422fedad81411d061b2cc53fcc9dbc55cd8be60ae6e14e3e4cb6af774507  scripts/lib/lint-workflow.py
 866980c7f79fa95f65a8a64f207cb047332c8bfd7267c93dcfef9e340fddfed2  scripts/lib/lint-yaml.py
 647393b289d48afb22217dfbad156da5d4eeb59a9330529da89fba7b4d30e0e9  scripts/lib/safe_yaml.py
-79b5cf6db04974cd871b66f8f518640c80afce10194589a83de470eadcaa1b96  scripts/lib/validate-skill-examples.sh
+41a8ddffbe97e61202593c86a9e2412d3ab13f19f4e50313f7967cac151d8e3a  scripts/lib/validate-skill-examples.sh
 d5dad28ecf59ed29d462a1b78dfcad164654a16298eb2e55691a939a078c8be1  scripts/lint.sh
 c00c15b424d486f9cac6b3784602d0d6a0ed5df1a978d28b61f0db05f736b588  scripts/log-outcome.sh
 18e59f02f0a5cd9a61eed3752dc31f7997777794df512bf8963ffc170b9d15f9  scripts/mcp-skill-server.py
@@ -77,7 +77,7 @@ e4007cd0c2cc5234c9f4727a5047affa90418c003a29ecd5e9436627edbcde42  scripts/valida
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 ba05301fc66f4b37e48e0d95662ce801792126193e308545ef70fa7e4c4e1617  scripts/workflow-eligibility.py
 e8338c527dc22d45d4cd384e4e681be21a52f13e936dba2413061ed2feb8b33a  scripts/workflow-runner.py
-27c5b0c560338d1d37b32f40fe7e2e1b98510452ac3d6667c220daa781bdcac0  scripts/yaml_shim.py
+ee4b08a0b27415aa3adc9cf4b3483953b24d743f37eb66864a6e985ecbcde3be  scripts/yaml_shim.py
 176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/00-framework/agent-persona-orchestrator/scripts/verify-skill.sh
 0d0e277f8dbc788d3c564ed6c8238635dab3cbc4c8f8c826762d9331171d738f  skills/00-framework/cross-skill-communication/scripts/verify-skill.sh
 1f5d7e04ad9be786253c37133933083bc4669ee54846860b85697d057c8b6553  skills/00-framework/senior-engineer-mode-router/scripts/verify-skill.sh

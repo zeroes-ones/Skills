@@ -150,32 +150,42 @@ def _parse(raw):
         data[key] = _scalar(" ".join(parts))
         i = j
 
-    # Nested chain block: chain: -> consumes_from/feeds_into (flow '[a,b]' or bullet '- a' style),
-    # with interleaved non-edge subkeys (examples:, type:, portability:) whose bullets must be ignored.
+    # Nested chain block: chain: -> consumes_from/feeds_into/examples (flow '[a,b]' or bullet
+    # '- a' style), with interleaved non-edge subkeys whose bullets must not leak into an edge list.
     chain_match = re.search(r"^chain:\s*\n((?:\s+.*\n)*)", raw, re.MULTILINE)
     if chain_match:
         consumes = []
         feeds = []
+        examples = []
         seen_key = None
         for line in chain_match.group(1).split("\n"):
-            m_key = re.match(r"\s*(consumes_from|feeds_into):\s*(.*)", line)
+            m_key = re.match(r"\s*(consumes_from|feeds_into|examples):\s*(.*)", line)
             if m_key:
-                seen_key = "consumes" if m_key.group(1) == "consumes_from" else "feeds"
+                name = m_key.group(1)
+                seen_key = {"consumes_from": "consumes",
+                            "feeds_into": "feeds",
+                            "examples": "examples"}[name]
                 inline = _flow_list(m_key.group(2))
                 if inline is not None:
-                    target = consumes if seen_key == "consumes" else feeds
+                    target = {"consumes": consumes, "feeds": feeds,
+                              "examples": examples}[seen_key]
                     target.extend(inline)
                 continue
-            # Any other subkey (examples:, type:, ...) ends the current edge key.
+            # Any other subkey ends the current list.
             if re.match(r"\s*[A-Za-z_][\w-]*:", line):
                 seen_key = None
                 continue
             m_item = re.search(r"-\s+(.+)", line)
-            if m_item and seen_key == "consumes":
-                consumes.append(m_item.group(1).strip())
-            elif m_item and seen_key == "feeds":
-                feeds.append(m_item.group(1).strip())
-        data["chain"] = {"consumes_from": consumes, "feeds_into": feeds}
+            if m_item and seen_key:
+                target = {"consumes": consumes, "feeds": feeds,
+                          "examples": examples}[seen_key]
+                target.append(m_item.group(1).strip())
+        chain = {"consumes_from": consumes, "feeds_into": feeds}
+        # `examples` is optional; include it only when present so the shim's shape stays close to
+        # what callers expect from the real PyYAML parse of the same frontmatter.
+        if examples:
+            chain["examples"] = examples
+        data["chain"] = chain
 
     # Defensive: the generic loop may leave chain as an empty list when the
     # nested block is absent; checks expect a dict (or a missing key).
