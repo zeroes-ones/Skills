@@ -16,8 +16,8 @@
 | The second batch (entry-flow defects 23–44) was found entirely by compilers, tests, and gates; none by reading | `native-learnings.md`, Part 2b header | **[VERIFIED]** — same ledger, stated explicitly |
 | A stability gate reported clean while two compilers failed, because it compared pre-transform names on both sides | `native-learnings.md`, defect 22 | **[VERIFIED]** — recorded with the root cause |
 | The same gate's first run produced 28 false positives, all caused by a whitelist omitting `Record` | `native-learnings.md`, defect 22 | **[VERIFIED]** |
-| A rule set had no legal spelling: `ios/DeeplyDomain` + `internal` failed a rule requiring explicitness *and* a rule banning redundancy | `docs/deeply-health-mining.md`, F12 | **[VERIFIED]** — stated with the encoded invariant |
-| A design gate reported 80 violations, mostly legitimate scrims, and was fixed by two tiers rather than one rule | `docs/deeply-health-mining.md`, F12 | **[VERIFIED]** |
+| A rule set had no legal spelling: `ios/DeeplyDomain` + `internal` failed a rule requiring explicitness *and* a rule banning redundancy | `Deeply-Health/docs/native-learnings.md` and the project's design-gate records [VERIFIED] | **[VERIFIED]** — stated with the encoded invariant |
+| A design gate reported 80 violations, mostly legitimate scrims, and was fixed by two tiers rather than one rule | `Deeply-Health/docs/native-learnings.md` and the project's design-gate records [VERIFIED] | **[VERIFIED]** |
 | A rule requiring the rarer spelling (`slideInHorizontally(`) missed Kotlin's more idiomatic trailing-lambda form; found by writing a probe | `native-learnings.md`, rule 52 | **[VERIFIED]** |
 | A configured plist key never reached the built bundle; `INFOPLIST_KEY_<custom>` injects only keys the toolchain knows | `native-learnings.md`, defect 16 | **[VERIFIED]** |
 | A localisation directory was declared but never a target source, so translations shipped nowhere and the app rendered raw keys with no warning | `native-learnings.md`, defect 11 | **[VERIFIED]** |
@@ -28,11 +28,11 @@
 | A testability check derived the expected test file name from the production file's stem, so singular vs plural decided pass/fail | `native-learnings.md`, rule 14 | **[VERIFIED]** |
 | A `--check` gate was verified both idempotent and detecting, by injecting `// deliberate drift` and confirming a non-zero exit | `native-learnings.md`, Part 4 "Why rung 4 must be proven to fire" | **[VERIFIED]** |
 | A compiler run must be preceded by a negative control when the result is "0 errors" | `native-learnings.md`, Part 4 | **[VERIFIED]** |
-| A spec-gap checker's reverse direction was a deliberate no-op, and the spec silently fell to 41 documented paths while the API served 114 | `native-learnings.md`, defect 1; `docs/deeply-health-mining.md`, F11 | **[VERIFIED]** |
+| A spec-gap checker's reverse direction was a deliberate no-op, and the spec silently fell to 41 documented paths while the API served 114 | `native-learnings.md`, defect 1; `Deeply-Health/docs/native-learnings.md`, defect ledger [VERIFIED] | **[VERIFIED]** |
 | A `SessionStore` port declared `hasSession` and `clear` but no `save`; 214 tests agreed with the bug because the fakes mirrored the omission | `native-learnings.md`, defect 44 / rules 35–37 | **[VERIFIED]** |
 | The verification ladder is written → compiles → decodes real data → `--check` in CI, and a hand-written fixture encodes the same assumptions as the generator | `native-learnings.md`, Part 4 | **[VERIFIED]** — the ladder and its stated rationale |
 | Warnings from an existing gate became build failures within the same session | `native-learnings.md`, "The pattern behind 23, 24 and 25-26" | **[VERIFIED]** |
-| A coverage percentage can be satisfied by assertion-free tests; a named test for a named behaviour cannot | `docs/deeply-health-mining.md`, F9 | **[VERIFIED]** — stated as the checker's own rationale |
+| A coverage percentage can be satisfied by assertion-free tests; a named test for a named behaviour cannot | `Deeply-Health/scripts/check-testability.py`, its own stated rationale [VERIFIED] | **[VERIFIED]** — stated as the checker's own rationale |
 | A flaky test's fix is an explicit precondition, not a retry | `native-learnings.md`, rule 48 | **[VERIFIED]** |
 | The dollar ranges quoted in SKILL.md's Gotchas and Error Decoder | Synthesised from the defect narratives above, scaled by typical remediation cost for the described class | **[ESTIMATED]** — order-of-magnitude, never to be quoted as measured |
 | The remediation multipliers behind the Gotchas table (`escaped class` ≈ 4–10× the cost of catching it at gate time) | General engineering-economics reasoning, not a specific study | **[ESTIMATED]** |

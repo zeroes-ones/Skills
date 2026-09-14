@@ -11,13 +11,12 @@ Every claim in this skill traces to one of the sources below, tagged by strength
 
 ## Primary source
 
-**`docs/deeply-health-mining.md`** `[VERIFIED]` — synthesis of an eleven-cluster deep read of
-`/Users/sp.vm/Documents/Projects/Deeply-Health`, a production health app (iOS, Android, React
-Native, Next.js, Python/FastAPI) with ~320k words of docs, ~207k words of native code, 15 ADRs, and
-a live design-token pipeline.
+**`Deeply-Health/docs/native-learnings.md`** `[VERIFIED]` — the defect ledger of a production
+health app (iOS, Android, React Native, Next.js, Python/FastAPI), recording each defect with the
+signal that found it.
 
-The specific finding this skill is built from is **F4**: an interface that cannot express an
-operation cannot be tested for it, ranked in that synthesis as "a genuinely missing diagnostic. It
+The specific finding this skill is built from: an interface that cannot express an
+operation cannot be tested for it, recorded as a genuinely missing diagnostic. It
 is not code review, not testing, not architecture. It is contract-completeness review."
 
 ## Defect records
