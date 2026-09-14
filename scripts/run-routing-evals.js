@@ -25,6 +25,15 @@ const TIER2_FILE = path.join(EVALS_DIR, 'tier2-routing-evals.json');
 const TARGET_RANK1_RATE = 0.80; // 80% rank-1 hit rate target
 const TARGET_MRR = 0.90;        // 90% MRR target
 
+// Regression ratchet — the MEASURED floor as of 2026-09-14 (rank-1 72.8%, MRR 79.9%,
+// 4 must-not violations). Distinct from the targets above: the targets are aspirational
+// and currently unmet, so gating on them would fail every run. These floors block a
+// regression without pretending the aspirational bar is met. Raise them as the router
+// improves; lowering one silently is exactly the failure this exists to prevent.
+const FLOOR_RANK1 = 0.72;
+const FLOOR_MRR = 0.79;
+const FLOOR_MUSTNOT = 4;
+
 // ---------------------------------------------------------------------------
 // CLI args
 // ---------------------------------------------------------------------------
@@ -174,6 +183,10 @@ const STOP_WORDS = new Set([
   'which', 'other', 'being', 'using', 'don', 'because', 'there', 'their',
 ]);
 
+// Negative-routing weight: strong enough to reorder a near-tie between two adjacent
+// skills, never strong enough to override a genuine topical match.
+const NEG_WEIGHT = 0.5;
+
 function computeTF(docTokens) {
   const tf = new Map();
   for (const t of docTokens) tf.set(t, (tf.get(t) || 0) + 1);
@@ -215,15 +228,28 @@ function whenToUseText(body) {
   return out.join(' ');
 }
 
+// Extract the description's "Do NOT use ..." clause. Skills already declare what they are
+// NOT for, and the router was ignoring it entirely — which is why semantically-adjacent
+// skills (code-reviewer on a Core Web Vitals prompt) score highly. This clause is the
+// skill's own negative routing signal, so the scorer should see it.
+function doNotUseText(desc) {
+  const d = String(desc || '');
+  const m = d.match(/Do NOT use[^.]*(?:\.[^.]*){0,3}/i);
+  return m ? m[0] : '';
+}
+
 // ---------------------------------------------------------------------------
 // 3. Build the routing index
 // ---------------------------------------------------------------------------
 function buildIndex(skills) {
   // Head field: skill name + description + tags (weight 1.0). Auxiliary field:
   // the body's "When to Use" section (weight 0.15). Each field has its own IDF.
+  // Negative field: the description's "Do NOT use" clause, used only to DISCOUNT a
+  // skill whose own declared out-of-scope matches the query (see route()).
   const headDocs = skills.map(s =>
     tokenize([s.name, s.desc, (s.tags || []).join(' ')].join(' ')));
   const whenDocs = skills.map(s => Array.from(new Set(tokenize(whenToUseText(s.body)))));
+  const negDocs = skills.map(s => Array.from(new Set(tokenize(doNotUseText(s.desc)))));
   const idfHead = computeIDF(headDocs, skills.length);
   const idfWhen = computeIDF(whenDocs, skills.length);
   const WHEN_WEIGHT = 0.15;
@@ -238,7 +264,7 @@ function buildIndex(skills) {
     for (const [t, tfVal] of tfWhen) {
       vec.set(t, (vec.get(t) || 0) + WHEN_WEIGHT * tfVal * (idfWhen.get(t) || 0));
     }
-    return { name: skills[i].name, vector: vec, doc: tokens };
+    return { name: skills[i].name, vector: vec, doc: tokens, neg: new Set(negDocs[i]) };
   });
 
   return { vectors, idf: idfHead, skills };
@@ -269,10 +295,21 @@ function route(index, prompt) {
     queryVec.set(t, tfVal * (index.idf.get(t) || 0));
   }
 
-  const scored = index.vectors.map(v => ({
-    name: v.name,
-    score: cosineSimilarity(queryVec, v.vector),
-  }));
+  const scored = index.vectors.map(v => {
+    const base = cosineSimilarity(queryVec, v.vector);
+    // Negative routing: discount a skill to the extent the query matches the things the
+    // skill itself declares it is NOT for. Measured as an IDF-weighted share of the
+    // query's own mass, so a long negative clause cannot dominate by length and common
+    // domain words (which appear in every sibling skill) carry little weight.
+    let num = 0, den = 0;
+    for (const [t, qVal] of queryVec) {
+      den += qVal;
+      if (v.neg && v.neg.has(t)) num += qVal;
+    }
+    const share = den > 0 ? num / den : 0;
+    const penalty = NEG_WEIGHT * share;
+    return { name: v.name, score: Math.max(0, base * (1 - penalty)), base, penalty };
+  });
   scored.sort((a, b) => b.score - a.score);
   return scored;
 }
@@ -476,8 +513,21 @@ if (jsonOutput) {
   console.log(`Must-not-route fails:  ${mustNotViolations.length}`);
   console.log(`Description collisions: ${collisions.length}`);
   console.log(`Result: ${rank1Rate >= TARGET_RANK1_RATE ? 'PASS' : 'FAIL'}`);
+
+  // Regression ratchet. The aspirational targets (80% / 90% / 0 violations) are not yet
+  // met, so gating on them would fail every run and teach everyone to ignore the gate.
+  // These floors are the MEASURED floor as of 2026-09-14; a change that drops below them
+  // is a real regression and must block. Raising them as the router improves is expected.
+  // See docs/B6-ROUTING-SCOPE.md — the rule is monotone improvement over the floor.
+  console.log('\n--- Regression ratchet (floor, not target) ---');
+  console.log(`Rank-1 floor:          ${(FLOOR_RANK1 * 100).toFixed(1)}%   ${rank1Rate >= FLOOR_RANK1 ? 'OK' : 'BELOW FLOOR'}`);
+  console.log(`MRR floor:             ${(FLOOR_MRR * 100).toFixed(1)}%   ${mrr >= FLOOR_MRR ? 'OK' : 'BELOW FLOOR'}`);
+  console.log(`Must-not ceiling:      ${FLOOR_MUSTNOT}     ${mustNotViolations.length <= FLOOR_MUSTNOT ? 'OK' : 'ABOVE CEILING'}`);
 }
 
-// Exit code
-const exitOk = rank1Rate >= TARGET_RANK1_RATE && mustNotViolations.length === 0;
-process.exit(exitOk ? 0 : 1);
+// Exit code: ratchet first (a regression always fails), then the aspirational target.
+const ratchetOk = rank1Rate >= FLOOR_RANK1
+  && mrr >= FLOOR_MRR
+  && mustNotViolations.length <= FLOOR_MUSTNOT;
+const targetOk = rank1Rate >= TARGET_RANK1_RATE && mustNotViolations.length === 0;
+process.exit(ratchetOk && targetOk ? 0 : 1);

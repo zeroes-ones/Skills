@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-14T18:57:34Z
+# Generated: 2026-09-14T19:32:13Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    564c874e9f0635108a68c6f8bd649c08236982da
+# Commit:    c440bd0b17b217d173308f099c446a7bcc7bf0b6
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -76,7 +76,7 @@ e809e4f59262c1fa21271783994181700aba3d3d5fd046c8c65b9648850a2d6b  scripts/valida
 29dd457674787d54a2cb2ebb22174996eb968a004cf06fe33fcea1b8d4fe4226  scripts/validate-workflows.py
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 ba05301fc66f4b37e48e0d95662ce801792126193e308545ef70fa7e4c4e1617  scripts/workflow-eligibility.py
-e8338c527dc22d45d4cd384e4e681be21a52f13e936dba2413061ed2feb8b33a  scripts/workflow-runner.py
+ca282fe84a009ee5c2145d5662d2a863a63872d83502836ae4e6ce3474a33d82  scripts/workflow-runner.py
 ee4b08a0b27415aa3adc9cf4b3483953b24d743f37eb66864a6e985ecbcde3be  scripts/yaml_shim.py
 176a126e0e1954a91a2492fc74a856d5a67e5ba81d619ebc815d04a134c26027  skills/00-framework/agent-persona-orchestrator/scripts/verify-skill.sh
 0d0e277f8dbc788d3c564ed6c8238635dab3cbc4c8f8c826762d9331171d738f  skills/00-framework/cross-skill-communication/scripts/verify-skill.sh
@@ -331,6 +331,8 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/21-heal
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/21-health-clinical/patient-experience-researcher/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/21-health-clinical/patient-health-educator/scripts/verify-skill.sh
 4148d39b99e8146104018bd16e92550f05036b490f1a4d5d4406619e90839bac  skills/22-ai-engineering/agent-eval-pipeline/scripts/verify-skill.sh
+c4c566d4afa22402895a67171d884de97a7b8948d1ccde697142905b6159bdd9  skills/22-ai-engineering/agent-memory-architect/scripts/verify-skill.sh
+67b20edf62557cc8b5e30dd8ddf838b6e2191297be78b929fea4926a1ffc38b1  skills/22-ai-engineering/agent-runtime-economy/scripts/verify-skill.sh
 d195129ed30a2140b109e24140447867f812384398b2478236793203f620b9ee  skills/22-ai-engineering/agentic-complexity-ladder/scripts/verify-skill.sh
 d9209adf5443e2f20788282a4ccee5abce5025337e7e5c78c6bda6d25524154c  skills/22-ai-engineering/ai-engineer/scripts/benchmark_latency.py
 00c7daecb50f80c7d397bcc8e274d5ff60f8dfc54130883c4af81b3aad192b34  skills/22-ai-engineering/ai-engineer/scripts/estimate_cost.py
