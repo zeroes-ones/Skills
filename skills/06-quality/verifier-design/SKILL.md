@@ -117,10 +117,10 @@ failed is an untested check.
 
 ## Anti-Hallucination
 
-* **Admit uncertainty.** If you have not run the check against an injected violation, you do not know that it fires. Say "this check has never been observed failing" rather than "this check catches X".
-* **Flag your knowledge cutoff.** Linter rule names, analyzer flags, and CI provider syntax change between versions. State that the specific rule identifier must be confirmed against the installed version rather than recalled from training data.
-* **Never guess security.** A check that guards an authorization boundary — a capability gate, a tenancy check, a secrets scan — cannot be approved on a clean run alone. Refuse to certify it without a fire case and escalate to `appsec-engineer`.
-* **[VERIFIED] provenance.** Tag every figure `[VERIFIED]` (measured, with the source named), `[COMPUTED]` (derived, with the formula), or `[ESTIMATED]` (assumed, with the assumption written down). Defect counts in the narratives below are `[VERIFIED]` against the source repository; dollar figures are `[ESTIMATED]` order-of-magnitude ranges.
+- **Admit uncertainty.** If you have not run the check against an injected violation, you do not know that it fires. Say "this check has never been observed failing" rather than "this check catches X".
+- **Flag your knowledge cutoff.** Linter rule names, analyzer flags, and CI provider syntax change between versions. State that the specific rule identifier must be confirmed against the installed version rather than recalled from training data.
+- **Never guess security.** A check that guards an authorization boundary — a capability gate, a tenancy check, a secrets scan — cannot be approved on a clean run alone. Refuse to certify it without a fire case and escalate to `appsec-engineer`.
+- **[VERIFIED] provenance.** Tag every figure `[VERIFIED]` (measured, with the source named), `[COMPUTED]` (derived, with the formula), or `[ESTIMATED]` (assumed, with the assumption written down). Defect counts in the narratives below are `[VERIFIED]` against the source repository; dollar figures are `[ESTIMATED]` order-of-magnitude ranges.
 
 ## The Expert's Mindset **(QUICK)**
 
@@ -136,19 +136,19 @@ Fifth: **the discovery ratio sets the budget.** Across the corpus this skill was
 
 ### What Verifier Masters Know **(STANDARD)**
 
-* **The false-positive rate is a design parameter, not an accident.** A rule that fires on eighty legitimate scrims is not strict, it is broken. The fix is tiers — strict inside the boundary that owns the concept, duplication-only outside it — not a single loud rule.
-* **An exemption is a documented decision with a shelf life.** Record the property that makes the input legitimate, not the ticket that requested it. "A bleed severity is a clinical scale, identical in every appearance" is a reason; "added 2024-03" is a date.
-* **A check's own name derivation is exact and unforgiving.** A testability check matching `AuthViewModels.swift` to `AuthViewModelsTests` fails on singular versus plural, and the resulting "view model has no test" report looks exactly like a real finding until you read the checker.
-* **Every gate needs an idempotency claim as well as a detection claim.** A drift check must be shown to report no drift on two consecutive runs *and* to exit non-zero on an injected change. A check that always reports drift is as useless as one that never fires.
-* **The check must fail loudly on an input it cannot read.** A gate that silently returns zero because it could not parse the config is worse than a gate that errors, because it converts a broken tool into a passing result.
-* **Warnings are defects you have not been given yet.** In the source corpus, two warnings from an existing gate became build failures within the same session. Treat an unread warning as a queued defect.
+- **The false-positive rate is a design parameter, not an accident.** A rule that fires on eighty legitimate scrims is not strict, it is broken. The fix is tiers — strict inside the boundary that owns the concept, duplication-only outside it — not a single loud rule.
+- **An exemption is a documented decision with a shelf life.** Record the property that makes the input legitimate, not the ticket that requested it. "A bleed severity is a clinical scale, identical in every appearance" is a reason; "added 2024-03" is a date.
+- **A check's own name derivation is exact and unforgiving.** A testability check matching `AuthViewModels.swift` to `AuthViewModelsTests` fails on singular versus plural, and the resulting "view model has no test" report looks exactly like a real finding until you read the checker.
+- **Every gate needs an idempotency claim as well as a detection claim.** A drift check must be shown to report no drift on two consecutive runs *and* to exit non-zero on an injected change. A check that always reports drift is as useless as one that never fires.
+- **The check must fail loudly on an input it cannot read.** A gate that silently returns zero because it could not parse the config is worse than a gate that errors, because it converts a broken tool into a passing result.
+- **Warnings are defects you have not been given yet.** In the source corpus, two warnings from an existing gate became build failures within the same session. Treat an unread warning as a queued defect.
 
 ### When to Break Your Own Rules **(DEEP)**
 
-* **A rule may ship with a known false-positive rate when it is advisory-only and clearly labelled.** State the rate and make the consequence visible. What is forbidden is an advisory rule presented as a gate.
-* **An allowlist entry may be permanent when the exemption is a property of the domain, not of the code.** A clinical severity scale that is identical in every appearance will never need the adaptive role. Record the property; the entry stops being debt.
-* **A check may read an intermediate artefact when no final artefact is reachable** — a source-level rule when the build is unavailable. Say so explicitly, and mark the check as covering only the class the source can express.
-* **A low-fidelity check may be the right first move** when the alternative is no signal and the discovery is ongoing; a grep that catches the common spelling beats a parser nobody has written. Record the blind spot (R1's silent case is where it lives) and schedule the upgrade.
+- **A rule may ship with a known false-positive rate when it is advisory-only and clearly labelled.** State the rate and make the consequence visible. What is forbidden is an advisory rule presented as a gate.
+- **An allowlist entry may be permanent when the exemption is a property of the domain, not of the code.** A clinical severity scale that is identical in every appearance will never need the adaptive role. Record the property; the entry stops being debt.
+- **A check may read an intermediate artefact when no final artefact is reachable** — a source-level rule when the build is unavailable. Say so explicitly, and mark the check as covering only the class the source can express.
+- **A low-fidelity check may be the right first move** when the alternative is no signal and the discovery is ongoing; a grep that catches the common spelling beats a parser nobody has written. Record the blind spot (R1's silent case is where it lives) and schedule the upgrade.
 
 ## Deliberate Practice **(STANDARD)**
 
@@ -175,34 +175,34 @@ graph TD
 ## Operating at Different Levels **(STANDARD)**
 
 ### L1: Apprentice
-* **Scope:** Runs existing checks and reports their output
-* **Autonomy:** Fixes findings the check reports
-* **Impact:** Defects the check catches do not ship
-* **Craft:** Knows that a check's output is the input to a decision
+- **Scope:** Runs existing checks and reports their output
+- **Autonomy:** Fixes findings the check reports
+- **Impact:** Defects the check catches do not ship
+- **Craft:** Knows that a check's output is the input to a decision
 
 ### L2: Practitioner
-* **Scope:** Adds rules, writes allowlist entries, wires a check into CI
-* **Autonomy:** Owns one gate end to end
-* **Impact:** A new defect class becomes mechanically detectable
-* **Craft:** Writes a fire case for each rule and a reason for each exemption
+- **Scope:** Adds rules, writes allowlist entries, wires a check into CI
+- **Autonomy:** Owns one gate end to end
+- **Impact:** A new defect class becomes mechanically detectable
+- **Craft:** Writes a fire case for each rule and a reason for each exemption
 
 ### L3: Senior
-* **Scope:** Severity calibration, tiered allowances, negative controls, idempotency proofs
-* **Autonomy:** Owns the gate set for a repository
-* **Impact:** Checks are believed, so findings drive action instead of being triaged away
-* **Craft:** Measures true and false positives before choosing a severity
+- **Scope:** Severity calibration, tiered allowances, negative controls, idempotency proofs
+- **Autonomy:** Owns the gate set for a repository
+- **Impact:** Checks are believed, so findings drive action instead of being triaged away
+- **Craft:** Measures true and false positives before choosing a severity
 
 ### L4: Staff / Principal
-* **Scope:** Joint-rule consistency, check-vs-artefact anchoring, the discovery ratio as a planning input
-* **Autonomy:** Sets the standard for what counts as evidence across teams
-* **Impact:** No defect class is unguarded by choice, and each guard is falsifiable
-* **Craft:** Proves a legal spelling for every combination the rule set constrains
+- **Scope:** Joint-rule consistency, check-vs-artefact anchoring, the discovery ratio as a planning input
+- **Autonomy:** Sets the standard for what counts as evidence across teams
+- **Impact:** No defect class is unguarded by choice, and each guard is falsifiable
+- **Craft:** Proves a legal spelling for every combination the rule set constrains
 
 ### L5: Transformative
-* **Scope:** Verification culture — falsification as the default, review as the last resort
-* **Autonomy:** Owns the organisation's answer to "how do we know?"
-* **Impact:** Escapes are found by signal rather than by luck, and the ratio is measured and published
-* **Craft:** Turns "we reviewed it" into a claim the team no longer accepts
+- **Scope:** Verification culture — falsification as the default, review as the last resort
+- **Autonomy:** Owns the organisation's answer to "how do we know?"
+- **Impact:** Escapes are found by signal rather than by luck, and the ratio is measured and published
+- **Craft:** Turns "we reviewed it" into a claim the team no longer accepts
 
 ## When to Use **(QUICK)**
 
@@ -386,14 +386,14 @@ Does the exemption name a PROPERTY of the input, or a circumstance?
 
 ## Proactive Triggers **(STANDARD)**
 
-* **A new file matching `check-*`, `lint-*`, or `validate-*` appears** → Ask for the fire case before the check is relied on. 🔴
-* **"The gate passes" is offered as closure for a defect class** → Ask which input makes it fail; a clean run is not evidence. 🔴
-* **A `# noqa`, `// nolint`, or skip-list entry is added in the same change as the code** → Require the property-based reason and a bound (R4). 🔴
-* **A rule is downgraded to warning, `continue-on-error`, or advisory** → Ask for the measured true/false positive counts that justified the downgrade. 🟡
-* **Two rules touch the same declaration and one looks impossible** → Run the contradiction matrix before the compiler finds the empty cell. 🟠
-* **A rule's evidence is a percentage** → Ask for the named case per named behaviour instead; a percentage is satisfiable by whitelisting. 🟡
-* **A check inspects configuration for a property only the shipped artefact can answer** → Re-point it at the built output (R7). 🔴
-* **An intermediate build artefact is read as evidence** → Confirm it is current; stale and wrong are indistinguishable from outside. 🟠
+- **A new file matching `check-*`, `lint-*`, or `validate-*` appears** → Ask for the fire case before the check is relied on. 🔴
+- **"The gate passes" is offered as closure for a defect class** → Ask which input makes it fail; a clean run is not evidence. 🔴
+- **A `# noqa`, `// nolint`, or skip-list entry is added in the same change as the code** → Require the property-based reason and a bound (R4). 🔴
+- **A rule is downgraded to warning, `continue-on-error`, or advisory** → Ask for the measured true/false positive counts that justified the downgrade. 🟡
+- **Two rules touch the same declaration and one looks impossible** → Run the contradiction matrix before the compiler finds the empty cell. 🟠
+- **A rule's evidence is a percentage** → Ask for the named case per named behaviour instead; a percentage is satisfiable by whitelisting. 🟡
+- **A check inspects configuration for a property only the shipped artefact can answer** → Re-point it at the built output (R7). 🔴
+- **An intermediate build artefact is read as evidence** → Confirm it is current; stale and wrong are indistinguishable from outside. 🟠
 
 ## Anti-Patterns **(STANDARD)**
 
@@ -426,20 +426,20 @@ Does the exemption name a PROPERTY of the input, or a circumstance?
 
 ## Production Checklist **(STANDARD)**
 
-* [ ] **CR1: Defect class named** — Verification: the class is one sentence and names at least one real escaped instance, or is declared hypothetical
-* [ ] **CR2: Fire case exists** — Verification: an injected violation is on record with the non-zero exit and the finding text
-* [ ] **CR3: Silent case exists** — Verification: the check is observed not firing on legitimate input, recorded as a fixture
-* [ ] **CR4: Negative control run** — Verification: a clean result is accompanied by proof the check parsed its input
-* [ ] **CR5: Anchored on final identifiers** — Verification: neither side of the comparison is a pre-transform name the transform owns
-* [ ] **CR6: Reads the artefact, not the config** — Verification: the command reads built output, and the output is confirmed current
-* [ ] **CR7: Contradiction matrix complete** — Verification: every cell of the constrained space has a legal spelling, or the hole is filed
-* [ ] **CR8: Severity calibrated** — Verification: true and false positive counts measured on the real corpus, severity chosen from them
-* [ ] **CR9: Allowlists carry reasons** — Verification: every exemption names a property of the input and a bound
-* [ ] **CR10: Fails loudly when unreadable** — Verification: a deliberately broken config produces an error, not a zero-result
-* [ ] **CR11: Fires in its wired configuration** — Verification: the fire case was re-run in CI with the same scope and tool version
-* [ ] **CR12: Idempotency proven** — Verification: for drift checks, two consecutive runs agree and an injected change exits non-zero
-* [ ] **CR13: Both directions checked** — Verification: any consistency rule verifies the reverse direction too, not a no-op
-* [ ] **CR14: Blind spots recorded** — Verification: the check's "does NOT catch" column is written down where the next engineer will find it
+- [ ] **CR1: Defect class named** — Verification: the class is one sentence and names at least one real escaped instance, or is declared hypothetical
+- [ ] **CR2: Fire case exists** — Verification: an injected violation is on record with the non-zero exit and the finding text
+- [ ] **CR3: Silent case exists** — Verification: the check is observed not firing on legitimate input, recorded as a fixture
+- [ ] **CR4: Negative control run** — Verification: a clean result is accompanied by proof the check parsed its input
+- [ ] **CR5: Anchored on final identifiers** — Verification: neither side of the comparison is a pre-transform name the transform owns
+- [ ] **CR6: Reads the artefact, not the config** — Verification: the command reads built output, and the output is confirmed current
+- [ ] **CR7: Contradiction matrix complete** — Verification: every cell of the constrained space has a legal spelling, or the hole is filed
+- [ ] **CR8: Severity calibrated** — Verification: true and false positive counts measured on the real corpus, severity chosen from them
+- [ ] **CR9: Allowlists carry reasons** — Verification: every exemption names a property of the input and a bound
+- [ ] **CR10: Fails loudly when unreadable** — Verification: a deliberately broken config produces an error, not a zero-result
+- [ ] **CR11: Fires in its wired configuration** — Verification: the fire case was re-run in CI with the same scope and tool version
+- [ ] **CR12: Idempotency proven** — Verification: for drift checks, two consecutive runs agree and an injected change exits non-zero
+- [ ] **CR13: Both directions checked** — Verification: any consistency rule verifies the reverse direction too, not a no-op
+- [ ] **CR14: Blind spots recorded** — Verification: the check's "does NOT catch" column is written down where the next engineer will find it
 
 ## What Good Looks Like **(QUICK)**
 
@@ -475,34 +475,34 @@ Run this sequence. Do not proceed past a failure.
 ## Verification Guardrails **(STANDARD)**
 
 ### Pre-Generation
-* [ ] The defect class is named in one sentence, with an escaped instance if one exists
-* [ ] The layer where the class is detectable (source, config, or built artefact) has been identified
-* [ ] The existing rule set on the same space has been read, so a contradiction is designed out rather than discovered later
+- [ ] The defect class is named in one sentence, with an escaped instance if one exists
+- [ ] The layer where the class is detectable (source, config, or built artefact) has been identified
+- [ ] The existing rule set on the same space has been read, so a contradiction is designed out rather than discovered later
 
 ### Post-Generation
-* [ ] Every check has a fire case and a silent case on record
-* [ ] Any clean result is accompanied by a negative control
-* [ ] No comparison is anchored on a pre-transform name
-* [ ] Every exemption carries a property-based reason and a bound
-* [ ] Severity is traceable to a measured count, not to a preference
-* [ ] The check's blind spots are written down where the next engineer will read them
+- [ ] Every check has a fire case and a silent case on record
+- [ ] Any clean result is accompanied by a negative control
+- [ ] No comparison is anchored on a pre-transform name
+- [ ] Every exemption carries a property-based reason and a bound
+- [ ] Severity is traceable to a measured count, not to a preference
+- [ ] The check's blind spots are written down where the next engineer will read them
 
 ## References **(QUICK)**
 
-* [proving-a-check-fires.md](references/proving-a-check-fires.md) — fire cases, silent cases, the probe method, and why a clean run contains almost no information
-* [negative-controls.md](references/negative-controls.md) — what a negative control is, the three ways to build one, and the states that produce "0 problems"
-* [joint-rule-contradiction.md](references/joint-rule-contradiction.md) — the scope × modifier matrix, the legal-spelling invariant, and bidirectional consistency
-* [severity-calibration.md](references/severity-calibration.md) — measuring true and false positives, tiering by ownership, and the mathematics of the ignored gate
-* [allowlists-with-reasons.md](references/allowlists-with-reasons.md) — the property-versus-circumstance test and the shape of a good exemption entry
-* [discovery-ratio.md](references/discovery-ratio.md) — the found-by evidence, what each detection instrument costs, and what mechanical checks cannot see
-* [artefact-versus-configuration.md](references/artefact-versus-configuration.md) — declared-but-absent, stale-versus-wrong, and the commands that read the shipped output
-* [failure-narratives.md](references/failure-narratives.md) — the gates that shipped broken, with the root cause and the rule each one justifies
-* [verification-recipes.md](references/verification-recipes.md) — the eight verification checks as runnable procedures
-* [sources.md](references/sources.md) — every claim traced to a source, tagged by strength
-* [related-reading.md](references/related-reading.md) — where this skill plugs into the library, and the four verification skills compared
-* [additional-resources.md](references/additional-resources.md) — the reference index plus an end-to-end walkthrough of designing a check
-* `scripts/verify-skill.sh` — runnable verification harness for this skill
-* Related: `verification-independence-engineer`, `verification-before-completion`, `ci-cd-builder`, `qa-engineer`, `code-formatting-and-linting`
+- [proving-a-check-fires.md](references/proving-a-check-fires.md) — fire cases, silent cases, the probe method, and why a clean run contains almost no information
+- [negative-controls.md](references/negative-controls.md) — what a negative control is, the three ways to build one, and the states that produce "0 problems"
+- [joint-rule-contradiction.md](references/joint-rule-contradiction.md) — the scope × modifier matrix, the legal-spelling invariant, and bidirectional consistency
+- [severity-calibration.md](references/severity-calibration.md) — measuring true and false positives, tiering by ownership, and the mathematics of the ignored gate
+- [allowlists-with-reasons.md](references/allowlists-with-reasons.md) — the property-versus-circumstance test and the shape of a good exemption entry
+- [discovery-ratio.md](references/discovery-ratio.md) — the found-by evidence, what each detection instrument costs, and what mechanical checks cannot see
+- [artefact-versus-configuration.md](references/artefact-versus-configuration.md) — declared-but-absent, stale-versus-wrong, and the commands that read the shipped output
+- [failure-narratives.md](references/failure-narratives.md) — the gates that shipped broken, with the root cause and the rule each one justifies
+- [verification-recipes.md](references/verification-recipes.md) — the eight verification checks as runnable procedures
+- [sources.md](references/sources.md) — every claim traced to a source, tagged by strength
+- [related-reading.md](references/related-reading.md) — where this skill plugs into the library, and the four verification skills compared
+- [additional-resources.md](references/additional-resources.md) — the reference index plus an end-to-end walkthrough of designing a check
+- `scripts/verify-skill.sh` — runnable verification harness for this skill
+- Related: `verification-independence-engineer`, `verification-before-completion`, `ci-cd-builder`, `qa-engineer`, `code-formatting-and-linting`
 
 ## Gotchas **(STANDARD)**
 

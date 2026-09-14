@@ -113,10 +113,10 @@ A design token system is a compiler for visual decisions: one machine-readable s
 
 ## Anti-Hallucination
 
-* **Admit uncertainty.** If you have not seen the generated token artifact, the platform's published floor, or the theme gate's actual output, say so and mark derived numbers ESTIMATED. Never present a remembered Material or Apple value as the installed version's documented floor.
-* **Flag your knowledge cutoff.** Platform text-style point sizes, vendor slot names, and accessibility minimums change between SDK releases. State that any specific point size or slot name must be confirmed against the installed SDK rather than recalled.
-* **Never guess security.** A role that pairs a text colour with a surface it is not painted on produces a contrast failure that no compiler and no unit test reports. Refuse to approve a colour pairing you have not resolved against its actual partner, and escalate the audit to `accessibility-auditor`.
-* **[VERIFIED] provenance.** Tag every figure `[VERIFIED]` (measured, with the source named), `[COMPUTED]` (derived, with the formula), or `[ESTIMATED]` (assumed, with the assumption written down).
+- **Admit uncertainty.** If you have not seen the generated token artifact, the platform's published floor, or the theme gate's actual output, say so and mark derived numbers ESTIMATED. Never present a remembered Material or Apple value as the installed version's documented floor.
+- **Flag your knowledge cutoff.** Platform text-style point sizes, vendor slot names, and accessibility minimums change between SDK releases. State that any specific point size or slot name must be confirmed against the installed SDK rather than recalled.
+- **Never guess security.** A role that pairs a text colour with a surface it is not painted on produces a contrast failure that no compiler and no unit test reports. Refuse to approve a colour pairing you have not resolved against its actual partner, and escalate the audit to `accessibility-auditor`.
+- **[VERIFIED] provenance.** Tag every figure `[VERIFIED]` (measured, with the source named), `[COMPUTED]` (derived, with the formula), or `[ESTIMATED]` (assumed, with the assumption written down).
 
 ## The Expert's Mindset **(QUICK)**
 
@@ -130,21 +130,21 @@ Fourth: **a document that restates the source will lie, and the lie is undetecta
 
 ### What Design-System Masters Know **(STANDARD)**
 
-* **The middle tier is not bureaucracy; it is the only tier that can express "per appearance".** A semantic role resolves differently in light and dark. A primitive cannot, which is why a primitive read from a screen silently pins an appearance.
-* **A contrast ratio is meaningless without its partner.** An `on` role is painted on its base role, not on the page background. Comparing every role to the background prints a meaningless 1.00:1 for the background itself and the wrong ratio for every `on` role.
-* **A role name that collides with a platform's own vocabulary must be refused at generation time.** Emitting a role called `body` shadows a system text style; the failure lands at a call site one language away from the file that caused it.
-* **Deriving a family from one user-chosen colour is a parameter problem, not a design problem.** Pin hue, fix saturation and lightness per role, choose the on-colour by relative luminance against a threshold — and put the parameters in the source so the derivation is a pure function with tests.
-* **A material is not a token.** A blur or glass effect composites what is behind it; there is no value for "sample and blur what is underneath". Shape, corner, and edge width are tokens; the material is the platform's.
-* **"Generated but unused" is the quietest defect in the system.** The derivation parameters existed for months and nothing read them, so a user-chosen accent produced buttons in the new hue and borders in the old brand colour.
-* **Severity tiers beat one strict rule.** A gate that flags every raw value reports a mostly-legitimate list; the response is a gate that is strict inside the design system and duplication-only elsewhere.
+- **The middle tier is not bureaucracy; it is the only tier that can express "per appearance".** A semantic role resolves differently in light and dark. A primitive cannot, which is why a primitive read from a screen silently pins an appearance.
+- **A contrast ratio is meaningless without its partner.** An `on` role is painted on its base role, not on the page background. Comparing every role to the background prints a meaningless 1.00:1 for the background itself and the wrong ratio for every `on` role.
+- **A role name that collides with a platform's own vocabulary must be refused at generation time.** Emitting a role called `body` shadows a system text style; the failure lands at a call site one language away from the file that caused it.
+- **Deriving a family from one user-chosen colour is a parameter problem, not a design problem.** Pin hue, fix saturation and lightness per role, choose the on-colour by relative luminance against a threshold — and put the parameters in the source so the derivation is a pure function with tests.
+- **A material is not a token.** A blur or glass effect composites what is behind it; there is no value for "sample and blur what is underneath". Shape, corner, and edge width are tokens; the material is the platform's.
+- **"Generated but unused" is the quietest defect in the system.** The derivation parameters existed for months and nothing read them, so a user-chosen accent produced buttons in the new hue and borders in the old brand colour.
+- **Severity tiers beat one strict rule.** A gate that flags every raw value reports a mostly-legitimate list; the response is a gate that is strict inside the design system and duplication-only elsewhere.
 
 ### When to Break Your Own Rules **(DEEP)**
 
-* **A clinical or domain scale may legitimately expose raw values to screens** when the scale is identical in every appearance — a severity ramp is the same colour in light and dark. Exempt it **by name with the reason written in the gate**, because an allow-list entry without a reason is worse than the literal it permits.
-* **A per-platform value is not drift when the source declares it and states why.** Drift is a call site silently choosing one platform's number for both. Record the deviation in the token source where it is reviewable, not in a screen where it is invisible.
-* **A fixed non-scaling size may be correct for a control that must not grow** — a progress hint, a rail width, a gauge. State the reason; do not let "it looked right" become the justification for the next one.
-* **A deliberately separate scale may be warranted when the audience differs.** An emergency or medical scale that must stay larger and never thinner than a given weight is a different requirement from the product's reading scale, and collapsing it into the general ladder destroys the property that made it safe.
-* **A short-term hand-written doc may be acceptable as a migration artifact** while the generator is being built, provided it carries a deletion date and a named owner. Undated, unowned design prose is the failure mode R5 exists to prevent.
+- **A clinical or domain scale may legitimately expose raw values to screens** when the scale is identical in every appearance — a severity ramp is the same colour in light and dark. Exempt it **by name with the reason written in the gate**, because an allow-list entry without a reason is worse than the literal it permits.
+- **A per-platform value is not drift when the source declares it and states why.** Drift is a call site silently choosing one platform's number for both. Record the deviation in the token source where it is reviewable, not in a screen where it is invisible.
+- **A fixed non-scaling size may be correct for a control that must not grow** — a progress hint, a rail width, a gauge. State the reason; do not let "it looked right" become the justification for the next one.
+- **A deliberately separate scale may be warranted when the audience differs.** An emergency or medical scale that must stay larger and never thinner than a given weight is a different requirement from the product's reading scale, and collapsing it into the general ladder destroys the property that made it safe.
+- **A short-term hand-written doc may be acceptable as a migration artifact** while the generator is being built, provided it carries a deletion date and a named owner. Undated, unowned design prose is the failure mode R5 exists to prevent.
 
 ## Deliberate Practice **(STANDARD)**
 
@@ -168,34 +168,34 @@ graph TD
 ## Operating at Different Levels **(STANDARD)**
 
 ### L1: Apprentice
-* **Scope:** A token file with a colour and spacing scale
-* **Autonomy:** Adds tokens when asked
-* **Impact:** Values are centralised but read inconsistently
-* **Craft:** Knows a token exists so a value has one home
+- **Scope:** A token file with a colour and spacing scale
+- **Autonomy:** Adds tokens when asked
+- **Impact:** Values are centralised but read inconsistently
+- **Craft:** Knows a token exists so a value has one home
 
 ### L2: Practitioner
-* **Scope:** Three tiers, named roles, one platform reading roles
-* **Autonomy:** Owns the token source for a product
-* **Impact:** Appearance changes propagate without touching screens
-* **Craft:** Classifies every token by tier; refuses a primitive read
+- **Scope:** Three tiers, named roles, one platform reading roles
+- **Autonomy:** Owns the token source for a product
+- **Impact:** Appearance changes propagate without touching screens
+- **Craft:** Classifies every token by tier; refuses a primitive read
 
 ### L3: Senior
-* **Scope:** Role vocabulary shared across platforms, size and spacing axes separated, contrast pairs resolved
-* **Autonomy:** Owns the token architecture for a multi-platform product
-* **Impact:** The same control renders the same on every platform, with a declared tolerance
-* **Craft:** Writes the rank assertion; resolves each role's rendered size per platform
+- **Scope:** Role vocabulary shared across platforms, size and spacing axes separated, contrast pairs resolved
+- **Autonomy:** Owns the token architecture for a multi-platform product
+- **Impact:** The same control renders the same on every platform, with a declared tolerance
+- **Craft:** Writes the rank assertion; resolves each role's rendered size per platform
 
 ### L4: Staff / Principal
-* **Scope:** Generated documentation, drift checks, gate severity calibration, per-platform floors with reasons
-* **Autonomy:** Sets design-system standards across teams and platforms
-* **Impact:** A design doc cannot silently diverge from the shipped UI; gates are trusted because they are proven to fire
-* **Craft:** Makes the source the only writable artifact and the doc a rendering of it
+- **Scope:** Generated documentation, drift checks, gate severity calibration, per-platform floors with reasons
+- **Autonomy:** Sets design-system standards across teams and platforms
+- **Impact:** A design doc cannot silently diverge from the shipped UI; gates are trusted because they are proven to fire
+- **Craft:** Makes the source the only writable artifact and the doc a rendering of it
 
 ### L5: Transformative
-* **Scope:** The token system as an enforced contract between design, platform engineering, and accessibility
-* **Autonomy:** Owns the organisation's visual consistency posture
-* **Impact:** Visual decisions are reviewable, testable, and reversible at the source
-* **Craft:** Turns consistency from a review habit into a compile-and-gate property
+- **Scope:** The token system as an enforced contract between design, platform engineering, and accessibility
+- **Autonomy:** Owns the organisation's visual consistency posture
+- **Impact:** Visual decisions are reviewable, testable, and reversible at the source
+- **Craft:** Turns consistency from a review habit into a compile-and-gate property
 
 ## When to Use **(QUICK)**
 
@@ -388,14 +388,14 @@ Finally, regardless of the answer above:
 
 ## Proactive Triggers **(STANDARD)**
 
-* **A generated token artifact is hand-edited** → Flag it: the next regeneration reverts the edit silently. 🔴
-* **A screen references a palette entry or a bare scale member** → Flag the tier bypass before it ships; the defect is invisible in the author's own appearance setting (R1). 🔴
-* **A scale-to-platform mapping table appears without an ordering assertion** → Require the rank check before the mapping is trusted (R2). 🔴
-* **A design markdown document lists colours or sizes with no generator header** → Require generation and a drift check, or deletion (R5). 🟡
-* **A hit target or control floor is introduced as one shared value across platforms** → Ask which published minimum it satisfies (R4). 🔴
-* **A conformance gate script contains role or colour names as literals** → Require the vocabulary be read from the generated artifact (R6). 🟠
-* **A gate reports zero findings on a codebase known to violate the rule** → Require a firing demonstration before the gate is trusted. 🔴
-* **A component dimension is added using a spacing step** → Ask whether the value sizes one thing or separates two (R3). 🟡
+- **A generated token artifact is hand-edited** → Flag it: the next regeneration reverts the edit silently. 🔴
+- **A screen references a palette entry or a bare scale member** → Flag the tier bypass before it ships; the defect is invisible in the author's own appearance setting (R1). 🔴
+- **A scale-to-platform mapping table appears without an ordering assertion** → Require the rank check before the mapping is trusted (R2). 🔴
+- **A design markdown document lists colours or sizes with no generator header** → Require generation and a drift check, or deletion (R5). 🟡
+- **A hit target or control floor is introduced as one shared value across platforms** → Ask which published minimum it satisfies (R4). 🔴
+- **A conformance gate script contains role or colour names as literals** → Require the vocabulary be read from the generated artifact (R6). 🟠
+- **A gate reports zero findings on a codebase known to violate the rule** → Require a firing demonstration before the gate is trusted. 🔴
+- **A component dimension is added using a spacing step** → Ask whether the value sizes one thing or separates two (R3). 🟡
 
 ## Anti-Patterns **(STANDARD)**
 
@@ -429,23 +429,23 @@ Finally, regardless of the answer above:
 
 ## Production Checklist **(STANDARD)**
 
-* [ ] **CR1: Every token has exactly one tier** — Verification: each entry labelled primitive, semantic, or component, and no label is "both"
-* [ ] **CR2: No screen reads a primitive** — Verification: the conformance gate scans every screen and reports zero primitive reads outside the design system
-* [ ] **CR3: Every role has one cross-platform name** — Verification: the same control names the same role in each platform's language
-* [ ] **CR4: Every role resolves to a rendered size on each platform** — Verification: a table of role to rendered size per platform, with no unlisted role
-* [ ] **CR5: The type mapping is monotonic** — Verification: the rank assertion is present and fails on an artificially inverted step
-* [ ] **CR6: The cross-platform tolerance is declared and justified** — Verification: the tolerance value sits next to the mapping with the reason it exists
-* [ ] **CR7: Dimensions and gaps are on separate axes** — Verification: no size token is a spacing step and no spacing token sizes a control
-* [ ] **CR8: Every text role names its contrast partner** — Verification: each pair is recorded and resolved against its actual partner, not the page background
-* [ ] **CR9: Per-platform floors are declared with their source** — Verification: each floor token names the platform guideline it comes from
-* [ ] **CR10: The human document is generated** — Verification: the file header names the generator and the source it renders
-* [ ] **CR11: The drift check fails on divergence** — Verification: inject a value change in the source, regenerate, and confirm a non-zero exit
-* [ ] **CR12: Every platform target compiles and is consumed** — Verification: each generated target is imported by real code and passes its compiler
-* [ ] **CR13: Regeneration is idempotent** — Verification: two consecutive generations from the same source produce no diff
-* [ ] **CR14: Every conformance gate has been shown firing** — Verification: each gate exits non-zero and names file:line on an injected violation, and exits zero when restored
-* [ ] **CR15: Every gate reads its vocabulary from the generated artifact** — Verification: no role or colour name appears as a literal in any gate script
-* [ ] **CR16: Every exemption carries a reason** — Verification: each allow-list entry in every gate states why the exemption exists
-* [ ] **CR17: Appearance toggled with the screen open** — Verification: every surface changes with the system appearance; nothing stays pinned to one scheme
+- [ ] **CR1: Every token has exactly one tier** — Verification: each entry labelled primitive, semantic, or component, and no label is "both"
+- [ ] **CR2: No screen reads a primitive** — Verification: the conformance gate scans every screen and reports zero primitive reads outside the design system
+- [ ] **CR3: Every role has one cross-platform name** — Verification: the same control names the same role in each platform's language
+- [ ] **CR4: Every role resolves to a rendered size on each platform** — Verification: a table of role to rendered size per platform, with no unlisted role
+- [ ] **CR5: The type mapping is monotonic** — Verification: the rank assertion is present and fails on an artificially inverted step
+- [ ] **CR6: The cross-platform tolerance is declared and justified** — Verification: the tolerance value sits next to the mapping with the reason it exists
+- [ ] **CR7: Dimensions and gaps are on separate axes** — Verification: no size token is a spacing step and no spacing token sizes a control
+- [ ] **CR8: Every text role names its contrast partner** — Verification: each pair is recorded and resolved against its actual partner, not the page background
+- [ ] **CR9: Per-platform floors are declared with their source** — Verification: each floor token names the platform guideline it comes from
+- [ ] **CR10: The human document is generated** — Verification: the file header names the generator and the source it renders
+- [ ] **CR11: The drift check fails on divergence** — Verification: inject a value change in the source, regenerate, and confirm a non-zero exit
+- [ ] **CR12: Every platform target compiles and is consumed** — Verification: each generated target is imported by real code and passes its compiler
+- [ ] **CR13: Regeneration is idempotent** — Verification: two consecutive generations from the same source produce no diff
+- [ ] **CR14: Every conformance gate has been shown firing** — Verification: each gate exits non-zero and names file:line on an injected violation, and exits zero when restored
+- [ ] **CR15: Every gate reads its vocabulary from the generated artifact** — Verification: no role or colour name appears as a literal in any gate script
+- [ ] **CR16: Every exemption carries a reason** — Verification: each allow-list entry in every gate states why the exemption exists
+- [ ] **CR17: Appearance toggled with the screen open** — Verification: every surface changes with the system appearance; nothing stays pinned to one scheme
 
 ## What Good Looks Like **(QUICK)**
 
@@ -461,16 +461,16 @@ Complete when every gate has been demonstrated firing on an injected violation a
 Complete when every exemption in every gate carries a written reason a new contributor can read.
 
 **Signs of Excellence:**
-* A screen cannot express a fixed appearance, because the only colour vocabulary it can reach adapts
-* Two platforms cannot quietly disagree, because the rendered size of each role is asserted
-* The design document cannot go stale, because nothing hand-writes it
-* Gate findings are actionable on first read, because severity was calibrated rather than defaulted
+- A screen cannot express a fixed appearance, because the only colour vocabulary it can reach adapts
+- Two platforms cannot quietly disagree, because the rendered size of each role is asserted
+- The design document cannot go stale, because nothing hand-writes it
+- Gate findings are actionable on first read, because severity was calibrated rather than defaulted
 
 **Signs of Dysfunction:**
-* A screen reads a palette swatch and looks correct on the author's device
-* Two platforms name the same control differently and both compile
-* A design document describes a palette the product stopped shipping
-* A gate has never been seen failing, and everyone treats its clean report as evidence
+- A screen reads a palette swatch and looks correct on the author's device
+- Two platforms name the same control differently and both compile
+- A design document describes a palette the product stopped shipping
+- A gate has never been seen failing, and everyone treats its clean report as evidence
 
 ## Verification
 
@@ -490,32 +490,32 @@ Run this sequence. Do not proceed past a failure.
 ## Verification Guardrails **(STANDARD)**
 
 ### Pre-Generation
-* [ ] The machine-readable token source exists and is the only file holding values
-* [ ] Each platform's published minimums and text styles are confirmed against the installed SDK, not recalled
-* [ ] The generator's targets and their consumers are known, including which target nothing imports
+- [ ] The machine-readable token source exists and is the only file holding values
+- [ ] Each platform's published minimums and text styles are confirmed against the installed SDK, not recalled
+- [ ] The generator's targets and their consumers are known, including which target nothing imports
 
 ### Post-Generation
-* [ ] No screen reads a primitive or a bare scale member
-* [ ] Every role resolves on every platform and the rank assertion holds
-* [ ] Dimensions and gaps are on separate axes; contrast pairs are resolved against their real partner
-* [ ] Every generated document and target is committed and fresh, and every gate has been shown firing
+- [ ] No screen reads a primitive or a bare scale member
+- [ ] Every role resolves on every platform and the rank assertion holds
+- [ ] Dimensions and gaps are on separate axes; contrast pairs are resolved against their real partner
+- [ ] Every generated document and target is committed and fresh, and every gate has been shown firing
 
 ## References **(QUICK)**
 
-* `references/token-tiers.md` — the three tiers, what may read what, and why the middle tier is mandatory
-* `references/role-vocabulary.md` — naming roles by intent, per-platform spellings, and generation-time name collisions
-* `references/cross-platform-mapping.md` — monotonic mapping, rank assertions, tolerances, and equal-size-different-weight cases
-* `references/size-vs-spacing.md` — the axis separation, fixed dimensions, and the cost of a coincidental match
-* `references/theming-and-roles.md` — appearance versus accent, materials that cannot be tokens, and per-platform chrome
-* `references/contrast-pairing.md` — role pairs, the partner rule, and the arithmetic of a resolved pair
-* `references/platform-floors.md` — published minimums, declaring rather than unifying, and fixed control dimensions
-* `references/generated-documentation.md` — source-to-rendering, commit-then-check, and drift gates
-* `references/gate-calibration.md` — severity tiers, vocabulary from generated artifacts, and proving a gate fires
-* `references/failure-narratives.md` — the production defects behind each rule, with what each one cost
-* `references/component-spec-template.md` — Purpose, Anatomy, Variants, Sizes, States, Accessibility, Props, Edge cases
-* `references/verification-recipes.md` — the eight verification checks as runnable procedures
-* `scripts/verify-skill.sh` — runnable verification harness for this skill
-* Related: `brand-guidelines`, `typography-designer`, `platform-hig-architect`, `frontend-developer`, `mobile-developer`
+- `references/token-tiers.md` — the three tiers, what may read what, and why the middle tier is mandatory
+- `references/role-vocabulary.md` — naming roles by intent, per-platform spellings, and generation-time name collisions
+- `references/cross-platform-mapping.md` — monotonic mapping, rank assertions, tolerances, and equal-size-different-weight cases
+- `references/size-vs-spacing.md` — the axis separation, fixed dimensions, and the cost of a coincidental match
+- `references/theming-and-roles.md` — appearance versus accent, materials that cannot be tokens, and per-platform chrome
+- `references/contrast-pairing.md` — role pairs, the partner rule, and the arithmetic of a resolved pair
+- `references/platform-floors.md` — published minimums, declaring rather than unifying, and fixed control dimensions
+- `references/generated-documentation.md` — source-to-rendering, commit-then-check, and drift gates
+- `references/gate-calibration.md` — severity tiers, vocabulary from generated artifacts, and proving a gate fires
+- `references/failure-narratives.md` — the production defects behind each rule, with what each one cost
+- `references/component-spec-template.md` — Purpose, Anatomy, Variants, Sizes, States, Accessibility, Props, Edge cases
+- `references/verification-recipes.md` — the eight verification checks as runnable procedures
+- `scripts/verify-skill.sh` — runnable verification harness for this skill
+- Related: `brand-guidelines`, `typography-designer`, `platform-hig-architect`, `frontend-developer`, `mobile-developer`
 
 ## Gotchas **(STANDARD)**
 

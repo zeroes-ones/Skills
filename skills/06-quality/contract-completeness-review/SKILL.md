@@ -426,22 +426,22 @@ Does the operation relate to who may act (capability, tenant, consent)?
 
 ## Production Checklist **(STANDARD)**
 
-* [ ] **CR1: Contracts inventoried** — Verification: every shared interface, port, trait, and spec is listed with its file path and implementation count
-* [ ] **CR2: Operation set derived from behaviour** — Verification: the operation list cites call sites or required state, not the interface's member list
-* [ ] **CR3: Writer named for every shared state** — Verification: each read path names its writer and the seam the writer uses (R2)
-* [ ] **CR4: Operation asymmetry checked** — Verification: no contract can read and clear a datum it cannot create or update (R3)
-* [ ] **CR5: Bypass map complete** — Verification: every operation × implementation cell is *through the contract*, *bypass*, or *N/A (one implementation)* (R4)
-* [ ] **CR6: Passing implementations re-run through the seam** — Verification: a bypassing implementation was re-run after being routed through the contract
-* [ ] **CR7: Expressibility diff recorded** — Verification: every operation without a spelling is a named finding, not a note
-* [ ] **CR8: Fakes audited for mirroring** — Verification: at least one test derives its expectations from behaviour rather than from the interface (R5)
-* [ ] **CR9: Round-trip assertion present** — Verification: removing the operation makes a named test fail (R7)
-* [ ] **CR10: Reachability counted** — Verification: every contract member has a call site, or a named owner and a reason (R6)
-* [ ] **CR11: Conformance checks bidirectional** — Verification: each spec-versus-implementation check fails when the implementation is ahead of the declaration
-* [ ] **CR12: Ownership names honoured** — Verification: no `…Store`/`…Repository`/`…Registry` lacks the mutating operation its name promises (R8)
-* [ ] **CR13: Exemptions written down** — Verification: every deliberate read-only contract names the context that owns the write
-* [ ] **CR14: Security-adjacent gaps escalated** — Verification: any missing capability or scope operation is filed with `security-reviewer`, not self-approved
-* [ ] **CR15: Discovery ledger kept** — Verification: each finding records what found it, including "reading" where that is the honest answer
-* [ ] **CR16: Findings routed downstream** — Verification: the operation set and bypass map reached `tdd-guide`, `qa-engineer`, and `verification-before-completion`
+- [ ] **CR1: Contracts inventoried** — Verification: every shared interface, port, trait, and spec is listed with its file path and implementation count
+- [ ] **CR2: Operation set derived from behaviour** — Verification: the operation list cites call sites or required state, not the interface's member list
+- [ ] **CR3: Writer named for every shared state** — Verification: each read path names its writer and the seam the writer uses (R2)
+- [ ] **CR4: Operation asymmetry checked** — Verification: no contract can read and clear a datum it cannot create or update (R3)
+- [ ] **CR5: Bypass map complete** — Verification: every operation × implementation cell is *through the contract*, *bypass*, or *N/A (one implementation)* (R4)
+- [ ] **CR6: Passing implementations re-run through the seam** — Verification: a bypassing implementation was re-run after being routed through the contract
+- [ ] **CR7: Expressibility diff recorded** — Verification: every operation without a spelling is a named finding, not a note
+- [ ] **CR8: Fakes audited for mirroring** — Verification: at least one test derives its expectations from behaviour rather than from the interface (R5)
+- [ ] **CR9: Round-trip assertion present** — Verification: removing the operation makes a named test fail (R7)
+- [ ] **CR10: Reachability counted** — Verification: every contract member has a call site, or a named owner and a reason (R6)
+- [ ] **CR11: Conformance checks bidirectional** — Verification: each spec-versus-implementation check fails when the implementation is ahead of the declaration
+- [ ] **CR12: Ownership names honoured** — Verification: no `…Store`/`…Repository`/`…Registry` lacks the mutating operation its name promises (R8)
+- [ ] **CR13: Exemptions written down** — Verification: every deliberate read-only contract names the context that owns the write
+- [ ] **CR14: Security-adjacent gaps escalated** — Verification: any missing capability or scope operation is filed with `security-reviewer`, not self-approved
+- [ ] **CR15: Discovery ledger kept** — Verification: each finding records what found it, including "reading" where that is the honest answer
+- [ ] **CR16: Findings routed downstream** — Verification: the operation set and bypass map reached `tdd-guide`, `qa-engineer`, and `verification-before-completion`
 
 ## What Good Looks Like **(QUICK)**
 
