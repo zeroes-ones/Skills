@@ -6,7 +6,7 @@
 >
 > **Method.** Web-grounded research into (a) why production systems actually fail, (b) what
 > measurably reduces defects, and (c) whether zero defects is achievable — then a coverage audit of
-> all 304 skills to find which concerns have no owner. Every claimed gap was verified by name and
+> the whole corpus to find which concerns have no owner. Every claimed gap was verified by name and
 > content search; every claim about the library was checked against the files.
 >
 > **Read the caveat in §7 before quoting numbers.** Several sources are preprints, theses, or
@@ -44,7 +44,7 @@ does not yet own.
 
 ## 2. Coverage audit — what already exists
 
-Verified by scanning all 304 skills. The library is genuinely strong here; no gaps are claimed in
+Verified by scanning the corpus. The library is genuinely strong here; no gaps are claimed in
 these areas.
 
 | Concern | Owner(s) | Verdict |
@@ -345,7 +345,7 @@ The skills are only half the value; the other half is making them **executable n
 2. Add **manifests** for the recurring shapes: a release-readiness graph
    (capacity → resilience → config-safety → canary → postmortem-on-failure) and a
    defect-prevention graph (static analysis → property tests → mutation gate → ADR update).
-3. Add **golden eval sets** — the library currently has them for **3 of 304** skills. These 16 are
+3. Add **golden eval sets** — the library currently has them for **3** skills. These 16 are
    the right place to start, because their outputs are checkable (a capacity model either has
    headroom math or it does not).
 4. Extend `docs/HOW-IT-WORKS.md` with the L1–L8 model so the target is stated in one place.

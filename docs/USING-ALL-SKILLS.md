@@ -1,4 +1,4 @@
-# Using & Incorporating All 298 Skills — Complete Guide
+# Using & Incorporating All 322 Skills — Complete Guide
 
 Plain instructions for getting the **full library** into your projects and agents, and for
 using skills alone or chained together. Companion to `docs/USING-IN-PROJECTS.md` (3 modes +
@@ -15,11 +15,11 @@ curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/inst
 # alt: npx @zeroes-ones/skills init        (needs node)
 ```
 
-**Per project — activate all 298:**
+**Per project — activate all 322:**
 
 ```bash
 cd your-project
-skills-init            # default = FULL (all 298 skills, all 37 domains)
+skills-init            # default = FULL (all skills, all 37 domains)
 skills-init --principles   # also append the always-on operating rules to CLAUDE.md/AGENTS.md
 skills-init --status       # confirm: tier full · count of linked SKILL.md
 ```
@@ -31,7 +31,7 @@ this is the one-level-deep `skills-flat` view every agent scanner can read).
 
 ```
 /plugin marketplace add zeroes-ones/Skills
-/plugin install zeroes-ones-all@zeroes-ones-skills      # all 298 skills + always-on hook
+/plugin install zeroes-ones-all@zeroes-ones-skills      # all skills + always-on hook
 # or per domain: /plugin install finance@zeroes-ones-skills, strategy@…, …
 /plugin install flagship-senior-engineering@zeroes-ones-skills   # curated 30-skill dev set
 ```
@@ -60,14 +60,14 @@ this is the one-level-deep `skills-flat` view every agent scanner can read).
 
 ---
 
-## 3. The three activation tiers (when 298 is too much)
+## 3. The three activation tiers (when 322 is too much)
 
 `skills-init` supports subsets; switch anytime by re-running:
 
 ```bash
 skills-init --solo     # 8 core skills (personal projects)
 skills-init --grow     # 18 skills (project gaining traction)
-skills-init            # full: all 298 (default, team/company)
+skills-init            # full: all 322 (default, team/company)
 ```
 
 Solo = `ceo-strategist product-manager fullstack-developer code-reviewer qa-engineer
@@ -105,7 +105,7 @@ declaring done.
 
 ### B. Chaining skills (the library's real power)
 Skills declare dependencies in frontmatter `chain: consumes_from / feeds_into`
-(1,930 validated edges). Hand a **chain** as one request:
+(2,164 validated edges). Hand a **chain** as one request:
 
 ```
 "Take this idea to a shipped feature: idea-to-spec → system-architect →
@@ -129,7 +129,7 @@ python3 scripts/skill-sli-report.py --dir .agent/state/
 ```
 Every skill is already a valid graph node (its Verification section is the completion
 check); adding an explicit `workflow:` frontmatter contract makes it first-class
-(30 skills today; 296 eligible).
+(59 skills today; 319 eligible).
 
 ---
 
@@ -170,12 +170,12 @@ skills must pass the 16 pre-commit gates (template sections, examples, chain edg
 
 - **Agent can't find skills** → links missing? `ls .claude/skills` empty → re-run
   `skills-init`. Old store? → `skills-update` (needs the flat layer).
-- **Wrong skill activates** → routing is vocabulary-based today (rank-1 ~43% on the
-  canonical baseline). Be explicit: name the skill (`/name`) or rephrase with its trigger
+- **Wrong skill activates** → routing is vocabulary-based today (lexical baseline; the measured
+  figures live in `docs/B6-ROUTING-SCOPE.md`). Be explicit: name the skill (`/name`) or rephrase with its trigger
   words ("Use when"-style). Semantic routing is the active roadmap item.
 - **Session rules not injected** → hooks snapshot at session start; restart the session.
   Fallback for any agent: `skills-init --principles`.
 - **Big context** → skills load their full body by default; prefer `(QUICK)` sections and
   tell the agent "use only the (QUICK)/decision-tree sections first". Compiled/minified
-  loading (**78% measured token reduction**, 320/320 skills) is available via
+  loading (**77.9% measured token reduction**, 322/322 skills) is available via
   `scripts/compile-skills.sh` for executors that read the compiled artifact.

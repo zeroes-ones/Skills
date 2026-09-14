@@ -61,7 +61,7 @@ update`. Private hosting works (git credential helpers); org distribution via Se
   idempotent, self-validating) catalogues **38 plugins** in the `zeroes-ones-skills`
   marketplace. In the current CLI schema each plugin is a **real directory inside the
   marketplace repo** with its own `plugin.json`:
-  - `plugins/zeroes-ones-all/` — `skills` symlinked to `../../skills-flat` (all 298 skills);
+  - `plugins/zeroes-ones-all/` — `skills` symlinked to `../../skills-flat` (all skills);
   - `plugins/<domain>/` — one per domain (`framework`, `strategy`, `finance`, …), `skills`
     symlinked to `../../skills/<domain>`.
   No plugin `source` is virtual/GitHub anymore — the earlier `source: "github"` + `ref`

@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**320 skills across 37 domains. 9.8/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — 2,142 chain edges, all symmetric).
+**322 skills across 37 domains. 9.8/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — 2,164 chain edges, all symmetric).
 
 ### 🚀 Quick Links
 
@@ -101,7 +101,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 ## Quality Status
 
-**Library rating: 9.8/10** (live domain-calibrated audit over 320 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
+**Library rating: 9.8/10** (live domain-calibrated audit over 322 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
 
 > The "Quality Status" numbers below are from an earlier generation of the audit (214-skill baseline). The authoritative current numbers come from `python3 scripts/audit-library.py` (live) and `skills-audit-report.txt`; see [GAP-ANALYSIS.md](GAP-ANALYSIS.md) for the 2026 delta analysis.
 
@@ -189,6 +189,9 @@ Run: `./scripts/run-evals.sh --tier all`
 
 ## Distribution — npm, Shell & skills.sh
 
+> **New here? Read [`docs/installing-skills.md`](docs/installing-skills.md)** — every channel with
+> the all-vs-individual decision, verification commands, and a troubleshooting table.
+
 ```bash
 # Shell install (one command) — clone to ~/.zeroes-ones/skills + global agent symlinks
 curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
@@ -200,6 +203,21 @@ npx @zeroes-ones/skills init
 npx skills add zeroes-ones/Skills          # all skills, or --skill <name> for one
 npx skills find <skill-name>               # confirm the repo is indexed (post-activation)
 ```
+
+**All vs individual** — after the store is installed, a project chooses what it sees:
+
+```bash
+skills-init                              # ALL skills — one symlink to the flat layer
+skills-init --solo                       # 8 essential skills
+skills-init --grow                       # 18 skills
+skills-init --skill code-reviewer --skill tdd-guide   # exactly these (repeatable)
+skills-init --skill code-reviewer,tdd-guide           # comma-separated also works
+skills-init --status                     # current tier + linked count
+```
+
+Unknown `--skill` names exit non-zero and activate nothing, so a typo cannot leave you with a
+silently empty install. Full mode links the flat layer as a **single symlink**, so adding a skill
+to the library needs no re-activation in consuming projects.
 
 Our canonical `skills/<domain>/<name>/SKILL.md` catalog layout is natively discoverable by the
 skills.sh crawler, and `.claude-plugin/marketplace.json` declares the whole library as Claude
@@ -232,7 +250,7 @@ what it consumes from and feeds into.
 - **Open it live:** **[https://zeroes-ones.github.io/Skills/](https://zeroes-ones.github.io/Skills/)** —
   or double-click [`docs/graph-explorer/index.html`](docs/graph-explorer/index.html) locally
   (works offline, no build step).
-- **What's inside (regenerated from live data):** 320 skill nodes, 2,142 directed chain edges
+- **What's inside (regenerated from live data):** all skill nodes, 2,164 directed chain edges
   (1,753 undirected connections, avg degree 10.96, 0 dangling refs) across 37 domains. Pan/zoom,
   search, per-domain filter; hovering a skill highlights its whole neighborhood; clicking opens its
   chain panel — consumes from, feeds into, plus GitHub and skills.sh links.
@@ -328,15 +346,20 @@ This clones the library to `~/.zeroes-ones/skills/`, creates global symlinks for
 
 | Command | What It Does |
 |---------|-------------|
-| `skills-init` | Activate all 320 skills in current project (team/company default) |
+| `skills-init` | Activate all skills in current project (team/company default) |
+| `skills-init --full` | Same as above, stated explicitly |
 | `skills-init --solo` | Activate 8 essential skills (personal/weekend projects) |
 | `skills-init --grow` | Activate 18 skills (project gaining users/traction) |
-| `skills-init --status` | Show current tier and skill count |
+| `skills-init --skill <name>` | Activate one named skill (repeatable or comma-separated) |
+| `skills-init --status` | Show current tier and linked skill count |
 | `skills-update` | Pull latest library — also refreshes the `skills-init` command |
+
+Counts are computed from the installed corpus at runtime, so they never go stale. The full
+channel-by-channel guide is [`docs/installing-skills.md`](docs/installing-skills.md).
 
 ### Tiered Activation — Match Skills to Project Maturity
 
-Two modes, pick per project: `skills-init` with no flags activates **all 320 skills** (team/company
+Two modes, pick per project: `skills-init` with no flags activates **all skills** (team/company
 default — one flat layer every agent discovers). Want a lean start? Activate a tier, then expand
 as you grow:
 
@@ -348,8 +371,12 @@ skills-init --solo       # 8 skills: CEO, product, fullstack, code review, QA, C
 # Project is gaining users — need architecture, UX, backend depth
 skills-init --grow        # 18 skills: adds system design, API design, UX, backend, security engineering
 
-# Startup or team project — full 320 skills
-skills-init               # All 37 domains, 320 skills, full lifecycle coverage
+# Team project — full library, all 37 domains
+skills-init               # all skills, full lifecycle coverage
+
+# Exactly the ones you need, nothing else
+skills-init --skill code-reviewer --skill tdd-guide
+skills-init --skill code-reviewer,tdd-guide,qa-engineer
 
 ```
 
@@ -431,6 +458,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/skill-automation-platform-build-log.md`](docs/skill-automation-platform-build-log.md) | Build & verification log — the real agentic run (3 turns, 100/100 effectiveness, SLI escalation 0.00), defects D1-D3 with fixes and proofs, node contracts 30→43, contract enforcement, the 10-gate verification matrix, library statistics, real-time profile, open findings |
 | [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md) | Longer plain-language guide — a real run walked through step by step, what every script does, what changed, what is real vs. not yet, and a glossary |
 | [`docs/START-HERE.md`](docs/START-HERE.md) | **Start here** — the short version: what this repo is, what we built, how it works, what is required vs. optional per skill, and how to see it work in 60 seconds |
+| [`docs/installing-skills.md`](docs/installing-skills.md) | **Installing the library** — every channel (shell, npx, plugin, MCP), the all-vs-individual decision, individual `--skill` selection, verification commands, and a troubleshooting table |
 | [`docs/mcp-server.md`](docs/mcp-server.md) | MCP server — drive the library from any MCP client: install (`.mcp.json`), the eight tools with examples, protocol notes, security posture, and the three defects it fixes versus the common naive implementation |
 | [`docs/missing-skills-research.md`](docs/missing-skills-research.md) | Deep research + build plan — why production systems actually fail (incident-data evidence), a 320-skill coverage audit, 16 verified gaps ranked by evidence, a defensible L1–L8 target in place of "zero bugs", and a phased plan with what *not* to build |
 | [`docs/code-loading-and-launch-research.md`](docs/code-loading-and-launch-research.md) | Deep research + build plan — how code reaches memory and when: the static/dynamic linkage decision, library form, cold/warm/hot launch cost, plugin and FFI boundaries, and the four unowned skills it identifies (all four since delivered) |
@@ -441,13 +469,13 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`scripts/lint.sh`](scripts/lint.sh) | Master lint runner — 5 categories (files, markdown, yaml, shell, template) with --fix, --json, --ci |
 | [`scripts/validate-skills.sh`](scripts/validate-skills.sh) | Pre-commit/pre-push governance — 12 automated validation gates |
 | [`scripts/run-evals.sh`](scripts/run-evals.sh) | 3-tier evaluation harness — structural, routing, behavioral |
-| [`scripts/validate-workflows.py`](scripts/validate-workflows.py) | Workflow manifest validator — structure, cycles, loop budgets, payloads, `--coverage` (320/320 skills referenceable) |
+| [`scripts/validate-workflows.py`](scripts/validate-workflows.py) | Workflow manifest validator — structure, cycles, loop budgets, payloads, `--coverage` (every skill referenceable) |
 | [`scripts/workflow-runner.py`](scripts/workflow-runner.py) | Deterministic loop engine — parallel join, budgets, checkpoints, `--memory`, `--guardrail` |
 | [`scripts/export-traces.py`](scripts/export-traces.py) | Run-state → OTel-shaped span exporter (agent-run observability) |
 | [`scripts/skill-sli-report.py`](scripts/skill-sli-report.py) | Per-workflow SLIs + escalation-rate gate over run checkpoints |
 | [`scripts/eval-skill.sh`](scripts/eval-skill.sh) | Golden-skill regression evals (evals/golden/*) — CI merge gate |
 | [`scripts/skill-evolve-prep.py`](scripts/skill-evolve-prep.py) | Failure-trace → self-improvement draft inbox |
-| [`scripts/build-skill-index.py`](scripts/build-skill-index.py) | 303-skill index + lexical routing baseline |
+| [`scripts/build-skill-index.py`](scripts/build-skill-index.py) | full-library index + lexical routing baseline |
 | [`scripts/benchmark-skills.py`](scripts/benchmark-skills.py) | Corpus metrics + live measured baseline (refreshes COMPARISON.md) |
 | [`scripts/executors/agent_executor.py`](scripts/executors/agent_executor.py) | Reusable agent executor (claude/gemini) with timeout + fallback for real node content |
 | [`scripts/project-init.sh`](scripts/project-init.sh) | One command: attach the workflow layer to ANY project (`.agent/` scaffold + starter manifest) |

@@ -62,12 +62,12 @@ Two nuances worth stating, because they are where our superiority argument lives
 ## 2. Measured capability map
 
 Every "Have" entry is an artifact in this repo at this HEAD. Every number is reproducible with the
-command shown. Counts are as measured; where README/`package.json` state a slightly older count
-(303 vs. 304), the measured value is used here.
+command shown. All counts are computed from the corpus at this HEAD; the commands below are the
+source of truth.
 
 | Primitive | Status | Have (artifact) | Residual gap |
 |-----------|--------|-----------------|--------------|
-| 2 · Node | **Have** | 304 `SKILL.md` under `skills/` (`find skills -name SKILL.md \| wc -l`); 301 eligible as default-mode nodes, 30 with declared `workflow:` contracts (`python3 scripts/validate-workflows.py --coverage`) | Node *contract* coverage is 10%: the criteria/evidence/budget/escalation semantics live only on 30 skills; the other 271 rely on their Verification section as the fallback source |
+| 2 · Node | **Have** | 322 `SKILL.md` under `skills/` (`find skills -name SKILL.md \| wc -l`); 319 eligible as default-mode nodes, 59 with declared `workflow:` contracts (`python3 scripts/validate-workflows.py --coverage`) | Node *contract* coverage is 18%: the criteria/evidence/budget/escalation semantics live only on 59 skills; the other 263 rely on their Verification section as the fallback source |
 | 3 · Connection | **Have** | Executable graph manifests in `workflow/manifests/*.yaml` (6 library manifests) + schema `workflow/schema/workflow-manifest.schema.yaml`; validated by `python3 scripts/validate-workflows.py --all` (structure, cycle rejection, loop budgets, payloads, reachability) | Manifest shapes beyond serial/parallel/loop/gate (e.g. dynamic fan-out at run time) are not expressible |
 | 4 · Data mapping | **Partial** | Canonical handoff payload registry (`control.payloads` in the manifest schema) + `workflow/templates/handoff-{in,out}.md` + payload sha checks at the boundary | No expression language: mapping is by named artifact, not a computed expression over upstream state |
 | 6 · Execution engine | **Have** | `scripts/workflow-runner.py` — traversal, per-loop `max_iterations`, stagnation detection, global step budget, checkpoint/resume, parallel join, `--memory`, `--guardrail` | No retry-with-backoff policy per node; no priority/queue semantics (needed for §5 A2) |
@@ -77,19 +77,19 @@ command shown. Counts are as measured; where README/`package.json` state a sligh
 | 1 · Trigger | **Gap** | — | Nothing starts a workflow except a manual/agent invocation |
 | 5 · Credentials | **Gap** | — | No secret store, no scoped injection, no connector contract |
 | 8 · Human-in-the-loop | **Partial** | Gate nodes (`type: gate`, `kind: human\|auto\|agent`) already halt and route runs; exhaustion escalates to a gate rather than stopping silently | Gates require a live operator attached to the running process; no pending-approval queue, no resume-after-pause, no approval surface |
-| 9 · Distribution | **Partial** | `scripts/emit-marketplace.py` + `plugins/` (39 domain bundles) + `scripts/install.sh`, `scripts/npx-skills.sh`, `scripts/project-init.sh` (scaffolds `.agent/` into ANY repo) + cross-agent flat layer `skills-flat/` (304) for every agent's scanner | No public template gallery of *workflows* (manifests are shareable as files but not browsable/installable as such) |
+| 9 · Distribution | **Partial** | `scripts/emit-marketplace.py` + `plugins/` (39 domain bundles) + `scripts/install.sh`, `scripts/npx-skills.sh`, `scripts/project-init.sh` (scaffolds `.agent/` into ANY repo) + cross-agent flat layer `skills-flat/` (322) for every agent's scanner | No public template gallery of *workflows* (manifests are shareable as files but not browsable/installable as such) |
 
 Raw evidence for the rows above (run from the repo root):
 
 ```bash
-find skills -name SKILL.md | wc -l                      # 304
-ls skills-flat | wc -l                                  # 304
-ls .skills-compiled | wc -l                             # 303
+find skills -name SKILL.md | wc -l                      # 322
+ls skills-flat | wc -l                                  # 322
+ls .skills-compiled | wc -l                             # 322
 ls workflow/manifests/*.yaml | wc -l                    # 6
 find workflow/tests/fixtures -name '*.yaml' | wc -l     # 11 fixtures
-python3 scripts/validate-workflows.py --coverage        # 304 distinct names / 304 resolve / 301 eligible / 30 declared
+python3 scripts/validate-workflows.py --coverage        # 322 distinct names / 322 resolve / 319 eligible / 59 declared
 python3 scripts/validate-workflows.py --all             # all manifests OK
-python3 scripts/audit-library.py                        # Workflow Readiness: 30 declared / 301 eligible
+python3 scripts/audit-library.py                        # Workflow Readiness: 59 declared / 319 eligible
 ```
 
 ### 2.1 What the existing visual surface actually is
@@ -126,9 +126,9 @@ failure modes, and definition of done:
 ```
 L0  stub            ── runner default: no content, exercises control flow      (test-only)
 L1  integration     ── fixed API call / single LLM call                        (n8n's ceiling for AI)
-L2  skill-grounded  ── agent runs the node's SKILL.md procedure                (301 skills today)
+L2  skill-grounded  ── agent runs the node's SKILL.md procedure                (319 skills today)
 L3  verified node   ── L2 + declared criteria/evidence + bounded loop
-                       + named escalation target                              (30 skills today)
+                       + named escalation target                              (59 skills today)
 ```
 
 n8n tops out at L1. This library's floor for a real run is L2, and L3 is a frontmatter block away
@@ -178,7 +178,7 @@ each gap layer maps to an A-item in §5 and a phase in §6. The rule inherited f
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ P1  CONTRACT   ✅  workflow/manifests/*.yaml + schema + validator                 │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│ P0  LIBRARY    ✅  304 SKILL.md · chain graph · handoff protocol · personas       │
+│ P0  LIBRARY    ✅  322 SKILL.md · chain graph · handoff protocol · personas       │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -294,14 +294,14 @@ acceptance bar that proves it. IDs `A1..A9` are referenced by §6 phases.
 ### A8 — Trigger-aware node contract (primitive 2, extended)
 
 - **Gap.** Node contracts declare artifacts/criteria/budget/escalation but not how a node may be
-  entered, and coverage is 30 of 301 eligible skills.
+  entered, and coverage is 59 of 319 eligible skills.
 - **Build.** Add optional `workflow.triggers`/`workflow.credentials` to the node-contract YAML;
   extend `scripts/lib/lint-workflow.py`; then **raise declared coverage** on the delivery-hub
   skills that library manifests actually exercise, in batches, each proven by
   `scripts/lib/lint-workflow.py` + `validate-workflows.py --coverage`.
 - **Plugs into.** `scripts/lib/lint-workflow.py`, `scripts/audit-library.py` (Workflow Readiness
   dimension), `WORKFLOW-SYSTEM.md` §1 (must be updated in the same change).
-- **Acceptance.** Workflow Readiness moves off 30 declared; every newly declared skill's criteria
+- **Acceptance.** Workflow Readiness moves off 59 declared; every newly declared skill's criteria
   are checkable against its Verification section (no criteria invented that the skill cannot show
   evidence for).
 
@@ -400,10 +400,10 @@ A superiority claim that omits this is marketing, not engineering.
 
 ```bash
 # capability map (§2)
-find skills -name SKILL.md | wc -l                     # 304
-python3 scripts/validate-workflows.py --coverage       # 304 names / 304 resolve / 301 eligible / 30 declared
+find skills -name SKILL.md | wc -l                     # 322
+python3 scripts/validate-workflows.py --coverage       # 322 names / 322 resolve / 319 eligible / 59 declared
 python3 scripts/validate-workflows.py --all            # every manifest OK
-python3 scripts/audit-library.py                       # Workflow Readiness: 30 declared / 301 eligible
+python3 scripts/audit-library.py                       # Workflow Readiness: 59 declared / 319 eligible
 
 # engine + node content exists (§2, §3)
 python3 scripts/workflow-runner.py --selftest
@@ -424,8 +424,8 @@ AGENT_CMD='claude -p' python3 scripts/workflow-runner.py \
 
 | Layer | Today | After this plan |
 |-------|-------|-----------------|
-| P0 Library | 320 skills, chain graph, handoff protocol | unchanged |
-| P1 Contract | 6 manifests + schema + validator; 30 declared contracts | + triggers, credentials, A8 coverage growth |
+| P0 Library | 322 skills, chain graph, handoff protocol | unchanged |
+| P1 Contract | 6 manifests + schema + validator; 59 declared contracts | + triggers, credentials, A8 coverage growth |
 | P2 Content | real agent executor, skill-grounded, per-node | + cost/latency reporting into run-state |
 | P3 Execute | loops, budgets, checkpoints, guardrails, memory, resume | + `--resume-from <node>` |
 | P4 Serve | — | scheduler + worker + HTTP API (stdlib) |

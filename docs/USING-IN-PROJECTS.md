@@ -6,7 +6,7 @@ this repo supplies the expertise (skills), optional orchestration (workflow engi
 and measurement (tooling).
 
 > Full-library deep-dive: see `docs/USING-ALL-SKILLS.md` for activating and chaining
-> **all 298 skills**, per-agent cheat sheet, and concrete usage patterns.
+> **the whole library**, per-agent cheat sheet, and concrete usage patterns.
 
 ---
 
@@ -19,7 +19,7 @@ curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/inst
 
 # 2) Per project: activate skills inside that project
 cd your-project
-skills-init              # all 298 skills        (or: --solo 8 / --grow 18)
+skills-init              # all skills            (or: --solo 8 / --grow 18 / --skill <name>)
 skills-init --principles # optional: append always-on rules to CLAUDE.md/AGENTS.md
 skills-init --status     # see tier + linked skill count
 ```
@@ -62,7 +62,7 @@ Needs only `python3` (standard library — no pip packages).
 ./scripts/validate-skills.sh              # governance suite (14/14 green = exit 0)
 ./scripts/run-evals.sh --tier 1           # structural evals (43/43)
 python3 scripts/eval-routing.py           # routing health: rank-1 / top-N / MRR / violations
-python3 scripts/emit-skill-registry.py --check   # metadata drift gate (303/303)
+python3 scripts/emit-skill-registry.py --check   # metadata drift gate (all records)
 python3 scripts/check-token-budget.py     # compiled-tokens vs declared token_budget contract
 python3 scripts/regression-scope.py <skill>      # dependents to re-test before editing a skill
 python3 scripts/grade-golden.py           # deterministic RED→GREEN grading (no LLM judge)

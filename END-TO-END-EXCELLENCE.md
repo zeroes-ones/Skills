@@ -40,8 +40,8 @@ The loop matters as much as the line: learning from F/G must flow back into A-D 
 | Anti-patterns, error decoder, deliberate-practice loop | `lint-template.py` |
 | Per-skill harness | `skills/<name>/scripts/verify-skill.sh` |
 
-**Status:** 297 skills; new skills pass template + YAML lint with 0 errors (verified this cycle);
-audit overall 9.9/10. **Debt (repaired):** the grandfathered flagship skills (`code-reviewer`,
+**Status:** new skills pass template + YAML lint with 0 errors (verified this cycle);
+audit overall 9.8/10 over the full corpus. **Debt (repaired):** the grandfathered flagship skills (`code-reviewer`,
 `qa-engineer`, `security-reviewer`, `backend-developer`) were missing `Error Decoder` /
 `When NOT to Use` / `Anti-Rationalization` sections; all four now pass `lint-template` with 0
 errors. Remaining advisory warnings on those four: body length (609-682 lines vs. 500-600 budget)
@@ -61,7 +61,7 @@ debt, not blocking.
    (`workflow/templates/verify-node.md`).
 4. **Declared handoff surface** — what the node consumes and produces is knowable before the run.
 
-**Status:** 297/297 skills referenceable; 294 eligible in default mode; 30 declared contracts
+**Status:** 322/322 skills referenceable; 319 eligible in default mode; 59 declared contracts
 (`code-reviewer`, `security-reviewer`, `qa-engineer`, `backend-developer`, … — the flagship graph
 nodes plus phases 1–3 hubs). **Gap:** the remaining ~264 eligible skills can still adopt
 `workflow:` contracts; the mechanism and the tracker (audit Workflow Readiness) exist, and the
@@ -72,7 +72,7 @@ mass declaration is a ranked staged pass, not a missing feature.
 **Requirements:**
 
 - Chain symmetry (`consumes_from`/`feeds_into`) so discovery and routing stay truthful —
-  verified `validate_chains.py` over 297 skills.
+  verified `validate_chains.py` over the full corpus.
 - Router registration so agents can *find* the skill mid-graph (`using-agent-skills` feeds list).
 - Manifest authoring over skills: serial chains, bounded loops, parallel fan-out with join
   policies, gates, supervisors (`workflow-graph-authoring` + schema in
@@ -192,14 +192,14 @@ rules, then add.
 
 | Metric | Reading | How measured |
 |--------|---------|--------------|
-| Skills referenceable as nodes | 297/297 | `validate-workflows.py --coverage` |
-| Eligible as default-mode nodes | 281 | audit Workflow Readiness |
-| Declared `workflow:` contracts | 30 (G1 phases 1-3) | audit / `lint-workflow --all` |
-| Shipped validated manifests | 5 (4 shapes + flagship) | `validate-workflows.py --all` |
-| Loop/engine self-tests | 5/5 + validator 23/23 + lint 9/9 | `--selftest` flags |
-| Chain symmetry | PASSED (297) | `validate_chains.py` |
-| Library rating | 9.9/10 (297) | `audit-library.py` |
-| Compile reduction (measured, `cl100k_base`) | 78.0% | `docs/token-context-benchmark.md` |
+| Skills referenceable as nodes | 322/322 | `validate-workflows.py --coverage` |
+| Eligible as default-mode nodes | 319 | audit Workflow Readiness |
+| Declared `workflow:` contracts | 59 | audit / `lint-workflow --all` |
+| Shipped validated manifests | 6 | `validate-workflows.py --all` |
+| Loop/engine self-tests | engine 20/20 + validator 24/24 | `--selftest` flags |
+| Chain symmetry | PASSED (322, 2164 edges) | `validate_chains.py` |
+| Library rating | 9.8/10 (322) | `audit-library.py` |
+| Compile reduction (measured, `cl100k_base`) | 77.9% | `docs/token-context-benchmark.md` |
 | Template + YAML lint on new skills | 0 issues | `lint-template.py` / `lint-yaml.py` |
 
 ## 10. Gap register — what it needs next to reach end-to-end 10/10 for *all* skills

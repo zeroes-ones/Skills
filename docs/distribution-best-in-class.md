@@ -9,12 +9,12 @@ methodology/curation strengths of the other two. Companion to `COMPARISON.md` (m
 
 | Capability | zeroes-ones/Skills | anthropics/skills | obra/superpowers | mattpocock/skills |
 |---|---|---|---|---|
-| Prompts | 320 | 19 | 14 | 37 |
+| Prompts | 322 | 19 | 14 | 37 |
 | Avg raw body words (load cost) | 8,773 | 1,969 | 1,457 | 638 |
-| Compiled coverage & saving | 320/320, **78.0%** measured token saving | — | — | — |
-| Executable-node eligible | 317 | — | — | — |
+| Compiled coverage & saving | 322/322, **77.9%** measured token saving | — | — | — |
+| Executable-node eligible | 319 | — | — | — |
 | `workflow:` node contracts | 59 | 0 | 0 | 0 |
-| Governance gates | 16/16 pre-commit; validate-skills 0 fails; markdownlint 0/297 | curation bar | methodology consistency | use-tested |
+| Governance gates | 16/16 pre-commit; validate-skills 0 fails; markdownlint 0/322 | curation bar | methodology consistency | use-tested |
 | Executable workflow engine (loops/graphs/parallel joins/guardrails) | **unique** | none | methodology as prose plans | none |
 | Evals + telemetry + verifier-gated self-improvement | golden evals, OTel exporter, SLIs, skill-evolve promote | none published | none | none |
 
@@ -67,10 +67,10 @@ claims (e.g., "launch 2026") with skepticism; mechanics above are consistently d
 
 | # | Action | Why | Status/Effort |
 |---|--------|-----|---------------|
-| 1 | **Flat index for skills.sh auto-discovery** | **Not needed — superseded by verified crawler rules** (vercel-labs/skills discovery): the CLI walks catalog layouts `skills/<category>/<name>/SKILL.md` (one extra level deep) — exactly our canonical tree — and additionally searches skills declared in `.claude-plugin/marketplace.json` at declared depth. Our 297 names are unique (dedup = first-wins) and frontmatter `name`+`description` is valid. Activation is telemetry-driven: first `npx skills add zeroes-ones/Skills` (or `skills use zeroes-ones/Skills@<skill>`) requests indexing; verify with `npx skills find <name>` (minutes–hours) or skills.sh's request-indexing issue. | Low — indexable as-is |
+| 1 | **Flat index for skills.sh auto-discovery** | **Not needed — superseded by verified crawler rules** (vercel-labs/skills discovery): the CLI walks catalog layouts `skills/<category>/<name>/SKILL.md` (one extra level deep) — exactly our canonical tree — and additionally searches skills declared in `.claude-plugin/marketplace.json` at declared depth. Our 322 names are unique (dedup = first-wins) and frontmatter `name`+`description` is valid. Activation is telemetry-driven: first `npx skills add zeroes-ones/Skills` (or `skills use zeroes-ones/Skills@<skill>`) requests indexing; verify with `npx skills find <name>` (minutes–hours) or skills.sh's request-indexing issue. | Low — indexable as-is |
 | 2 | **Publish to skills.sh + anthropics plugin marketplace** | Push the flat index repo (this repo, after #1) so detail pages appear; add `plugin.json`/marketplace manifests for the official Claude plugin flow. | Medium |
 | 3 | **Registry-standard metadata** | Ensure every skill has `license`, `version`, `tags`, `compatibility`; trigger-phrase descriptions (routing) — most already true post-backlog. | Low |
-| 4 | **Curated flagship set (top 30)** | README section + marketplace collection of best-of skills; keeps curation story equal to anthropics while offering 297 total. | Medium |
+| 4 | **Curated flagship set (top 30)** | README section + marketplace collection of best-of skills; keeps curation story equal to anthropics while offering 322 total. | Medium |
 | 5 | **Optional methodology plugin** | Package "iterate-until-100% + verify-gates" as an auto-injected session flow (obra-style) on top of our engine. | Medium |
 | 6 | **Lockfile + update parity** | Emit `skills-lock.json` from project-init so team installs are reproducible like skills.sh CLI. | Low |
 | 7 | **Discoverability inside the repo** | README skills table + per-skill `skills.sh/owner/repo/skill` links once published. | Low |

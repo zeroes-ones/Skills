@@ -8,6 +8,12 @@
 >
 > **Provenance:** recorded against `HEAD = 64ee2fc2` with all changes uncommitted in the working
 > tree. Counts were 304 skills / 37 domains at the time of writing.
+>
+> **Dated record — do not rewrite.** The figures in this log are the measurements taken at record
+> time (304 skills). The corpus has since grown and the counts in this file are intentionally
+> preserved as evidence of that run. Current values: **322** skills / 37 domains; check any live
+> number with `python3 scripts/validate-workflows.py --coverage` or
+> `python3 scripts/audit-library.py --brief`.
 
 ## 1. What was built, at a glance
 

@@ -13,7 +13,7 @@
 
 ## 1. The one-paragraph version
 
-This repository contains **304 "skills"** — written playbooks that tell an AI agent how to do a
+This repository contains **322 "skills"** — written playbooks that tell an AI agent how to do a
 specific professional job (review code, design a database, price a consulting engagement, audit
 accessibility…). A playbook on its own is just text: nothing makes the agent *start*, *finish*, or
 *prove it finished*. So this repo also contains a small **workflow engine**: you describe a job as a
@@ -45,7 +45,7 @@ engine supplies the *discipline*.
 
 | Word | What it means here | Where it lives |
 |---|---|---|
-| **Skill** | A playbook for one job: when to use it, the steps, the failure modes, the checklist for "done" | `skills/<domain>/<name>/SKILL.md` — 304 of them |
+| **Skill** | A playbook for one job: when to use it, the steps, the failure modes, the checklist for "done" | `skills/<domain>/<name>/SKILL.md` — 322 of them |
 | **Workflow** | A description of a job as a graph: which skills, in what order, what may loop, where a human must approve | `workflow/manifests/*.yaml` — 6 of them |
 | **Node** | One step *inside* a workflow, bound to exactly one skill | a block inside a workflow file |
 
@@ -62,7 +62,7 @@ to carry out that instruction.
    └───────────────────────────────────────────────────────┘
                      │           │           │
                      ▼           ▼           ▼
-        SKILLS   (the know-how the node runs, 304 available)
+        SKILLS   (the know-how the node runs, 322 available)
 
         ENGINE   (a program that walks the graph, retries, records, escalates)
 ```
@@ -168,13 +168,13 @@ You do not need to read code to use these. Each is a command you run from the re
 |---|---|---|
 | `python3 scripts/validate-workflows.py --all` | Checks every workflow file is well-formed: no impossible loops, every skill exists, every loop is bounded | Before trusting a workflow you just wrote |
 | `python3 scripts/validate-workflows.py --coverage` | Reports how many skills are usable as steps, and how many are "fully labelled" | To see how much of the library is wired up |
-| `python3 scripts/workflow-runner.py --selftest` | Runs the engine's own 16 self-tests | After changing the engine |
+| `python3 scripts/workflow-runner.py --selftest` | Runs the engine's own 20 self-tests | After changing the engine |
 | `python3 scripts/workflow-runner.py --manifest <file>` | **Runs** a workflow | To actually do the work |
 | `python3 scripts/goal-to-graph.py --goal "…"` | Turns a one-line goal into a ready-made workflow file | When you don't want to write the plan by hand |
 | `python3 scripts/export-traces.py --state <file>` | Converts a run into standard observability "spans" | To feed a monitoring tool |
 | `python3 scripts/skill-sli-report.py --dir <dir>` | Reports reliability stats across runs: how many completed, how many escalated | To answer "is this workflow reliable?" |
 | `python3 scripts/run-effectiveness.py --state <file>` | Scores a run 0–100 | To check a run actually did its job |
-| `python3 scripts/audit-library.py` | Produces the quality scorecard for all 320 skills | To see the health of the library |
+| `python3 scripts/audit-library.py` | Produces the quality scorecard for the whole library | To see the health of the library |
 | `python3 scripts/emit-skill-graph.py` | Rebuilds the interactive picture of how skills depend on each other | After adding or moving skills |
 
 ---
@@ -187,7 +187,7 @@ All of it is in the working tree, uncommitted, ready to review. In plain terms:
 |---|---|
 | **A real run was performed and archived** (`examples/phase1-agentic-node/`) | Before this, nobody had proved the engine works with a real AI agent. Now there is a run with its full evidence: the state file, the transcript of all three agent turns, spans, reliability stats, and its 100/100 score |
 | **Three bugs found and fixed** (see §8) | The first attempt at that run *failed*. The failure exposed real defects that would have broken every later phase |
-| **13 more skills labelled engine-ready** (30 → 43) | A skill can declare what it consumes, what it produces, its checklist for "done", and where to escalate. Previously only 30 did |
+| **13 more skills labelled engine-ready** (30 → 43 at the time; 59 today) | A skill can declare what it consumes, what it produces, its checklist for "done", and where to escalate. Previously only 30 did |
 | **The engine now enforces those labels** (new, off by default) | Until this session the labels were decoration — the engine never looked at them. Now it can (see §10) |
 | **A broken CI check repaired** | The repository's own picture of the skill graph was stale, failing a CI job. Regenerated; the check passes again |
 | **Everything documented** | A design doc, a build log, a rewritten example, and this guide |
@@ -300,8 +300,8 @@ looking identical to a real one.
 cd /Users/sp.vm/Documents/Projects/Skills
 
 # 1. Check nothing is broken (fast, no AI calls)
-python3 scripts/workflow-runner.py --selftest          # expect: 16 checks, 0 failed
-python3 scripts/validate-workflows.py --all            # expect: 20 OK
+python3 scripts/workflow-runner.py --selftest          # expect: 20 checks, 0 failed
+python3 scripts/validate-workflows.py --all            # expect: 21 OK
 bash scripts/validate-skills.sh                        # expect: 14 PASS, 0 FAIL
 
 # 2. Run a workflow with no AI (deterministic stub) — proves the machinery
@@ -333,10 +333,10 @@ Honest status. This matters more than the list of successes.
 ### Real — measured in this repository
 
 - The engine runs workflows with real AI agents and completes them end to end (§5).
-- Loops retry, respect limits, detect stagnation, and escalate instead of hanging (16 self-tests).
+- Loops retry, respect limits, detect stagnation, and escalate instead of hanging (20 self-tests).
 - Runs are scored, traced, and can be reported on (100/100, 4 spans, escalation rate 0.00).
 - Declared completion criteria are now **enforced** when switched on (§10), verified by 4 tests.
-- 320 skills, 37 domains, 9.8/10 quality score, 100% portability-declared.
+- 322 skills, 37 domains, 9.8/10 quality score, 100% portability-declared.
 
 ### Not real yet — do not assume these
 
@@ -346,11 +346,11 @@ Honest status. This matters more than the list of successes.
 | **The engine is not a service** | It runs once and exits. There is no scheduler, no queue, no always-on process, no API |
 | **A "human gate" isn't really human** | Declaring a step as needing human approval doesn't pause anything. In our real run, the "human ship gate" was auto-approved and consumed an AI turn instead. A real pause-and-approve queue does not exist |
 | **Enforcement is off by default** | Turning it on requires every executor to report per-criterion evidence, which only the human-driven path does today |
-| **Only 3 of 320 skills have executable golden regression suites** (224 carry per-skill trigger/anti-pattern evals) | A change to a skill is checked for structure, not for whether it still produces good work |
+| **Only 3 of 322 skills have executable golden regression suites** (most skills carry per-skill trigger/anti-pattern evals) | A change to a skill is checked for structure, not for whether it still produces good work |
 | **Reliance on one AI provider in testing** | The real run used one agent backend (`claude -p`). The design is provider-neutral but that is not yet exercised |
 | **Cost and latency are placeholders** | Runs record tokens/latency fields that a real executor does not yet fill in |
-| **`COORDINATION-MATRIX.md` is partly out of date** | Its per-domain narrative was written against a 106-skill / 25-domain corpus; the live figures (320 / 37, 2,142 edges) are stated at the top of the file and there is still no script to regenerate the domain sections |
-| **Library counts are now synced** | `README.md`, `QUICKSTART.md`, and the graph section state the measured count (320 skills / 2,142 edges), regenerated from live data. Dated build logs intentionally keep their original figures |
+| **`COORDINATION-MATRIX.md` is partly out of date** | Its per-domain narrative was written against a 106-skill / 25-domain corpus; the live figures are stated at the top of the file and there is still no script to regenerate the domain sections |
+| **Library counts are now synced** | `README.md`, `QUICKSTART.md`, and the graph section state the measured count (regenerated from live data). Dated build logs intentionally keep their original figures |
 
 ### Known limitation in the enforcement we just added
 

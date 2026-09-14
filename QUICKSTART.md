@@ -33,7 +33,8 @@ skills-init
 
 ```
 
-This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover all 320 skills.
+This creates `.claude/skills`, `.copilot/skills`, etc. as symlinks so your AI agent can discover
+the whole library. Counts are computed at runtime — check yours with `skills-init --status`.
 
 ---
 
@@ -88,11 +89,12 @@ As your project grows, activate more skills:
 ```bash
 
 skills-init --grow   # 18 skills: add business strategy, UX research, design, architecture, backend, DevOps
-skills-init --full   # 320 skills: full enterprise coverage
+skills-init --full   # the whole library, stated explicitly
+skills-init --skill code-reviewer,tdd-guide   # or exactly the skills you want
 
 ```
 
-See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to full coverage (320 skills).
+See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a complete walkthrough of tiered activation — going from solo MVP (8 skills) to full coverage. For every install channel (shell, npx, plugin, MCP) with all-vs-individual guidance and troubleshooting, see [`docs/installing-skills.md`](docs/installing-skills.md).
 
 ---
 
@@ -103,7 +105,7 @@ See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a c
 | **Skill invocation** | `/skill-name: your request` — the agent reads SKILL.md and follows its workflow |
 | **Progressive disclosure** | QUICK (30s gist) → STANDARD (3min working knowledge) → DEEP (10+min war stories) |
 | **Skill chaining** | Output from skill A feeds into skill B via `chain:` YAML declarations |
-| **Tiered activation** | `--solo` (8 skills) → `--grow` (18) → `--full` (303) — activate only what you need |
+| **Tiered activation** | `--solo` (8) → `--grow` (18) → `--full` (all) → `--skill <name>` (individual) — activate only what you need |
 
 ---
 
@@ -117,4 +119,4 @@ See [`examples/logsnap-solo-to-scale/`](examples/logsnap-solo-to-scale/) for a c
 
 ---
 
-*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 320 skills, 37 domains, 9.8/10 quality.*
+*Built by [Zeroes & Ones](https://github.com/zeroes-ones/Skills). 322 skills, 37 domains, 9.8/10 quality.*

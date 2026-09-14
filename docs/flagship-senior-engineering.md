@@ -66,7 +66,7 @@ never load full bodies — they load only the invoked skill's needed sections (p
 disclosure) or the compiled excerpts (`.skills-compiled/`, **78.0%** measured token saving), so
 the flagship story is *density on demand*, not 283k tokens in context.
 
-> **Declared budgets understate real cost.** Across all 320 skills the declared `token_budget`
+> **Declared budgets understate real cost.** Across the corpus the declared `token_budget`
 > (mean 4,630) is **2.9× below** the measured body token count (mean 13,559). The flagship's
 > Σ token_budget of 123,225 is therefore an underestimate of true load; see
 > [`token-context-benchmark.md`](token-context-benchmark.md).

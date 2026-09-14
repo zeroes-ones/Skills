@@ -18,7 +18,7 @@ is pure code, and all state (manifests, checkpoints, memory, traces, SLIs) is pe
 
 ## Step 2 — Model your flow as a workflow manifest
 
-Any of the 297 skills is already a valid graph node in default mode (its Verification /
+Any skill is already a valid graph node in default mode (its Verification /
 Production Checklist sections act as the completion source); add an optional `workflow:` contract
 when a skill is central to the flow. Manifests are plain YAML:
 

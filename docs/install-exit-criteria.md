@@ -24,16 +24,16 @@ The three public distribution channels documented in `README.md` (Distribution s
   HTTP 200 and is valid bash (`bash -n`).
   *Verify:* `curl -s -o /dev/null -w "%{http_code}" <url>` → `200`; CI `test-shell-install`.
 - **EC-2** Fresh install exits 0 and produces: store at `~/.zeroes-ones/skills` containing
-  **303** `SKILL.md` under `skills/` and **303** entries in `skills-flat/`, plus global agent
-  symlinks (`.claude/skills`, `.agents/skills`, …) and `~/.local/bin/skills-init` +
-  `skills-update`.
+  one `SKILL.md` per skill under `skills/` and a matching entry in `skills-flat/` (the count is
+  computed from the corpus — **322** each today), plus global agent symlinks
+  (`.claude/skills`, `.agents/skills`, …) and `~/.local/bin/skills-init` + `skills-update`.
   *Verify:* isolated-`HOME` end-to-end run — CI `test-shell-install` job does exactly this.
 - **EC-3** Installed `skills-init` (copied from `scripts/init-project.sh`) supports **both**
-  activation modes: default = all 320 skills (flat, one level deep); `--solo` = 8,
+  activation modes: default = all skills (flat, one level deep); `--solo` = 8,
   `--grow` = 18 by name; `--status` reports tier + count; switching modes replaces this
   script's own links; pre-existing user content in an agent dir is never deleted.
-  *Verify:* counts after each mode via `find -L <agent-dir> -name SKILL.md | wc -l` → 320 / 8 / 18 —
-  CI `test-shell-install` job.
+  *Verify:* counts after each mode via `find -L <agent-dir> -name SKILL.md | wc -l` → the
+  full count computed from the corpus (322 today) / 8 / 18; CI `test-shell-install` job.
 
 ### EC-4 … EC-7 — npm package (EC-6/EC-7 are external gates)
 - **EC-4** `package.json` declares a bin named `skills` (the npm package short name) so the
@@ -48,7 +48,7 @@ The three public distribution channels documented in `README.md` (Distribution s
   not 404).
 - **EC-7** **GATE (post-publish):** on a clean machine with Node ≥ 16,
   `npx @zeroes-ones/skills init` bootstraps `~/.zeroes-ones/skills` on first use, then activates
-  skills in the current project (default 303; `--solo`/`--grow`/`--status` work).
+  skills in the current project (default = all, computed from the corpus; `--solo`/`--grow`/`--status` work).
 
 ### EC-8 … EC-9 — skills.sh registry (EC-9 is an external gate)
 - **EC-8** Repo is natively indexable: canonical `skills/<category>/<name>/SKILL.md` tree with
@@ -80,8 +80,8 @@ The three public distribution channels documented in `README.md` (Distribution s
 | ID | Criterion | Status | Where verified |
 |---|---|---|---|
 | EC-1 | raw URL + bash syntax | ✅ | curl 200 (2026-09-07); CI |
-| EC-2 | fresh shell install 303/303 + symlinks | ✅ | local isolated-HOME e2e; CI `test-shell-install` |
-| EC-3 | dual-mode `skills-init` | ✅ | local e2e (303/8/18, mode switch, foreign-dir keep); CI |
+| EC-2 | fresh shell install + symlinks | ✅ | local isolated-HOME e2e; CI `test-shell-install` |
+| EC-3 | dual-mode `skills-init` | ✅ | local e2e (full/8/18, mode switch, foreign-dir keep); CI |
 | EC-4 | `skills` bin + dispatcher | ✅ | local `bash -n` + dispatcher run; CI |
 | EC-5 | `npm pack` clean | ✅ (CI runs on push) | CI `test-npm-package` |
 | EC-6 | **npm published** | ⛔ GATE | needs `npm publish` (owner token) |

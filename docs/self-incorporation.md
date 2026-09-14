@@ -10,11 +10,11 @@
 
 | # | Capability | Tool / artifact | Current (measured) |
 |---|-----------|-----------------|--------------------|
-| 1 | Referenceable as a graph node | any manifest can name it | **297/297** |
-| 2 | Default-mode eligibility (Core Workflow + Verification) | audit/coverage | **281/297** |
-| 3 | `workflow:` node contract (typed artifacts, criteria, escalation) | frontmatter | **30/297** |
-| 4 | Golden regression cases | `evals/golden/<skill>/cases.json` | **3/297** |
-| 5 | Retrieval index entry (lexical now, embeddings next) | `build-skill-index.py` | **297/297** |
+| 1 | Referenceable as a graph node | any manifest can name it | **322/322** |
+| 2 | Default-mode eligibility (Core Workflow + Verification) | audit/coverage | **319/322** |
+| 3 | `workflow:` node contract (typed artifacts, criteria, escalation) | frontmatter | **59/322** |
+| 4 | Golden regression cases | `evals/golden/<skill>/cases.json` | **3/322** |
+| 5 | Retrieval index entry (lexical now, embeddings next) | `build-skill-index.py` | **322/322** |
 | 6 | Boundary templates / verify discipline | `workflow/templates/` | by protocol |
 | 7 | Run memory + traces + SLIs when executed | `--memory`, `export-traces`, `skill-sli-report` | per run |
 | 8 | Verifier-gated self-improvement when it fails | `skill-evolve-prep/promote` | pipeline ready |
@@ -22,8 +22,8 @@
 | 10 | Cross-OS/any-LLM attach for projects | `project-init.sh` + `agent_executor.py` | ready |
 
 Gap report: run `python3 scripts/skill-incorporate.py` — it prints exactly which of #1-5 each
-skill has and the two live gaps: **252 eligible skills still lack a `workflow:` contract**, and
-**294 skills lack a golden set**.
+skill has and the two live gaps: **eligible skills still lacking a `workflow:` contract**, and
+**skills missing a golden set**.
 
 ## 2. The loop: incorporate → verify → promote (never unverified)
 
@@ -63,7 +63,7 @@ Indexing every skill is table stakes; finding the right skill at runtime is the 
 
 - **Index every skill body, not just metadata** — research (SkillRouter) shows the body is the
   decisive routing signal (metadata-only drops retrieval 29-44 points). `build-skill-index.py`
-  already indexes 297 names + descriptions lexically (Top-1 30% / Top-5 60%); the embedding +
+  already indexes every skill name + description lexically (Top-1 30% / Top-5 60%); the embedding +
   rerank layer must beat that baseline.
 - **Top-K + rerank**, then **dependency-aware bundles**: when a skill is selected, pull its
   prerequisites from the chain graph so a worker gets the whole path, not one node.
@@ -85,11 +85,11 @@ never let generated indexes/contracts drift from their sources.
 
 ## 6. Honest state and next wave
 
-- **Now:** 297/297 referenceable + indexed; 281 default-eligible; 30 contracts; 3 golden sets;
+- **Now:** 322/322 referenceable + indexed; 319 default-eligible; 59 contracts; 3 golden sets;
   dogfood + self-improvement loops running; gaps are measured and actionable per skill
   (`skill-incorporate.py` lists them).
-- **Next wave:** (a) auto-propose `workflow:` contracts for the 252 eligible skills by
-  chain-degree priority (G1 phases 3+), (b) auto-scaffold golden cases for the 294 without them
+- **Next wave:** (a) auto-propose `workflow:` contracts for the eligible skills by
+  chain-degree priority (G1 phases 3+), (b) auto-scaffold golden cases for the skills without them
   (draft from expected_behavior + verify against replay), (c) the embedding + rerank layer over
   bodies to beat the 30% lexical baseline, (d) nightly cron wiring for the incorporate report.
 

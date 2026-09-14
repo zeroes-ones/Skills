@@ -36,7 +36,7 @@ not after every keystroke, not only at end of day.
 2. **Know which gates are cheap vs. expensive.** Cheap (seconds, run always): workflow
    validators + engine self-tests + golden evals (`validate-workflows.py --selftest`,
    `workflow-runner.py --selftest`, `eval-skill.sh --all`). Expensive (minutes): full
-   `validate-skills.sh` across 297 skills, markdownlint over the whole corpus, hooks install.
+   `validate-skills.sh` across the whole corpus, markdownlint over the whole corpus, hooks install.
    Run the expensive ones once per push/PR, not per commit.
 3. **Only re-run what changed.** The new `workflow-graphs` CI job (engine + golden + dogfood) is
    fast by design; job-level path filters (skills/** vs docs/**) stop unrelated files from

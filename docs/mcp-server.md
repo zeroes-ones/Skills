@@ -81,6 +81,30 @@ tokens, no network.
 
 Python 3. **Nothing else** — no `pip install`, no `npm install`, no Node. The server is stdlib-only.
 
+### Verify the server before wiring it in
+
+Always run the built-in self-test first. It exercises the protocol and every tool in-process and
+takes under a second:
+
+```bash
+python3 scripts/mcp-skill-server.py --selftest     # expect: selftest: 21 checks, 0 failed
+python3 scripts/mcp-skill-server.py --list-tools   # human-readable tool catalogue
+```
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Server not discovered | `.mcp.json` only auto-loads for Claude Code at project scope, and needs a one-time trust approval | Approve the project MCP server when prompted; other clients need an explicit entry (see above) |
+| `No such file or directory` on start | The client launched from a working directory that is not the repo root, so the relative arg did not resolve | Use an **absolute** path in the client config |
+| Tools return "skill not found" | The server resolved a different repo root than you expect | The server derives its root from its own file location, so point the client at *this* checkout's `scripts/mcp-skill-server.py` |
+| `--selftest` reports failures | The library changed and a shape assertion needs updating | Read the named failure; assertions are shape-based, not count-based, so a growing corpus should not break them |
+| Client shows no tools at all | The server speaks JSON-RPC over stdio; anything printed to stdout outside the protocol corrupts the stream | Run `--selftest`; if it passes, the client is misconfigured, not the server |
+
+> **Why not `${workspaceFolder}`:** most MCP clients do not expand editor-specific variables.
+> A relative path works because Claude Code resolves the arg from the project root; every other
+> client should use an absolute path.
+
 ---
 
 ## 3. Tool reference
@@ -98,7 +122,7 @@ List skills, optionally filtered.
 | `limit` | integer | default 100 |
 
 ```json
-{"total": 304, "shown": 3, "skills": [
+{"total": 322, "shown": 3, "skills": [
   {"skill": "code-reviewer", "domain": "06-quality", "declared": true,
    "description": "Use when performing structured code reviews on pull requests…"}
 ]}
@@ -168,9 +192,9 @@ occurrence), then sorts by score and name for a stable order.
 With `name`: that skill's upstream and downstream neighbours. Without: library totals and hubs.
 
 ```json
-{"skills": 304, "domains": 37, "directed_edges": 1932, "undirected_edges": 1577,
- "declared_contracts": 43, "eligible_default_mode": 301,
- "top_hubs": [{"skill": "backend-developer", "edges": 85},
+{"skills": 322, "domains": 37, "directed_edges": 2164, "undirected_edges": 1773,
+ "declared_contracts": 59, "eligible_default_mode": 319,
+ "top_hubs": [{"skill": "backend-developer", "edges": 90},
               {"skill": "using-agent-skills", "edges": 66}]}
 ```
 
@@ -179,7 +203,7 @@ With `name`: that skill's upstream and downstream neighbours. Without: library t
 The executable manifests in the repo, with node/loop/gate counts.
 
 ```json
-{"total": 20, "workflows": [
+{"total": 21, "workflows": [
   {"manifest": "workflow/manifests/senior-dev-loop.yaml", "name": "senior-dev-loop",
    "nodes": 2, "loops": 1, "gates": 1}]}
 ```

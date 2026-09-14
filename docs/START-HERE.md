@@ -10,7 +10,7 @@
 
 This repo is **two things**:
 
-1. **304 "skills"** — written playbooks. Each tells an AI agent how to do one professional job
+1. **322 "skills"** — written playbooks. Each tells an AI agent how to do one professional job
    (review code, design a database, price a consulting job, audit accessibility…).
 2. **A workflow engine** — a small program that runs those playbooks as a *graph of steps*, so work
    actually starts, finishes, retries, and gets recorded.
@@ -24,7 +24,7 @@ making those two work together with a real AI agent — and fixing what broke wh
 
 | Word | What it is | Where it lives |
 |---|---|---|
-| **Skill** | A playbook for one job | `skills/<domain>/<name>/SKILL.md` (304 of them) |
+| **Skill** | A playbook for one job | `skills/<domain>/<name>/SKILL.md` (322 of them) |
 | **Workflow** | A file describing a job as a graph of steps | `workflow/manifests/*.yaml` (6 of them) |
 | **Node** | One step inside a workflow, pointing at one skill | a block inside a workflow file |
 
@@ -63,7 +63,7 @@ can fix them separately.
 |---|---|---|
 | 1 | **Ran it for real.** A "build it, then review it" workflow, with a real AI doing each step. Archived the evidence. | Nobody had ever proven the engine works with a real agent. It does: it finished cleanly, scored **100/100**, and the review step *actually read the changed files* instead of summarising a message. |
 | 2 | **Found and fixed 3 real bugs.** The first attempt **failed**. | See §5 — two of these would have quietly broken everything that came after. |
-| 3 | **Labelled 13 more skills** as engine-ready (30 → 43). | A label means "here's what I need, what I produce, my checklist for done, who to escalate to". |
+| 3 | **Labelled 13 more skills** as engine-ready (30 → 43 at the time; 59 today). | A label means "here's what I need, what I produce, my checklist for done, who to escalate to". |
 | 4 | **Turned on a check the engine never made.** | Until now the engine read only a skill's *name* and took its "done" on faith. Now it can require the step to *prove* it. |
 | 5 | **Fixed a broken CI check** someone had left stale. | The repo's own picture of the skill graph was out of date; the check was failing before we touched anything. |
 | 6 | **Wrote the documentation.** | This file, plus the three in §8. |
@@ -89,7 +89,7 @@ cd <this repo>
 
 # 1. Do the engine's own tests
 python3 scripts/workflow-runner.py --selftest
-# expect: selftest: 16 checks, 0 failed
+# expect: selftest: 20 checks, 0 failed
 
 # 2. Run a real workflow, no AI involved
 python3 scripts/workflow-runner.py --manifest workflow/manifests/senior-dev-loop.yaml
@@ -174,10 +174,10 @@ The `workflow:` block is **optional and additive**. The linter says so itself:
 
 | | Count |
 |---|---|
-| Skills total | **304** |
-| Usable as a workflow step | **304** (all of them) |
-| Eligible "default-mode nodes" (Core Workflow + Verification) | **301** |
-| **Declare the optional `workflow:` contract** | **43** |
+| Skills total | **322** |
+| Usable as a workflow step | **322** (all of them) |
+| Eligible "default-mode nodes" (Core Workflow + Verification) | **319** |
+| **Declare the optional `workflow:` contract** | **59** |
 
 So a skill without it **still works as a step**. The engine falls back to that skill's own
 `Verification` table as the "done" checklist, at execution time.
@@ -225,7 +225,7 @@ So a skill without it **still works as a step**. The engine falls back to that s
 | **The engine is not a service** | It runs once and exits. No always-on process, no queue, no API |
 | **A "human approval" step isn't really human** | Marking a step as needing human approval doesn't pause anything. In our real run, the "human ship gate" auto-approved and used an AI turn instead |
 | **Enforcement is off by default** | And in headless mode a run with violations still reports "finished" — the violation is recorded and the score collapses, but the run doesn't fail loudly |
-| **Only 3 of 320 skills have executable golden regression suites** | Changes to a skill are checked for *structure*, not for whether it still produces good work (224 skills do carry trigger/anti-pattern evals) |
+| **Only 3 of 322 skills have executable golden regression suites** | Changes to a skill are checked for *structure*, not for whether it still produces good work (most skills do carry trigger/anti-pattern evals) |
 | **Tested against one AI provider** | The design is provider-neutral, but only one backend was actually exercised |
 
 ---

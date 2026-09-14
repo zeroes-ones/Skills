@@ -29,8 +29,8 @@ complete, and memory-written** — not a feeling.
 ## 2. Speed doctrine, per mode
 
 ### Single-agent (fastest path)
-1. **Load compiled, not raw.** `.skills-compiled/` skills load at a mean of **3,068 measured tokens
-   vs 13,935 raw** (**78.0%** effective-load saving, 2026-09-13; earlier "~3,500 vs ~8,976 / 63.4%"
+1. **Load compiled, not raw.** `.skills-compiled/` skills load at a mean of **3,066 measured tokens
+   vs 13,895 raw** (**77.9%** effective-load saving, 2026-09-14; earlier "~3,500 vs ~8,976 / 63.4%"
    figures were word counts, not tokens). QUICK-first: read Route + Ground Rules, drill down only
    when needed.
 2. **One verify per exit.** Run the verify-node template once with artifact evidence — never
@@ -70,7 +70,7 @@ complete, and memory-written** — not a feeling.
 |---|---|
 | Engine wall-clock per run (stub) | ~96-100 ms |
 | Tool self-tests | validator 177 ms / engine 99 ms / lint 9 checks |
-| Effective skill load | **78.0%** measured reduction; 3,068 compiled tokens avg (13,935 raw), 320/320 compiled |
+| Effective skill load | **77.9%** measured reduction; 3,066 compiled tokens avg (13,895 raw), 322/322 compiled |
 | Ambient skill listing (320 descriptions) | **43,161 tokens** — the largest always-present context cost |
 | Flagship effectiveness | happy 95/100 · exhaust 45/100 |
 | Parallel join | gate fires only after all members (guaranteed) |

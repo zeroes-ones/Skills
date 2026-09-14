@@ -49,7 +49,7 @@ reading up/down/diagonal context each pass) → continue forward (front) → hum
 ## 3. "All skills should do it by itself" — what's true today
 
 - **Any skill with `Core Workflow` + `Verification` is already a valid workflow node** — the
-  repo audits this (`~300/303` eligible) and proves it with `validate-workflows.py --coverage`.
+  repo audits this (`319/322` eligible) and proves it with `validate-workflows.py --coverage`.
 - Content is agentic: when a node runs, the agent reads that skill's sections (up/down/
   diagonal context) and its `Core Workflow` executes the work; the engine owns ordering, loops,
   handoffs, budgets, and gates.
