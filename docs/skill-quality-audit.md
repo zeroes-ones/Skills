@@ -413,3 +413,58 @@ This mirrors §8.1's lesson — the library measures and improves what is visibl
 2. **Ambient listing reduction** — 43.5k tokens; ~78% is descriptions. The mechanism (routing signatures) is designed but not applied to the corpus.
 3. **Progressive disclosure** — 58 skills have decision-tree headings with no trees (§8.3); QUICK markers are similarly nominal.
 4. **Memory read path has no corpus-scale exercise** — the engine path is tested, but no skill's workflow has been run with `--recall` in CI.
+
+## 10. Re-audit — 2026-09-14 (324 skills, after the engine pass)
+
+Structural numbers are unchanged from §7–§8. The corpus grew by four compliant skills, so the
+*ratio* improved only by dilution: the 171-skill backlog did not move.
+
+| Metric | 320 | 322 | 324 |
+|---|---|---|---|
+| Fully compliant | 149 | 151 | **153** |
+| Compliant ratio | 47% | 47% | **47%** |
+| Market boilerplate (non-finance) | 39 | 39 | **39** |
+| Shared-block groups / skills affected | 189 / 276 | 189 / 276 | **189 / 276** |
+| Gap distribution | — | — | 153 clean · 2×1 · 119×2 · 31×3 · 18×4 · 1×7 |
+
+### 10.1 Dogfood result: the four new skills are clean
+
+Checked against the very defects §8 catalogues:
+
+| Skill | Missing sections | Market boilerplate | Shared sections |
+|---|---|---|---|
+| `implementation-planner` | 0 | no | **0/26 (0%)** |
+| `document-specialist` | 0 | no | **0/26 (0%)** |
+| `agent-memory-architect` | 0 | no | **0/26 (0%)** |
+| `agent-runtime-economy` | 0 | no | **0/26 (0%)** |
+
+Every section in all four is unique to its skill. The G6 `--delta` gate blocks new violations, and
+that held — no new skill added the boilerplate the founding cohort carries.
+
+### 10.2 The three defects are load-bearing, not incidental
+
+Each has now been re-confirmed in three consecutive audits without moving:
+
+1. **39 non-finance skills carry market boilerplate** — `gardener`, `sleep-optimizer`,
+   `relationship-architect`, `stoic-practitioner`, and 35 others still contain "bull-market",
+   "shift to defensive posture", and "close the position and cut the loss" in domains where those
+   sentences are nonsense.
+2. **189 shared-block groups across 276 skills** — unchanged.
+3. **Decision-tree headings without trees** — 18 under a stricter threshold; the earlier 58 used a
+   looser one, so this is not a regression, only a different measure.
+
+The persistence is the finding. These are not drift; they are **stable properties of how the
+2026-08-02 cohort was generated**, and nothing in the gate suite can see any of them — which
+means they will still be there in the next audit unless something changes.
+
+### 10.3 What would actually move them
+
+Adding skills does not fix a backlog. The three changes that would:
+
+1. **A cross-skill duplicate detector in CI** — flag any ≥20-word block appearing in ≥3 skills outside a documented-generic allowlist. Would have caught all 189 groups.
+2. **A domain-coherence check** — flag market/regime vocabulary in non-market domains, and the inverse. Would have caught all 39.
+3. **Strengthen G8** — require branch characters or a code fence under each `### Decision Tree` heading.
+
+Plus the structural backlog itself: the **119 skills missing exactly two sections** are almost all
+missing the same pair (`When NOT to Use` + `Anti-Rationalization`). That is one mechanical retrofit,
+not 119 problems, and it is the highest-value single change available.
