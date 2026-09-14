@@ -223,8 +223,8 @@ m = re.search(r'^##\s+Decision Trees.*?\n(.*?)(?=^##\s|\Z)', t, re.M | re.S)
 seg = m.group(1) if m else ''
 fences = len(re.findall(r'\`\`\`', seg)) // 2
 # Branch artefacts: box-drawing glyphs, arrows, AND plain-ASCII tree notation
-# (|-- , +-- , `-- ) which many skills use instead of box drawing.
-glyphs = len(re.findall(r'[├└│┌┐┘┴┬┼▼▲◄►]|→|->|──|\|--|\+--|`--', seg))
+# (|-- , +-- , backtick-dash) which many skills use instead of box drawing.
+glyphs = len(re.findall(r'[├└│┌┐┘┴┬┼▼▲◄►]|→|->|──|\|--|\+--|\\x60--', seg))
 # pass if there is a fenced diagram, or dense branch glyphs
 print(1 if (fences >= 1 and glyphs >= 8) or glyphs >= 20 else 0)
 " 2>/dev/null || echo 1)
