@@ -237,3 +237,179 @@ for p in pathlib.Path('skills').glob('*/*/SKILL.md'):
 print(f"skills with >=1 missing required section: {n}/320")
 PY
 ```
+
+## 8. Content-depth audit — 2026-09-14 (the structural gates cannot see any of this)
+
+Sections 1–7 measured *structure*: does the heading exist. This section measures *content*: is the
+content real, and is it about the right domain. Four findings, none of which any gate detects.
+
+### 8.1 Finding: 39 skills carry stock-market trading boilerplate in non-finance domains
+
+A single identical passage — "Regime awareness … in a bull-market or uptrend scenario … in a
+bear-market, downturn, or recession environment, shift to defensive posture … exit conditions and
+stop-loss rules … close the position and cut the loss" — appears in **39 non-finance skills**,
+including:
+
+| Skill | Domain | The passage tells a reader to… |
+|---|---|---|
+| `gardener` | 35-home-domestic | "shift to defensive posture", "close the position and cut the loss" |
+| `sleep-optimizer` | 30-health-wellness | "reduce exposure" during a market correction |
+| `relationship-architect` | 32-relationship-family | "activate emergency protocols" on a -25% "drawdown" |
+| `stoic-practitioner` | 34-philosophy-wisdom | "cut the loss" |
+| `travel-designer`, `home-chef`, `interior-designer`, `nutrition-strategist`, … | — | same passage |
+
+Every one of these files was last updated **2026-08-02** — a single batch generation that applied a
+finance-oriented research block to a lifestyle cohort. Full domain spread:
+
+| Domain | Contaminated |
+|---|---|
+| 29-personal-finance | 9 |
+| 31-personal-growth | 8 |
+| 30-health-wellness | 7 |
+| 34-philosophy-wisdom | 4 |
+| 35-home-domestic | 4 |
+| 36-travel-adventure | 3 |
+| 32-relationship-family | 2 |
+| 33-real-estate | 2 |
+| 01-strategy (`ceo-strategist`) | 1 |
+
+Related: **39 skills** also carry the header `<!-- CRITICAL: Must have ≥5 dollar-quantified gotchas -->`
+and a "Estimated Cost of Getting It Wrong" column — a finance-shaped template applied to skills like
+`mindfulness-practitioner` and `gardener`.
+
+**Why no gate catches it:** `deep-research-gate.sh` has a `check_regime_coverage()` that explicitly
+**skips** non-market domains (`if ! is_market_domain "$domain"; then return`). The gate is designed to
+*require* regime coverage for finance skills and *ignore* it elsewhere — it never checks for the
+inverse, that a non-finance skill has acquired finance content. `audit-library.py` scores structure
+only.
+
+### 8.2 Finding: 276 of 322 skills share verbatim content blocks
+
+Normalised section bodies (≥20 words) were compared across the corpus. **189 distinct block groups**
+appear in 3 or more skills, and **276 skills contain at least one**.
+
+| Shared block | Appears in |
+|---|---|
+| `RESEARCH_PREREQUISITE` hard gate | 210 skills |
+| `Verification Guardrails` | 100 + 42 skills (two variants) |
+| `State Log` | 78 + 44 skills (two variants) |
+| `Error Recovery` | 50 + 39 skills |
+| `Ground Rules` table | 50 skills |
+| `Anti-Rationalization` | 43 skills |
+| `Core Workflow` | 39 skills |
+| `Error Decoder` | 39 skills |
+| `Production Checklist` | 39 skills |
+
+Some duplication is legitimate — `Error Recovery` is documented as "the ONLY generic section" in the
+template. But `Core Workflow`, `Error Decoder`, `Production Checklist`, `Best Practices`, and
+`Decision Trees` are supposed to be domain-specific, and these appear verbatim.
+
+**35 skills are ≥70% shared blocks**, and the 2026-08-02 cohort averages only **6.9 unique sections
+out of ~26**. The worst cases:
+
+| Skill | Unique sections |
+|---|---|
+| `angel-investor`, `debt-optimizer`, `insurance-strategist`, `real-estate-investor`, `side-hustle-builder`, `wealth-management-advisor` | **4 of 25** |
+| `estate-planner`, `retirement-planner`, `tax-strategist`, `gardener`, `home-chef`, `home-organizer`, `interior-designer` | 5 of 25–26 |
+| the eight `31-personal-growth` and seven `30-health-wellness` skills | 6 of 26 |
+
+### 8.3 Finding: 58 skills have decision-tree headings with no trees
+
+Gate G8 counts `### ` headings under `## Decision Trees` and requires ≥3. It does not check that the
+headings contain a tree. **58 skills** have `### Decision Tree N:` headings with **zero** branch
+characters and **zero** code blocks. Nine finance skills share one identical boilerplate block:
+
+```
+1. Is the task in this skill's scope? If no, route to the owning skill.
+2. Is the required input available and verifiable? If no, request or escalate.
+3. Is the output verifiable against the request? If no, revise with evidence.
+```
+
+That is a generic compliance paragraph wearing a decision tree's heading — it provides no routing
+value and would pass G8 unchanged in any skill of any domain.
+
+### 8.4 Finding: 24 sections are near-empty stubs (<25 words)
+
+| Section | Skills where it is a stub |
+|---|---|
+| `Route the Request` | 31 |
+| `References` | 24 |
+| `Core Workflow` | 24 |
+| `The Expert's Mindset` | 13 |
+| `When to Use` | 10 |
+
+A `Core Workflow` section under 25 words means the skill has no actual procedure.
+
+### 8.5 What this changes
+
+The structural score of **9.8/10** and **151/322 (47%) full-template compliance** both stand, but
+they measure the wrong thing. A skill can hold all 22 headings, pass all 14 governance gates, and
+still:
+
+- contain advice for a different domain entirely (§8.1 — 39 skills),
+- be 70–84% verbatim boilerplate (§8.2 — 35 skills),
+- have a "Decision Trees" section with no decisions in it (§8.3 — 58 skills).
+
+**The library's real quality distribution is bimodal**, not uniform:
+
+| Class | Count | Character |
+|---|---|---|
+| Hand-authored, domain-real | ~245 | unique workflows, domain-specific error decoders |
+| Batch-generated scaffold | **~39** | 4–6 unique sections; finance boilerplate; templated trees |
+
+The remediation for §8.1 is textual and mechanical (strip or correctly rewrite one passage in 39
+files). The remediation for §8.2/§8.3 is authorship: those skills need domain-specific Core
+Workflows, Error Decoders, and real decision trees. §8.4 is a smaller, targeted rewrite.
+
+**Recommended gates that would catch these:**
+1. A cross-skill duplicate detector (flag any ≥20-word block appearing in ≥3 skills outside a documented-generic allowlist).
+2. A domain-coherence check (flag market/regime vocabulary in non-market domains, and the inverse).
+3. Strengthen G8: require branch characters or a code fence under each `### Decision Tree` heading.
+
+## 9. Efficiency dimensions — 2026-09-14 (context, token, memory, agent runtime)
+
+Assessment of the four dimensions the library exists to help with, plus what was built to close
+the gaps found.
+
+### 9.1 Measured state before this pass
+
+| Dimension | Skills | Measured state | Verdict |
+|---|---|---|---|
+| Token efficiency | `token-efficiency`, `cost-accounting` | 322/322 compiled, 77.9% reduction, within budget | **Strong** |
+| Context engineering | `context-engineering`, `context-optimizer`, `context-compaction-strategies` | Ambient listing **43,531 tokens**; progressive disclosure largely unbuilt | Strong content, weak runtime |
+| Memory optimization | **zero dedicated skills** | Engine wrote memory; **never read it back** | **Weakest — real gap** |
+| Agent efficiency | `iterative-task-execution`, `agentic-complexity-ladder` | Routing failing (72.8% vs 80%) | Broken at the binding constraint |
+
+### 9.2 What was built
+
+**Engine — memory write-manage-read completed (C1).** `write_memory()` existed; nothing read.
+Added `read_memory()`, `consolidate_memory()`, `memory_context()`, and the `--recall` /
+`--consolidate --keep N` flags. Consolidation **counts** rather than re-summarises (naive
+summary-merging drifts); a stripped trust marker is returned flagged, not trusted. Engine selftest
+20 → **23 checks**.
+
+**Engine — negative-trigger routing (C2).** The router ignored each skill's own `Do NOT use`
+clause. It is now an IDF-weighted discount on the query's matching mass. Measured **MRR 79.5% →
+79.9%** with no violation regression. A **regression ratchet** (rank-1 ≥72%, MRR ≥79%, ≤4 must-not)
+blocks a silent revert; the aspirational targets stay separate so a red target does not train people
+to ignore the gate.
+
+**Skills — two new, at full template compliance:**
+- `agent-memory-architect` — write-manage-read, trust labelling, poisoning defence, count-based consolidation, retrieval budget.
+- `agent-runtime-economy` — ambient accounting, three-dimension budget, stop rule, routing economics, delegation thresholds.
+
+Corpus 322 → **324**.
+
+### 9.3 The finding that matters
+
+The runtime-economy backtest ranks a session's costs and the result inverts where teams spend
+effort: **ambient context ~74%** of the bill, turns-after-convergence ~20%, the loaded skill ~5%.
+The thing teams optimise is a rounding error; the floor under it is three quarters of the cost.
+This mirrors §8.1's lesson — the library measures and improves what is visible, not what is large.
+
+### 9.4 Still open
+
+1. **Embedding + rerank routing** — needs a model-API environment; rank-1 remains 72.8% vs 80%.
+2. **Ambient listing reduction** — 43.5k tokens; ~78% is descriptions. The mechanism (routing signatures) is designed but not applied to the corpus.
+3. **Progressive disclosure** — 58 skills have decision-tree headings with no trees (§8.3); QUICK markers are similarly nominal.
+4. **Memory read path has no corpus-scale exercise** — the engine path is tested, but no skill's workflow has been run with `--recall` in CI.

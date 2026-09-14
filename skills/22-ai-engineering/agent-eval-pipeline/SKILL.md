@@ -37,6 +37,8 @@ chain:
     - cost-accounting
     - agentic-complexity-ladder
     - verification-independence-engineer
+    - agent-memory-architect
+    - agent-runtime-economy
   feeds_into:
     - agent-handoff-protocol
     - devops-engineer

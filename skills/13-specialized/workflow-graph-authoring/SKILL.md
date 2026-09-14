@@ -35,6 +35,7 @@ chain:
     - multi-agent-orchestration
     - cost-accounting
     - verification-independence-engineer
+    - agent-memory-architect
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
 ---

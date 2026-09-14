@@ -35,12 +35,12 @@ turn "a graph that terminates" into "a graph that gets better, is provable, and 
 
 | Frontier | Already here | Genuine gap |
 |----------|--------------|-------------|
-| Memory | `context-engineering` (in-session context strategy), run-state decision ledger, `loop-reflect` | **No durable run-memory / experience bank** (across sessions/runs) — nothing manages write/consolidate/retrieve/forget; nothing in the runner reads past-run memory |
+| Memory | `context-engineering` (in-session context strategy), run-state decision ledger, `loop-reflect` | **DELIVERED 2026-09-14** — `agent-memory-architect` (skill) + `workflow-runner.py --recall/--consolidate` (engine). Write-manage-read is complete: entries are written, consolidated by counting, and read back behind a context-only trust label. |
 | Evals | `agent-eval-pipeline`, `evals/` suites, `loop-graph-behavior` scenarios, pre-commit G15 (structural) | **No golden-set regression gates over skill content**; behavioral scenarios exist as data but are not executed as merge-blocking CI gates with delta thresholds and judge calibration |
 | Self-improvement | `loop-reflect` → ledger, `dynamic-skill-creator` (manual authoring), `doubt-driven-development`, engine replay/checkpoints | **No trace→skill pipeline** (auto-draft a skill from a successful/failed trajectory, re-run it on saved trajectories, promote only if verified). Audited-skill-graph ideas map 1:1 onto our manifest + coverage machinery — but the collector/promoter loop does not exist |
 | Observability | Runner `log` + run-state checkpoints; `observability-engineer` (application infra) | **No agent-run telemetry convention** (OTel spans per node, cost/latency/verdict, stable span names, PII-safe logging, session-level evals) |
 | Guardrails | `applying-llm-guardrails`, `ai-security`, payload registry + state-hash checks at handoff | **No guardrail hooks in the runner** (output classification between nodes; per-edge safety policy in manifests; injection defense across handoffs beyond hashes) |
-| Semantic routing | `using-agent-skills` (static ASCII router), chain graph, `.skills-compiled` | **No retrieval layer** (embeddings + rerank over the skill bodies) and no routing evals (SkillRouter-style accuracy on a held-out task set); router accuracy is untested |
+| Semantic routing | `using-agent-skills` (static ASCII router), chain graph, `.skills-compiled` | **PARTIAL 2026-09-14** — negative-trigger routing now reads each skill's own `Do NOT use` clause as a discount signal (MRR 79.5%→79.9%, no violation regression), plus a regression ratchet at rank-1 72% / MRR 79% / ≤4 must-not. **Still open:** embeddings/rerank over skill bodies; rank-1 72.8% vs the 80% target. |
 | Governance | `llm-engineer` prompt versioning, skill frontmatter semver | **No skill-version registry / A-B promotion** path with eval deltas tied to `version:` bumps |
 
 ## 4. The build map — what "10/10 superior" concretely adds next

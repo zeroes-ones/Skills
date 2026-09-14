@@ -1,9 +1,13 @@
 # B6 — Semantic Skill Retrieval & Routing: Build Scope
 
-Status: **scoped, not executed** — execution requires an embedding/model-API environment
-(no node, no API keys in the offline sandbox). Per project rules, any behavioral-lift claim
-from this build is an **architectural hypothesis until measured** against the canonical
-baseline below.
+Status: **partially executed (2026-09-14)** — negative-trigger routing shipped without needing an
+embedding API: the router now reads each skill's own `Do NOT use` clause and discounts a skill to
+the extent the query matches what it disclaims. Measured MRR 79.5% → 79.9% with no violation
+regression. A regression ratchet (rank-1 ≥72%, MRR ≥79%, ≤4 must-not) now blocks a silent revert.
+
+**Still open:** the embedding + rerank layer, which does require a model-API environment. rank-1
+remains 72.8% against the 80% target. Per project rules, any remaining behavioral-lift claim is an
+**architectural hypothesis until measured** against the canonical baseline below.
 
 Source: Frontier B6 of `BEYOND-LOOPS-GRAPHS.md`.
 

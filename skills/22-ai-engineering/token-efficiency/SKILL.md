@@ -16,6 +16,8 @@ chain:
   - context-optimizer
   - llm-engineer
   - cost-accounting
+  - agent-runtime-economy
+  - agent-memory-architect
   feeds_into:
   - context-engineering
   - context-optimizer
@@ -23,6 +25,7 @@ chain:
   - cross-agent-skills-packaging
   - agent-handoff-protocol
   - cost-accounting
+  - agent-runtime-economy
   examples:
   - examples/token-efficiency/
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI

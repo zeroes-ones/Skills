@@ -87,6 +87,7 @@ chain:
     - grilling
     - iterative-task-execution
     - workflow-graph-authoring
+    - agent-runtime-economy
   examples: [skills/00-framework/using-agent-skills/examples/backtest]
   alternatives:
     - wayfinder

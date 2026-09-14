@@ -44,6 +44,7 @@ chain:
   - security-engineer
   - iterative-task-execution
   - workflow-graph-authoring
+  - agent-memory-architect
 
 ---
 **(QUICK: 30s)** Route: run Core Workflow with standard checks.

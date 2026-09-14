@@ -27,11 +27,13 @@ chain:
     - context-compaction-strategies
     - using-agent-skills
     - implementation-planner
+    - agent-runtime-economy
   feeds_into:
     - agent-handoff-protocol
     - workflow-graph-authoring
     - cross-agent-skills-packaging
     - agent-eval-pipeline
+    - agent-memory-architect
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
 ---

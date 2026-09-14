@@ -42,6 +42,7 @@ chain:
     - workflow-graph-authoring
     - agentic-complexity-ladder
     - observability-engineer
+    - agent-runtime-economy
   feeds_into:
     - token-efficiency
     - agentic-complexity-ladder
@@ -53,6 +54,8 @@ chain:
     - observability-engineer
     - site-reliability-engineer
     - verification-independence-engineer
+    - agent-memory-architect
+    - agent-runtime-economy
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 workflow:
   artifacts:

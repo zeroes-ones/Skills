@@ -22,6 +22,8 @@ chain:
   - context-compaction-strategies
   - context-optimizer
   - token-efficiency
+  - agent-runtime-economy
+  - agent-memory-architect
   feeds_into:
   - multi-agent-orchestration
   - llm-engineer
@@ -30,6 +32,8 @@ chain:
   - dynamic-skill-creator
   - cross-agent-skills-packaging
   - agent-handoff-protocol
+  - agent-memory-architect
+  - agent-runtime-economy
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---
 # Context Engineering

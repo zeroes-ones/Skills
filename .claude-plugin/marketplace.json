@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "zeroes-ones-all",
-      "description": "All 322 skills in one plugin (flat discovery layer)",
+      "description": "All 324 skills in one plugin (flat discovery layer)",
       "source": "./plugins/zeroes-ones-all"
     },
     {
@@ -128,7 +128,7 @@
     },
     {
       "name": "ai-engineering",
-      "description": "17 skills: agent-eval-pipeline, agentic-complexity-ladder, ai-engineer, ai-safety-engineer, ai-safety-health-reviewer, ai-security, \u2026 (22-ai-engineering)",
+      "description": "19 skills: agent-eval-pipeline, agent-memory-architect, agent-runtime-economy, agentic-complexity-ladder, ai-engineer, ai-safety-engineer, \u2026 (22-ai-engineering)",
       "source": "./plugins/ai-engineering"
     },
     {

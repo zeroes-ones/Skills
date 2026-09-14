@@ -44,6 +44,7 @@ chain:
   - context-optimizer
   - cost-accounting
   - agentic-complexity-ladder
+  - agent-memory-architect
   feeds_into:
   - ai-engineer
   - multi-agent-orchestration

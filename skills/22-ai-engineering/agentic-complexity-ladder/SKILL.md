@@ -48,6 +48,7 @@ chain:
     - agent-handoff-protocol
     - llm-engineer
     - agent-eval-pipeline
+    - agent-runtime-economy
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 workflow:
   artifacts:
