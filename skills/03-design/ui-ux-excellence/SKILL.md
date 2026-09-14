@@ -51,6 +51,7 @@ chain:
     - product-analyst
     - inclusive-design-engineer
     - presentation-designer
+    - design-system-architect
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 workflow:
   artifacts:
@@ -521,6 +522,8 @@ Run this sequence. Do not proceed past a failure.
 | Aesthetic-only review findings | Nothing changes; the same findings recur with new adjectives | Convert to evidence and counts (R1) |
 | Verified only on a fast device | Perceived slowness on the median device; remediation commonly **$35,000 cost** | Measure on a representative device (R4) |
 | Mid-flow abandonment from hidden progress | Lost conversion in an otherwise sound flow; typically **$45,000 cost** per product per year | Show progress and total steps; allow resume |
+| Marking every finding 'major' so nothing is prioritised | The audit loses its ranking power: a cosmetic spacing issue and an unreadable contrast failure compete for the same attention | Track the **delta** between passes ('severity 2, was 3') and rank actions by severity x frequency. Tag each finding with its evidence class — `[VERIFIED: file]` when grounded in code, `[verify-in-browser]` when the claim depends on rendering — so a code read is never passed off as an observed UI problem |
+
 
 ## State Log **(QUICK)**
 

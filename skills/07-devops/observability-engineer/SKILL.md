@@ -51,6 +51,7 @@ chain:
   - cost-accounting
   - verification-independence-engineer
   feeds_into:
+  - verifier-design
   - threat-intelligence
   - algorithmic-trader
   - chaos-engineer

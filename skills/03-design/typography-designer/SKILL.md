@@ -52,6 +52,7 @@ chain:
     - inclusive-design-engineer
     - code-formatting-and-linting
     - document-specialist
+    - design-system-architect
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 workflow:
   artifacts:

@@ -57,6 +57,7 @@ chain:
   - configuration-change-safety
   - code-formatting-and-linting
   feeds_into:
+  - verifier-design
   - supply-chain-security
   - repo-scaffolding
   - polyrepo-strategy

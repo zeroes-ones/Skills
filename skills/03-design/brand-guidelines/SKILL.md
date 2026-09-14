@@ -40,6 +40,7 @@ chain:
   - typography-designer
   - platform-hig-architect
   - document-specialist
+  - design-system-architect
 
 ---
 # Brand Guidelines

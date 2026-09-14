@@ -35,6 +35,7 @@ chain:
   examples:
     - skills/13-specialized/verification-independence-engineer/examples/backtest
   consumes_from:
+    - verifier-design
     - workflow-graph-authoring
     - multi-agent-orchestration
     - agent-eval-pipeline
@@ -50,6 +51,7 @@ chain:
     - code-reviewer
     - tdd-guide
     - observability-engineer
+    - contract-completeness-review
 workflow:
   artifacts:
     inputs: [agent-system-design, quality-metric]

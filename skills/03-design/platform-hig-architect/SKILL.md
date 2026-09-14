@@ -56,6 +56,7 @@ chain:
     - ui-ux-excellence
     - inclusive-design-engineer
     - accessibility-auditor
+    - design-system-architect
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 workflow:
   artifacts:

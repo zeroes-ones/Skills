@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "zeroes-ones-all",
-      "description": "All 324 skills in one plugin (flat discovery layer)",
+      "description": "All 327 skills in one plugin (flat discovery layer)",
       "source": "./plugins/zeroes-ones-all"
     },
     {
@@ -33,7 +33,7 @@
     },
     {
       "name": "design",
-      "description": "12 skills: accessibility-auditor, apple-hig-expert, brand-guidelines, fintech-ui-designer, game-ui-designer, healthcare-ui-designer, \u2026 (03-design)",
+      "description": "13 skills: accessibility-auditor, apple-hig-expert, brand-guidelines, design-system-architect, fintech-ui-designer, game-ui-designer, \u2026 (03-design)",
       "source": "./plugins/design"
     },
     {
@@ -48,7 +48,7 @@
     },
     {
       "name": "quality",
-      "description": "12 skills: accessibility-testing, api-test-suite-builder, app-launch-performance-engineer, browser-testing-with-devtools, code-formatting-and-linting, code-reviewer, \u2026 (06-quality)",
+      "description": "14 skills: accessibility-testing, api-test-suite-builder, app-launch-performance-engineer, browser-testing-with-devtools, code-formatting-and-linting, code-reviewer, \u2026 (06-quality)",
       "source": "./plugins/quality"
     },
     {

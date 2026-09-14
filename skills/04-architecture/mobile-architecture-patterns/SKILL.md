@@ -22,6 +22,7 @@ chain:
     - mobile-developer
     - frontend-developer
     - app-launch-performance-engineer
+    - contract-completeness-review
 
 ---
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).

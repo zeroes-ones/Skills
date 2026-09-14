@@ -25,6 +25,7 @@ chain:
   examples:
   - skills/06-quality/qa-engineer/examples/backtest
   consumes_from:
+  - contract-completeness-review
   - verification-before-completion
   - using-agent-skills
   - source-driven-development
@@ -84,6 +85,7 @@ chain:
   - browser-testing-with-devtools
   - inclusive-design-engineer
   feeds_into:
+  - verifier-design
   - verification-before-completion
   - debugging-and-error-recovery
   - shipping-and-launch
@@ -665,6 +667,8 @@ graph LR
 - **`page.evaluate()` strings** run in browser context — they can't access Node.js variables. `const name = 'test'; page.evaluate('document.querySelector(".user").textContent = name')` fails because `name` is undefined in browser context. Pass variables as arguments: `page.evaluate((name) => {...}, name)`. **Total cost: $5,000-$20,000 per year in debugging time from silent failures in page.evaluate calls.**
 - **Test isolation**: `test.describe` with `serial` mode means test 2 depends on test 1's state. If test 1 fails, test 2-20 all fail with cascading errors. Use `test.describe.parallel` with fresh state per test unless you explicitly need ordering. **Total cost: $15,000-$60,000 per year in CI triage time from cascading test failures caused by shared state.**
 - **Screenshot comparisons** with Playwright's `toHaveScreenshot` use pixel-by-pixel matching by default. Anti-aliasing differences, sub-pixel rendering, and OS font differences cause false positives. Set `maxDiffPixelRatio` to at least 0.01. **Total cost: $10,000-$30,000 per year in engineers chasing false-positive visual regression failures.**
+- **Gating an absolute coverage number.** The team targets 80% line coverage, so tests are written to raise the number rather than to catch defects. Assertion-free tests, snapshot-only tests, and tests of pure presentation all satisfy a percentage. **Total cost: $20,000-$150,000 a year in tests that must be maintained and catch nothing.** Fix: Gate **patch** coverage high — changed lines must be well covered — and keep project-wide coverage as a low tripwire rather than a target. Require a named test per named behaviour, and decline tests for pure presentation: a number can be satisfied by tests that assert nothing; a named test for a named behaviour cannot.
+
 
 ## Anti-Patterns
 <!-- STANDARD: 3min -->

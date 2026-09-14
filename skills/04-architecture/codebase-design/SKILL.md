@@ -34,6 +34,7 @@ chain:
     - access-modifiers
     - caching-architect
     - implementation-planner
+    - contract-completeness-review
   alternatives: []
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---

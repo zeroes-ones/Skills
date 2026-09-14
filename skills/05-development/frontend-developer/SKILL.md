@@ -76,6 +76,7 @@ chain:
     - app-launch-performance-engineer
     - code-formatting-and-linting
     - access-modifiers
+    - design-system-architect
   feeds_into:
     - explore-tools
     - desktop-architecture-patterns
@@ -757,6 +758,8 @@ When frontend apps go wrong, they go wrong in predictable ways. Here are the mos
 | CSS specificity war — one `!important` cascades into 20 more `!important` declarations across the codebase | $10K-$30K in CSS maintenance debt and visual regression bugs | Use CSS Modules or CSS-in-JS for component-scoped styles. Use design tokens for shared values. Set `selector-max-specificity` lint rule. Ban `!important` except for third-party style overrides. |
 | Skipping `<ErrorBoundary>` at route level — one uncaught exception crashes the entire React tree to a white screen | $20K-$50K in production incidents and user churn | Wrap every route in `<ErrorBoundary fallback={...}>`. Log boundary errors to observability. Test by deliberately throwing in child components. The fallback UI must render, not the error overlay. |
 | Using `<div onclick>` instead of `<button>` — keyboard navigation broken, screen readers skip the element, form behavior fails | $8K-$20K in accessibility remediation and potential ADA lawsuits | Use semantic HTML first: `<button>` for actions, `<nav>` for navigation, `<main>` for content. WCAG 2.2 AA compliance starts with correct element choice, not ARIA patching bad markup. |
+| Shipping a visual change on green suites alone | $10,000-$60,000 in rework per escaped defect | A visual or interaction change needs a recorded human verdict in a real browser. A screenshot is still — it cannot show which way a view moved, so verify motion by watching it. |
+
 
 ## Verification
 <!-- STANDARD: 3min -->

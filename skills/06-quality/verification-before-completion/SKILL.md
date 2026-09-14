@@ -19,9 +19,11 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+    - verifier-design
     - qa-engineer
     - tdd-guide
     - code-reviewer
+    - contract-completeness-review
   feeds_into:
     - release-manager
     - incident-responder

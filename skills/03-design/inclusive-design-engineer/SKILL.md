@@ -41,6 +41,7 @@ chain:
     - ui-ux-excellence
     - typography-designer
     - platform-hig-architect
+    - design-system-architect
   feeds_into:
     - accessibility-auditor
     - accessibility-testing

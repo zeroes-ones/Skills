@@ -36,6 +36,7 @@ chain:
     - ui-ux-designer
     - accessibility-auditor
     - patient-experience-researcher
+    - design-system-architect
   feeds_into:
     - frontend-developer
     - mobile-developer
@@ -550,6 +551,8 @@ Before deploying or delivering work from this skill, verify:
 | Clinical workflow requiring >3 clicks for common tasks — wastes clinician time under pressure | $100K-$500K/year in lost clinician productivity (15 clinicians × 5 min/day × $150/hr); clinician burnout and dissatisfaction | Common tasks (medication admin, vitals entry, note signing) must complete in ≤3 clicks. Add shortcuts and favorites. Measure time-motion |
 | Lab results without reference ranges and timestamps — clinically meaningless and potentially misleading | $50K-$500K in diagnostic errors from out-of-context lab values; normal ranges vary by age, sex, lab method, and pregnancy status | Every lab value shows: reference range, units, collection timestamp, and trend arrow. Abnormal values visually distinct. "Collected: [datetime]" adjacent to value |
 | Weight-based medication dosing without weight validation — pediatric overdose risk | $500K-$10M in pediatric medication error liability; children dosed by weight — a 10× dosing error from kg/lb confusion is fatal | Require weight entry with unit validation (kg only). Automatic dose calculation. Hard stops on doses exceeding mg/kg safety limits. Pharmacist verification for high-alert medications |
+| Computing contrast against the page background instead of the colour's actual partner | A clinical misread: the ratio printed is wrong for the role it is used in, and the check reports a pass | Compute every contrast ratio against the role each colour is actually rendered with — an onPrimary is painted on primary, not on background. Grade every paired role at AA 4.5:1 including large text rather than using the large-text allowance. |
+
 
 ## State Log
 <!-- DEEP: 10+min -->

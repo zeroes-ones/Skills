@@ -37,6 +37,7 @@ chain:
   - browser-testing-with-devtools
   - platform-hig-architect
   - inclusive-design-engineer
+  - design-system-architect
   feeds_into:
   - healthcare-ui-designer
   - game-ui-designer

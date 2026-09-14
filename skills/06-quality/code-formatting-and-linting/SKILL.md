@@ -50,6 +50,7 @@ chain:
     - ci-cd-builder
     - typography-designer
   feeds_into:
+    - verifier-design
     - code-reviewer
     - repo-scaffolding
     - ci-cd-builder

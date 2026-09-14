@@ -49,6 +49,7 @@ chain:
     - code-formatting-and-linting
     - access-modifiers
     - verification-independence-engineer
+    - contract-completeness-review
   feeds_into:
     - doubt-driven-development
     - debugging-and-error-recovery

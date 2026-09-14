@@ -40,6 +40,7 @@ chain:
     - system-architect
     - product-manager
     - grilling
+    - contract-completeness-review
   feeds_into:
     - iterative-task-execution
     - incremental-implementation

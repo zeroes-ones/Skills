@@ -32,6 +32,7 @@ tags:
 token_budget: 4000
 chain:
   consumes_from:
+  - verifier-design
   - using-agent-skills
   - incremental-implementation
   - agent-persona-orchestrator

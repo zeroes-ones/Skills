@@ -29,6 +29,7 @@ chain:
     - api-designer
     - database-designer
     - qa-engineer
+    - contract-completeness-review
   alternatives: []
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---

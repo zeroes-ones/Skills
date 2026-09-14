@@ -488,6 +488,8 @@ graph TD
 | Sustained generation overheats the phone after 2 minutes — thermal throttling, battery drain, and a hot device in the user's hand | $10K-$100K in bad reviews and uninstalls post-launch | Profile sustained inference on real hardware; add thermal-aware scheduling; move continuous generation to cloud with consent; keep on-device for short tasks |
 | A surprise 4GB model download at launch — users on cellular data hit a wall or uninstall | $10K-$50K in activation loss | Deferred Wi-Fi-only download with size preview, progress, and resume; bundle the smallest viable model; stream the rest on demand |
 | No eval gate — a quantized model release quietly degrades quality; users notice and churn | $20K-$200K in quality-driven churn and support load | Lock an eval set, run it at the quantized level in CI, and block releases on regression; version models with rollback |
+| Designing the AI feature for the flagship device | You ship a capability 55-70% of users cannot run, and treat the fallback as degraded mode | Tier by **user share**, not device capability: tabulate supported devices with the percentage of users on each, then make the fallback the existing, already-complete product rather than a stub. |
+
 
 ## Best Practices
 

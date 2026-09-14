@@ -22,6 +22,8 @@ tags:
 token_budget: 3800
 chain:
   consumes_from:
+  - verifier-design
+  - contract-completeness-review
   - using-agent-skills
   - skill-levels
   - backend-developer

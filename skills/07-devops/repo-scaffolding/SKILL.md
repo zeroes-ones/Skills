@@ -39,6 +39,7 @@ chain:
     - platform-engineer
     - code-formatting-and-linting
   feeds_into:
+    - verifier-design
     - ci-cd-builder
     - platform-engineer
     - monorepo-manager

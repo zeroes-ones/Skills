@@ -63,6 +63,7 @@ chain:
   - plugin-ecosystem-architect
   - access-modifiers
   - caching-architect
+  - contract-completeness-review
 workflow:
   artifacts:
     inputs: [domain-model]

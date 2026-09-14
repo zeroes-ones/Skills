@@ -770,6 +770,8 @@ Before any context assembly strategy reaches production, verify:
 | Cache prefix changes by 5 characters — cache hit rate drops from 70% to 10%, costs jump 25× | $100K-$400K/year in unnecessary token costs from cache busting | Freeze L1/L2 content ordering. Never reorder, reformat, or add comments to stable prefix between requests. Changes require explicit cache-prefix freeze approval. A 5-char comment can turn $0.015/request into $0.375/request. |
 | Excluding error output (L4) to save tokens — agent works from symptom description, implements wrong fix | $50K-$200K/incident in engineering hours wasted on wrong solutions | Never exclude Level 4 without explicit override. Trim to last 50 lines + stack trace only. Add ground rule: "Error stack traces are always higher priority than 20% additional source files." |
 | Relevance scoring doesn't prune stale files — costs grow 3× month over month | $50K-$250K/year in unchecked context cost growth | Apply relevance score decay: files unreferenced for 3+ turns get 0.5× multiplier. Switch to conversation summaries after 10 turns. Run cost trend audit weekly. Alert on > 20% cost growth. |
+| Waiting for the window to fill before compacting | $20,000-$120,000 a year in degraded decisions: a summarizer run at 95% saturation operates on a nearly-full context, produces lower-quality output, and the agent has already suffered turns of diluted attention | Compact proactively at 70% saturation, not reactively at 95%. Define a saturation ladder with per-layer budgets and an explicit buffer row; enumerate a do-not-drop list of security and compliance invariants that survive every eviction. |
+
 
 ## Verification
 <!-- STANDARD: 3min -->

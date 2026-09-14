@@ -58,6 +58,7 @@ chain:
     - inclusive-design-engineer
     - app-launch-performance-engineer
     - native-interop-engineer
+    - design-system-architect
   feeds_into:
     - mobile-architecture-patterns
     - material-design-expert
@@ -738,6 +739,8 @@ When mobile apps go wrong, they go wrong in predictable ways. Here are the most 
 | Bundling all image assets at @3x without App Thinning — app crosses 150MB cellular download warning, 30%+ abandonment | $20K-$50K in install drop-off | Use asset catalogs with on-demand resources. Compress images to WebP/AVIF. Audit bundle size with APK Analyzer or `du -sh` on the .ipa every release. Stay under 150MB to avoid the cellular warning. |
 | Storing auth tokens in AsyncStorage/SharedPreferences instead of Keychain/Keystore — token exfiltration from rooted/jailbroken devices | $40K-$200K in security incidents and compliance violations | iOS: Keychain with `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`. Android: EncryptedSharedPreferences or Keystore with `BIOMETRIC_STRONG`. Never plaintext storage for credentials. |
 | Shipping without certificate pinning for finance/health apps — compromised CA enables MITM of all traffic | $50K-$200K in regulatory fines and breach disclosure | Pin against SPKI hash (not certificate — certs expire). Include backup pin. Test with Charles/mitmproxy to verify. OWASP MASVS L2 requires pinning for sensitive apps. |
+| Treating 'both platforms build' as parity | $15,000-$90,000 per shipped defect | Parity means both were checked for the thing that differs. Ask which platform supplies the behaviour by default and what the other must remember, then verify each side's rendering, not its build status. |
+
 
 ## Verification
 <!-- STANDARD: 3min -->

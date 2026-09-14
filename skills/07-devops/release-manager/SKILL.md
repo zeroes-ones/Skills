@@ -26,6 +26,7 @@ updated: 2026-07-23
 token_budget: 4000
 chain:
   consumes_from:
+  - verifier-design
   - verification-before-completion
   - using-agent-skills
   - shipping-and-launch

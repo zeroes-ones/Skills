@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-14T22:30:23Z
+# Generated: 2026-09-14T23:37:34Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    4d90d4fac268f226d8b6b651fbbe9ce37f7784be
+# Commit:    f426c322cf2e759ea5c56f35008ecf061dd8d7de
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -102,6 +102,7 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-desi
 5c427d00cea690174f19a9dca16e44446469ffc1ac4987cf5ad9b72e8b2bbcc5  skills/03-design/apple-hig-expert/scripts/hig_checker.py
 e3bbb6304a27f9f6f6ae0152a8813236480424728a4d499cc06f5b43c477f601  skills/03-design/apple-hig-expert/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/brand-guidelines/scripts/verify-skill.sh
+7347680775d760e5e63d9631972c5c01ab16af4f0eee59dc4dafb6e5b443b8da  skills/03-design/design-system-architect/scripts/verify-skill.sh
 1054c8bfb313362fa99b9cc7404e017ce9e90b8d88b2f2d4e496ed0fd881af60  skills/03-design/fintech-ui-designer/scripts/verify-skill.sh
 fcf4dd433de76c8fa47dd0a5db89a0170fb520cdeb23b0c3f3b144f2aabdd4ba  skills/03-design/game-ui-designer/scripts/verify-skill.sh
 8f852e92d28036f1f546ee7e07a00ac46b7bf5abaf769f9fd82e297e56e47673  skills/03-design/healthcare-ui-designer/scripts/verify-skill.sh
@@ -167,11 +168,13 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-qual
 63346c100579df4f46cdd8c2863c59b8a45bdd223c1b98a639cfa45c487d9548  skills/06-quality/code-formatting-and-linting/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/code-reviewer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/code-simplification/scripts/verify-skill.sh
+159abb5e2bade19470ea499ea7ee6f291adf2ca12ba33844cd87668a761a2ebb  skills/06-quality/contract-completeness-review/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/debugging-and-error-recovery/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/qa-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/security-reviewer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/06-quality/tdd-guide/scripts/verify-skill.sh
 edcd63fcfd8be0ab639dd4e8b214d8cbaa9d8108508f3e534f25a1fe56f54b6b  skills/06-quality/verification-before-completion/scripts/verify-skill.sh
+371a9ec98c95e943c41326c5524bbe2f6918151fc58de21803674dacf52c74b9  skills/06-quality/verifier-design/scripts/verify-skill.sh
 c398221082b84560c1c49a2c42a581247c3af349847ac2151a490737ff1376ed  skills/07-devops/automation-engineer/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/build-system-design/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/07-devops/ci-cd-builder/scripts/verify-skill.sh

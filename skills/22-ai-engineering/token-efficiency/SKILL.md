@@ -618,8 +618,10 @@ A routing layer sends easy tasks to a cheap model with a confidence threshold se
 | No `max_tokens` on chat/verbose endpoints — output share balloons | $25K-$100K/year in 3-5× priced output tokens | Per-task-type output caps; monitor `finish_reason` for truncation |
 | Compression without retention test drops a decision point | $50K-$200K/incident in wrong-answer remediation | Require ≥ 90% retention test before any lossy compression |
 | Cheap-path routing with low confidence threshold creates a retry loop | $30K-$100K/year in hidden retry cost on "cheap" calls | Track $/done; tune thresholds on failure data; budget the fallback path |
+| Treating an edit to the always-loaded prefix as a normal edit | 25x on the prefix portion; a measured 5-character edit turned a $0.0141 request into $0.0216 | Make prefix edits a reviewed, cache-busting event: verify `git diff` against HEAD is empty before shipping, and measure the prefix economics rather than assuming caching saved what you think. |
 
 ---
+
 
 ## Verification **(STANDARD)**
 
