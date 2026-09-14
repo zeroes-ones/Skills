@@ -3,7 +3,7 @@
 #
 # Agent skill scanners expect <skills-dir>/<name>/SKILL.md at exactly one level of
 # nesting. The library stores skills two levels deep (skills/<domain>/<name>/), which
-# hides all 297 skills from native discovery. This script materialises
+# hides every skill from native discovery (the two-level layout) This script materialises
 #   skills-flat/<name> -> ../skills/<domain>/<name>
 # (symlinked whole skill dirs, so references/ scripts/ examples/ resolve unchanged),
 # keeping the canonical store nested and the discovery view flat.

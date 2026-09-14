@@ -2,7 +2,7 @@
 """check-flat-index.py — verify the agent discovery layer (skills-flat/).
 
 Invariants:
-  1. Exactly one flat entry per real skill (297 today), one level deep.
+  1. Exactly one flat entry per real skill, one level deep.
   2. No duplicate skill names across domains (a name collision would silently
      overwrite a link in the flat view).
   3. Every skills-flat/<name>/SKILL.md resolves to a real file (broken symlink

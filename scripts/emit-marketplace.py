@@ -7,7 +7,7 @@ inside the marketplace repo; each plugin dir carries `plugin.json` with componen
 (here `skills: ["./skills"]`) whose children are skill dirs at one level of nesting.
 
 Generated catalog (idempotent, stdlib only):
-  - `plugins/zeroes-ones-all/`  -> skills symlinked to ../../skills-flat (all 297)
+  - `plugins/zeroes-ones-all/`  -> skills symlinked to ../../skills-flat (all skills)
   - `plugins/<domain>/`         -> one per domain, skills symlinked to ../../skills/<domain>
   - `plugins/flagship-<id>/`    -> one per flagship/*.json, skills symlinked to the
                                    curated skill names (../../skills-flat/<name>)
@@ -135,7 +135,7 @@ def build():
     return {
         "name": "zeroes-ones-skills",
         "owner": AUTHOR,
-        "description": "Zeroes & Ones skills library: 297 agent-agnostic skills "
+        "description": "Zeroes & Ones skills library: agent-agnostic skills "
                        "covering the full company lifecycle (one plugin per domain, "
                        "zeroes-ones-all over the flat layer, plus flagship sets)",
         "plugins": plugins,

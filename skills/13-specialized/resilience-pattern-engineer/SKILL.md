@@ -7,7 +7,7 @@ description: >
   pattern selection, retry-storm and jitter mathematics, bulkhead sizing, degradation
   ladders, blast-radius containment, and per-pattern verification including the chaos test
   that proves each defence actually fires. Do NOT use for load testing and capacity sizing
-  (performance-engineer, capacity-planning-engineer), chaos experiment design as an ongoing
+  (performance-engineer, site-reliability-engineer), chaos experiment design as an ongoing
   programme (chaos-engineer), SLO and error-budget policy (site-reliability-engineer), or
   live incident command (incident-responder).
 author: Sandeep Kumar Penchala
@@ -195,13 +195,13 @@ Blast radius is a design choice, made or defaulted. If you did not choose the is
 | A cascade already happened and you need the defence | `incident-responder` — the incident is live, command it first |
 | Deciding what the system does when a dependency is down | `site-reliability-engineer` — SLO / error-budget policy |
 | Auditing whether existing defences work | `chaos-engineer` — designing an ongoing experiment programme |
-| Sizing connection pools / capacity headroom | `capacity-planning-engineer` — demand modelling and headroom policy |
+| Sizing connection pools / capacity headroom | `performance-engineer` and `site-reliability-engineer` — demand modelling and headroom policy (no dedicated capacity-planning skill exists) |
 | Cross-region failover architecture | `cloud-architect` — topology, then this skill for in-region patterns |
 
 ## When NOT to Use **(QUICK)**
 
 1. **A hard synchronous dependency with no acceptable degradation** — the answer is architecture (replicate it), not a pattern. Escalate to `system-architect`.
-2. **The problem is throughput, not failure behaviour** — use `performance-engineer` and `capacity-planning-engineer`.
+2. **The problem is throughput, not failure behaviour** — use `performance-engineer` and `site-reliability-engineer`.
 3. **The ask is "make it never fail"** — that is an error-budget conversation with `site-reliability-engineer`.
 4. **There is no dependency inventory yet** — get the inventory first (R6), or you will defend against imagined failures.
 5. **The change weakens authorization to degrade** — that is `appsec-engineer` territory, and refusing is correct.

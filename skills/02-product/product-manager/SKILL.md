@@ -83,6 +83,7 @@ chain:
     - typography-designer
     - platform-hig-architect
     - ui-ux-excellence
+    - implementation-planner
 workflow:
   artifacts:
     inputs: [market-context]

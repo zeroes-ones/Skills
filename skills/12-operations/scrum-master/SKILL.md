@@ -28,6 +28,7 @@ chain:
   - engineering-manager
   - product-manager
   - project-manager
+  - implementation-planner
   feeds_into:
   - engineering-manager
   - project-manager

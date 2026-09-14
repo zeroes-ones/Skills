@@ -4,11 +4,11 @@
     "name": "Sandeep Kumar Penchala",
     "email": "sandeepkumarp@outlook.com"
   },
-  "description": "Zeroes & Ones skills library: 297 agent-agnostic skills covering the full company lifecycle (one plugin per domain, zeroes-ones-all over the flat layer, plus flagship sets)",
+  "description": "Zeroes & Ones skills library: agent-agnostic skills covering the full company lifecycle (one plugin per domain, zeroes-ones-all over the flat layer, plus flagship sets)",
   "plugins": [
     {
       "name": "zeroes-ones-all",
-      "description": "All 320 skills in one plugin (flat discovery layer)",
+      "description": "All 322 skills in one plugin (flat discovery layer)",
       "source": "./plugins/zeroes-ones-all"
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "name": "operations",
-      "description": "11 skills: consulting-effort-estimator, customer-support-engineer, event-planner, handoff, project-manager, scrum-master, \u2026 (12-operations)",
+      "description": "12 skills: consulting-effort-estimator, customer-support-engineer, event-planner, handoff, implementation-planner, project-manager, \u2026 (12-operations)",
       "source": "./plugins/operations"
     },
     {
@@ -138,7 +138,7 @@
     },
     {
       "name": "creative",
-      "description": "5 skills: email-composer, medical-illustrator, presentation-designer, product-marketing-manager, ux-writer, \u2026 (24-creative)",
+      "description": "6 skills: document-specialist, email-composer, medical-illustrator, presentation-designer, product-marketing-manager, ux-writer, \u2026 (24-creative)",
       "source": "./plugins/creative"
     },
     {

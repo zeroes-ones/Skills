@@ -34,6 +34,7 @@ chain:
   - fp-and-a-analyst
   - legal-advisor
   - treasury-manager
+  - document-specialist
   feeds_into:
   - board-manager
   - ceo-strategist

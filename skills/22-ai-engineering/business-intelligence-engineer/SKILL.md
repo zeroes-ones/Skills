@@ -41,6 +41,7 @@ chain:
     - growth-engineer
     - revops-manager
     - fp-and-a-analyst
+    - document-specialist
 ---
 # Business Intelligence Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

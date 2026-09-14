@@ -4,7 +4,7 @@
 # Author: Sandeep Kumar Penchala
 #
 # Run inside any project to symlink skills into that project. Two modes:
-#   * default (no flag) — all 298 skills from the flat layer (~/.zeroes-ones/
+#   * default (no flag) — all skills from the flat layer (~/.zeroes-ones/
 #     skills/skills-flat), one level deep so every agent discovers them
 #   * tiered — --solo (8 essential) / --grow (18) subsets, by skill name
 # Usage: skills-init [--solo|--grow|--full|--status] [project-path]
@@ -19,6 +19,7 @@ FLAT_SRC=""                   # flat <name>/SKILL.md discovery layer (what agent
 TIER_FILE=".skills-tier"
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
@@ -34,13 +35,38 @@ GROW_SKILLS="$SOLO_SKILLS business-strategist ux-researcher ui-ux-designer acces
 # layer and agent set as scripts/install.sh (global install).
 AGENT_LIST="agents:.agents/skills claude:.claude/skills copilot:.copilot/skills github:.github/skills cursor:.cursor/skills codex:.codex/skills gemini:.gemini/skills windsurf:.windsurf/skills cline:.cline/skills opencode:.opencode/skills"
 
-FULL_COUNT=298
+# Full-mode count is COMPUTED from the flat discovery layer, never hardcoded —
+# a hardcoded number silently drifts every time a skill is added (it said 298
+# while the corpus held 322). Resolved lazily because the store path is decided
+# at runtime by resolve_store().
+FULL_COUNT=""
+
+full_count() {
+    if [ -z "$FULL_COUNT" ]; then
+        # Prefer the resolved store; fall back to the repo this script lives in so
+        # --help works before resolve_store runs.
+        local base=""
+        if [ -n "${FLAT_SRC:-}" ] && [ -d "$FLAT_SRC" ]; then
+            base="$FLAT_SRC"
+        else
+            local script_dir
+            script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+            [ -d "$script_dir/../skills-flat" ] && base="$script_dir/../skills-flat"
+        fi
+        if [ -n "$base" ]; then
+            FULL_COUNT="$(find "$base" -maxdepth 1 -mindepth 1 | wc -l | tr -d ' ')"
+        else
+            FULL_COUNT="all"
+        fi
+    fi
+    printf '%s' "$FULL_COUNT"
+}
 
 tier_info() {
     case "$1" in
         solo) echo "solo|8|$SOLO_SKILLS" ;;
         grow) echo "grow|18|$GROW_SKILLS" ;;
-        *)    echo "full|$FULL_COUNT|" ;;
+        *)    echo "full|$(full_count)|" ;;
     esac
 }
 
@@ -106,7 +132,7 @@ show_status() {
         echo -e "  Tier:    ${GREEN}$tier${NC} ($count skills linked)"
     fi
     echo ""
-    echo -e "  ${CYAN}default/full${NC} → all 298 skills (team/company projects)"
+    echo -e "  ${CYAN}default/full${NC} → all $(full_count) skills (team/company projects)"
     echo -e "  ${CYAN}grow${NC}         → 18 skills (project gaining traction)"
     echo -e "  ${CYAN}solo${NC}         → 8 essential skills (personal projects)"
     echo -e "  Run: ${BLUE}skills-init [--solo|--grow|--full]${NC} to switch tiers"
@@ -182,6 +208,8 @@ activate() {
     local label prev_tier=""
     if [ "$mode" = "full" ]; then
         label="all $count skills"
+    elif [ "$mode" = "select" ]; then
+        label="$count selected skill(s)"
     else
         label="$mode tier ($count skills)"
     fi
@@ -206,6 +234,13 @@ activate() {
         fi
     done
 
+    # A selection naming a skill that does not exist is a user error, not a skip:
+    # activating nothing while reporting success would leave the project empty.
+    if [ "$mode" = "select" ] && [ "$linked" -eq 0 ]; then
+        echo -e "${RED}✗ No skills were linked — check the names against 'ls $FLAT_SRC'.${NC}" >&2
+        return 1
+    fi
+
     echo "$mode" > "$TIER_FILE"
 
     # Project bootstrap pointer
@@ -219,7 +254,7 @@ activate() {
         if [ "$mode" = "solo" ]; then
             echo -e "  Ready to scale?    ${BLUE}skills-init --grow${NC}"
         elif [ "$mode" = "grow" ]; then
-            echo -e "  Need everything?   ${BLUE}skills-init${NC} (all 298 skills)"
+            echo -e "  Need everything?   ${BLUE}skills-init${NC} (all $(full_count) skills)"
         fi
         echo -e "  Update later:      ${BLUE}skills-update${NC}"
     else
@@ -262,25 +297,34 @@ install_principles() {
 MODE="full"
 PROJECT_ARG=""
 WRITE_PRINCIPLES=0
+SKILLS_SELECT=""
 while [ $# -gt 0 ]; do
     case "$1" in
         --solo)   MODE="solo"; shift ;;
         --grow)   MODE="grow"; shift ;;
         --full)   MODE="full"; shift ;;
         --principles) WRITE_PRINCIPLES=1; shift ;;
+        --skill)
+            # Individual-skill install: --skill <name> (repeatable, or comma-separated)
+            [ -z "${2:-}" ] && { echo -e "${RED}--skill requires a skill name${NC}" >&2; exit 2; }
+            SKILLS_SELECT="${SKILLS_SELECT:+$SKILLS_SELECT,}$2"
+            MODE="select"
+            shift 2 ;;
         --status)
             cd "${2:-.}" 2>/dev/null || true
             show_status
             exit 0 ;;
         --help|-h)
-            echo "Usage: skills-init [--solo|--grow|--full|--principles|--status] [project-path]"
+            echo "Usage: skills-init [--solo|--grow|--full|--skill <name>...|--principles|--status] [project-path]"
             echo ""
-            echo "  (no flag)     all 298 skills — team/company projects (default)"
-            echo "  --full        all 298 skills (explicit)"
-            echo "  --grow        18 skills for projects gaining traction"
-            echo "  --solo        8 essential skills for personal projects"
-            echo "  --principles  append always-on operating principles to CLAUDE.md/AGENTS.md"
-            echo "  --status      show current activation tier + skill count"
+            echo "  (no flag)        all $(full_count) skills — team/company projects (default)"
+            echo "  --full           all $(full_count) skills (explicit)"
+            echo "  --grow           18 skills for projects gaining traction"
+            echo "  --solo           8 essential skills for personal projects"
+            echo "  --skill <name>   install one named skill (repeatable or comma-separated)"
+            echo "                   e.g. skills-init --skill code-reviewer --skill tdd-guide"
+            echo "  --principles     append always-on operating principles to CLAUDE.md/AGENTS.md"
+            echo "  --status         show current activation tier + skill count"
             exit 0 ;;
         *) PROJECT_ARG="$1"; shift ;;
     esac
@@ -289,6 +333,25 @@ done
 resolve_store
 cd "${PROJECT_ARG:-.}" || { echo -e "${YELLOW}Cannot access '$PROJECT_ARG'${NC}" >&2; exit 1; }
 
-IFS='|' read -r MODE COUNT LIST <<< "$(tier_info "$MODE")"
-activate "$MODE" "$LIST" "$COUNT"
+if [ "$MODE" = "select" ]; then
+    # Turn the comma-separated selection into the space-separated list activate() expects.
+    SELECT_LIST="$(printf '%s' "$SKILLS_SELECT" | tr ',' ' ')"
+    SELECT_COUNT=0
+    bad=0
+    for _n in $SELECT_LIST; do
+        SELECT_COUNT=$((SELECT_COUNT + 1))
+        if [ ! -d "$FLAT_SRC/$_n" ]; then
+            echo -e "${RED}✗ unknown skill '$_n' — not present in $FLAT_SRC${NC}" >&2
+            bad=$((bad + 1))
+        fi
+    done
+    if [ "$bad" -gt 0 ]; then
+        echo -e "${YELLOW}Tip: list valid names with 'ls \\\"$FLAT_SRC\\\"' or search them with the MCP 'search_skills' tool.${NC}" >&2
+        exit 1
+    fi
+    IFS='|' read -r MODE COUNT LIST <<< "select|$SELECT_COUNT|$SELECT_LIST"
+else
+    IFS='|' read -r MODE COUNT LIST <<< "$(tier_info "$MODE")"
+fi
+activate "$MODE" "$LIST" "$COUNT" || exit 1
 install_principles

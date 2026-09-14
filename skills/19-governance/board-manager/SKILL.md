@@ -31,6 +31,7 @@ chain:
   - investor-relations
   - legal-advisor
   - treasury-manager
+  - document-specialist
   feeds_into:
   - ceo-strategist
   - investor-relations

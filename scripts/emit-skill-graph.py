@@ -114,7 +114,7 @@ def force_layout(names, links):
 
     for _ in range(LAYOUT_ITERS):
         disp = [[0.0, 0.0] for _ in range(n)]
-        # repulsion (O(n^2) — 297 nodes is fine)
+        # repulsion (O(n^2) — a few hundred nodes is fine)
         for i in range(n):
             for j in range(i + 1, n):
                 dx = pos[names[i]][0] - pos[names[j]][0]

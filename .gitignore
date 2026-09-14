@@ -33,6 +33,10 @@ build/
 .session/
 .reasonix/
 
+# Local agent-runtime config (machine-specific permissions + sandbox paths).
+# Documented in AGENTS.md as NOT part of the shipped library.
+reasonix.toml
+
 # Compiled skill XML output
 .skills-compiled/
 .claude/skills

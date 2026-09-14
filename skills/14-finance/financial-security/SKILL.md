@@ -273,7 +273,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | Identity verification, authentication architecture, IAM | iam-architect | Customer identity proofing (KYC), authN/authZ for CDE, MFA implementation |
 | Compliance audit management, regulatory exam preparation | compliance-officer | PCI assessment coordination, regulatory filing (SAR), audit evidence collection |
 | Accounting/financial controls, reconciliation, SOX | accountant | Financial transaction reconciliation, dual control for financial systems |
-| Cryptographic algorithm selection, key management | cryptography-engineer | HSM key ceremonies, TLS configuration, tokenization algorithm design |
+| Cryptographic algorithm selection, key management | cryptography | HSM key ceremonies, TLS configuration, tokenization algorithm design |
 | Incident response coordination, SOC integration | incident-responder | Joint response to payment card breach, forensic investigation workflow |
 | Third-party vendor risk management | compliance-officer | Processor due diligence, PCI DSS validation for service providers |
 | Data pipeline for fraud analytics, real-time streaming | data-engineer | Kafka/Flink for fraud signal pipeline, feature store for ML features |

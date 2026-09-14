@@ -90,6 +90,7 @@ chain:
   - access-modifiers
   - caching-architect
   - verification-independence-engineer
+  - implementation-planner
 workflow:
   artifacts:
     inputs: [requirements, non-functional-requirements]

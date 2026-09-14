@@ -30,6 +30,7 @@ chain:
     - ci-cd-builder
     - tdd-guide
     - debugging-and-error-recovery
+    - implementation-planner
   feeds_into:
     - shipping-and-launch
     - release-manager

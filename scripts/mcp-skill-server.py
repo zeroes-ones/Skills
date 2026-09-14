@@ -676,8 +676,16 @@ def _selftest():
 
     res = call("get_skill_graph", {})
     g = _first_json(res)
+    # Assert SHAPE, not a hardcoded count: the corpus grows, and a frozen number
+    # turns every added skill into a false failure (this asserted == 304 while the
+    # corpus held 322). Cross-check the total against the discovery layer instead.
+    _flat = os.path.join(ROOT, "skills-flat")
+    _n = sum(1 for _p in os.listdir(_flat)) if os.path.isdir(_flat) else None
     check("get_skill_graph returns library totals with sane numbers",
-          g["skills"] == 304 and g["directed_edges"] > 1000 and len(g["top_hubs"]) == 8)
+          g["skills"] > 0
+          and (_n is None or g["skills"] == _n)
+          and g["directed_edges"] > 1000
+          and len(g["top_hubs"]) == 8)
 
     res = call("get_skill_graph", {"name": "code-reviewer"})
     check("get_skill_graph neighbourhood has both directions",

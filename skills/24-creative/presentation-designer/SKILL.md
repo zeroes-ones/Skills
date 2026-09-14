@@ -32,10 +32,12 @@ chain:
     - content-strategist
     - typography-designer
     - ui-ux-excellence
+    - document-specialist
   feeds_into:
     - product-marketing-manager
     - sales-engineer
     - investor-relations
+    - document-specialist
   alternatives: []
 ---
 # Presentation Designer

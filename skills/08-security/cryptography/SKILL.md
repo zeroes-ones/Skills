@@ -154,7 +154,7 @@ Crypto tooling scales with organizational complexity. Match your approach to you
 ## When to Use
 <!-- STANDARD: 3min -->
 
-Use cryptography-engineer when the task involves designing, auditing, or implementing cryptographic systems — the focus is on algorithm selection, key management, protocol design, and cryptographic architecture, not general application security or web server configuration.
+Use cryptography when the task involves designing, auditing, or implementing cryptographic systems — the focus is on algorithm selection, key management, protocol design, and cryptographic architecture, not general application security or web server configuration.
 
 - Designing TLS configurations: cipher suite selection, key exchange groups, certificate verification, HSTS, CT enforcement
 - Implementing encryption at rest: AES-GCM/XChaCha20-Poly1305, key hierarchy (KEK→DEK), envelope encryption, nonce management
@@ -166,7 +166,7 @@ Use cryptography-engineer when the task involves designing, auditing, or impleme
 - Responding to cryptographic vulnerabilities: Bleichenbacher, ROBOT, POODLE, Heartbleed-class, nonce reuse incidents
 - Reviewing cryptographic architectures: threat model, compliance mapping, side-channel assessment, crypto inventory
 
-Do NOT use cryptography-engineer for general application security (route to appsec-engineer). Do NOT use for web server TLS/HTTPS configuration (route to backend-developer or devops-engineer). Do NOT use for password policy design (route to iam-architect). Do NOT use for data privacy regulations (route to gdpr-privacy).
+Do NOT use cryptography for general application security (route to appsec-engineer). Do NOT use for web server TLS/HTTPS configuration (route to backend-developer or devops-engineer). Do NOT use for password policy design (route to iam-architect). Do NOT use for data privacy regulations (route to gdpr-privacy).
 
 ## Route the Request
 <!-- STANDARD: 3min -->

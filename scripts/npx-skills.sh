@@ -7,7 +7,7 @@
 # subcommand delegates to the same canonical script exposed as the individual
 # skills-* bins (single source of truth).
 #
-#   init      activate skills in the current project (all 297 by default,
+#   init      activate skills in the current project (all by default,
 #             or --solo / --grow subsets) — bootstraps ~/.zeroes-ones/skills
 #             on first use if the shell installer was never run
 #   update    install or update the ~/.zeroes-ones/skills library + global
@@ -39,7 +39,7 @@ case "$cmd" in
     ""|--help|-h)
         echo "Usage: npx @zeroes-ones/skills <command> [args]"
         echo ""
-        echo "  init       activate skills in the current project (all 297, or --solo/--grow)"
+        echo "  init       activate skills in the current project (all, or --solo/--grow/--skill <name>)"
         echo "  update     install/update the ~/.zeroes-ones/skills library + global agent symlinks"
         echo "  validate   run the skills governance validator (dev tool)"
         echo "  lint       run the markdown linter (dev tool)"

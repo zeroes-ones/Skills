@@ -41,6 +41,7 @@ chain:
     - presentation-designer
     - growth-engineer
     - product-manager
+    - document-specialist
   alternatives: []
 ---
 # Data Visualization Engineer

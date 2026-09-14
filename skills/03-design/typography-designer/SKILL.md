@@ -51,6 +51,7 @@ chain:
     - ui-ux-excellence
     - inclusive-design-engineer
     - code-formatting-and-linting
+    - document-specialist
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 workflow:
   artifacts:

@@ -33,6 +33,7 @@ chain:
     - library-linkage-architect
     - access-modifiers
     - caching-architect
+    - implementation-planner
   alternatives: []
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 ---

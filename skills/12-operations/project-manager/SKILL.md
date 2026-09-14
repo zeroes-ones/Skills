@@ -32,6 +32,8 @@ chain:
   - release-manager
   - scrum-master
   - technical-program-manager
+  - implementation-planner
+  - document-specialist
   feeds_into:
   - wayfinder
   - handoff

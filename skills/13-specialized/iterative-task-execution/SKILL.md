@@ -26,6 +26,7 @@ chain:
     - multi-agent-orchestration
     - context-compaction-strategies
     - using-agent-skills
+    - implementation-planner
   feeds_into:
     - agent-handoff-protocol
     - workflow-graph-authoring

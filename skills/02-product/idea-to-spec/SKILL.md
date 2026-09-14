@@ -36,6 +36,7 @@ chain:
     - frontend-developer
     - qa-engineer
     - tdd-guide
+    - implementation-planner
 workflow:
   artifacts:
     inputs: [idea]

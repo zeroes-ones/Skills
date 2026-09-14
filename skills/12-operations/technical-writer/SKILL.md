@@ -29,6 +29,7 @@ chain:
   - backend-developer
   - documentation-engineer
   - product-manager
+  - document-specialist
   feeds_into:
   - writing-great-skills
   - teach
@@ -37,6 +38,7 @@ chain:
   - devrel-advocate
   - documentation-engineer
   - ux-writer
+  - document-specialist
 ---
 # Technical Writer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.

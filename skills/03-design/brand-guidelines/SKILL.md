@@ -39,6 +39,7 @@ chain:
   - ux-writer
   - typography-designer
   - platform-hig-architect
+  - document-specialist
 
 ---
 # Brand Guidelines

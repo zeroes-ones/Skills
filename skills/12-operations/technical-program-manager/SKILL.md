@@ -29,6 +29,7 @@ chain:
   - project-manager
   - scrum-master
   - system-architect
+  - implementation-planner
   feeds_into:
   - director-engineering
   - project-manager

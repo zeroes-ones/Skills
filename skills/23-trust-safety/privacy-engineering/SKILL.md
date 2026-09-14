@@ -11,7 +11,7 @@ description: >
   transfers, privacy-preserving tech (homomorphic encryption, federated learning, ZKP), data
   retention, and breach response (72-hour DPA notification, Art 33/34). Do NOT use for GDPR legal
   interpretation (gdpr-privacy, legal-advisor), security controls (security-engineer), encryption
-  (cryptography-engineer), or consent UX (ui-ux-designer).
+  (cryptography), or consent UX (ui-ux-designer).
 license: MIT
 author: Sandeep Kumar Penchala
 type: trust-safety
@@ -145,7 +145,7 @@ Use privacy-engineering when building systems that process personal data and pri
 - Automating data retention: category-based retention schedules, TTL policy enforcement, automated deletion with audit trail
 - Responding to personal data breaches: 72-hour DPA notification, Article 33/34 requirements, data subject risk-of-harm decision tree
 
-Do NOT use privacy-engineering for GDPR legal interpretation (route to gdpr-privacy or legal-advisor). Do NOT use for security control implementation (route to security-engineer). Do NOT use for encryption algorithm selection (route to cryptography-engineer). Do NOT use for consent banner UX design (route to ui-ux-designer).
+Do NOT use privacy-engineering for GDPR legal interpretation (route to gdpr-privacy or legal-advisor). Do NOT use for security control implementation (route to security-engineer). Do NOT use for encryption algorithm selection (route to cryptography). Do NOT use for consent banner UX design (route to ui-ux-designer).
 
 ## Route the Request
 
@@ -428,7 +428,7 @@ If a command or approach fails, follow this escalation path before giving up:
 |----------|----------------|-----|
 | GDPR legal interpretation, data subject complaints, DPA investigation | gdpr-privacy, legal-advisor | Legal advice on GDPR applicability, DPA response strategy, fine negotiation |
 | Security control implementation for personal data protection | security-engineer | Encryption at rest/transit, access controls, IAM, network segmentation, vulnerability management |
-| Encryption algorithm selection (which cipher, key management strategy) | cryptography-engineer | AES-256 vs ChaCha20, key rotation, HSM integration, TLS configuration |
+| Encryption algorithm selection (which cipher, key management strategy) | cryptography | AES-256 vs ChaCha20, key rotation, HSM integration, TLS configuration |
 | Consent banner UI/UX design, cookie preference center, privacy dashboard | ui-ux-designer | User experience, accessibility, dark pattern avoidance, mobile responsiveness |
 | IAM integration for privacy controls — who can access PII, access reviews | iam-architect | Role-based access to personal data, attribute-based access for data minimization |
 | Data pipeline architecture — where personal data flows, ETL with privacy controls | data-engineer | Data lineage tracking, PII detection in data pipelines, automated data classification |

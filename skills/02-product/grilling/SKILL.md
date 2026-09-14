@@ -37,6 +37,7 @@ chain:
     - brainstorming
     - product-manager
     - system-architect
+    - implementation-planner
   alternatives:
     - brainstorming
 ---

@@ -8,7 +8,7 @@ description: >
   (single-flight, probabilistic early expiry), key design, per-layer coherence rules, and
   staleness budgets. Do NOT use for query-level indexing and schema optimisation
   (database-designer, performance-engineer), CDN edge configuration as delivery infrastructure
-  (cloud-architect), capacity and headroom modelling (capacity-planning-engineer), or runtime
+  (cloud-architect), capacity and headroom modelling (performance-engineer, site-reliability-engineer), or runtime
   dependency resilience (resilience-pattern-engineer).
 author: Sandeep Kumar Penchala
 license: MIT
@@ -190,7 +190,7 @@ Fourth: **keys are a security boundary.** A cache key that omits the tenant, the
 |----------------|------------------------|
 | Designing what to cache, keys, TTLs, invalidation | `database-designer` — indexing, schema, query planning |
 | Fixing stale or wrong data served from a cache | `performance-engineer` — origin latency and throughput optimisation |
-| Adding stampede / cold-start protection | `capacity-planning-engineer` — capacity headroom and autoscaling |
+| Adding stampede / cold-start protection | `performance-engineer` — capacity headroom and autoscaling |
 | Coherence across browser, CDN, and service caches | `cloud-architect` — CDN topology and edge delivery |
 | Cache as a failure domain (cache down = ?) | `resilience-pattern-engineer` — timeouts, breakers, degradation |
 | Cache memory sizing and eviction pressure | `site-reliability-engineer` — SLOs and error budgets for the origin |
@@ -199,7 +199,7 @@ Fourth: **keys are a security boundary.** A cache key that omits the tenant, the
 
 1. **The problem is slow queries with no repeat access pattern** — that is indexing and query design (`database-designer`), not caching. A cache on non-repeated access is pure cost.
 2. **The task is CDN configuration for delivery, not data coherence** — use `cloud-architect`; this skill governs what data may be stale, not how bytes reach the edge.
-3. **The cache is being sized for capacity** — use `capacity-planning-engineer`; headroom modelling is a different discipline from coherence.
+3. **The cache is being sized for capacity** — use `performance-engineer`; headroom modelling is a different discipline from coherence.
 4. **A dependency is failing and you need runtime defence** — use `resilience-pattern-engineer`; a cache can mask a failure, but the defence belongs there.
 5. **The data is security-scoped and the key cannot include the scope** — stop. Escalate to `appsec-engineer`; caching beyond an authorization boundary is out of scope here.
 
@@ -303,7 +303,7 @@ Which layer is authoritative for this datum?
 | Origin overloaded by misses | Enable or tighten single-flight; if absent, throttle at the origin | Flush to a known-good state and warm from the origin deliberately | Escalate to `resilience-pattern-engineer` for origin-side shedding |
 | Update not visible within the budget | Trace propagation across layers (Decision Tree 3) | Purge upstream layers manually and record the gap | Revisit the budget or the propagation design — do not extend the TTL silently |
 | Hit rate collapsed after a change | Check key version — a bump invalidates everything by design | Warm the cache deliberately rather than letting it warm under load | Revert the version bump if it was unintended |
-| Cache memory exhausted, evictions climbing | Measure hit rate by key class; identify low-value classes | Reduce TTL or exclude the low-value class | Escalate to `capacity-planning-engineer` for sizing |
+| Cache memory exhausted, evictions climbing | Measure hit rate by key class; identify low-value classes | Reduce TTL or exclude the low-value class | Escalate to `performance-engineer` for sizing |
 | Two layers oscillate (each repopulating from the other) | Precedence rule is undefined or inverted | Define precedence explicitly and enforce it in code | Disable the outer layer until coherence is provable |
 
 **Hard failure boundary:** After 3 failed recovery attempts, escalate to a human. Do not loop.

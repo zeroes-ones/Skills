@@ -40,6 +40,7 @@ chain:
     - project-manager
     - handoff
     - system-architect
+    - implementation-planner
   alternatives: []
 ---
 # Wayfinder

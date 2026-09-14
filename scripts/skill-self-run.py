@@ -11,7 +11,7 @@ manifest + deterministic executor that, when run:
 
 Up/down/diagonal context (framework rules, references, cross-skill coordination) is loaded by
 the executor/agent inside the main node — the engine owns ordering, loops, handoffs, budgets,
-gates. Any skill with Core Workflow + Verification is a valid node (repo audit ~300/303).
+gates. Any skill with Core Workflow + Verification is a valid node.
 
 Usage:
     python3 scripts/skill-self-run.py --skill code-reviewer --prereqs 2 --fix-rounds 3 \

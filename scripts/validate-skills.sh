@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Skills Validation Suite — Blocking CI/CD Governance Gate
-# Validates all 297 skills against the agentskills.io spec + internal quality standards.
+# Validates all skills against the agentskills.io spec + internal quality standards.
 # Exit code 0 = all checks pass. Non-zero = violations found.
 set -euo pipefail
 
