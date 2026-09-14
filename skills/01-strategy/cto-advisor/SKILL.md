@@ -434,6 +434,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| Hands-on coding | `backend-developer` |
+| code review | `code-reviewer` |
+| Infrastructure provisioning | outside this skill's scope (see the description) |
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Adopting technology based on conference talks without team capability assessment." | Adopting technology based on conference talks without team capability assessment | Before adopting: have 2+ engineers build a non-trivial prototype in 1 week using the new technology. If they can't ship something real in that time, your team d |
+| "It is faster to skip this: Build vs buy decisions that ignore the maintenance burden of "build"." | Build vs buy decisions that ignore the maintenance burden of "build" | Calculate TCO over 36 months, not just build cost. Include: ongoing engineering time for bug fixes, security patches, dependency upgrades, onboarding documentat |
+| "It is faster to skip this: Architecture decisions made without defining non-functional requirements first." | Architecture decisions made without defining non-functional requirements first | Define NFRs BEFORE choosing architecture: p99 latency targets, throughput requirements, data consistency guarantees, availability SLOs, compliance boundaries (G |
+| "It is faster to skip this: Equating "modern" with "better" — rewriting working systems because the tech stack feels dated." | Equating "modern" with "better" — rewriting working systems because the tech stack feels dated | Modernization must be justified by one of: (a) hiring — can't recruit for the old stack, (b) cost — new stack significantly cheaper to run, (c) capability — old |
+| "It is faster to skip this: Vendor lock-in disguised as "strategic partnership" with no exit plan." | Vendor lock-in disguised as "strategic partnership" with no exit plan | For every strategic vendor: document the migration path BEFORE signing. What's the data export format? What's the API surface you depend on? What would it cost  |
+
+This table is specific to `cto-advisor`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s -- table of who to talk to when -->

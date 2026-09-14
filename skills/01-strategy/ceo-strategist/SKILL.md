@@ -630,36 +630,34 @@ Before delivering work, verify: self-check against What Good Looks Like, no brok
 ## Failure Modes & Exit Rules
 
 **Failure modes and known limitations** (what can go wrong, when it breaks):
-- Failure mode: stale or mis-sourced input data produces a confident but wrong read. Mitigate by pinning the data revision and re-verifying before acting.
-- Failure mode: the regime changes after calibration (bull -> correction -> bear -> crash). Mitigate by treating regime as a state to re-check, not a constant.
-- Failure mode: liquidity thins exactly when the position needs to exit. Worst case: the intended stop-loss cannot fill at the planned level.
-- Failure mode: leverage amplifies a small adverse move into a large loss. Edge case: margin call cascades before any exit rule can act.
-- Failure mode: crowding - the same signal is held by many participants and unwinds at once. Known limitation: correlation rises in stress.
-- Failure mode: model overfit - the backtest captures noise. Mitigate by holding out data and demanding the pattern repeats out-of-sample.
-- Failure mode: execution slippage and spread widen in fast markets. What goes wrong: realized fill is worse than the modeled fill.
-- Failure mode: counterparty or venue risk materializes (halt, rejection, failed settlement). Mitigate with venue fallbacks and pre-trade checks.
-- Failure mode: a black-swan event outside the modeled distribution. What breaks: every correlated hedge at once. Mitigate by sizing for it anyway.
+- Failure mode: stale or mis-sourced input data produces a confident but wrong read of the business. Mitigate by pinning the data revision and re-verifying before acting on it.
+- Failure mode: the market or competitive regime changes after the plan was calibrated. Mitigate by treating regime as a state to re-check each quarter, not a constant.
+- Failure mode: the plan depends on a capability the organisation does not have. Worst case: the gap is discovered mid-execution, after commitments are public.
+- Failure mode: a key assumption is held by the whole leadership team, so nobody stress-tests it. Edge case: the shared assumption is wrong and every function is wrong together.
+- Failure mode: capital or runway is thinner than the plan assumes, so an adverse quarter removes the option to continue. Known limitation: options cost money to keep open.
+- Failure mode: the plan is overfit to the last successful period. Mitigate by holding out a scenario and demanding the strategy survives it.
+- Failure mode: execution capacity is the binding constraint, not strategy. What goes wrong: the plan is right and nothing ships.
+- Failure mode: a competitor, regulator, or platform changes the rules. Mitigate with a monitoring trigger and a pre-agreed response, not a scramble.
+- Failure mode: a black-swan event outside every modelled scenario. What breaks: the assumptions underpinning several strategies at once. Mitigate by keeping enough reserve to survive being wrong.
 
-**Exit conditions / stop-loss rules:**
-- Stop-loss: exit the position when the loss reaches the pre-defined level for this strategy; the level is set at entry and not widened intraday.
-- Exit condition: close the position when the original thesis is invalidated (signal gone, data revised, regime flipped).
-- Exit condition: time stop - if the expected catalyst has not appeared by the plan horizon, exit and re-evaluate.
-- Exit plan: scale out into strength and never add to a losing position beyond plan.
+**Exit conditions / stop rules:**
+- Stop rule: exit the initiative when the loss reaches the pre-agreed threshold; the threshold is set at commitment and is not widened mid-quarter.
+- Exit condition: stop when the original thesis is invalidated (the market moved, the assumption was tested false, or the regime flipped).
+- Exit condition: time stop — if the expected milestone has not appeared by the plan horizon, revisit and re-decide rather than extending by default.
+- Exit plan: wind down in stages and never add further investment to a failing initiative beyond the agreed plan.
 
-**Regime notes (bull / correction / bear / crash):**
-- Bull market: trends and momentum strategies tend to work; fade-strategy drawdowns are shallow; chase risk is the main failure mode.
-- Correction (bull market pullback): mean-reversion can work; trend entries need patience; avoid adding risk at the first green candle.
-- Bear market: short-duration and defensive positioning matter; long-biased strategies must respect the lower regime; rallies are exit opportunities.
-- Crash regime: correlation goes to one, liquidity evaporates, and stop-losses gap. Position sizing is the only reliable defense; assume the crash can always come.
+**Regime notes (expansion / plateau / contraction / crisis):**
+- Expansion: growth bets and investment tend to pay; the main failure mode is over-committing on the assumption it continues.
+- Plateau (expansion slowing): efficiency and retention matter more than new bets; avoid adding cost at the first sign of a rebound.
+- Contraction: defensive posture and cash preservation dominate; growth initiatives must respect the tighter regime, and rallies are opportunities to re-scope rather than to re-commit.
+- Crisis: correlations between risks go to one, options narrow quickly, and stop rules that assumed a gradual exit do not fill as planned. Reserve and pre-decided triggers are the only reliable defence; assume the crisis can always come.
 
 **Provenance of this guidance:**
-- [COMMON-PRACTICE] Stop-loss placement, exit rules, and regime states are standard risk-management practice in trading literature.
-- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not broker-verified figures.
+- [COMMON-PRACTICE] Stop rules, exit criteria, and regime states are standard strategic risk-management practice.
+- [ESTIMATED] Threshold levels quoted in this SKILL are illustrative calibrations, not measured figures from this organisation.
 - [COMPUTED] Scenario arithmetic in the backtest example is deterministic and reproducible from its stated assumptions.
 - [VERIFIED] The skill's structural invariants (sections, chain, references) are verified by the repository gates.
-- [COMMON-PRACTICE] Regime definitions follow standard market-cycle nomenclature (bull/correction/bear/crash).
-- [ESTIMATED] The failure-mode likelihood ordering is qualitative judgment, not a measured statistic.
-
+- [COMMON-PRACTICE] Regime definitions follow standard business-cycle nomenclature (expansion / plateau / contraction / crisis).
 ## References
 <!-- STANDARD: 3min -->
 - **Equity & Cap Table**: See [equity-&-cap-table.md](references/equity-&-cap-table.md)

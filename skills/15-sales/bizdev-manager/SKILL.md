@@ -404,6 +404,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For partner execution and day-to-day management**.
+2. **Direct sales**.
+3. **Or account management**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Pipeline inflated with unqualified opportunities masking true forecast." | Pipeline inflated with unqualified opportunities masking true forecast | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+| "It is faster to skip this: Demo environment fails during critical prospect presentation." | Demo environment fails during critical prospect presentation | Pre-flight demo environment 24 hours before every demo; maintain hot-spare instance; have recorded backup walkthrough ready |
+| "It is faster to skip this: Partner enablement materials outdated after product release." | Partner enablement materials outdated after product release | Version-lock enablement materials to product releases; auto-notify partners on updates; require re-certification on major releases |
+| "It is faster to skip this: Marketing campaign launched without proper UTM/tracking, losing attribution data." | Marketing campaign launched without proper UTM/tracking, losing attribution data | Enforce UTM governance with naming convention; validate tracking in staging before launch; audit campaign URLs weekly |
+| "It is faster to skip this: RFP response submitted with errors due to last-minute rush and no review process." | RFP response submitted with errors due to last-minute rush and no review process | Maintain living RFP content library; implement 2-reviewer minimum (technical + sales); set internal deadline 48 hours before submission |
+| "It is faster to skip this: Pipeline inflated with unqualified opportunities masking true forecast." | Pipeline inflated with unqualified opportunities masking true forecast | Enforce MEDDIC/BANT qualification at each stage gate; implement deal inspection cadence; compare pipeline coverage ratios to historical conversion |
+
+This table is specific to `bizdev-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s -- table of who to talk to when -->

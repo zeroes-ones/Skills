@@ -460,6 +460,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For Kubernetes cluster provisioning**.
+2. **CI/CD pipeline design**.
+3. **Or observability instrumentation**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Running containers as root in production — a compromised container gains host-level privileges,." | Running containers as root in production — a compromised container gains host-level privileges, leading to cluster takeover | Always set `USER 1000:1000` in Dockerfiles; enforce `runAsNonRoot: true` in PodSecurityPolicy or PodSecurityStandard `restricted` |
+| "It is faster to skip this: Using :latest tags for production deployments — a new push to :latest silently replaces running." | Using `:latest` tags for production deployments — a new push to `:latest` silently replaces running images with untested code | Pin images by SHA256 digest in deployment manifests; CI should auto-replace tags with digests; block `:latest` via admission webhook |
+| "It is faster to skip this: Hardcoding secrets in ConfigMaps or env vars — exposed in kubectl describe, logs, and crash dum." | Hardcoding secrets in ConfigMaps or env vars — exposed in `kubectl describe`, logs, and crash dumps; leads to credential leaks | Use External Secrets Operator or CSI Secret Store driver; mount secrets as files at runtime; enable etcd encryption at rest |
+| "It is faster to skip this: Skipping resource limits — a pod with a memory leak consumes all node memory, OOM-kills neighbo." | Skipping resource limits — a pod with a memory leak consumes all node memory, OOM-kills neighboring pods, and cascades across the cluster | Set `resources.requests` and `resources.limits` on every container; use LimitRange defaults in namespaces; monitor OOMKill events with alerting |
+
+This table is specific to `docker-kubernetes`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |

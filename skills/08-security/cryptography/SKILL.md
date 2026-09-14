@@ -521,6 +521,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general appsec (appsec-engineer)**.
+2. **TLS server config (devops-engineer)**.
+3. **Password policy (iam-architect)**.
+4. **Or data privacy (gdpr-privacy)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Using a non-cryptographic PRNG (Math.random, rand(), mt_rand) for token generation, password re." | Using a non-cryptographic PRNG (Math.random, rand(), mt_rand) for token generation, password reset codes, or session IDs — tokens are predictable and  | Use only CSPRNGs: `crypto.randomBytes()` (Node), `secrets.token_urlsafe()` (Python), `java.security.SecureRandom` (Java). Audit every token generation call site |
+| "It is faster to skip this: Rolling your own encryption protocol, key derivation, or authentication scheme — "it's just XOR." | Rolling your own encryption protocol, key derivation, or authentication scheme — "it's just XOR with a twist" or "I added a salt to SHA-256" — instead | Never implement cryptographic primitives. Use libsodium (NaCl) for symmetric operations, Tink for key management, and WebCrypto for browser-based crypto. If you |
+| "It is faster to skip this: Hardcoding encryption keys in source code, config files, or environment variables — keys surviv." | Hardcoding encryption keys in source code, config files, or environment variables — keys survive forever in git history, CI logs, backup tapes, and de | Use a KMS (AWS KMS, GCP Cloud KMS, Azure Key Vault) or HSM for key storage. Keys never touch application code. Rotate keys on schedule (DEK monthly, KEK quarter |
+
+This table is specific to `cryptography`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

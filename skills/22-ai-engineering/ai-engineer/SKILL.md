@@ -606,6 +606,27 @@ If a command or approach fails, follow this escalation path before giving up:
 | User reports "AI got dumber" after a prompt update; no way to compare old vs new behavior | Prompt changed without versioning; no A/B test; no evaluation run against golden test set before deploy | Version every prompt in a central catalog. Run evaluation suite before deploying any prompt change. Implement A/B testing: 5% traffic to new prompt, compare metrics (accuracy, latency, user satisfaction) before full rollout. | Prompts are code — they need versioning, testing, and staged rollout. A prompt change that "looks better" in 5 manual tests may degrade performance on 15% of real-world queries. Without evals, you're flying blind. |
 | Streaming endpoint works in dev but hangs in production under load | `response.choices[0].message.content` is None when streaming — the code accesses `.content` without iterating chunks. In dev, single-request testing doesn't trigger the memory leak from accumulating partial responses. | Iterate chunks: `for chunk in response: content += chunk.choices[0].delta.content or ''`. Test streaming end-to-end in staging with load: `wrk -t4 -c100 -d60s --script=stream.lua $ENDPOINT`. | Streaming is a different code path than batch. The same LLM call with `stream=True` returns a generator, not a response object. Load testing must simulate concurrent streaming connections — single-request manual testing won't catch memory leaks or connection drops. |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For ML model training (ml-engineer)**.
+2. **MLOps pipeline design (mlops-engineer)**.
+3. **AI security testing (ai-security)**.
+4. **Or LLM guardrails implementation (applying-llm-guardrails)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Shipping an AI feature without evaluation against a golden test set." | Shipping an AI feature without evaluation against a golden test set | Create 50-100 golden test cases with known correct answers before writing code. Gate deployment on eval metrics. Never test with 10 manual prompts. |
+| "It is faster to skip this: Starting with multi-agent architecture when a single LLM call suffices." | Starting with multi-agent architecture when a single LLM call suffices | Start with single LLM call + prompt. Only add RAG if hallucination rate > threshold. Only add agents if multi-step reasoning required. Complexity is earned. |
+| "It is faster to skip this: Unbounded agent loops without token budget or termination conditions." | Unbounded agent loops without token budget or termination conditions | Set max_iterations: 10, timeout: 120s, deadlock detection (3 identical observations = abort). Add hard budget limit per run: abort if cost > $0.50. |
+| "It is faster to skip this: Using regex to parse structured output from LLM text." | Using regex to parse structured output from LLM text | Use structured output APIs (function calling with strict mode, JSON mode with schema validation). Never fall back to defaults on parse failure. |
+
+This table is specific to `ai-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -763,6 +763,27 @@ Complete when: Assistive technology compatibility matrix completed covering 8 or
 - [ ] **[ACCESS15] Third-party components audited:** Any third-party widgets (chat, payment, maps, video players) assessed for accessibility. Vendor VPAT collected. Gaps documented with mitigation plan. No accessibility overlays in use.
 - [ ] **[ACCESS16] Cognitive accessibility validated:** User-facing text at Flesch-Kincaid grade 6-8. Consistent navigation and labeling. Error prevention over recovery. Memory support (saved progress, breadcrumbs, recent items). Distraction reduction options (reading mode, animation control).
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For basic WCAG AA auditing** → route to `accessibility-auditor`.
+2. **Standard UI design without disability focus** → route to `ui-ux-designer`.
+3. **Or general mobile app development** → route to `mobile-developer`.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Screen reader compatibility breaks after framework update — React/Angular/Vue minor version bum." | Screen reader compatibility breaks after framework update — React/Angular/Vue minor version bump changes DOM structure, ARIA live regions stop announc | Pin assistive technology test matrix to CI pipeline — axe-core + screen reader smoke tests (VoiceOver + NVDA) run on every PR; never upgrade UI framework withou |
+| "It is faster to skip this: WCAG 2.2 AA audit fails at contract renewal — VPAT was written 18 months ago, 6 new features sh." | WCAG 2.2 AA audit fails at contract renewal — VPAT was written 18 months ago, 6 new features shipped without accessibility review, enterprise client w | Run automated accessibility audit (axe-core/Lighthouse/pa11y) weekly; update VPAT every 6 months; require accessibility sign-off in definition of done for every |
+| "It is faster to skip this: Assistive technology fragmentation — building for VoiceOver+iOS passes testing, but TalkBack+An." | Assistive technology fragmentation — building for VoiceOver+iOS passes testing, but TalkBack+Android users report completely broken experience because | Test on minimum 4 AT combinations (VoiceOver+Safari, NVDA+Firefox, TalkBack+Chrome, VoiceOver+iOS) from day one; budget for 2 Android test devices and 2 iOS tes |
+| "It is faster to skip this: Touch target regression after responsive redesign — mobile breakpoint changes shrink 44px targe." | Touch target regression after responsive redesign — mobile breakpoint changes shrink 44px targets to 36px, motor-impaired users can no longer reliably | Enforce 44x44px minimum touch target as lint rule in design system; visual regression tests at 320px/375px/414px breakpoints; test with motor-impaired users aft |
+| "It is faster to skip this: Overlay "accessibility widget" creates liability — adding third-party overlay toolbar creates f." | Overlay "accessibility widget" creates liability — adding third-party overlay toolbar creates false sense of compliance, conflicts with users' screen  | Never use accessibility overlays — 800+ professionals signed the Overlay Fact Sheet, 400+ lawsuits filed against overlay companies; invest overlay budget in nat |
+
+This table is specific to `access-tech-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

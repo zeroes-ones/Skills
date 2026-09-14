@@ -362,6 +362,29 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For cross-platform frameworks (Flutter**.
+2. **React Native**.
+3. **Kotlin Multiplatform — use mobile-developer)**.
+4. **Android development**.
+5. **Or non-Apple platform tooling**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Using unowned in async closures — crashes with EXC_BAD_ACCESS when object deallocates before ca." | Using `unowned` in async closures — crashes with `EXC_BAD_ACCESS` when object deallocates before callback fires | Always use `weak` in async closures. `unowned` is safe ONLY when the captured object is guaranteed to outlive the closure. In network callbacks, `Task` blocks,  |
+| "It is faster to skip this: Testing entitlements only on Simulator — push notifications, iCloud, HealthKit silently fail on." | Testing entitlements only on Simulator — push notifications, iCloud, HealthKit silently fail on device | Test every entitlement-dependent feature on a physical device with Release configuration. Simulator doesn't enforce entitlements. Run `codesign -d --entitlement |
+| "It is faster to skip this: Shipping without code signing on a physical device test — SmartScreen/Gatekeeper blocks install." | Shipping without code signing on a physical device test — SmartScreen/Gatekeeper blocks install, 60%+ install drop-off | Code sign in CI with EV certificate (Windows) and notarization (macOS). Test the installer on a clean VM. The installer IS the first product experience — a warn |
+| "It is faster to skip this: Using @ObservableObject with @Published on iOS 17+ — objectWillChange broadcasts re-render ever." | Using `@ObservableObject` with `@Published` on iOS 17+ — `objectWillChange` broadcasts re-render every subscriber | Migrate to `@Observable` macro (iOS 17+). It tracks field-level access and only re-renders views when accessed properties change. Eliminates the broadcast tax o |
+| "It is faster to skip this: Saving user state only on scenePhase: .background — .background is not guaranteed, system may t." | Saving user state only on `scenePhase: .background` — `.background` is not guaranteed, system may terminate first | Save critical state on `.inactive` (Control Center, app switcher, incoming calls). `.background` fires after the app is fully backgrounded and may never execute |
+
+This table is specific to `ios-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -403,6 +403,26 @@ Complete when: Performance metrics baselined and monitored: key indicators withi
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For incident response**.
+2. **Security vulnerability handling**.
+3. **Code-level bug fixes**.
+4. **Or product roadmap prioritization**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Skipping triage depth in favor of quick answers." | Skipping triage depth in favor of quick answers | Follow the triage decision tree every time — even for "simple" tickets |
+| "It is faster to skip this: Not documenting resolution patterns after tier-2+ tickets." | Not documenting resolution patterns after tier-2+ tickets | After every tier-2+ resolution, write a public KB article or update the playbook |
+| "It is faster to skip this: Failing to communicate proactively during incidents." | Failing to communicate proactively during incidents | Trigger status page update within 5 min of incident declaration, customer update within 15 min |
+
+This table is specific to `customer-support-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

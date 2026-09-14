@@ -638,6 +638,27 @@ Before declaring the platform launch-ready, verify every item. A failure on any 
 | [CREATOR15] | Revenue share with collaborators: a transaction is split 70% primary creator, 20% collaborator A, 10% collaborator B (after platform fee). Verify: each party sees only their share, all shares sum to total minus fees, reconciliation report shows all splits. | MEDIUM |
 | [CREATOR16] | Annual subscription renewal: patron on \$100/year plan. Renewal date arrives. System charges \$100 (not monthly rate). Patron receives receipt showing annual rate. Subscription extended by 12 months. Test with prorated upgrades mid-cycle. | HIGH |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For enterprise SaaS** → route to `saas-monetization-strategist`.
+2. **Ad-based monetization only** → route to `growth-engineer`.
+3. **Or traditional e-commerce** → route to `website-builder`.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Payout calculation errors — a rounding bug, fee miscalculation, or exchange rate drift that pay." | Payout calculation errors — a rounding bug, fee miscalculation, or exchange rate drift that pays creators the wrong amount, discovered only when a cre | Run pre-payout reconciliation: for every payout batch, `SUM(gross) - SUM(processing_fee) - SUM(platform_fee) = SUM(creator_net)`. Any discrepancy > $0.00 blocks |
+| "It is faster to skip this: Platform API deprecation — Stripe/PayPal/YouTube API deprecates a version with 90-day notice, a." | Platform API deprecation — Stripe/PayPal/YouTube API deprecates a version with 90-day notice, and your team doesn't see the email because it went to t | Subscribe to every API provider's changelog and status page (not just email). Set calendar reminders to check deprecation notices monthly. Pin API versions expl |
+| "It is faster to skip this: Content ownership disputes — creator claims another creator stole their content, but your platf." | Content ownership disputes — creator claims another creator stole their content, but your platform has no takedown policy, no DMCA process, and no con | Implement a DMCA-compliant takedown process before onboarding creators: (a) public copyright policy page, (b) designated DMCA agent registered with the U.S. Cop |
+| "It is faster to skip this: Subscription billing treating all months as 30 days — charging annual subscribers on the 30th o." | Subscription billing treating all months as 30 days — charging annual subscribers on the 30th of every month means February charges fail on the 30th,  | Use the payment provider's subscription engine (Stripe Billing, Recurly) — they handle month-boundary anchoring correctly. If building custom logic, use the "sa |
+| "It is faster to skip this: Creator dashboard showing stale or cached balances — creator sees $1,000, withdraws, but actual." | Creator dashboard showing stale or cached balances — creator sees $1,000, withdraws, but actual balance was $950 because a refund hadn't settled yet,  | Never cache wallet balances in the presentation layer. Every balance display must be a real-time ledger query or a materialized view refreshed on every transact |
+
+This table is specific to `creator-economy-builder`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

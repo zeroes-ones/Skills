@@ -593,6 +593,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general security hardening unrelated to healthcare**.
+2. **GDPR-only compliance**.
+3. **Or non-PHI data protection**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Ransomware encrypts clinical systems — unpatched medical device (Windows 7 MRI workstation) wit." | Ransomware encrypts clinical systems — unpatched medical device (Windows 7 MRI workstation) with internet access provided initial foothold. Lateral mo | Segment biomed/IoMT devices onto isolated VLANs with no direct internet access; implement passive monitoring for legacy devices; establish EOL replacement timel |
+| "It is faster to skip this: OCR breach investigation opened because notification deadline was missed — 60-day clock starts ." | OCR breach investigation opened because notification deadline was missed — 60-day clock starts at initial discovery, not scope confirmation. Team assu | Train team: 60-day clock starts at first indicator of unauthorized PHI access, not at scope confirmation. Notify immediately once breach is suspected; amend as  |
+| "It is faster to skip this: Third-party researcher re-identifies published "de-identified" dataset — Safe Harbor missed ZIP." | Third-party researcher re-identifies published "de-identified" dataset — Safe Harbor missed ZIP codes with population <20K. Linked to voter registrati | Use Expert Determination with formal statistical certification for ALL published datasets; apply k-anonymity (k≥5), l-diversity, t-closeness; never publish de-i |
+| "It is faster to skip this: Cloud vendor reports sub-processor data breach involving your PHI — 30 days after the incident.." | Cloud vendor reports sub-processor data breach involving your PHI — 30 days after the incident. BAA said "without unreasonable delay" = 30 days. Your  | Amend ALL BAAs to require 48-hour sub-processor breach notification with cascading SLAs; implement sub-processor audit as quarterly process; maintain independen |
+| "It is faster to skip this: FHIR API returns psychotherapy notes through broad patient/ scope — authorization server doesn'." | FHIR API returns psychotherapy notes through broad patient/* scope — authorization server doesn't distinguish between general PHI and specially protec | Implement resource-level filtering for psychotherapy notes requiring separate explicit authorization; audit all SMART on FHIR apps for scope compliance; never i |
+
+This table is specific to `healthcare-security`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

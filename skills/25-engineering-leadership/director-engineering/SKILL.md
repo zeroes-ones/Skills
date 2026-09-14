@@ -539,6 +539,25 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Succession planning is your most underrated responsibility.** If you're hit by a bus tomorrow, who runs the department? For every critical role (your EMs, your tech leads, your architects), identify: (a) who can step in immediately, (b) who can step in with 3 months of development, (c) if there's no one, you have a single point of failure. A Director without an identified successor is a Director who can't be promoted or take vacation.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For first-line people management**.
+2. **Individual contributor technical strategy**.
+3. **Or C-level engineering strategy**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Micro-managing technical decisions that should be owned by senior ICs — reviewing every PR, dic." | Micro-managing technical decisions that should be owned by senior ICs — reviewing every PR, dictating architecture patterns, and overriding tech lead  | Define decision rights explicitly: which technical decisions does the Director make (technology portfolio strategy, build-vs-buy above $X), and which do tech le |
+| "It is faster to skip this: Skipping skip-level 1:1s and losing signal on organizational health — relying on EM reports for." | Skipping skip-level 1:1s and losing signal on organizational health — relying on EM reports for ground truth without independent verification | Schedule skip-levels quarterly minimum, bi-weekly if the EM is new or the team is in distress. Ask: "What's the thing you're most worried about that your manage |
+| "It is faster to skip this: Promoting the strongest IC to manager without assessing management aptitude — the "they deserve." | Promoting the strongest IC to manager without assessing management aptitude — the "they deserve a promotion and management is the only path" trap | Create a parallel IC track (Staff → Principal → Distinguished) with equivalent comp. For management transitions: require a 3-month pilot with formal training, a |
+
+This table is specific to `director-engineering`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

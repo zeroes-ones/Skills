@@ -495,6 +495,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For team-level sprint facilitation**.
+2. **Cross-team program coordination**.
+3. **Product roadmap prioritization**.
+4. **Or engineering team management**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Scope creep without written impact assessment." | Scope creep without written impact assessment | Require written impact assessment and stakeholder sign-off for every scope change |
+| "It is faster to skip this: Status reporting by gut feel instead of remaining work math." | Status reporting by gut feel instead of remaining work math | Use (remaining work / remaining time) formula — never ask "are we on track?" |
+| "It is faster to skip this: Unclear critical path with no named owners or buffers." | Unclear critical path with no named owners or buffers | Maintain a single-source-of-truth critical path map with named owners and buffer per node |
+
+This table is specific to `project-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

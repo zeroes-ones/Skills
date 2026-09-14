@@ -465,6 +465,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For code documentation** → route to `documentation-engineer`.
+2. **Technical-writer)**.
+3. **Issue tracking** → route to `project-manager`.
+4. **Or meeting notes that don't involve agent work**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Cramming the handoff into the last 15 minutes of a session." | Cramming the handoff into the last 15 minutes of a session | Update the ledger continuously — a 2-minute update after each task prevents 2-hour handoff fire drills |
+| "It is faster to skip this: Missing context that the next person needs to resume work." | Missing context that the next person needs to resume work | Always include the resume command with exact file path and line number plus mental state |
+| "It is faster to skip this: No decision log leading to repeated debates." | No decision log leading to repeated debates | Every decision gets a DECIDED: entry with options, choice, rationale, and tradeoffs — even "obvious" ones |
+
+This table is specific to `handoff`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

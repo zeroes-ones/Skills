@@ -223,6 +223,40 @@ Run these checks before declaring work complete. ALL must pass.
 - [ ] **[DAP11]** Crash reporting with symbolication across platforms; crash rate <0.5% of sessions; top 5 crashes resolved within 7 days
 - [ ] **[DAP12]** E2E tests pass on real hardware: Windows 10, Windows 11, macOS latest, macOS -1, Ubuntu LTS — CI covers unit/integration, hardware covers platform-specific
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For mobile architecture**.
+2. **Web architecture**.
+3. **Or game engine architecture**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Choosing Electron without considering memory budget on target hardware." | Choosing Electron without considering memory budget on target hardware | Profile memory on target hardware (4GB RAM machines). Consider Tauri for memory-constrained use cases |
+| "It is faster to skip this: No IPC timeout handling leading to frozen UI." | No IPC timeout handling leading to frozen UI | Every IPC call must have a timeout and error handler. Test with intentionally slow responses |
+| "It is faster to skip this: Ignoring auto-update architecture from day 1." | Ignoring auto-update architecture from day 1 | Implement auto-update (electron-updater, Sparkle, WinGet) before first release. Test update path in CI |
+| "It is faster to skip this: Single-thread UI blocking during I/O operations." | Single-thread UI blocking during I/O operations | Move all file I/O, network calls, and DB queries off the main thread. Use web workers, async IPC, or background processes |
+
+This table is specific to `desktop-architecture-patterns`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Choosing Electron because the team is fluent in React, then discovering the target fleet is 4GB-RAM thin clients where the 120MB+ idle footprint thrashes swap. | ✅ Walk the Section 2.1 selection tree against measured constraints before writing UI code: if bundle < 15MB and idle memory < 100MB are hard requirements, Tauri's 5-15MB bundle wins; keep Electron only when Chromium-level rendering (PDF, complex CSS, WebGL) is genuinely needed. |
+| ❌ Binding the View straight to the Model in a framework with native data binding, on the reasoning that "the entity already has the fields we need." | ✅ Interpose a ViewModel per screen so validation, formatting, and command enablement (`canExecute`) live outside both the View and the persistence model; the View never references a domain entity directly. |
+| ❌ Growing the app on ad-hoc `ipcRenderer.send('do-the-thing', payload)` string channels with no request/response type and no validation in the main process. | ✅ Declare one typed contract per capability (`ipcMain.handle` / Tauri command) that validates every renderer-supplied field against a schema before touching filesystem or native APIs — the main process treats renderer data as untrusted network input. |
+| ❌ Letting each window hold its own copy of shared state and peer-syncing window-to-window, so two windows disagree about which document is dirty. | ✅ Keep the single source of truth in the main process (store or service) and broadcast updates to all windows over one IPC channel; renderers hold only derived, disposable view state. |
+| ❌ Adding a second window by copying the primary window's setup, with no declared ownership and no `closed`/`destroyed` handler. | ✅ Model ownership before the first secondary window exists: modal children get an explicit parent, children close with the parent, and position/size restore per window id on relaunch. |
+| ❌ Shipping v1 with "users can grab the new build from the website" and planning to bolt an updater on later, when 62% of desktop users never manually update. | ✅ Treat Phase 4 (installer, code signing, staged updater, kill switch, rollback-on-launch-failure) as architecture, not packaging: the unpatched v1.0 build is the build most of your users will still be running in two years. |
+| ❌ Overwriting the running binary in place, or applying an update without checking its signature, because "it worked on the dev machine." | ✅ Download into a staging directory, verify the Ed25519 signature and the pinned update host over HTTPS, apply on next restart, and retain the previous version for rollback when the new one fails to launch. |
+| ❌ Scattering `if (win32) ... else if (darwin) ...` branches through feature code to handle Windows, macOS, and Linux differences. | ✅ Keep business logic framework-agnostic behind a `Platform` interface with one adapter per OS for windows, file dialogs, tray, notifications, auto-start, and file associations — 10-15% upfront cost against 200%+ ongoing cost of parallel codebases. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

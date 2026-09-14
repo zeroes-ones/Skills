@@ -441,6 +441,28 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | BCC recipient replies-all — confidential observer exposed to entire thread | BCC hides recipients from each other but does NOT prevent them from replying. A BCC'd recipient who hits "Reply All" sends their response to every To: and CC: recipient — revealing they were secretly copied | Never BCC without adding a note in the email body: "(BCC'd [Name] for visibility — please do not reply-all)." Better: forward the sent email separately after sending. For sensitive situations (board members, legal counsel), use the forward-after-send pattern exclusively | BCC is a visibility tool, not a privacy tool — every BCC recipient is one Reply-All away from exposure. The note-in-body pattern is a safety net, but the forward-after-send pattern is the only guarantee |
 | Personalization token fails — "Dear [FIRST_NAME]" or "Hi %$firstname%" in live send | Merge field data is missing (null), malformed (encoding error), or the merge tag syntax doesn't match the ESP's expected format. CSV import with special characters corrupts the field | Always define fallback values in ESP: `{{ first_name | fallback: "there" }}` or equivalent. Test-send to a seed list that includes null-value records, records with special characters (ñ, ü, 田中), and edge cases (single-character names, 50+ character names). Preview personalization in ESP before every send | Personalization is binary — it either builds trust or destroys it. "Dear [FIRST_NAME]" is worse than "Dear Customer" because it signals a broken system. A single "Dear [FIRST_NAME]" in a 10,000-recipient send costs credibility with every recipient who sees it |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For marketing automation platform setup** → route to `demand-generation`.
+2. **Email deliverability infrastructure** → route to `devops-engineer`.
+3. **Legal disclaimers** → route to `legal-advisor`.
+4. **Or email template coding** → route to `frontend-developer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Spam filter triggers — words like "free," "guaranteed," "act now," excessive exclamation marks,." | **Spam filter triggers** — words like "free," "guaranteed," "act now," excessive exclamation marks, or ALL CAPS subject lines send your carefully craf | Avoid spam trigger words. Test subject lines against spam checkers (GlockApps, Mail-Tester). Keep HTML-to-text ratio balanced. Authenticate with SPF, DKIM, and  |
+| "It is faster to skip this: Dark mode rendering breaks — white-on-transparent logos become invisible, light-colored text on." | **Dark mode rendering breaks** — white-on-transparent logos become invisible, light-colored text on light backgrounds washes out, and brand colors inv | Add `@media (prefers-color-scheme: dark)` CSS block. Use opaque-background logo variants. Test with Litmus or Email on Acid across Apple Mail, Gmail, and Outloo |
+| "It is faster to skip this: Broken personalization tokens — "Dear [FIRST_NAME]" or "Hi {CONTACT_NAME}" appears in the live ." | **Broken personalization tokens** — "Dear [FIRST_NAME]" or "Hi {CONTACT_NAME}" appears in the live email because the merge field has no fallback and t | Always include a fallback value for every personalization token: `{FIRST_NAME:there}` or `[FIRST_NAME,fallback=there]`. Test with a seed list that includes null |
+| "It is faster to skip this: Mobile rendering failures — desktop-perfect emails break on mobile: multi-column layouts shatte." | **Mobile rendering failures** — desktop-perfect emails break on mobile: multi-column layouts shatter, fonts render too small, CTAs require pinch-to-zo | Use single-column layouts. Set 16px minimum body text, 44px minimum tap targets. Keep subject lines under 35 characters for mobile preview. Use responsive `max- |
+| "It is faster to skip this: Image-only emails with no fallback — designed as one big image in Photoshop, exported as a sing." | **Image-only emails with no fallback** — designed as one big image in Photoshop, exported as a single JPEG. Enterprise clients (Outlook 2016/2019) blo | Use HTML text for headlines, body copy, and CTAs. Images should supplement, not replace, content. Always include descriptive alt text. Design bulletproof button |
+
+This table is specific to `email-composer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -233,6 +233,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For clinical decision support design**.
+2. **Medical device instructions for use (IFU)**.
+3. **Provider-facing clinical education**.
+4. **Or non-health instructional design**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Health education handout at 12th-grade reading level — document uses "glycemic variability" and." | Health education handout at 12th-grade reading level — document uses "glycemic variability" and "microvascular complications" but patient population a | Assess health literacy before designing content; use BRIEF or SILS screening at onboarding; deliver tiered content by literacy level; target ≤ 6th grade (SMOG o |
+| "It is faster to skip this: "Take with food" instruction ignores Ramadan — patient fasts dawn to sunset for 30 days. Medica." | "Take with food" instruction ignores Ramadan — patient fasts dawn to sunset for 30 days. Medication schedule needs Ramadan-specific adjustment. Cultur | Review medication instructions against cultural/religious practices; create calendar-specific adjustments for fasting periods; engage cultural liaisons for majo |
+| "It is faster to skip this: Translation that's literal but culturally wrong — "You need to exercise more" translated to a c." | Translation that's literal but culturally wrong — "You need to exercise more" translated to a culture where women don't exercise in public. Linguistic | Use cultural adaptation not just translation; engage cultural liaisons for each demographic; test instructions with actual patients from the target culture befo |
+| "It is faster to skip this: Teach-back method omission — patient says "I understand" but can't explain the care plan in the." | Teach-back method omission — patient says "I understand" but can't explain the care plan in their own words. "Do you understand?" always gets "yes" bu | Include teach-back step in every education interaction; ask "Tell me in your own words what you'll do at home" not "Do you understand?"; document teach-back pas |
+| "It is faster to skip this: Low health literacy screening omission — same education delivered to all patients regardless of." | Low health literacy screening omission — same education delivered to all patients regardless of literacy level. Low-literacy patient receives complex  | Screen all patients for health literacy using validated tools (BRIEF, SILS, or PAM); segment education by activation level; Level 1 patients receive single dail |
+
+This table is specific to `patient-health-educator`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 **(STANDARD)**

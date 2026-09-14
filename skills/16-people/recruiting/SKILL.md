@@ -371,6 +371,29 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For employee relations**.
+2. **Onboarding program design**.
+3. **Compensation band creation**.
+4. **Or performance management**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Job description uses biased language reducing qualified diverse applicants by 30%+." | Job description uses biased language reducing qualified diverse applicants by 30%+ | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+| "It is faster to skip this: Compensation bands set without current market data leading to below-market offers." | Compensation bands set without current market data leading to below-market offers | Refresh market data from Radford/Levels.fyi/Pave quarterly; benchmark against peer companies; adjust bands before recruiting cycles |
+| "It is faster to skip this: Interview feedback collected days after session, losing critical detail." | Interview feedback collected days after session, losing critical detail | Require feedback submission within 24 hours; use structured scorecards with behavioral evidence fields; calibrate in debrief within 48 hours |
+| "It is faster to skip this: Offer accepted but candidate reneges due to slow process or better counter-offer." | Offer accepted but candidate reneges due to slow process or better counter-offer | Compress time-to-offer to under 5 business days; maintain warm touchpoints during notice period; pre-close on compensation expectations early |
+| "It is faster to skip this: Onboarding program lacks structured 30-60-90 day plan leading to ramp failures." | Onboarding program lacks structured 30-60-90 day plan leading to ramp failures | Build role-specific onboarding plans with weekly milestones; assign onboarding buddy; check in at 30/60/90 days with structured feedback |
+| "It is faster to skip this: Job description uses biased language reducing qualified diverse applicants by 30%+." | Job description uses biased language reducing qualified diverse applicants by 30%+ | Run JD through Textio/Gender Decoder; use skills-based language; include salary range and inclusive benefits statement |
+
+This table is specific to `recruiting`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s — table of who to talk to when -->

@@ -496,6 +496,25 @@ If a command or approach fails, follow this escalation path before giving up:
 | Trademark cease-and-desist received — must rename product across all touchpoints within 30 days | Product, feature, or campaign name launched without USPTO/WIPO/EUIPO trademark search. An existing trademark holder in the same class sends a C&D letter | Immediately engage legal counsel. Run comprehensive trademark search (USPTO TESS, WIPO Global Brand Database, EUIPO) for the replacement name. Budget: $50K-$250K for emergency rebrand across domains, social handles, app store listings, packaging, SEO content, and all marketing materials. Implement new process: trademark clearance as a gate before any name is finalized | Trademark is not legal's problem — it's a brand naming process problem. A $500 trademark search during naming prevents a $50K-$250K emergency rebrand. For early-stage startups, a single C&D can be existential. Register trademarks for core brand assets in all active markets; maintain a watch service for the opposition window |
 | Accessibility fails on brand palette — primary brand colors yield 2.3:1 text contrast (below 4.5:1 WCAG 2.2 AA minimum) | Brand colors chosen purely for aesthetic appeal during palette creation without running WCAG contrast checks. The palette was finalized before accessibility was considered, and now every product screen built with those colors ships legally non-compliant | Audit entire brand palette against WCAG 2.2 AA: every text-on-brand-background combination must reach 4.5:1 (normal text) or 3:1 (large text). Adjust problematic pairs — brand identity must work within accessibility constraints. Create an "accessible pairings" matrix as a first-class brand deliverable. Include dark mode, high-contrast mode, and color-blind-safe palette variants | Accessibility is a brand constraint, not an override layer. A brand palette that fails contrast is not a brand asset — it's an exclusion. Building accessible color pairings during palette creation costs hours; retrofitting after launch costs weeks and risks ADA demand letters. Palettes designed for all users are better palettes for all users |
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| for UI component implementation | outside this skill's scope (see the description) |
+| marketing campaign execution | outside this skill's scope (see the description) |
+| Frontend development | outside this skill's scope (see the description) |
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Design system built without accessibility validation — brand colors chosen purely for aesthetic." | Design system built without accessibility validation — brand colors chosen purely for aesthetics without checking WCAG 2.2 contrast ratios. The primar | Validate every text-on-brand-background combination during palette creation with automated contrast tools (Stark, WebAIM). Document accessible pairings explicit |
+| "It is faster to skip this: Brand delivered as a static PDF uploaded to a shared drive — marketing uses the old logo file s." | Brand delivered as a static PDF uploaded to a shared drive — marketing uses the old logo file saved on their desktop, product invents its own color pa | Build the brand system as a living, searchable digital resource: a documentation site (zeroheight, Supernova, or custom), design tokens as a versioned npm/json  |
+| "It is faster to skip this: Design tokens that don't map to code — brand defines tokens in Figma only. Developers hard-code." | Design tokens that don't map to code — brand defines tokens in Figma only. Developers hard-code hex values, font sizes, and spacing as raw numbers. Wh | Export tokens as a single source of truth consumed everywhere: Style Dictionary generates CSS custom properties, Swift, and Kotlin/XML from one JSON file. Token |
+
+This table is specific to `brand-guidelines`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

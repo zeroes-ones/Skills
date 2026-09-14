@@ -435,6 +435,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | `Object literal may only specify known properties` | Factory includes a field not in the type (spelling error or removed field) | Compare the field name against the type definition — it is either misspelled or removed | tsc excess property checking is a safety net — never use `as Type` to suppress it |
 | `createMock* is not a function` | Factory was not exported or the import path is wrong | Check the export in api-mocks.ts and the import in validate-mocks.ts | validate-mocks.ts imports are the canary — if they fail, test files will too |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general API design**.
+2. **Database schema design**.
+3. **Or end-to-end test authoring outside the mock-fixture context**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Mock factory compiles with as Type but is missing required fields — production crashes when a n." | Mock factory compiles with `as Type` but is missing required fields — production crashes when a new screen accesses the missing field | Remove `as Type`; run `validate:mocks` in CI; typed assignments catch missing fields |
+| "It is faster to skip this: Stale field persists in factory 6 months after removal — 12 tests assert on dead data, masking ." | Stale field persists in factory 6 months after removal — 12 tests assert on dead data, masking a silently broken feature | Run `validate:mocks` which catches excess properties |
+| "It is faster to skip this: Inline mock uses amount: 100 (int) but API returns "100.00" (string) — 2 sprints of features bu." | Inline mock uses `amount: 100` (int) but API returns `"100.00"` (string) — 2 sprints of features built on wrong assumption | Use factory imports; factories get type-checked by validate-mocks.ts |
+| "It is faster to skip this: Backend adds required field Friday, mock deferred to Monday — weekend CI passes, 3 PRs merge wi." | Backend adds required field Friday, mock deferred to Monday — weekend CI passes, 3 PRs merge with stale factory | Never defer mock updates; atomic commits prevent split-state windows |
+| "It is faster to skip this: createMockUserArray(5) returns 5 identical objects (same ID) — dedup tests pass trivially, prod." | `createMockUserArray(5)` returns 5 identical objects (same ID) — dedup tests pass trivially, production bug surfaces with real unique IDs | `Array.from({ length: n }, (_, i) => createMockUser({ id: uid(\`user-\${i}\`) }))` |
+| "It is faster to skip this: OpenAPI generator idle 3 months — 47 type mismatches surface, blocking all work for 2 days." | OpenAPI generator idle 3 months — 47 type mismatches surface, blocking all work for 2 days | Run generator on every spec change or remove config until ready |
+
+This table is specific to `mock-data-sync`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

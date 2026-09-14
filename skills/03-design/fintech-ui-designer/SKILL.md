@@ -370,6 +370,42 @@ Buy AAPL — Apple Inc.
 - Admin view: full audit log with filters by user, action, date
 - Export capability: CSV, PDF for compliance reporting
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| General dashboards (use data-visualization-engineer) | `data-visualization-engineer` |
+| backend financial systems | outside this skill's scope (see the description) |
+| Non-financial data displays | outside this skill's scope (see the description) |
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Gain/loss shown only as red/green color — 8% of males are colorblind and cannot distinguish." | Gain/loss shown only as red/green color — 8% of males are colorblind and cannot distinguish | Always include +/− signs, up/down arrows, and percentage text. Test with colorblind simulators for all three types |
+| "It is faster to skip this: Hidden fees only shown after confirmation — #1 cause of fintech user complaints and regulatory ." | Hidden fees only shown after confirmation — #1 cause of fintech user complaints and regulatory fines | Show fee breakdown BEFORE confirm button: subtotal, platform fee, network fee, tax, total. Never use "estimated total" without full itemization |
+| "It is faster to skip this: Real-time prices without connection status indicator — users trade on stale data thinking it's ." | Real-time prices without connection status indicator — users trade on stale data thinking it's live | Persistent connection dot (green/yellow/red) + "As of [timestamp]" or "Delayed [N] minutes" on every price display |
+| "It is faster to skip this: Abbreviated numbers (1.2M) without tooltip showing full precision — users misread scale." | Abbreviated numbers (1.2M) without tooltip showing full precision — users misread scale | Hover/tap reveals full number to 2 decimal places. Abbreviation legend visible in chart footer (K=thousands, M=millions, B=billions) |
+| "It is faster to skip this: Financial data displayed without consistent decimal places — erodes trust in platform." | Financial data displayed without consistent decimal places — erodes trust in platform | Standardize to 2 decimal places for currency. Integer cents internally. Format only at display layer. Zero-pad to consistent width |
+| "It is faster to skip this: No review step on irreversible financial action (buy, sell, transfer) — accidental transactions." | No review step on irreversible financial action (buy, sell, transfer) — accidental transactions | Mandatory review step with: amount, fees, total, delivery time, "This action cannot be undone" warning. Require explicit confirmation gesture |
+
+This table is specific to `fintech-ui-designer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ **Color-only gain/loss.** Rendering a −2.3% day as bare red text and a +1.1% day as bare green — indistinguishable to the ~8% of male users with color vision deficiency, and to any grayscale, printed, or screenshotted view. | ✅ Prefix every change with +/− and an up/down arrow glyph, and append the percentage as text. Verify in grayscale and through deuteranopia, protanopia, and tritanopia simulators before sign-off. |
+| ❌ **Fee reveal after confirmation.** The order or transfer review screen shows "Estimated total" with no line items, and the platform, network, or wire fee only appears on the receipt after the money has moved. | ✅ Itemize subtotal, each fee, tax, and grand total on the pre-confirmation screen, above the button. The confirm control stays disabled until the fee breakdown renders. |
+| ❌ **Live prices with no freshness signal.** A WebSocket-fed ticker with no connection dot and no "As of" timestamp, so a silent reconnect leaves the user acting on a frozen price believing it is live. | ✅ Persist a green/yellow/red connection indicator plus "As of HH:MM:SS" or "Delayed N minutes" adjacent to every price, balance, and rate. |
+| ❌ **Money as a float at render time.** Computing balances in the view layer with floating-point arithmetic, so values surface as `$0.000000` or drift by a cent after rounding. | ✅ Hold amounts as integer minor units and format only at the display boundary, fixing currency to 2 decimal places with thousands separators. |
+| ❌ **Count-up price animation.** Tweening a quote from $97.34 to $103.21 over 400ms, so the screen displays numbers that were never the real price for 400ms of a volatile market. | ✅ Replace the old value instantly and communicate that it changed with a ≤200ms flash plus arrow. Never interpolate a price; supply a `prefers-reduced-motion` instant fallback. |
+| ❌ **"Submit" on an irreversible action.** A buy, sell, or transfer control that executes on a single tap with no review state and no undo path, turning a mis-tap into a settled transaction. | ✅ Insert a read-only review step showing amount, fees, total, settlement time, and "This action cannot be undone," then require an explicit second confirmation gesture. |
+| ❌ **Abbreviation without a scale legend.** A position value shown as `$1.2M` with no hover/tap precision and no visible K/M/B legend, so the user cannot tell $1,200,001 from $1,249,999. | ✅ Add a tooltip revealing the exact figure to 2 decimal places and keep a K = thousands, M = millions, B = billions legend in the table or chart footer. |
+| ❌ **Red for everything.** Using alert red for informational banners, neutral deltas, and routine warnings alike, until a genuinely irreversible loss event no longer stands out. | ✅ Reserve red for irreversible loss events, use amber for warnings such as margin-limit proximity, and blue for informational messages; audit the screen so red stays a minority of elements. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -604,6 +604,14 @@ Is formal inter-skill communication overkill?
 
 ```
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| Individual skill internals | `writing-great-skills` |
+| persona fan-out | `agent-persona-orchestrator` |
+| Multi-agent topologies | `multi-agent-orchestration` |
+
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

@@ -798,6 +798,27 @@ You spent 2 years building, 6 months deploying, reached 50,000 learners. Then th
 | 19 | School server (Raspberry Pi) kit costs < $150; runs on solar; serves 20+ concurrent devices | CL-DEPLOY-INFRA |
 | 20 | Train-the-trainer materials exist in local language with picture-based quick reference cards | CL-DEPLOY-INFRA |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For commercial LMS/LXP platforms** → route to `fullstack-developer`.
+2. **Educational games** → route to `educational-game-developer`.
+3. **Or corporate training platforms** → route to `backend-developer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Offline sync silently fails — learner completes 3 lessons, reconnects, progress is lost because." | Offline sync silently fails — learner completes 3 lessons, reconnects, progress is lost because IndexedDB schema migration was not handled in Service  | Version IndexedDB schemas; test sync with airplane mode toggle and schema migration scenarios; implement sync health dashboard showing pending/synced/conflict c |
+| "It is faster to skip this: SMS delivery costs explode — 5K learners receiving 3 SMS/day at $0.04/SMS = $18K/month, burning." | SMS delivery costs explode — 5K learners receiving 3 SMS/day at $0.04/SMS = $18K/month, burning through annual budget in 3 months | Negotiate educational bulk rates with local carriers (target < $0.01/SMS); use USSD for interactive content (session-based, not per-message billing); implement  |
+| "It is faster to skip this: Low-bandwidth video auto-plays consuming learner data — a single 5MB video on a $2/100MB data p." | Low-bandwidth video auto-plays consuming learner data — a single 5MB video on a $2/100MB data plan costs $0.10, equivalent to 10% of daily income in s | Never auto-play video; show size and cost estimate before download ("15MB, ~$0.30"); default to 144p with explicit opt-in for higher quality; use poster images  |
+| "It is faster to skip this: Accessibility compliance gap — platform built for smartphone users excludes 30% of target learn." | Accessibility compliance gap — platform built for smartphone users excludes 30% of target learners who rely on feature phones, screen readers, or have | Test all core flows on $50 Android Go + 2G; implement SMS/USSD fallback channel; ensure screen reader compatibility from day one; co-design with learners who ha |
+| "It is faster to skip this: Content licensing violation — using copyrighted images/diagrams in OER-labeled content triggers." | Content licensing violation — using copyrighted images/diagrams in OER-labeled content triggers takedown notices and funder audit failures | Audit all content for license compliance; use CC-licensed or original content only; embed TASL attribution (Title/Author/Source/License) in every content asset; |
+
+This table is specific to `education-access-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -438,6 +438,42 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For API design patterns (api-designer)**.
+2. **General appsec (appsec-engineer)**.
+3. **Or IAM architecture (iam-architect)**.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Authenticate every request and call it authorization — `GET /api/v1/invoices/{id}` verifies the JWT signature and then returns whatever row matches `id`, so any valid account reads every other customer's invoice by incrementing the parameter | ✅ Put a resource-scoped predicate on every by-ID read and mutation (`WHERE id = $1 AND tenant_id = $2 AND owner_id = $3`), return 404 rather than 403 so existence is not confirmed, and gate the merge on a two-account test that asserts a cross-tenant read is refused |
+| ❌ Call `jwt.decode(token, key)` or `jwt.verify(token, key)` and let the library select the algorithm from the token's own header | ✅ Pin the accepted algorithm set explicitly (`jwt.verify(token, key, { algorithms: ['RS256'] })`, `jwt.decode(..., algorithms=['EdDSA'])`), reject any token whose header `alg` falls outside that set — including `none` and the RS256-to-HS256 public-key confusion — and audit every validation call site, not just the login path |
+| ❌ Keep the SPA access token in `localStorage` because "the refresh token is the sensitive one" and the access token is short-lived anyway | ✅ Move token custody server-side with a BFF or an `httpOnly; Secure; SameSite=Lax` cookie, hold the access token in an in-memory closure only, and tighten CSP `connect-src` and `frame-ancestors 'none'` so an injected script has no destination to exfiltrate to |
+| ❌ Reflect the incoming `Origin` header straight back into `Access-Control-Allow-Origin` so that "all our preview deployments keep working" | ✅ Hold an exact-match server-side origin allowlist, reflect an origin only on a hit, emit no CORS headers on a miss, and never combine `Access-Control-Allow-Credentials: true` with `*` (the Fetch Standard forbids the pair and the browser blocks it rather than the attacker's request) |
+| ❌ Transmit the API key as `?api_key=sk_live_...` because it is quicker for partners to test in a browser | ✅ Require the key in a dedicated header (`X-API-Key`) or an HMAC-signed request with a ±5-minute replay window, so the credential never lands in proxy access logs, CDN logs, browser history, or a `Referer` header on outbound links |
+| ❌ Persist the API key verbatim in the database "so support can read it back to the customer" | ✅ Store a SHA-256 (or peppered HMAC) hash plus a short plaintext prefix for lookup and display, show the full key exactly once at creation, and treat recall as a re-issue rather than a retrieval |
+| ❌ Rotate the refresh token on every use but leave the predecessor valid "in case the client's request was lost in flight" | ✅ Make rotation a token-family operation: invalidate the predecessor on use, and when an already-rotated refresh token is presented, revoke the entire family and force re-authentication — presentation of a consumed token means it was stolen |
+| ❌ Let the global exception handler return `err.message` or `err.stack` because "only developers ever see staging" | ✅ Return a fixed envelope (`{"error":{"code":"INTERNAL_ERROR","message":"An unexpected error occurred.","request_id":"..."}}`), keep the stack in the server-side log correlated by `request_id`, and diff the staging and production handler config in CI so a debug flag cannot ship enabled |
+| ❌ Leave GraphQL introspection enabled in production "so the frontend team can point GraphiQL at the real API" | ✅ Disable introspection for unauthenticated callers and restrict the explorer to an admin role, then pair it with depth, cost, and alias-count limits — introspection is one recon shortcut, not the only one standing between an attacker and an expensive query |
+| ❌ Accept a customer-supplied webhook URL after checking only that it begins with `https://` | ✅ Allowlist destinations or resolve the hostname and reject loopback, RFC 1918, and link-local ranges including `169.254.169.254`, re-validate after every redirect, and dispatch the callback from an egress identity that has no route to internal services |
+| ❌ Terminate TLS at the CDN and speak plain HTTP on the internal hop because "the VPC is a trusted network" | ✅ Keep TLS end-to-end with certificate validation on the internal hop and mTLS between services, so one compromised internal host cannot passively harvest the bearer tokens that cross it |
+| ❌ Key the rate limiter on client IP alone, so every customer behind one carrier NAT or corporate VPN shares a single budget | ✅ Key authenticated traffic on the subject (user or client ID) with IP as a secondary signal, and for unauthenticated endpoints layer progressive delays, CAPTCHA after repeated failures, and per-account lockout instead of a hard per-IP block |
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "Our IDs are UUIDv4, so IDOR is not a risk on this API." | Unguessability is not authorization. UUIDs leak through list endpoints, CSV exports, audit logs, and shared links, and the next lookup added by `email`, `slug`, or `external_ref` reintroduces enumeration immediately. | Keep the ownership predicate on every by-ID read whatever the ID format is, and hold the two-account cross-read test as the merge gate — the test, not the ID scheme, is the control. |
+| "The gateway already verified the token, so downstream services can just trust `X-User-Id`." | An edge-set header is trustworthy only while nothing else can reach the service. A debug port, a sidecar, a batch job, or an SSRF through another route lets a caller mint that header directly. | Re-verify the token or a signed, short-lived internal assertion inside the service, and keep the service unreachable except through the gateway. |
+| "We restrict webhook URLs to `https://`, so SSRF is handled." | That check constrains the scheme, not the destination. A hostile hostname can resolve to `127.0.0.1`, issue a 302 to the cloud metadata endpoint, or rebind DNS between validation and fetch. | Validate the resolved IP on every hop, block loopback, RFC 1918, and link-local ranges (including `169.254.169.254`), and fetch from an egress identity with no internal reachability. |
+| "We strip the dangerous fields — `role`, `isAdmin`, `tenantId` — from update bodies." | A denylist covers only the fields you already thought of. The next column added to the model is writable by default and nobody revisits the list. | Bind each endpoint to an explicit allowlist of writable fields, and reject requests carrying unknown keys rather than silently dropping them so the gap surfaces in CI. |
+| "It is an internal-only endpoint, so it does not need the same auth as the public API." | "Internal" describes network position, not trust. Service-mesh misconfiguration, SSRF from the public API, and a developer laptop all reach internal endpoints. | Apply the same authentication and stricter authorization to internal endpoints; the only thing internal traffic earns is a shorter token lifetime, never fewer checks. |
+| "We rotate API keys annually, so a leaked key is bounded." | A year-long window is effectively never. Automated secret scanners find a committed key in under three minutes and use it long before the annual rotation lands. | Drive mean-time-to-revoke under 60 seconds with webhook-driven auto-revocation on secret-scan hits, a two-key overlap window for customer-initiated rotation, and an enforceable per-key expiry. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

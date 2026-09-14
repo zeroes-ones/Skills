@@ -468,6 +468,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For package-level development**.
+2. **CI/CD pipeline construction**.
+3. **Or individual project builds**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Affected detection silently falls back to "all projects" — CI rebuilds and retests every packag." | Affected detection silently falls back to "all projects" — CI rebuilds and retests every package on every commit. CI costs balloon and queue times str | Add a CI step that verifies affected detection: `nx affected --base=HEAD~1` must return >0 projects. Monitor remote cache hit rate as a KPI — alert if <70%. |
+| "It is faster to skip this: Circular dependency creeps in during a refactor — packages/auth imports from packages/ui, which." | Circular dependency creeps in during a refactor — `packages/auth` imports from `packages/ui`, which imports from `packages/auth`. Build succeeds local | Enforce `eslint-plugin-import/no-cycle` with `maxDepth: 1` from day one. Run `madge --circular packages/` in CI — fail on any cycle. Retrofitting boundary rules |
+| "It is faster to skip this: Single version policy enforced uniformly — pnpm.overrides forces React 18.3 on all packages. On." | Single version policy enforced uniformly — `pnpm.overrides` forces React 18.3 on all packages. One legacy package requires React 17 and blocks deploym | Implement version policy with documented exceptions: overrides for 95% of packages, per-package overrides for the 5% that can't. Maintain a version drift report |
+| "It is faster to skip this: Dead packages consume CI time and generate noise PRs — 80% of packages are unmaintained but "so." | Dead packages consume CI time and generate noise PRs — 80% of packages are unmaintained but "someone might need them." Renovate opens weekly PRs again | Implement package ownership with CODEOWNERS. Track usage with `nx graph`. Remove packages with 0 dependents and 0 recent commits (90+ days). Configure Renovate  |
+
+This table is specific to `monorepo-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

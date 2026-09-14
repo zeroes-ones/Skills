@@ -596,6 +596,76 @@ Before ANY production deployment, every checkbox must be `[x]`. These are PASS/F
 | **Renewable Energy Systems** | Solar/wind modeling, grid integration, battery optimization, energy forecasting algorithms  |
 | **Impact Measurement & Methodology** | Carbon accounting methodology, environmental KPI frameworks, counterfactual analysis, attribution modeling  |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general data visualization** → route to `data-visualization-engineer`.
+2. **IoT without environmental context** → route to `embedded-engineer`.
+3. **Or enterprise ESG reporting** → route to `compliance-officer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Building environmental models without peer-reviewed science backing — "our algorithm says this ." | Building environmental models without peer-reviewed science backing — "our algorithm says this forest is sustainable" with no methodology paper | Publish methodology as open-access preprint before deploying. Cite emission factors with source + year (e.g., "EPA eGRID2022, subregion RFCW"). Every model outp |
+| "It is faster to skip this: Hardcoding emission factors — app reports 2015 grid intensity for 2025 calculations." | Hardcoding emission factors — app reports 2015 grid intensity for 2025 calculations | Use annually updated emission factor databases (eGRID, IEA, Climate TRACE). Refresh factors on January 15 each year. Store factors with effective_date and expir |
+| "It is faster to skip this: Assuming perfect connectivity — environmental sensors deployed in remote areas with intermitten." | Assuming perfect connectivity — environmental sensors deployed in remote areas with intermittent satellite/cellular | Design for offline-first: edge devices buffer data locally (SD card, 30-day ring buffer). Sync when connectivity available. Use LoRaWAN for <50km range, satelli |
+| "It is faster to skip this: Ignoring accessibility for global environmental audiences — app works on iPhone 15 but not on t." | Ignoring accessibility for global environmental audiences — app works on iPhone 15 but not on the $50 Android phones used by farmers in developing cou | Target: works on Android 8+, 2GB RAM, 480p screen, offline-capable. Progressive Web App with <500KB initial load. Test on real low-end devices. Support offline  |
+| "It is faster to skip this: Measuring vanity metrics (app downloads, page views) instead of environmental outcomes (tons CO." | Measuring vanity metrics (app downloads, page views) instead of environmental outcomes (tons CO2 reduced, hectares conserved) | Design measurement from day 1: what is the counterfactual? How do you prove your tool caused the change? Use established protocols: GHG Protocol for emissions,  |
+| "It is faster to skip this: Releasing open-source environmental data without privacy review — sensor locations reveal indig." | Releasing open-source environmental data without privacy review — sensor locations reveal indigenous community territories or endangered species locat | Fuzz GPS coordinates: ±1km for community locations, ±10km for endangered species. Implement data tiering: public (anonymized, fuzzed), research partner (precise |
+
+This table is specific to `environmental-tech-developer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+Each row is a failure this skill's Ground Rules (R1–R10), Gotchas table, and phased Core Workflow already exist to prevent — all of them ship something that looks finished.
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Rendering a single precise figure — "Your carbon footprint: 8,347.2 kg CO₂" — from spend-based data carrying ±40% uncertainty. | ✅ Display the range with its basis and round to the data's real precision: "7,500–9,200 kg CO₂e (spend-based, EXIOBASE 3, ±15%)." Precision must not exceed provenance (R1). |
+| ❌ Defaulting a failed emission-factor lookup to `0` — `emissionFactor \|\| 0` converts an API outage into a truthful-looking "zero emissions" result for every user. | ✅ Default to `null`, throw a `DataUnavailableError`, and render "Unable to calculate — factor unavailable for [region]". Zero is a real environmental value; never let a failure impersonate it. |
+| ❌ Averaging sensor readings before comparing them to a permit limit, so the one reading that violates the instantaneous limit is smoothed into compliance. | ✅ Keep native-frequency readings, alert on any single exceedance, and report instantaneous and time-weighted compliance as two separate numbers (Error Decoder, compliance row). |
+| ❌ Publishing raw coordinates for community or endangered-species monitoring sites, because the map "looks better" with exact pins. | ✅ Fuzz to ±1 km for community locations and ±10 km for endangered species, tier access (public / research partner / internal), and get community sign-off before release (R4, R9). |
+| ❌ Uploading every field photo to a server for species identification, making connectivity a prerequisite for the core workflow. | ✅ Ship on-device inference (TensorFlow Lite, Core ML, ONNX Runtime) behind a queue-and-sync store; the observation must be complete and durable before the network appears (R5). |
+| ❌ Multiplying miles by a single blog-post emission factor — 404 g CO₂/mile with no vehicle class, occupancy, or speed term. | ✅ Cite a versioned, published factor (e.g. "UK DEFRA 2025, average passenger car, with radiative forcing") and state the assumptions that factor already bakes in (R6). |
+| ❌ Running the tracker on always-on, unmeasured instances while the impact dashboard reports users' savings — the app's own footprint is larger than what it demonstrates. | ✅ Host on a renewable-matched provider, scale to zero, right-size instances, and publish the infrastructure footprint beside the user-impact numbers (R7). |
+| ❌ Computing hectares, buffer distances, or patrol routes in Web Mercator because that is the display projection. | ✅ Store and analyse in EPSG:4326 or a local UTM zone and reserve EPSG:3857 for tiles; assert a surveyed reference polygon in CI before trusting any area figure (Phase 4). |
+| ❌ Ranking a leaderboard by activity — "top offset buyer: 500 tons" — which rewards the cheapest, least verifiable offsets. | ✅ Rank by verified outcome and weight by data quality (trees survived, registry-retired tonnes with a public ID), never by quantity purchased (R10). |
+
+## Error Decoder **(STANDARD)**
+
+The signatures above are the ones that surface in the field. These are the quieter ones a reviewer will not catch by reading the code.
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| Two users report carbon totals roughly double their energy supplier's own figure — and each had linked a smart-meter feed *and* scanned the paper bill for the same months. | The same activity data entered the ledger twice from two sources and was summed without deduplication; the meter feed and the OCR'd bill share no key. | Key every activity record on `(source, account_or_meter_id, billing_period)` and reject an overlapping period on ingest, offering a merge in the review queue instead of a silent add. | Duplicate detection belongs at ingestion. Once double-counted activity is summed, no downstream aggregate can tell you which half was real. |
+| A daily carbon total sits several hundred kg below the sum of the hourly readings the same dashboard displays. | The daily rollup ran on UTC while readings carried local `observed_at`, so the DST-shift hour and each local-midnight boundary were attributed to the wrong calendar day. | Store an explicit IANA timezone with every reading, aggregate on local calendar days, and keep a DST-transition day plus a 30-minute-offset zone (Asia/Kolkata) in the fixture set. | Environmental data is date-stamped by two different clocks — the observer's and the utility's billing boundary. Pick one, write it down, and test the seam. |
+| A change-detection report claims 1,240 ha of new forest loss; a ground survey finds about 600 ha. | Polygon area was computed in EPSG:3857, which inflates area by roughly 2× at temperate latitudes and without bound near the poles. | Reproject to an equal-area or local UTM CRS before any `area`/`length` call (`to_crs(...).area`, PostGIS `ST_Area(geography)`), and assert the result against a surveyed reference polygon in CI. | Web Mercator is a display projection. Every measurement taken in it is wrong by a factor that grows with latitude — and the error is invisible because the map looks right. |
+| European users see "you saved 120" with no unit; US users see the same integer labelled "miles" for the same trip. | Impact strings were built by concatenating a number with a translated noun, so the unit bypassed i18n entirely and no metric/imperial conversion ran. | Keep quantity and unit as separate message keys (`{{value}} {{unit}}`), route units through ICU MessageFormat for locale plural and format rules, and convert from one canonical SI base only at render time. | Units are part of the interface, not the data. Store one canonical unit; translate the label *and* the conversion. |
+| Sensor readings arrive timestamped 1970 or out of order after a gateway reboot, corrupting every trend line built on them. | Edge devices without an RTC fall back to epoch zero and stamp at transmit time, and ordering was inferred from arrival order rather than device time. | Have the network server record `received_at` alongside the device's `observed_at`, quarantine readings with no plausible time reference, and order the time series by device time with a monotonic sequence number as tiebreaker. | Arrival order is not observation order. Field devices lose power, buffer, and replay — the pipeline has to survive that. |
+| After a field team reconnects, 40 queued observations sync but the cloud count reads 80. | The sync client retried on an ambiguous timeout, so records already accepted were resent and re-inserted because the ingest endpoint was not idempotent. | Assign each record a client-generated UUID at capture time and make ingest idempotent on it (`INSERT ... ON CONFLICT DO NOTHING`), then assert duplicate count == 0 in the offline-sync test. | Offline-first means at-least-once delivery is the normal case, not an edge case. The server, not the client, must make replay harmless. |
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **CR1: Provenance on every displayed environmental number** — Verification: sample ten metrics in the running UI; each opens a "how we calculate this" view naming the source, the data vintage, the methodology, and an uncertainty range (R1).
+- [ ] **CR2: Emission-factor vintages pinned and dated** — Verification: every stored factor carries `source`, `effective_date`, and `expiry_date`, and a scheduled job raises an alert when `CURRENT_DATE - effective_date > 365 days`.
+- [ ] **CR3: Missing factors fail loudly instead of defaulting to zero** — Verification: search the codebase for `|| 0` and `COALESCE(..., 0)` over factor lookups — the result must be empty; force an API outage and confirm the UI says "unable to calculate", never `0`.
+- [ ] **CR4: Instantaneous and time-weighted compliance reported separately** — Verification: replay one day of 1-minute readings containing a single peak above the permit limit and confirm both the exceedance count and the daily mean are visible.
+- [ ] **CR5: Calibration and drift checks scheduled per sensor** — Verification: each deployed sensor has a calibration date, a co-location reference instrument, and a divergence alert firing above 50% from the peer median.
+- [ ] **CR6: Data freshness visible with per-type TTLs** — Verification: sensor readings 1 hour, satellite imagery one revisit period, emission factors one fiscal year — each display shows `observed_at` and shifts to an amber/red staleness state past its threshold (R3).
+- [ ] **CR7: Offline-first core flow proven end to end** — Verification: with radios off, complete the primary observation or entry flow, reconnect, and confirm zero records lost and zero duplicates created.
+- [ ] **CR8: On-device inference path exists for classification** — Verification: species or material classification returns an answer with connectivity disabled and states its reduced-confidence fallback rather than failing or hanging.
+- [ ] **CR9: Sensitive locations fuzzed or withheld at the public boundary** — Verification: query the public endpoints and exports for protected-site and endangered-species records; coordinates must be ±10 km fuzzed (community ±1 km) and embargoed records must be absent entirely.
+- [ ] **CR10: Geospatial measurements computed in a projected CRS** — Verification: an automated assertion compares a surveyed reference polygon's computed area to its true value within 1%, and no measurement code path executes on EPSG:3857.
+- [ ] **CR11: Impact metrics carry a stated counterfactual** — Verification: every dashboard metric answers "compared to what?" and names the protocol it follows (GHG Protocol for emissions, VERRA/ICVCM for credits, IUCN measures for conservation outcomes).
+- [ ] **CR12: Every external environmental API has a tested fallback** — Verification: simulate timeout, 403, 429, empty body, and malformed body for each provider; the app serves a last-known value with its timestamp and never a blank panel or a silent zero (V10).
+- [ ] **CR13: Offset or neutrality claims resolve to a public registry entry** — Verification: every retirement claim the UI surfaces carries a Gold Standard, Verra VCS, or Climate Action Reserve project ID that opens the corresponding public registry record, with no claim resting on a partner name alone (R2).
+- [ ] **CR14: Sensor deployment metadata complete for each device** — Verification: every station record carries install coordinates, calibration date, firmware version, and radio configuration; a device missing any field is rejected at ingest rather than silently accepted (Phase 5).
+- [ ] **CR15: Data licences, attribution, and unit handling recorded** — Verification: every source's licence, required attribution text, rate limit, and commercial-use clause is written down and rendered where the data appears; switching locale to de-DE and ja-JP renders correct dates, numbers, and translated unit labels.
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

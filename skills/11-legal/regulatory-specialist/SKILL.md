@@ -447,6 +447,30 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general compliance auditing (SOC 2**.
+2. **ISO 27001)**.
+3. **Privacy law implementation**.
+4. **Or legal contract drafting**.
+
+## Anti-Rationalization **(QUICK)**
+
+The excuses that precede every unclassified device, unvalidated GxP system, and unclosed CAPA in this domain — and the response each one requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It's a wellness app that surfaces trends from user-entered data, so it isn't a medical device and needs no classification." | Software that analyzes or interprets medical data to inform diagnostic or treatment decisions is a medical device under FDA and EU MDR definitions (R6). Marketing an unclassified device is a criminal exposure, not a paperwork gap — and "it's just a tool" is a statement made in the enforcement interview, not a defense. | Run the SaMD Classification tree before any further build work: write the intended use statement and indications for use, apply FDA 21 CFR 862-892 and EU MDR Annex VIII Rule 11, and record the determination plus rationale in a classification memo (`SaMD-classification*.md`). If the classification is genuinely unclear, escalate to regulatory affairs rather than proceeding. |
+| "We track CAPAs in a spreadsheet and manage training records by email — we're too small for an eQMS." | A 200-person company spends $200K-$1M/year on manual compliance labor and 3-week all-hands audit fire drills; a purpose-built eQMS runs ~$50K/year (Veeva, Qualio, Greenlight Guru). FDA reads CAPAs closed in under 7 days with root cause "retrained operator" or "human error" as evidence the CAPA process is a checkbox exercise (R7). | Stop measuring the eQMS against headcount. Cost the current manual burden (hours per audit cycle × loaded rate) and compare it against eQMS licensing; then require every open CAPA to carry a 5 Whys + Ishikawa root cause, an objective effectiveness measure, and verification evidence before closure. |
+| "We'll get FDA clearance first — CE marking under MDR is essentially a translation of the same technical file." | EU MDR requires a Clinical Evaluation Report and a post-market clinical follow-up (PMCF) plan that FDA never requests; treating CE marking as translation delays EU market entry 9-12 months and costs $50K-$500K in additional clinical data generation. | Design the technical file as a multi-jurisdiction program from day one: map Annex II/III technical documentation, ISO 14971 risk management, ISO 13485 QMS, and the CER/PMCF obligations alongside the 510(k) package, and state the EU timeline separately in the Regulatory Strategy Document. |
+| "The predicate device is close enough — the intended use differences are minor and technological characteristics line up." | Substantial equivalence requires a predicate that is currently legally marketed with a matching intended use and no new safety questions raised by technological differences (Error Decoder). A "close enough" predicate is the single most common cause of a not-substantially-equivalent decision, which resets the review clock and the predicate selection rather than the device. | Verify the predicate is not recalled or withdrawn, build the SE comparison table with intended use and technological characteristics mapped side by side, and pre-clear that table with regulatory affairs before compiling the submission. If no predicate survives that test, evaluate De Novo. |
+| "The 483 response just needs to acknowledge the observations and say we'll remediate — the inspector wants to see cooperation." | FDA reads "we'll fix it" without root cause, corrective action, preventive action, timeline, and a named responsible person as evidence the company doesn't understand the severity (Anti-Patterns). A 483 is the observation; the response is what determines whether it becomes a Warning Letter. | Draft a per-observation response addressing all five elements for EACH observation, file within the response window, and start the regulatory impact assessment on whether any observation invalidates prior submissions or validated state. |
+| "The system was validated at launch, so GxP validation is signed off and we can patch it in production." | GxP validation is a lifecycle activity: any patch or configuration change to a validated system may require re-validation, and development activity inside the validated PROD environment invalidates the validated state (Best Practices 3 and 10). | Route every change through the change control process with a documented regulatory impact assessment; re-run the impacted IQ/OQ/PQ elements and refresh the traceability matrix before the change goes live, keeping DEV/VAL/PROD segregated. |
+
+Each row above names a specific obligation this skill enforces — classification (R1, R6), QMS/CAPA integrity (R7), multi-jurisdiction strategy, 510(k) substantial equivalence, inspection response, and validated-state maintenance — and the evidence an auditor would accept instead of the justification.
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

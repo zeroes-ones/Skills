@@ -165,7 +165,9 @@ automatically when mechanical triggers detect potential negative-ROI work.
 
 Do NOT use roi-gate for: security vulnerabilities (route to security-engineer), compliance/regulatory mandates (route to compliance-officer), active production incidents (route to incident-responder), or tasks under 2 hours where the request clearly states the business value.
 
-## When NOT to Use — Gate Bypass Rules
+## When NOT to Use **(QUICK)**
+
+**Gate bypass rules** — these cases skip ROI gating by definition:
 
 | Scenario | Bypass? | Documentation Required |
 |---|---|---|
@@ -380,6 +382,18 @@ they removed it — deletion PR removed 2,400 lines and 15 files. Zero bugs from
 ~$45,000 for an abstraction that served zero concrete purposes. **Lesson:** An abstraction without at
 least 3 real implementations is premature. Delete it until it earns its keep.
 
+## Error Decoder **(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| A trivial fix was gated for two days | Gating applied without tiering — every task treated as Major | Classify tier first: Trivial auto-passes, only Major needs a business case | The gate exists to stop over-engineering, not to stop work |
+| A major rewrite skipped the gate entirely | No entry criterion; the work began before classification | Require tier classification at task start, before any code | A gate nobody reaches is not a gate |
+| The business case was written after the decision | ROI computed to justify rather than to decide | Compute in the Moderate tier before committing effort | A number produced after the decision rationalizes; it does not inform |
+| Effort and risk were both under-estimated | Optimistic sizing with no reference class | Use analogous past work as the baseline, then adjust | Estimates anchored on nothing are the number you wanted |
+| Annual value asserted with no owner | Value claimed by the requester alone | Name who receives the value and how it is measured | Value without a beneficiary is a wish |
+| Security or compliance work was ROI-gated | Bypass rules not applied | These bypass ROI by definition — route to the owning skill | Some work is mandatory; costing it is a category error |
+| Over-engineering detected but shipped anyway | The signal arrived too late in the cycle | Run the over-engineering check at design, not at review | Detection after commitment is archaeology |
+
 ## Error Recovery
 **(STANDARD)**
 
@@ -409,6 +423,19 @@ Before approving any non-trivial task (> 8 hours), verify:
 - [ ] **[ROI11]** Gate bypass logged if applicable (security, compliance, incident — with reason)
 - [ ] **[ROI12]** Downstream skill notified of ROI decision and assumptions
 
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Rewriting for engineering satisfaction when ROI is negative." | Rewriting for engineering satisfaction when ROI is negative | Run the Phase 1 triage before greenlighting any rewrite. If annual pain × 2 < rewrite cost, STOP. Engineering enjoyment is not a business case. |
+| "It is faster to skip this: Underestimating rewrite costs by ignoring onboarding, dependency, and risk costs." | Underestimating rewrite costs by ignoring onboarding, dependency, and risk costs | Always apply the +20% risk premium. Add 2 weeks for team onboarding to new architecture. Include regression testing and bug-fixing stabilization period (typical |
+| "It is faster to skip this: Not factoring opportunity cost of features NOT built during rewrite." | Not factoring opportunity cost of features NOT built during rewrite | Calculate the value of the highest-priority displaced work. If 6 engineers rewrite for 3 months, that's ~18 engineer-months of features NOT shipping. Subtract d |
+| "It is faster to skip this: Treating developer salary as the opportunity cost instead of displaced work value." | Treating developer salary as the opportunity cost instead of displaced work value | Opportunity cost = value of displaced work, not hourly rate. Developers don't sit idle — they'd work on the next-highest-priority item. If you can't quantify di |
+| "It is faster to skip this: "Everyone else is doing it" as justification without running your own numbers." | "Everyone else is doing it" as justification without running your own numbers | Different companies have different revenue-per-engineer, growth trajectories, and tech debt profiles. Run the decision tree with YOUR actual numbers. Only your  |
+
+This table is specific to `roi-gate`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 2min -->

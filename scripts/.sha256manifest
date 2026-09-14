@@ -1,13 +1,13 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-14T20:57:41Z
+# Generated: 2026-09-14T22:20:10Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    303525a8852e325cc4a09fcfdbaf662cff66f687
+# Commit:    5e91bb1d9538a774e712b68e03d9d452749d4cd5
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
 e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
-ca3f8a02e81671d2883ba3ca5dec5728c4baf8087bc14b10c78ceb6bcfd8cb3f  .githooks/pre-commit
+9432aeebfea4e1c4d90c26882571932f78a49f505d809dcb1dd09c3f602fec87  .githooks/pre-commit
 ef8c6e4ace23f0c4d14b8865f2e543c4ea94b2d8850bfd0241e695e461e940a7  .githooks/pre-push
 63bad0ccc35c995cc82645b621ebdc014a7c7d2fe32dec985d6a3a246d161cb2  scripts/_compile_skill.py
 ffd847830fc4daa5ff70cdde91f58597623f5103959130f1240d1b9d82e6ea25  scripts/add-finance-rp-extensions.py
@@ -47,7 +47,7 @@ c0713f12c06d91d78a1b3e7872ca7f3861fbce3d9cbe913640f1fbe8a7297641  scripts/lib/li
 4319bd9c79db1a8a8909b9a432afb6ab00c5b1225660830b4d4e1d88927b9439  scripts/lib/lint-files.py
 567e75f6448ed0204a6a7c8f7bee66c6b8d23e59f54857357a7e7d54205126e9  scripts/lib/lint-markdown.py
 770c9ec4a403367969befe2112b80c2c1f333d282a867d001c91263583e8fe75  scripts/lib/lint-shell.py
-681a627a1f7595d5497321347214a3137cb614ac2dc3f2a76cfa494fd964b956  scripts/lib/lint-template.py
+6882bdaae3d7b898679f664b1ae174b9a39308a087deb8e2859b02931e4cba20  scripts/lib/lint-template.py
 e5ef422fedad81411d061b2cc53fcc9dbc55cd8be60ae6e14e3e4cb6af774507  scripts/lib/lint-workflow.py
 866980c7f79fa95f65a8a64f207cb047332c8bfd7267c93dcfef9e340fddfed2  scripts/lib/lint-yaml.py
 647393b289d48afb22217dfbad156da5d4eeb59a9330529da89fba7b4d30e0e9  scripts/lib/safe_yaml.py
@@ -102,9 +102,9 @@ ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-desi
 5c427d00cea690174f19a9dca16e44446469ffc1ac4987cf5ad9b72e8b2bbcc5  skills/03-design/apple-hig-expert/scripts/hig_checker.py
 e3bbb6304a27f9f6f6ae0152a8813236480424728a4d499cc06f5b43c477f601  skills/03-design/apple-hig-expert/scripts/verify-skill.sh
 ca9608f97c97f5e0710604e54386eb21c09c7c99722baf6f1d87fb44c1c69885  skills/03-design/brand-guidelines/scripts/verify-skill.sh
-d952398e4f8224bb7c3729ab639e936e6a624d90b01fbb4225aba9dacbfddadf  skills/03-design/fintech-ui-designer/scripts/verify-skill.sh
-43ba9cdf187184bdab75f6f95d6652b072ebe9b98396ed726ecab6181f68df6f  skills/03-design/game-ui-designer/scripts/verify-skill.sh
-1c0170e8ed11947f767913ea498e00559e50ddc890e1b9bbe10ed8cd2d2a3993  skills/03-design/healthcare-ui-designer/scripts/verify-skill.sh
+1054c8bfb313362fa99b9cc7404e017ce9e90b8d88b2f2d4e496ed0fd881af60  skills/03-design/fintech-ui-designer/scripts/verify-skill.sh
+fcf4dd433de76c8fa47dd0a5db89a0170fb520cdeb23b0c3f3b144f2aabdd4ba  skills/03-design/game-ui-designer/scripts/verify-skill.sh
+8f852e92d28036f1f546ee7e07a00ac46b7bf5abaf769f9fd82e297e56e47673  skills/03-design/healthcare-ui-designer/scripts/verify-skill.sh
 69a5b60a78b364f97ad162defcbfe55791ee49668d1c5008ede2937ca0d4884e  skills/03-design/inclusive-design-engineer/scripts/verify-skill.sh
 eb5c4563134c83608f4e53b737fce5ba8b0484bea4cdf9421d71740e06848c3d  skills/03-design/material-design-expert/scripts/md3_checker.py
 3511d2cfa75abcf454d44a951d8b0c9dbc6ebb91651dd4da070d99eedd3bd106  skills/03-design/material-design-expert/scripts/verify-skill.sh

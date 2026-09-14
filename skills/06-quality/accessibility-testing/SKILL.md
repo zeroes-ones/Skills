@@ -351,6 +351,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For manual accessibility audits**.
+2. **General QA strategy without a11y focus**.
+3. **Or UI design system creation**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Relying only on automated axe-core scans — they catch only ~30% of WCAG 2.2 AA issues." | Relying only on automated axe-core scans — they catch only ~30% of WCAG 2.2 AA issues | Pair automated axe-core CI gates with manual screen reader (NVDA/VoiceOver) and keyboard-only walkthroughs on critical flows |
+| "It is faster to skip this: Shipping color contrast violations that pass design-token review but fail in production context." | Shipping color contrast violations that pass design-token review but fail in production context | Verify contrast across the full state matrix (default, hover, disabled, error, focus) using tools like Stark or axe DevTools |
+| "It is faster to skip this: Forgetting focus management in SPA route transitions — focus stays on the trigger element." | Forgetting focus management in SPA route transitions — focus stays on the trigger element | After every route transition, move focus to the page heading or skip-link target; test with real screen reader after each SPA change |
+| "It is faster to skip this: Using ARIA incorrectly — orphaned references, conflicting roles, or ARIA on native HTML element." | Using ARIA incorrectly — orphaned references, conflicting roles, or ARIA on native HTML elements | Follow the first rule of ARIA: use native HTML first; validate ARIA with axe-core; prefer semantic HTML over custom widgets with ARIA |
+
+This table is specific to `accessibility-testing`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

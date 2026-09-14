@@ -473,6 +473,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For incident response during a live outage** → route to `incident-responder`.
+2. **Greenfield API design** → route to `api-designer`.
+3. **Database migrations without deprecation context** → route to `database-designer`.
+4. **Or monorepo-wide refactors without deprecation planning** → route to `monorepo-manager`.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Deprecation announced but never enforced — consumers learn "deprecated" means "permanent." The ." | Deprecation announced but never enforced — consumers learn "deprecated" means "permanent." The old API accumulates 50K calls/day indefinitely, blockin | Escalate deprecation with progressive enforcement: warning header (3 months) → rate limiting (10% throttle/month) → scheduled brownouts (5 min/week) → hard cuto |
+| "It is faster to skip this: Deprecation window set without measuring slowest consumer's release cycle — teams on quarterly ." | Deprecation window set without measuring slowest consumer's release cycle — teams on quarterly cadences get 30 days, covering only ⅓ of a cycle. Impos | Measure consumer release cadence before setting timeline. Timeline = max(slowest_consumer_release_cycle × 2, 90 days). For external consumers: minimum 6 months. |
+| "It is faster to skip this: Zombie code removal without traffic verification — removing a "dead" code path that handles 0.0." | Zombie code removal without traffic verification — removing a "dead" code path that handles 0.01% of edge-case traffic causes production errors for mo | Require 90-day traffic data (not 30-day) before removing any code path. Cross-reference static analysis with runtime telemetry. Keep removed code in a tombstone |
+| "It is faster to skip this: Deprecation communicated only via broadcast Slack channel that consumer teams have muted — team." | Deprecation communicated only via broadcast Slack channel that consumer teams have muted — teams discover the breaking change when their builds fail m | Multi-channel notification: Slack + email to team leads + runtime deprecation warning in API response header + GitHub issue tagged on consumer repos. Track ackn |
+
+This table is specific to `deprecation-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

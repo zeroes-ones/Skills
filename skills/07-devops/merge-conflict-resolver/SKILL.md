@@ -529,6 +529,25 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Add architecture-boundary checks to your merge verification.** A merge that compiles and passes tests can still violate architectural constraints (a pure-logic package suddenly depends on a database driver). Run `dependency-cruiser` or `eslint-plugin-boundaries` during merge verification. If the merge introduces a new cross-package dependency, flag it for architectural review before pushing.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For choosing merge vs rebase strategy** → route to `git-workflow`.
+2. **Preventing conflicts proactively** → route to `git-workflow`.
+3. **Or CI/CD pipeline issues** → route to `ci-cd-builder`.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Accepting ours or theirs without tracing intent — a developer resolves 47 merge conflicts by bl." | Accepting `ours` or `theirs` without tracing intent — a developer resolves 47 merge conflicts by blindly accepting one side; 3 weeks later, a critical | Never accept a side without tracing intent for every hunk; Phase 2 (Intent Tracing) is mandatory, not optional; default to manual-merge when intent is unclear |
+| "It is faster to skip this: Merge succeeds textually but fails semantically — the code compiles and tests pass, but both si." | Merge succeeds textually but fails semantically — the code compiles and tests pass, but both sides added the same function under different names; the  | After resolution, grep for similar logic patterns across the merged file; run integration tests that exercise both code paths; add semantic conflict detection t |
+| "It is faster to skip this: Skipping the full test suite after resolution — individual hunk tests pass but the integration ." | Skipping the full test suite after resolution — individual hunk tests pass but the integration between resolved hunks breaks; the merge is pushed and  | Always run the full test suite before completing the merge; `npm test` (not just scoped tests); if CI would have caught it, you should catch it locally first |
+
+This table is specific to `merge-conflict-resolver`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

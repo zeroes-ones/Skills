@@ -188,16 +188,6 @@ You are a behavioral engineer who builds tools for personal freedom — not an a
 - Designing notification systems for behavior change — timing, bundling, quiet hours, actionable notifications
 - Implementing data portability, export, and zero-knowledge architecture for personal data
 
-### When NOT to Use
-
-- Enterprise project management with teams, Gantt charts, resource allocation, and OKR cascading (route to project-manager)
-- Team collaboration tools with shared workspaces, real-time co-editing, and permissions (route to fullstack-developer)
-- Health or medical tracking apps that provide diagnoses, medication reminders, or clinical data (route to health-condition-supporter)
-- Corporate wellness programs with HR integration (route to hr-manager)
-- Social networks or community platforms (route to fullstack-developer)
-- Pure gamification apps with no real productivity purpose (this skill refuses manipulative design)
-- Enterprise analytics dashboards with BI tooling (route to analytics-engineer)
-
 ## Route the Request
 <!-- STANDARD: 3min -->
 
@@ -632,6 +622,31 @@ Before concluding any personal productivity app build, verify every item. An unc
 - [ ] **[PRODAPP13] Integration ecosystem:** At least one external integration working (calendar, health data, cloud backup, voice assistant, or task API). Integration is optional and user-consented — not automatic data access.
 - [ ] **[PRODAPP14] Behavior change metrics tracked:** Habit completion rate (week 1 vs week 8), retention at day 7/21/66, goal achievement rate. User survey prompt at month 3: "Has this app helped you?" Metrics inform iteration, not surveillance.
 - [ ] **[PRODAPP15] Monetization is transparent and ethical:** No data selling. No surveillance ads. Pricing clearly communicated. Free tier covers core features. Paid tier adds genuine value (sync, analytics, family). All pricing marked "as of [current year] — verify current rates."
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Designing for the motivated morning user instead of the exhausted 11 PM user — app abandoned at." | Designing for the motivated morning user instead of the exhausted 11 PM user — app abandoned at day 4 | Every core action must complete in ≤5 seconds from intent to confirmation. Quick-add, voice input, and one-tap completion are survival features, not nice-to-hav |
+| "It is faster to skip this: Storing journal entries and personal reflections as plaintext on server — subpoena surrenders u." | Storing journal entries and personal reflections as plaintext on server — subpoena surrenders user's innermost thoughts | Encrypt sensitive data end-to-end on-device before transmission. Derive encryption key from user password (Argon2id). Server stores ciphertext only. Privacy pol |
+| "It is faster to skip this: Using streaks as punishment — red X, "FAILED," or guilt mechanics drive permanent abandonment." | Using streaks as punishment — red X, "FAILED," or guilt mechanics drive permanent abandonment | Design streaks as motivators. "You built a 45-day habit! Ready to start a new streak?" Provide configurable skip/freeze days. Never use red, never use X marks,  |
+| "It is faster to skip this: Fetching from server on every app open instead of local-first — loading spinner on launch drive." | Fetching from server on every app open instead of local-first — loading spinner on launch drives 53% abandonment | Local-first architecture: device stores data locally, UI reads from local storage, sync is background-only. Test every feature with airplane mode ON. If anythin |
+| "It is faster to skip this: Notification spam — 3 separate pings for 3 habits due at the same time drives users to disable ." | Notification spam — 3 separate pings for 3 habits due at the same time drives users to disable all notifications | Bundle notifications: one notification for all habits due at the same time. Adaptive timing learns optimal notification time from engagement patterns. Hard bloc |
+
+This table is specific to `personal-productivity-developer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| Enterprise project management — cross-team Gantt charts, resource allocation, portfolio-level OKR cascading, workstream dependencies, billable-hours tracking | `project-manager` |
+| Shared-workspace collaboration — real-time multi-user co-editing, role permissions, org-wide boards, approval workflows, commenting threads | `fullstack-developer` |
+| Medical or clinical tracking — symptom logs whose output informs a diagnosis, medication reminders, EHR/lab-linked data, dosing schedules | `health-condition-supporter` |
+| Therapy-grade mental health content — CBT/ACT protocols delivered as treatment rather than as reflection prompts, crisis triage, clinical assessment | `mental-fitness-coach` |
+| Corporate wellness wired into HR — benefits enrollment, EAP routing, eligibility rules, employer-mandated participation reporting | `hr-manager` |
+| Warehouse-backed business intelligence — executive dashboards over financial/operational datasets, multi-source reporting, BI tooling administration | `analytics-engineer` |
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->

@@ -477,6 +477,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For hands-on IaC implementation (Terraform/Pulumi)**.
+2. **CI/CD pipeline design**.
+3. **Or Kubernetes cluster operations**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Designing for single-region without multi-AZ — an AZ outage takes down the entire application b." | Designing for single-region without multi-AZ — an AZ outage takes down the entire application because all instances land in one zone | Deploy across 3 AZs minimum; configure auto-scaling across zones; use ALB/NLB with cross-zone load balancing; test AZ failure in game days |
+| "It is faster to skip this: Forgetting about data egress costs — cross-region replication or inter-service traffic over pub." | Forgetting about data egress costs — cross-region replication or inter-service traffic over public internet generates $50K+ monthly bills | Prefer PrivateLink/Private Service Connect for service-to-service traffic; use VPC endpoints for AWS/GCP services; architect data flows to minimize cross-AZ and |
+| "It is faster to skip this: Centralizing all IAM in one "admin" role — a compromised admin session gives attacker access to." | Centralizing all IAM in one "admin" role — a compromised admin session gives attacker access to every account and service | Implement least-privilege with role-based access; use permission boundaries; require MFA for all human users; use separate break-glass roles with just-in-time e |
+| "It is faster to skip this: Using default VPC and default security groups — broad 0.0.0.0/0 ingress rules expose services t." | Using default VPC and default security groups — broad `0.0.0.0/0` ingress rules expose services to the internet unintentionally | Never deploy production workloads in default VPC; create custom VPCs with explicit security group rules; use AWS Config rule to detect open security groups |
+
+This table is specific to `cloud-architect`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

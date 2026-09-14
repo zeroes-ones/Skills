@@ -428,6 +428,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For mobile development**.
+2. **Web applications**.
+3. **Or CLI tools**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Shipping unsigned Windows builds — SmartScreen warning blocks 60%+ of installs, users assume ma." | Shipping unsigned Windows builds — SmartScreen warning blocks 60%+ of installs, users assume malware | EV code signing certificate from day one. Sign in CI, never locally. macOS notarization via `xcrun notarytool`. The installer IS the first product experience. |
+| "It is faster to skip this: Using ipcRenderer.sendSync() — blocks the renderer thread, UI freezes for the duration of the I." | Using `ipcRenderer.sendSync()` — blocks the renderer thread, UI freezes for the duration of the IPC round-trip | Standardize on `ipcMain.handle()`/`ipcRenderer.invoke()` for all request-response IPC. `sendSync()` is synchronous and blocking — it freezes the entire UI until |
+| "It is faster to skip this: Ignoring DPI awareness on multi-monitor setups — window opens off-screen on 4K monitor at 150% ." | Ignoring DPI awareness on multi-monitor setups — window opens off-screen on 4K monitor at 150% scaling | Set `PerMonitorV2` DPI awareness in Windows manifest. Save/restore window position using `screen.dipToScreenRect()` conversions. Test on multi-monitor setups wi |
+| "It is faster to skip this: Bundling native modules without prebuilt binaries — users must compile C++ at install time, 40%." | Bundling native modules without prebuilt binaries — users must compile C++ at install time, 40% fail | Distribute prebuilt binaries via `@mapbox/node-pre-gyp` or `napi-rs`. Build for all target platforms in CI. Never require a compiler on the user's machine. |
+| "It is faster to skip this: Forgetting to recompile native modules after Electron version bump — Error: The module was comp." | Forgetting to recompile native modules after Electron version bump — `Error: The module was compiled against a different Node.js version` | Run `npx electron-rebuild` after every Electron version bump. Add `"postinstall": "electron-rebuild"` to package.json. Pin `electron-rebuild` in devDependencies |
+
+This table is specific to `desktop-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

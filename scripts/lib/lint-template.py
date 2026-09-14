@@ -106,6 +106,31 @@ class SkillChecker:
             found = {h for h in found if 'Verification' not in h}
             found.add('Verification')
 
+        # Fuzzy-match Error Decoder <- Error Recovery. The canonical template defines
+        # Error Recovery as the deliberately generic form of the same artifact (a
+        # Symptom | Root Cause | Fix | Lesson table), and 35 skills carry exactly that
+        # table under the Error Recovery heading. Requiring a second, near-identical
+        # section would add duplication, not quality.
+        # ...but only when the skill does NOT already carry a second, suffixed Error
+        # Decoder variant. Two Error Decoder sections in one skill is a duplication
+        # defect, not compliance, so the alias must not paper over it.
+        _ed_variants = [h for h in found if 'Error Decoder' in h]
+        if len(_ed_variants) > 1:
+            self.warnings.append(
+                "Two Error Decoder sections (%s) — retire the suffixed variant"
+                % "; ".join(sorted(_ed_variants)))
+        if 'Error Decoder' not in found:
+            er = {h for h in found if h.startswith('Error Recovery')}
+            if er:
+                for h in er:
+                    seg = re.search(r'^##\s+' + re.escape(h) + r'.*?\n(.*?)(?=^##\s|\Z)',
+                                    self.body, re.MULTILINE | re.DOTALL)
+                    if seg:
+                        hdr = re.search(r'^\|(.+)\|', seg.group(1), re.MULTILINE)
+                        if hdr and len([c for c in hdr.group(1).split('|') if c.strip()]) >= 4:
+                            found.add('Error Decoder')
+                            break
+
         missing = REQUIRED_SECTIONS - found
         if missing:
             self.errors.append(f"Missing required sections: {', '.join(sorted(missing))}")

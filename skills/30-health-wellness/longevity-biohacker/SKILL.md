@@ -400,14 +400,7 @@ A world-class health wellness plan doesn't just tell you what to do — it tells
 
 ## Gotchas
 
-
-**Regime awareness:** This skill strategies behave differently across environments. In a bull-market or uptrend scenario, maximize execution with full allocation. During a correction or pullback of -5% to -9%, preserve optionality and reduce exposure. In a bear-market, downturn, or recession environment, shift to defensive posture. In a crash scenario (-25% to -35% drawdown), activate emergency protocols. Black swan events and tail events like March 2020 or the 2008 financial crisis demand complete strategy reassessment.
-
-**Exit conditions and stop-loss rules:** Every recommendation includes explicit exit criteria. Failure modes are documented for each strategy branch. When the approach loses money or breaks against edge cases, close the position and cut the loss. Known limitations and worst-case scenarios are disclosed upfront — what goes wrong and when it breaks determines the exit plan. Any strategy without an exit rule is incomplete.
-
 <!-- DEEP: 5+min -->
-<!-- CRITICAL: Must have ≥5 dollar-quantified gotchas -->
-
 | # | Gotcha | What Happens | Prevention | Estimated Cost of Getting It Wrong |
 |---|---|---|---|---|
 | **G1** | **Confusing activity with progress in health wellness** | You spend $500-$2,000 on tools, courses, and subscriptions but never implement anything. The "preparation trap" — feeling productive while making zero actual progress. | Define one concrete outcome metric. Track it weekly. If the metric isn't moving, what you're doing isn't working. | **$500-$5,000/year** in wasted resources + opportunity cost of delayed results |

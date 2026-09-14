@@ -445,6 +445,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For on-premises-only networking**.
+2. **Physical cabling**.
+3. **Or ISP procurement**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Single-region deployment with no multi-region failover." | Single-region deployment with no multi-region failover | Design active-passive multi-region from day 1. Test failover quarterly. Document RTO/RPO targets |
+| "It is faster to skip this: Flat network with no micro-segmentation — one compromise becomes full network access." | Flat network with no micro-segmentation — one compromise becomes full network access | Implement least-privilege network segmentation. Use security group references not CIDR ranges. Zero-trust between all non-adjacent tiers |
+| "It is faster to skip this: Missing network cost monitoring — cross-AZ traffic surprises." | Missing network cost monitoring — cross-AZ traffic surprises | Set billing alerts on data transfer line items. Co-locate chatty services in same AZ. Use VPC endpoints for S3/DynamoDB |
+| "It is faster to skip this: CIDR overallocation exhausting RFC 1918 space across environments." | CIDR overallocation exhausting RFC 1918 space across environments | Plan CIDR allocations with future growth. Use /22 per environment max. Reserve contiguous supernets for region expansion |
+
+This table is specific to `networking-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

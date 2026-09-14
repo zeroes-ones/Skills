@@ -626,6 +626,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For commercial social networks** → route to `fullstack-developer`.
+2. **Political campaign technology for marketing)** → route to `growth-engineer`.
+3. **Or corporate community management** → route to `customer-success-manager`.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Engagement dropoff after initial signup wave — 5K members join during campaign launch, 4.5K nev." | Engagement dropoff after initial signup wave — 5K members join during campaign launch, 4.5K never return because onboarding requires email confirmatio | Multi-channel onboarding (SMS + email + in-app); allow immediate limited participation without email verification (upgrade to full access after confirmation); s |
+| "It is faster to skip this: Data sovereignty violation — volunteer database hosted on US cloud provider, but organizing wor." | Data sovereignty violation — volunteer database hosted on US cloud provider, but organizing work is in EU/Global South where data localization laws (G | Choose hosting region based on community location from day one; implement data residency controls; document data flow map showing where every byte lives; provid |
+| "It is faster to skip this: Volunteer burnout from bad UX — shift scheduling requires 12 clicks across 4 screens, volunteer." | Volunteer burnout from bad UX — shift scheduling requires 12 clicks across 4 screens, volunteers give up and stop responding to coordination requests | One-tap shift confirmation from push notification; reduce scheduling flow to ≤ 3 screens; show "hours contributed this month" and recognition milestones promine |
+| "It is faster to skip this: Mutual aid request matching fails at scale — manual triage works for 50 requests/week but colla." | Mutual aid request matching fails at scale — manual triage works for 50 requests/week but collapses at 500/week, urgent needs (food, shelter, medical  | Implement auto-triage with urgency scoring (food insecurity > utility assistance); build matching algorithm with proximity + volunteer capacity + resource avail |
+| "It is faster to skip this: Offline field data loss during canvassing — 8 hours of door-knocking data lost when canvasser's." | Offline field data loss during canvassing — 8 hours of door-knocking data lost when canvasser's phone dies because background sync never triggered and | Implement aggressive auto-save to IndexedDB after every interaction; show "unsynced records" count prominently; trigger sync on app resume (not just background  |
+
+This table is specific to `community-organizing-tech`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

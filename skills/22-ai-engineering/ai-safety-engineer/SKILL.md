@@ -155,6 +155,26 @@ If a command or approach fails, follow this escalation path before giving up:
 | Safety evaluation score drops 3% in weekly automated run with no deployment changes | RAG content changed — new documents ingested into the knowledge base contain content that triggers different model behavior. The model's safety behavior changed because its context changed, not because the model changed. | Include RAG content hash in safety evaluation metadata. Run safety evaluation on any content update, not just model updates. Test retrieval-augmented safety: does the model give different safety responses when different documents are retrieved? | Model safety is a function of model + prompt + context. When any of the three changes, safety behavior can change. RAG systems have an additional safety dimension — retrieved content — that must be included in the evaluation scope. |
 | Human reviewer accuracy drops from 95% to 72% in afternoon shift | Reviewer fatigue — accuracy drops 20-30% after 2 hours of continuous review. Automation bias compounds the effect: reviewers rubber-stamp high-confidence model outputs they should flag. | Measure reviewer accuracy with seeded test cases (known harmful outputs mixed into review queue). Rotate reviewers every 2 hours. Implement double-review for high-severity categories. Track inter-rater reliability weekly. | The human-in-the-loop is a component that needs monitoring and calibration, not a magic fix. Without accuracy measurement and fatigue management, "human review" provides a false sense of security while missing 28% of harmful outputs. |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For traditional ML model safety**.
+2. **LLM pipeline architecture design**.
+3. **Or general-purpose security engineering**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Relying solely on RLHF for safety — ignoring deployment context, tool access, and monitoring." | Relying solely on RLHF for safety — ignoring deployment context, tool access, and monitoring | Treat safety as layered systems problem: training alignment + prompt engineering + input/output guardrails + tool permissions + monitoring + incident response.  |
+| "It is faster to skip this: Safety evaluation only in English — model complies with dangerous requests in Swahili/Hindi." | Safety evaluation only in English — model complies with dangerous requests in Swahili/Hindi | Test safety across ALL supported languages independently. A 95% pass in English could be 40% in other languages. Run full test suite per language. |
+| "It is faster to skip this: Guardrails fail open on internal errors — timeout = content passes through." | Guardrails fail open on internal errors — timeout = content passes through | Every guardrail must fail closed: on error (timeout, crash, dependency failure), default to block. Verify: grep for `on_error: "pass"` or `fallback: allow` — el |
+| "It is faster to skip this: Patch individual jailbreak strings instead of fixing root cause vulnerability." | Patch individual jailbreak strings instead of fixing root cause vulnerability | Fix the deepest layer possible. Role-play bypasses need role-play detection, not keyword blocks. Conduct root cause analysis for every successful bypass before  |
+
+This table is specific to `ai-safety-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

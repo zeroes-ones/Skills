@@ -377,6 +377,44 @@ Test with all three types: **Protanopia** (red-blind), **Deuteranopia** (green-b
 - No time-pressure mechanics without toggleable extended timers.
 - Simple mode: reduced HUD, fewer mechanics, clearer objectives.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For game design (mechanics**.
+2. **Systems**.
+3. **Narrative)**.
+4. **Game engine selection**.
+5. **Or non-game application UI**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: HUD designed at fixed 1920×1080 resolution without safe zones — UI cropped or unreadable on 720." | HUD designed at fixed 1920×1080 resolution without safe zones — UI cropped or unreadable on 720p handhelds and 4K TVs | Use anchor points + safe zones (5% margin). Test at 720p, 1080p, and 4K. No element clips or becomes <24px at any resolution |
+| "It is faster to skip this: Controller navigation without visible focus indicator — player doesn't know what's selected." | Controller navigation without visible focus indicator — player doesn't know what's selected | Visible focus indicator on every navigable element. Animated transition between elements. Focus stack remembers last position when returning from sub-menu |
+| "It is faster to skip this: No colorblind modes shipped — 8% of male players cannot distinguish critical gameplay informati." | No colorblind modes shipped — 8% of male players cannot distinguish critical gameplay information | Minimum 3 colorblind modes (deuteranopia, protanopia, tritanopia). Shape/pattern/icon differentiation beyond hue-only changes. Test with colorblind simulation t |
+| "It is faster to skip this: Critical gameplay text below 24px equivalent — unreadable at TV viewing distance (6-10 feet)." | Critical gameplay text below 24px equivalent — unreadable at TV viewing distance (6-10 feet) | Minimum 24px equivalent at 1080p reference resolution. Test at 8-foot viewing distance on a 42" TV. Use SDF (Signed Distance Field) fonts for crisp scaling |
+| "It is faster to skip this: Menu requires 5+ button presses to return to gameplay — players abandon game in frustration." | Menu requires 5+ button presses to return to gameplay — players abandon game in frustration | Maximum 3 presses to gameplay from any menu depth. Add "Resume" as first option in pause menu. Flatten menu hierarchies |
+| "It is faster to skip this: HUD animations exceeding frame budget — UI rendering causes frame drops below 60fps." | HUD animations exceeding frame budget — UI rendering causes frame drops below 60fps | UI animation budget ≤1ms per frame. Batch draw calls. Use atlasing for HUD textures. Profile on minimum-spec target hardware |
+
+This table is specific to `game-ui-designer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| ❌ **Authoring the HUD at a fixed 1920×1080 canvas** — every element placed in absolute pixels with no anchors | ✅ Anchor to the six zones and keep critical elements inside the 90% safe area, then walk 720p handheld → 1080p → 4K and confirm nothing clips or drifts |
+| ❌ **"Colorblind mode = hue shift"** — swapping red health to blue and calling accessibility done | ✅ Add shape, pattern, icon, or text label beyond the hue change, and verify the alert still reads under protanopia, deuteranopia, *and* tritanopia simulation |
+| ❌ **Hardcoding one platform's button glyphs** — Xbox "A" prompts rendered for a player holding a DualSense | ✅ Detect the connected controller at runtime and swap the glyph atlas; never let a prompt name a button the player cannot press |
+| ❌ **Regenerating the ammo counter's text mesh every frame** — a value that changes once a shot treated as per-frame work | ✅ Cache generated text meshes and rebuild only on value change; drive canvas updates from dirty rects, not a full-HUD redraw |
+| ❌ **Bolting d-pad support onto a mouse-designed menu** — hover states as the only selection feedback | ✅ Design controller-first: a focus stack that pushes on enter and pops on back, focus wrapping at list ends, and a visible selection that never disappears between elements |
+| ❌ **Rendering critical combat state inside a diegetic in-world screen** — a hologram that shares the 3D render budget | ✅ Keep combat-critical values in the cheap canvas overlay and reserve diegetic surfaces for immersion moments; budget diegetic animations against the rendering pass, not the UI pass |
+| ❌ **Shipping subtitles as stroked text straight onto the world** — legible in a dark corridor, invisible against snow | ✅ Place a semi-transparent backing bar behind the line, label every speaker, and add directional arrows for off-screen audio |
+| ❌ **Burying a setting five levels deep with no shortcut out** — "Audio → Mix → Voice → Volume → Back ×4" | ✅ Hold menu depth to four levels, make Resume the first pause-menu entry, and confirm every node reaches gameplay in ≤3 presses |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

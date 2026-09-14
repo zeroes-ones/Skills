@@ -395,6 +395,27 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | I2C bus hangs requiring power cycle | A slave device holds SDA low mid-transaction (clock stretch or stuck state). The master sees bus busy (SDA low) and waits forever — most I2C peripherals have no hardware timeout | Implement bus reset: toggle SCL 9 times to clock out any pending data and force the slave to release SDA, then send STOP. Check bus state before every transaction. Set a software timeout (e.g., 100ms) and reset the bus on timeout | I2C is a multi-master protocol that allows slaves to stretch the clock indefinitely. Without timeout + bus reset, a single stuck slave brings down the entire bus — permanently. Every I2C driver must defend against this |
 | Interrupt latency stacking misses motor control deadline | UART RX ISR (priority 2) fires inside SPI DMA ISR (priority 1). Then systick ISR (priority 3) fires. Three ISRs stacked, each adding latency. Motor control ISR (priority 0) is blocked for 47µs, missing its 50µs deadline | Assign interrupt priorities based on deadlines: motor control (50µs) = priority 0, SPI DMA (200µs) = priority 1, UART RX (500µs) = priority 2, systick (1ms) = priority 3. Avoid shared resources between ISRs of different priorities. Use lock-free ring buffers for ISR-to-task communication | Interrupt priorities must reflect real-time deadlines, not peripheral importance. A 47µs miss on a motor control loop means physical jitter, potential damage, and safety implications. Rate-monotonic priority assignment is the standard |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For hardware architecture decisions**.
+2. **MCU selection**.
+3. **PCB design**.
+4. **Or RTOS kernel configuration**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Bootloader bricking device on interrupted OTA update — erase old image before verifying new one." | Bootloader bricking device on interrupted OTA update — erase old image before verifying new one, power loss in that window | Dual-bank flash with boot count tracking; atomic "swap on next boot" flag; auto-rollback after 3 failed boots; golden recovery image accessible via hardware pin |
+| "It is faster to skip this: Race condition between ISR and main loop on shared variable without volatile/atomic." | Race condition between ISR and main loop on shared variable without `volatile`/atomic | Declare shared variables `volatile`; use `atomic_fetch_add` or `LDREX`/`STREX` for RMW; critical sections with `__disable_irq()` / `__enable_irq()`; lock-free r |
+| "It is faster to skip this: Watchdog timer configured but kicked in timer ISR instead of main loop — main loop dead but ISR." | Watchdog timer configured but kicked in timer ISR instead of main loop — main loop dead but ISR keeps watchdog happy | Multi-level supervision: dedicated watchdog task monitors all system tasks via heartbeat counters; kick hardware watchdog exclusively from watchdog task; test b |
+| "It is faster to skip this: Flash wear-leveling bugs destroying MCU flash after months of logging — same sector erased 100K." | Flash wear-leveling bugs destroying MCU flash after months of logging — same sector erased 100K+ times | Use LittleFS/SPIFFS with built-in wear leveling; calculate erase cycles over product lifetime with 3× safety margin; track per-sector erase counts; log warnings |
+
+This table is specific to `firmware-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s — who to talk to, when, what to share -->

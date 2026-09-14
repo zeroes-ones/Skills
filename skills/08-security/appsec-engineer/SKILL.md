@@ -481,6 +481,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For vulnerability management (vulnerability-management)**.
+2. **Penetration testing (offensive-security)**.
+3. **Cloud security (cloud-security)**.
+4. **Or incident response (incident-responder)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Deploying WAF rules based on CVE signatures without testing against your application's actual r." | Deploying WAF rules based on CVE signatures without testing against your application's actual request patterns causes false positives that block legit | Test WAF rules in monitor-only mode for at least 48 hours before enabling blocking. Review blocked request logs daily during the monitor phase. Maintain a per-a |
+| "It is faster to skip this: Threat modeling a greenfield service but never updating the model after 3 major releases — new ." | Threat modeling a greenfield service but never updating the model after 3 major releases — new microservice dependencies, new data flows, and new trus | Schedule threat model reviews into the definition of done for any architecture change that crosses trust boundaries. Re-model at least quarterly for Tier 1 serv |
+| "It is faster to skip this: Running SAST on the entire codebase on every PR adds 15-45 minutes to developer feedback loops ." | Running SAST on the entire codebase on every PR adds 15-45 minutes to developer feedback loops — developers bypass it, disable it, or ignore findings  | Configure SAST as diff-only on PRs with a hard 5-minute timeout. Reserve full-depth scans for main-branch nightly builds. Security that slows development gets r |
+
+This table is specific to `appsec-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

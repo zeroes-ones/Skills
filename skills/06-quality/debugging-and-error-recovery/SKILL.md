@@ -501,6 +501,30 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For performance profiling** → route to `performance-engineer`.
+2. **Security vulnerability analysis** → route to `security-reviewer`.
+3. **Test-driven development** → route to `tdd-guide`.
+4. **Writing new features** → route to `backend-developer`.
+5. **Frontend-developer)**.
+6. **Or incident command** → route to `incident-responder`.
+
+## Anti-Rationalization **(QUICK)**
+
+Where debuggers talk themselves past the reproduction, localization, and root-cause gates above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It's intermittent, so I'll re-run the test until it goes green and move on." | A pass that required a retry proves the bug is still present; it just didn't fire that run. Marking it green deletes the only evidence you had and hides a latent race from the next reader. | Score any pass that needed a re-run as a failure. Add structured logging at the suspect decision points, set an alert on the error signature, and keep the ticket open until a deterministic repro or a measured failure rate exists. |
+| "The stack trace points to line 42, so that's where the bug is." | The crash site is where corrupted state finally became fatal, not where it was created. Line 42 is the messenger; the cause is an input or branch several callers upstream. | Walk 5 Whys upstream from line 42: what value arrived, from which caller, produced by which branch. Fix the origin. Keep a guard at line 42 only if that state is genuinely representable. |
+| "I've seen this error string before — it's the Redis timeout. Restart the node." | Matching an error message is not diagnosing it. The same string can come from a dead node, an exhausted connection pool, or a stop-the-world GC pause, and each has a different fix. | Confirm the cause before acting: read pool saturation, node health, and GC logs for the incident window. If they contradict your remembered cause, restarting buys a recurrence, not a fix. |
+| "A try/catch here will stop the 500s while I investigate." | A swallow-all handler turns a loud, tracked failure into silent wrong behavior — and the error-rate metric that would have told you it is still happening drops to zero. | Catch only what you can name and handle. Log the full error with context and re-throw otherwise. To stop the bleeding, use a rollback or feature flag — never an exception trap presented as mitigation. |
+| "The fix works on my machine, so it's verified." | A local run has one user, staging-shaped data, and local timeouts. Race conditions, pool exhaustion, and OOM pass locally by construction and fail the moment production concurrency and config apply. | Verify on a canary at 1% of production traffic with production config for at least 15 minutes; compare error rate and p95 latency to the pre-fix baseline before calling it fixed. |
+| "Bisect was inconclusive, but the timeline says the auth refactor did it — revert it." | Coincidence in time is not causation. Several artifacts usually ship in the same window, including config, CDN, dependency bumps, and infra changes you do not own. | Check every artifact deployed in that window and confirm the first-error timestamp precedes your suspect deploy. Revert only after bisect or a revert-and-reproduce experiment confirms that commit is the cause. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -406,6 +406,43 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For marketing copy**.
+2. **Technical documentation**.
+3. **Clinical decision support content**.
+4. **Or general UX writing without health**.
+5. **Regulatory requirements**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Error message: "Error 0x80070005: Access is denied" — the user doesn't know what 0x80070005 is,." | **Error message: "Error 0x80070005: Access is denied"** — the user doesn't know what 0x80070005 is, and "access is denied" tells them what happened bu | Write error messages in 3 parts: what happened + why + what to do. "You don't have permission to view this report. Ask your account admin to add you to the Repo |
+| "It is faster to skip this: Button labels that change between screens — "Save" on settings, "Save Changes" on profile, "App." | **Button labels that change between screens** — "Save" on settings, "Save Changes" on profile, "Apply" in the modal. The user pauses: "Are these the s | Pick one label per action across the entire product. Consistency of action labels matters more than contextual precision. Audit and standardize before launch. |
+| "It is faster to skip this: "Click here" as link text — screen reader users navigating by link list hear: "Click here, Clic." | **"Click here" as link text** — screen reader users navigating by link list hear: "Click here, Click here, Click here, Click here." Zero information a | Link text must describe the destination: "Download Q3 report (PDF, 2.4MB)" or "View billing history." Never use "click here," "learn more," or "read more" as st |
+| "It is faster to skip this: Microcopy that's too clever — a 404 page says "Oopsie! Our hamsters are on a coffee break 🐹☕" w." | **Microcopy that's too clever** — a 404 page says "Oopsie! Our hamsters are on a coffee break 🐹☕" while a user trying to pay an invoice hits a broken  | Humor in error states requires: (1) the error is low-stakes, (2) the fix is immediately clear, (3) humor doesn't replace actionable information. When in doubt,  |
+| "It is faster to skip this: Onboarding flow written by the product team, not a UX writer — signup says "Configure your inst." | **Onboarding flow written by the product team, not a UX writer** — signup says "Configure your instance parameters" instead of "Choose how your team w | Jargon in the first 30 seconds of user experience causes massive drop-off. Every onboarding string must pass: "Would my mom understand what to do?" Translate in |
+
+This table is specific to `ux-writer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| ❌ **Shipping patient-facing strings above 8th grade** — "Consult your physician regarding contraindications before initiating therapy" | ✅ Rewrite to plain language with inline definitions: "Talk to your doctor before you start this medicine. Tell them about any other medicines you take." Re-run Flesch-Kincaid before the string leaves your file. |
+| ❌ **Single "I Agree" checkbox standing in for informed consent** on health data sharing | ✅ Granular per-purpose toggles, a comprehension check ("Which of these will be shared?"), and a named, reachable withdrawal path with a contact method |
+| ❌ **Error copy that omits data safety in a clinical flow** — "Something went wrong. Please try again." after 20 minutes of symptom entry | ✅ Lead with reassurance: "Your information is saved. You can resume where you left off." Then what happened, why, and the next action. |
+| ❌ **Burying a medical disclaimer in the footer** at 10px / #999, >50px from the decision button | ✅ Place it inline at the decision point with ≥4.5:1 contrast, or as a modal requiring explicit acknowledgement for critical safety warnings |
+| ❌ **Celebratory register for serious conditions** — "You're crushing it! 🔥" in an oncology or palliative-care screen | ✅ Match the tone map: compassionate + clear for serious diagnoses, calm + present for terminal care, warm + encouraging only for wellness and prevention |
+| ❌ **Developer-authored error strings surfaced raw to patients** — "Error 500: Internal Server Error", "Error 0x80070005: Access is denied" | ✅ UX writer owns every user-visible string; the pattern is [what happened] + [user impact] + [concrete next action], with engineering owning only the logic |
+| ❌ **Concatenated, idiomatic, or hardcoded-plural source strings** — `"You have " + count + " messages"`, "break a leg", `"1 files"` | ✅ ICU MessageFormat (`{count, plural, =1 {1 message} other {# messages}}`), literal language instead of idioms, and a translator context comment on every ambiguous string |
+| ❌ **Designing against lorem ipsum or finalized fixed-width layouts** while the real copy is still unwritten | ✅ Write and fit real content first; if the copy doesn't fit, the layout is wrong. Design a 30–40% expansion buffer for German before translation starts. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -562,6 +562,40 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For AI product integration (ai-engineer)**.
+2. **LLM engineering/RAG (llm-engineer)**.
+3. **MLOps serving (mlops-engineer)**.
+4. **Data pipelines (data-engineer)**.
+5. **Or statistical testing (data-scientist)**.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+| --- | --- |
+| ❌ Reporting 99% accuracy on a 99:1 fraud dataset as evidence the model works | ✅ Report per-class precision/recall/F1, the raw confusion matrix, and PR-AUC — accuracy on an imbalanced target is a majority-class detector in disguise |
+| ❌ Calling `scaler.fit_transform(X)` on the frame that holds both train and test rows | ✅ `scaler.fit(X_train)` then `scaler.transform(X_test)` / `transform(X_val)`; run `scripts/detect_leakage.py` before training |
+| ❌ Instantiating `XGBClassifier()` or `LGBMClassifier()` with library defaults and calling it the production model | ✅ Run Optuna/Bayesian search for ≥50 trials over `max_depth`, `learning_rate`, `n_estimators`, `subsample`, `colsample_bytree`, and log every trial to MLflow |
+| ❌ Shipping a 10M-parameter neural net without ever training `LogisticRegression` on the same features | ✅ Train the baseline first; if the complex model gains <5% on the primary metric, fix the features instead of adding capacity |
+| ❌ Using `LabelEncoder` to encode categorical features | ✅ `OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)` for ordinal features, `OneHotEncoder(handle_unknown='ignore')` for nominal ones |
+| ❌ Taking a random `train_test_split` on observations that carry timestamps | ✅ Split chronologically (train on weeks 1–8, validate on week 9, test on week 10) so the model cannot train on the future |
+| ❌ Treating a 0.95 AUC as sufficient for a model whose probabilities set thresholds or rank applicants | ✅ Plot `calibration_curve(y_test, y_prob, n_bins=10)`, compute Brier score, and wrap in `CalibratedClassifierCV(method='isotonic', cv=5)` when Brier > 0.1 |
+| ❌ Calling `model.fit()` a second time to "retrain" an XGBoost/LightGBM model | ✅ Instantiate a fresh estimator — the second `.fit()` continues boosting the existing trees and silently doubles your tree count |
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+| --- | --- | --- |
+| "I ran SMOTE on the whole dataset before splitting — it's simpler and minority recall looks better" | Synthetic minority samples generated before the split land on both sides of it, so validation folds contain near-duplicates of training rows and every metric is inflated | Split first with `train_test_split(..., stratify=y)`, then resample only the training fold — put `SMOTE` inside an `imblearn.pipeline.Pipeline` so it runs per CV fold and never touches val/test |
+| "The dataset has two million rows, so a random split is statistically fine even though it's a time series" | Sample count does not fix ordering: a random split still trains on week 10 and tests on week 3, so the model has seen the future | Split by timestamp — train on the earliest window, validate on the next, hold out the most recent window, and report metrics on that held-out period |
+| "Library defaults plus early stopping are close enough to a tuned model" | Defaults are untuned priors, not optima; the gap between default `learning_rate=0.3` and a tuned value is often several F1 points, and untuned parameters are undiscoverable later | Run `scripts/tune_hyperparameters.py --model xgboost --trials 100`, set the winning params explicitly in code, and record them as MLflow parameters alongside the run |
+| "Tree gain importance tells us which features matter, so SHAP is redundant" | Gain is computed on training data and is biased toward high-cardinality features; it cannot distinguish a genuinely useful feature from a target proxy | Run `permutation_importance` on the holdout set plus a `shap.TreeExplainer` summary, and flag any feature whose importance is ~0 or implausibly dominant |
+| "We only rank candidates, so probability calibration is unnecessary" | Any downstream threshold, cutoff, or risk score converts those probabilities into a decision — miscalibration changes who gets flagged, not just the ordering | Compute the Brier score and a reliability diagram; if the curve deviates from the diagonal, apply `CalibratedClassifierCV(method='isotonic', cv=5)` before handoff |
+| "The test set is clean because we never trained on it" | "Never trained on it" says nothing about temporal overlap or duplicate rows — a same-week test split measures memorization, not generalization | Verify with `scripts/detect_leakage.py` (exact-duplicate overlap = 0) and confirm the test window is strictly later than the training window |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

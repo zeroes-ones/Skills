@@ -439,6 +439,40 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For SEO keyword research**.
+2. **Social media management**.
+3. **Paid advertising strategy**.
+4. **Or developer documentation authoring**.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Filling the quarterly calendar from the keyword map, then discovering no writer has the hours to produce it | ✅ Attach `assigned_to` and `estimated_hours` to every entry and shrink the quarter to confirmed capacity — a calendar with no hours column is a wish list |
+| ❌ Publishing almost entirely TOFU "what is X" posts and calling the resulting sessions a win | ✅ Hold the 40/40/20 TOFU/MOFU/BOFU balance and give every piece a `conversion_goal`; a #1 ranking with no next-step CTA is vanity traffic |
+| ❌ Leaving dozens of zero-traffic pages published because "they did their job," while commissioning new posts on top of them | ✅ Run the keep/refresh/consolidate/delete audit first and 301 the bottom 20% — zombie pages dilute the site-level authority signal the new posts need |
+| ❌ Repurposing a pillar post by pasting the same body into LinkedIn, the newsletter, and a Twitter thread | ✅ Adapt per platform — the thread takes the bite-sized claims, LinkedIn takes the author's opinion, video takes the visual demo — and diff the output for ≥40% structural change |
+| ❌ Enforcing a tone-of-voice guide that claims "bold and irreverent" over copy any reader would call cautious | ✅ Audit 10 recent pieces against the guide first; if more than 2 deviate, correct the guidelines to match observed writing before enforcing them |
+| ❌ Reporting content ROI as pageviews and sessions because pipeline attribution is hard to wire up | ✅ Instrument UTM + CRM from first touch, track assisted conversions, and report attributed pipeline against total program cost so content efficiency ratio is visible at budget review |
+| ❌ Commissioning a brand-new post for a keyword where an existing page already sits at position #4–15 | ✅ Refresh the incumbent instead — update the data, add the missing section, republish with a new date; a #4–15 page is the cheapest ranking you will ever buy |
+| ❌ Publishing AI first drafts directly to production to hold the publishing cadence | ✅ Treat the draft as a starting point only: human expert review for accuracy, unique insight, and brand voice before anything carries your logo |
+| ❌ Planning six months of editorial calendar once, then publishing the original plan while the market narrative moves on | ✅ Re-run a monthly relevance review — is this topic still urgent for the ICP, has a competitor covered it better — and reserve 20% of capacity for reactive pieces that ship within 5 business days |
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "The quarter is already committed — we'll deal with the stale pages when a sprint frees up." | Content debt compounds monthly, and every new post publishes into a diluted site-level quality signal. | Block net-new commissioning until the audit ships: tag pages keep/refresh/consolidate/delete, 301 the bottom 20%, and put the cleanup sprint on the calendar with an owner and a date. |
+| "We committed to two posts a week, so the quota comes first." | A volume quota produces ~90 pieces a year under 500 views while starving the 2 pillar pieces that would have carried the pipeline. | Replace the volume quota with an impact quota — two high-effort, high-distribution pieces a month — and move the freed hours into the refresh queue. |
+| "That post ranks #8 and still brings traffic, so it's fine as is." | Pages ranking #4–15 are closest to page one and decay 40–60% a year without updates. | Queue it for refresh now: update the stats, add the section competitors cover, republish with a new date, and track 30/60/90-day uplift. |
+| "Traffic is up 40% this quarter, so the content program is working." | Sessions without funnel mapping cannot distinguish an asset from a well-ranked dead end. | Report traffic, conversion rate, and attributed pipeline per page together; flag high-traffic/low-conversion pages as optimization candidates before claiming success. |
+| "The keyword is high-volume, so three writers covering it from three angles gives us three shots at ranking." | Competing pages split ranking signals at once, and the term goes to whoever consolidated. | Map keyword → URL before assigning work; when two pages already compete, merge into one pillar, 301 the weaker URL, and update the internal links. |
+| "Brand voice is a marketing concern — the writers will converge on it naturally." | Writers given no guide produce three voices, and the audience notices the inconsistency before internal review does. | Publish the 3-attribute tone guide with do/don't examples, enforce it through the editorial checklist and Vale in CI, and audit new pieces against it weekly. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -397,6 +397,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general backend development** → route to `backend-developer`.
+2. **General security auditing** → route to `security-engineer`.
+3. **Or speculative crypto trading/investment advice**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Using tx.origin instead of msg.sender for authorization — phishing contract drains all funds." | Using `tx.origin` instead of `msg.sender` for authorization — phishing contract drains all funds | Always use `msg.sender` for authorization. `tx.origin` traces to the original EOA, not the immediate caller. A phishing contract tricking a user into calling it |
+| "It is faster to skip this: Calling IERC20(token).transfer() raw instead of SafeERC20 — USDT silently returns false, contra." | Calling `IERC20(token).transfer()` raw instead of `SafeERC20` — USDT silently returns false, contract assumes success | Use OpenZeppelin's `safeTransfer()` on every token interaction. USDT, BNB, and other legacy tokens don't revert on failure. One unchecked return value locks use |
+| "It is faster to skip this: Using DEX spot price as oracle without staleness check — flash loan drains protocol in one atom." | Using DEX spot price as oracle without staleness check — flash loan drains protocol in one atomic transaction | Use Chainlink `latestRoundData()` with `updatedAt` staleness threshold (≤1 hour) plus TWAP fallback (≥30min window). Circuit-break the protocol if price is olde |
+| "It is faster to skip this: Reordering storage variables in upgradeable contract — all storage slots shift, balances return." | Reordering storage variables in upgradeable contract — all storage slots shift, balances return garbage | Append new variables at the end. Never remove or reorder. Use ERC-7201 namespaced storage. Run storage layout diff in CI before every upgrade. |
+| "It is faster to skip this: Deploying with single-EOA admin — compromised developer laptop = all funds drained in minutes." | Deploying with single-EOA admin — compromised developer laptop = all funds drained in minutes | Multi-sig admin (Gnosis Safe, 3-of-5+) with 48+ hour timelock on upgrades. Single-key admin is a single point of catastrophic failure. |
+
+This table is specific to `blockchain-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

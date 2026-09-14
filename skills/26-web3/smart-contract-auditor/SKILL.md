@@ -440,6 +440,25 @@ If a cryptographic implementation, verification, or deployment fails, follow thi
 | CR16 | Fallback/receive functions audited for unexpected state changes | [V16] |
 
 <!-- STANDARD: 3min -->
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For smart contract development (blockchain-developer)**.
+2. **Protocol design (blockchain-developer)**.
+3. **Or security testing (security-reviewer)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Relying solely on automated tools (Slither, Mythril) without manual business logic review — aut." | Relying solely on automated tools (Slither, Mythril) without manual business logic review — automated scanners find surface-level bugs but miss protoc | Use automated tools as a first-pass triage, not the final audit. Every finding requires manual verification. Allocate 60%+ of audit time to manual code review o |
+| "It is faster to skip this: Oracle manipulation via flash loans — using a single-DEX spot price as an oracle allows attacke." | Oracle manipulation via flash loans — using a single-DEX spot price as an oracle allows attackers to manipulate the price in one transaction and drain | Never use single-DEX spot price as oracle. Use TWAP with ≥30 min window or Chainlink with staleness checks (`answeredInRound`) and deviation circuit breakers. F |
+| "It is faster to skip this: Upgrade proxy storage collisions — adding state variables to an upgradeable contract without ma." | Upgrade proxy storage collisions — adding state variables to an upgradeable contract without managing storage layout gaps causes silent corruption of  | Use `_disableInitializers()` in implementation contract constructors. Maintain `__gap` storage arrays for future variables. Run storage layout diffs on every up |
+
+This table is specific to `smart-contract-auditor`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 | Upstream Skill | What You Receive | When to Involve |

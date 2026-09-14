@@ -523,6 +523,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For vuln scanning (vulnerability-management)**.
+2. **Threat modeling (security-engineer)**.
+3. **Breach response (incident-responder)**.
+4. **Or security controls (security-engineer)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Running automated exploitation tools (Metasploit, SQLMap, Nuclei) against production without th." | Running automated exploitation tools (Metasploit, SQLMap, Nuclei) against production without throttling or understanding payload effects can crash ser | Always test exploits in a staging environment first. Configure rate limiting on all automated tools. Run destructive payloads only during approved maintenance w |
+| "It is faster to skip this: Documenting findings without clear, reproducible proof-of-concept steps means the engineering t." | Documenting findings without clear, reproducible proof-of-concept steps means the engineering team cannot validate fixes, leading to regressions or re | Every finding must include: steps to reproduce, expected vs actual behavior, a working PoC (script or curl command), and a recommended fix with code-level speci |
+| "It is faster to skip this: Post-engagement report delivered 3+ weeks after testing completes — the environment has changed." | Post-engagement report delivered 3+ weeks after testing completes — the environment has changed, new vulnerabilities exist, and old findings may no lo | Deliver a preliminary findings summary within 24 hours of testing completion. Full report within 5 business days. Use a standard template (PTES or custom) to el |
+
+This table is specific to `offensive-security`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

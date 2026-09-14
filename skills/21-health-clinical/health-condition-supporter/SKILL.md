@@ -397,6 +397,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For medical diagnosis**.
+2. **Treatment recommendations**.
+3. **Or medication changes — this skill supports self-management and provider communication only**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Condition supporter provides medical advice instead of self-management coaching — "You should t." | Condition supporter provides medical advice instead of self-management coaching — "You should try this medication" vs "Here's how to talk to your doct | Enforce strict boundary: all recommendations are about self-management process, not treatment decisions. Use disclaimers at every advice point. Train on the dis |
+| "It is faster to skip this: Symptom tracker designs produce data overload without actionable patterns — patient tracking 15." | Symptom tracker designs produce data overload without actionable patterns — patient tracking 15+ symptoms at maximum granularity. "Everything is terri | Reduce to 3-5 most decision-relevant symptoms with functional anchors ("What couldn't you do because of this?"); set monthly review cadence; add context fields  |
+| "It is faster to skip this: Insurance navigation failure — appeal denied because it was filed at the wrong level (internal ." | Insurance navigation failure — appeal denied because it was filed at the wrong level (internal vs external review) or missing specific clinical eviden | Build systematic appeal tracker: verify appeal level, confirm all required evidence attached, include provider letter addressing each denial reason point-by-poi |
+| "It is faster to skip this: Medication list drifts from reality — patient sees 5 specialists but no one maintains a master ." | Medication list drifts from reality — patient sees 5 specialists but no one maintains a master medication list. Drug-drug interactions go undetected a | Maintain patient-controlled master medication record with name, dose, frequency, prescriber, reason, and start date; schedule annual brown-bag medication review |
+| "It is faster to skip this: Emergency warning signs normalized — patient told to "track and wait" for symptoms that should ." | Emergency warning signs normalized — patient told to "track and wait" for symptoms that should trigger immediate escalation. Missed early intervention | Define clear escalation thresholds with specific vital signs, symptom severity, and time-based rules. When in doubt, escalate to "contact provider immediately"  |
+
+This table is specific to `health-condition-supporter`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

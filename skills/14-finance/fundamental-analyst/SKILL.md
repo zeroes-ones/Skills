@@ -321,6 +321,30 @@ DCF FV < 80% of entry? → YES → Overvalued → SELL
 Better opportunity found (≥20% more upside)? → YES → SWAP
   ↓ NO → HOLD ✓
 ```
+
+### DT3: Valuation method — which one does this business need?
+
+```
+Does the company have stable, predictable free cash flow?
+|-- YES -> DCF is defensible. Anchor on FCF, sensitivity-test the discount rate.
+|   |-- Is terminal value > 70% of total value?
+|       |-- YES -> Your DCF is a terminal-value bet, not a cash-flow analysis. Say so.
+|       `-- NO  -> DCF is your primary method.
+`-- NO  -> DCF will be fiction.
+    |-- Asset-heavy with realisable book value? -> Use asset-based / NAV.
+    |-- Comparable peers with clean multiples?   -> Use relative valuation.
+    `-- Neither? -> Say the business is not reliably valuable yet and stop.
+```
+
+### DT4: Is the margin of safety real?
+
+```
+Computed margin of safety above the threshold?
+|-- YES -> Is the input it depends on verified?
+|   |-- YES -> Proceed; record the input and its source.
+|   `-- NO  -> The margin is an assumption wearing a number's clothes. Verify or widen it.
+`-- NO  -> Pass. A cheap price on a wrong value estimate is not a margin of safety.
+
 ## Gotchas
 
 <!-- STANDARD: 3min -->
@@ -452,6 +476,13 @@ signal = build_fundamental_signal(valuation_range=dcf_range, quality=(f_score, z
 
 Problems solved: adjusted/normalized earnings, median comparables, quality triangulation, DCF range not point, TV% check, SBC adjustment.
 
+
+- Complete when every valuation input carries its source and date
+- Complete when the primary valuation method is justified against the business model
+- Complete when terminal-value share of total value is stated
+- Complete when the margin of safety is computed from verified inputs
+- Complete when the comparable set is justified and its multiples sourced
+- Complete when downside scenarios are stated with their trigger conditions
 ## References
 
 - [valuation-methods.md](references/valuation-methods.md) — DCF construction, comparable analysis, Graham Number, sector-specific methods

@@ -408,6 +408,29 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For schema design**.
+2. **Application-level ORM configuration**.
+3. **ETL pipeline construction**.
+4. **Or infrastructure provisioning**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Pipeline silently produces stale data due to missing freshness checks." | Pipeline silently produces stale data due to missing freshness checks | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+| "It is faster to skip this: Incremental model divergence from source of truth beyond 2%." | Incremental model divergence from source of truth beyond 2% | Schedule weekly full-refresh reconciliation; add row-count audit checks comparing incremental vs full-refresh output |
+| "It is faster to skip this: Notebook results unreproducible due to kernel state and cell execution order." | Notebook results unreproducible due to kernel state and cell execution order | Restart kernel and 'Run All' before sharing; pin dependencies in requirements.txt; set random seeds with documentation |
+| "It is faster to skip this: Data leakage through improper train/test split before preprocessing." | Data leakage through improper train/test split before preprocessing | Split before any `.fit_transform()`; use `Pipeline` objects; audit features for temporal or target leakage before training |
+| "It is faster to skip this: Dashboard loading >5s erodes executive trust." | Dashboard loading >5s erodes executive trust | Profile query plans; add materialized views; push heavy compute to dbt; implement BI query cache with freshness SLAs |
+| "It is faster to skip this: Pipeline silently produces stale data due to missing freshness checks." | Pipeline silently produces stale data due to missing freshness checks | Implement source freshness monitoring with dbt `source freshness` checks and automated alerts on SLA breach |
+
+This table is specific to `database-reliability-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

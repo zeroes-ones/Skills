@@ -516,6 +516,44 @@ Complete when: Deploy strategy selected with rationale. Rollback mechanism docum
 
 ```
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For individual CI debugging (ci-cd-builder)**.
+2. **Release planning (release-manager)**.
+3. **Infrastructure architecture (cloud-architect)**.
+4. **Observability strategy (observability-engineer)**.
+5. **Container orchestration (docker-kubernetes)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Code signing certificates expire mid-sprint — iOS/macOS CI pipeline suddenly cannot build. Appl." | Code signing certificates expire mid-sprint — iOS/macOS CI pipeline suddenly cannot build. Apple cert renewal takes 24-72 hours. All releases blocked. | Set calendar reminders 30 and 14 days before expiry. Use fastlane match with cert repo — rotate before expiry. CI alerts on codesign verification failure. Autom |
+| "It is faster to skip this: Terraform state file corrupted by concurrent apply — infrastructure changes blocked 1-3 days wh." | Terraform state file corrupted by concurrent apply — infrastructure changes blocked 1-3 days while manually repairing state. Manual state surgery is e | Always remote backend with locking (S3+DynamoDB, Terraform Cloud). Never local apply against shared state. Plan in CI before every apply. Plan output is your au |
+| "It is faster to skip this: App Store review rejection on metadata — screenshots do not match current UI, description refer." | App Store review rejection on metadata — screenshots do not match current UI, description references removed feature, privacy policy URL broken. Rejec | Automate screenshots with fastlane snapshot + UI testing. Version-control metadata with deliver. Validate metadata in CI: screenshot dimensions, text length lim |
+| "It is faster to skip this: Docker image grows 10x over 6 months — developers add layers without cleanup. CI builds take 15." | Docker image grows 10x over 6 months — developers add layers without cleanup. CI builds take 15+ min. Staging runs out of disk space. | Multi-stage builds. Separate build deps from runtime. Docker history --no-trunc in CI, alert on layers >100MB. Monthly image optimization sprints. CI disk clean |
+| "It is faster to skip this: Pipeline secret leaked via debug output — developer adds echo $SECRET for debugging, forgets to." | Pipeline secret leaked via debug output — developer adds echo $SECRET for debugging, forgets to remove. Secret exposed in public build logs. | Never log environment variables. Use ::add-mask:: (GitHub Actions) or equivalent. Gitleaks/truffleHog in pipeline. Rotate ALL credentials after any suspected ex |
+| "It is faster to skip this: App Store Connect session expires during CI — fastlane fails with auth error. Manual re-auth wi." | App Store Connect session expires during CI — fastlane fails with auth error. Manual re-auth with app-specific password required. | Use fastlane spaceauth for 30-day session token. Store in CI secrets. Weekly renewal workflow. Monitor auth failures and alert before session expiry. |
+
+This table is specific to `automation-engineer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+Failures this skill's own Ground Rules R1-R10 and error-decoder table exist to prevent. Each row is a pipeline pattern seen in real repos, with the correction that removes it.
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Deploy stage with no rollback path — pipeline "undoes" a bad release by re-running the deploy job with the previous git tag while an engineer watches. | ✅ Every production deploy ships an automated undo before it ships traffic: feature-flag kill switch (<30s), canary auto-rollback on error rate >1% or p95 > baseline+20%, or versioned redeploy with one-click revert. |
+| ❌ Credentials inlined in workflow YAML, `Fastfile`, or `*.tfvars`, with `echo $SECRET` left in for build debugging. | ✅ All credentials in a secrets manager with masked log output; Gitleaks/truffleHog in pre-commit and CI; rotate every credential ever written to a log, then treat the leaked value as compromised. |
+| ❌ Artifacts pushed as `:latest` only — the SHA of the code actually running in production is unknown when a rollback is needed. | ✅ Push git SHA + semver + `latest` on every build, and deploy by pulled digest, not mutable tag; registry lifecycle policy rejects tag overwrites. |
+| ❌ `terraform apply` run from a laptop against local or unlocked state, so two applies race and corrupt state. | ✅ Remote backend with locking (S3+DynamoDB, GCS, AzureRM, Terraform Cloud); `plan` in CI with the output posted to the PR; apply only after approval; daily drift detection. |
+| ❌ Flaky test re-run until green — engineers learn that three pipeline retries "fixes" any red, so the next real regression ships unnoticed. | ✅ Auto-quarantine on fail-twice-pass-on-retry, track flake rate per test, block new flakes from entering main, and burn down the top-5 flakiest tests every sprint. |
+| ❌ Store metadata and screenshots hand-edited in App Store Connect or Play Console minutes before submission, diverging from the shipped UI. | ✅ Version-control metadata with `deliver`/`supply`, generate screenshots from UI tests (`fastlane snapshot`), and validate dimensions, text-length limits, and privacy-policy URL reachability in CI. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -609,6 +609,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 10. **Run automated drift detection monthly.** Compare each downstream repo against its template. Report: files added/removed/modified relative to template. A drift dashboard makes invisible divergence visible. Flag repos with >20% drift for manual review. Automated sync PRs for low-risk changes (linting rules, CODEOWNERS updates).
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For monorepo tooling** → route to `monorepo-manager`.
+2. **CI/CD design** → route to `ci-cd-builder`.
+3. **Dev platform design** → route to `platform-engineer`.
+4. **Or code generation developer skill)** → route to `appropriate`.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Template updated but downstream repos never sync — 6 months later, 40 repos still use the old E." | Template updated but downstream repos never sync — 6 months later, 40 repos still use the old ESLint config; a lint rule that would have blocked a CVE | Use automated PR syncs when templates update; add a `.github/workflows/template-sync.yml` that diffs against the latest template and opens PRs; target >90% repo |
+| "It is faster to skip this: Scaffolding assumes prerequisites exist — the golden template's deploy.yml references a GitHub ." | Scaffolding assumes prerequisites exist — the golden template's `deploy.yml` references a GitHub Environment named `production` that 12 teams never cr | Add a `pre-scaffold-check` step that validates all prerequisites (Environments, secrets, IAM roles, DNS); the scaffold CLI must either create missing resources  |
+| "It is faster to skip this: Long-lived secrets created at scaffold time — DEPLOY_KEY was set 8 months ago and rotated 3 mon." | Long-lived secrets created at scaffold time — `DEPLOY_KEY` was set 8 months ago and rotated 3 months ago; deployments fail silently because the error  | true` on critical path operations |
+
+This table is specific to `repo-scaffolding`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

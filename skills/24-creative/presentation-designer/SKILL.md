@@ -436,6 +436,27 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | `email-composer` | Follow-up communications | Post-presentation follow-up emails, thank you notes, deck distribution |
 | `technical-writer` | Documentation handoff | Converting presentation content into technical documentation or white papers |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For print design/layout** → route to `brand-guidelines`.
+2. **UI mockup design** → route to `ui-ux-designer`.
+3. **Or technical documentation** → route to `technical-writer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Death by bullet points — slides packed with 6+ bullets of full sentences. Audiences read ahead ." | **Death by bullet points** — slides packed with 6+ bullets of full sentences. Audiences read ahead instead of listening; the presenter becomes a narra | Limit 3 bullets per slide, 6 words per bullet max. Put the narrative in speaker notes, insights in headlines. Every bullet point beyond 3 costs ~10% of audience |
+| "It is faster to skip this: Font rendering failures across platforms — custom fonts that looked perfect on your Mac disappe." | **Font rendering failures across platforms** — custom fonts that looked perfect on your Mac disappear or fall back to Courier on the Windows machine r | Embed all fonts in the file. Test on both Mac and Windows before showtime. Always have a PDF backup with fonts flattened. Use sRGB color profile. |
+| "It is faster to skip this: Audience attention loss from poor structure — the presentation opens with "About Us" and "Agend." | **Audience attention loss from poor structure** — the presentation opens with "About Us" and "Agenda" slides, squandering the highest-attention window | Open with your best argument or a provocative hook in the first 30 seconds. Every slide must answer "why should I care?" Place a clear CTA slide before Q&A (nev |
+| "It is faster to skip this: The "one more slide" trap — adding slides to "be thorough" kills presentations. A 60-slide deck." | **The "one more slide" trap** — adding slides to "be thorough" kills presentations. A 60-slide deck guarantees the last 40 slides are never remembered | Cut to the bone, then cut one more. 10 great slides beat 60 mediocre ones. Maximum 1 slide per 2 minutes of talk time. Flag "must-cover" vs "nice-to-have" in sp |
+| "It is faster to skip this: Designing without knowing the room — dark-background deck designed on a 27" retina display beco." | **Designing without knowing the room** — dark-background deck designed on a 27" retina display becomes illegible on a washed-out conference room proje | Scout the room. Test slides on the actual projector. Always have a high-contrast backup version and a PDF on USB + email. |
+
+This table is specific to `presentation-designer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

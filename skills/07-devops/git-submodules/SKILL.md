@@ -557,6 +557,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For monorepo architecture** → route to `monorepo-manager`.
+2. **Package publishing language skill)** → route to `appropriate`.
+3. **Or CI/CD pipeline design** → route to `ci-cd-builder`.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: CI checkout without submodules: recursive — git submodule update runs but .gitmodules wasn't fe." | CI checkout without `submodules: recursive` — `git submodule update` runs but `.gitmodules` wasn't fetched; builds fail with "file not found" and the  | Set `submodules: recursive` on the checkout action itself, not as a separate step; if using a separate step, run `git submodule sync --recursive` first; test CI |
+| "It is faster to skip this: Pushing parent without pushing submodule first — developer commits in the submodule, commits th." | Pushing parent without pushing submodule first — developer commits in the submodule, commits the pointer in the parent, pushes parent; CI references a | Add a pre-push hook: `git submodule foreach 'git push'` before pushing the parent; add a CI check that verifies `git ls-remote <submodule-url> <commit-hash>` fo |
+| "It is faster to skip this: git submodule update --remote during a hotfix — silently updates the submodule to the remote's ." | `git submodule update --remote` during a hotfix — silently updates the submodule to the remote's HEAD instead of the pinned commit; production deploys | Never use `--remote` outside of a deliberate update workflow; use `git submodule update --init --recursive` (no `--remote`) for checkout; updates must go throug |
+| "It is faster to skip this: Full clone of heavy submodules in CI — a 2GB llvm-project submodule is cloned in full for 3 sha." | Full clone of heavy submodules in CI — a 2GB `llvm-project` submodule is cloned in full for 3 shared files; CI checkout takes 8 minutes instead of 30  | Use `--shallow-submodules --depth=1` for CI; consider converting heavy submodules to `git subtree`; measure submodule clone time per CI run and alert on regress |
+
+This table is specific to `git-submodules`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

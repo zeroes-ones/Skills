@@ -392,6 +392,44 @@ For FDA-regulated medical devices (Class II/III) and SaMD (Software as a Medical
 - **Waveform displays**: ECG, SpO2 plethysmograph, capnography. Fixed sweep speed. Grid overlay.
 - **Trend displays**: Vital signs over time. Selectable timescale (1h, 4h, 8h, 24h).
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For HIPAA compliance implementation** → route to `hipaa-technical-implementation`.
+2. **Health regulatory submissions** → route to `health-regulatory-submission`.
+3. **Or general healthcare UX research** → route to `patient-experience-researcher`.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Medication names without Tall Man lettering — look-alike/sound-alike drugs cause administration." | Medication names without Tall Man lettering — look-alike/sound-alike drugs cause administration errors | Implement Tall Man lettering (hydrOXYzine vs hydrALAzine). Show drug images. Require barcode scanning confirmation before administration |
+| "It is faster to skip this: Clinical alerts without severity tiering — clinicians develop alert fatigue and ignore critical." | Clinical alerts without severity tiering — clinicians develop alert fatigue and ignore critical warnings | 3-tier severity: Critical (red, action required), Warning (amber, aware), Info (blue, reference). Reduce total alert volume by ≥60% |
+| "It is faster to skip this: Patient content written above 6th-grade reading level — 36% of US adults have basic or below-ba." | Patient content written above 6th-grade reading level — 36% of US adults have basic or below-basic health literacy | Rewrite at 6th-grade Flesch-Kincaid level. Add teach-back confirmation. Offer audio version. Define all medical terms inline |
+| "It is faster to skip this: No auto-logout on PHI screens — unattended screen exposes protected health information." | No auto-logout on PHI screens — unattended screen exposes protected health information | 15-minute idle timeout with visible countdown. Auto-logout at 0. Screen watermark showing logged-in user identity. Audit logging on every session end |
+| "It is faster to skip this: Red used for non-critical information — in clinical contexts, red means emergency/error." | Red used for non-critical information — in clinical contexts, red means emergency/error | Reserve red exclusively for Critical/Emergency/Error. Use amber for warnings, blue for informational. Audit every red pixel in the UI |
+| "It is faster to skip this: Clinical workflow requiring >3 clicks for common tasks — wastes clinician time under pressure." | Clinical workflow requiring >3 clicks for common tasks — wastes clinician time under pressure | Common tasks (medication admin, vitals entry, note signing) must complete in ≤3 clicks. Add shortcuts and favorites. Measure time-motion |
+
+This table is specific to `healthcare-ui-designer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ **Abbreviated medication units and dose expressions.** Rendering "0.5 mg", "10 mcg", "U" for units, or "QD"/"QOD" in a medication card — the trailing-zero and decimal-misread patterns on the ISMP Do Not Use list, where "5.0 mg" is read as "50 mg". | ✅ Spell every unit out in full: milligram, microgram, milliliter, international units; write "daily" and "every other day" rather than QD/QOD; show brand **and** generic name together with Tall Man lettering for look-alike pairs (hydrOXYzine vs hydrALAzine). |
+| ❌ **Red reused as a decorative or informational color.** A red "New Feature!" badge, a red sidebar accent, or red styling for an overdue-but-routine appointment, so the one genuinely critical allergy or potassium alert no longer stands out. | ✅ Reserve red exclusively for critical/emergent/error states (contraindicated interaction, critical lab value, emergency alert); use amber for warnings and blue/gray for informational, and run a color audit confirming red is a minority of on-screen elements. |
+| ❌ **Undifferentiated alert feed.** Every alert — a duplicate-therapy notice, an informational lab-available ping, and a life-threatening allergy — rendered in the same red, interruptive modal style, producing the alert fatigue in which clinicians override 49-96% of medication alerts. | ✅ Apply three-tier severity: Critical (red, blocks workflow, requires acknowledgment), Warning (amber, acknowledge required), Info (blue, dismissible); set a target of cutting total alert volume by ≥60% and re-audit the count before/after. |
+| ❌ **Patient-facing copy at clinician reading level.** Discharge and medication instructions written as "Administer one tablet orally BID; monitor for orthostatic hypotension" at a 12th-grade level, when 36% of US adults have basic or below-basic health literacy. | ✅ Rewrite to a 6th-grade Flesch-Kincaid score, define every medical term inline on first use ("hypertension (high blood pressure)"), chunk to 3-5 items per screen, and add a teach-back prompt — "In your own words, how will you take this medicine?" |
+| ❌ **Lab values and vitals stripped of their context.** A bare "5.8" next to Potassium with no reference range, no units, no collection timestamp, and a hardcoded adult range applied to a neonate — a value whose abnormal flag is itself wrong for the patient. | ✅ Every result shows value, unit, patient-specific reference range, collection timestamp, and a trend arrow; abnormal values are marked with bold **and** a text flag (not color alone); ranges resolve from age, sex, pregnancy, and lab method. |
+| ❌ **PHI on an unmarked screen with an unbounded session.** A patient chart with no lock badge, no "Confidential" label, and no idle timeout, so an unattended workstation can be screen-surfed — the most common cause of HIPAA breaches. | ✅ Persist a lock badge plus "PHI — Protected Health Information" label, watermark with the logged-in user's identity, and a visible 15-minute idle countdown that terminates the session at zero with an audit-log entry on session end. |
+| ❌ **Vitals and vitals-adjacent text routed through analytics.** Sending patient names, MRNs, or screen contents to a crash reporter or product analytics tool, or leaving PHI in DEBUG logs — the audit control becomes the leak. | ✅ Redact PHI at the pipeline: use de-identified tokens only, strip patient data from crash payloads at every level, and disable screenshot capture on patient-data screens; assert in a test that no identifier appears in DEBUG output. |
+| ❌ **Clinical workflows that cost more than three clicks.** A medication administration or note-signing flow that takes 5-7 steps from the primary workflow screen, adding seconds per patient across a 20-patient shift until clinicians invent workarounds that bypass the safety check. | ✅ Restructure the top-5 workflows (medication admin, vitals entry, note signing, lab review, order entry) to ≤3 clicks from the primary screen, add favorites and keyboard shortcuts, and time-and-count clicks with a clinician tester — and never let a shortcut bypass the barcode or allergy check. |
+| ❌ **Animation as the only channel, or as clinical decoration.** A flashing pulse above 3Hz for a critical alert (a WCAG 2.3.1 seizure risk), a looping warning pulse that trains users to tune it out, or a parallax reveal that delays a medication name from rendering. | ✅ Pair every animation with a static text/icon channel; cap pulses at 1Hz with a static fallback when motion is off; respect `prefers-reduced-motion: reduce` with an instant state; and render medication names, dosages, and allergy flags with zero animation delay. |
+| ❌ **Weight-based pediatric dosing without unit validation.** A dose field that accepts a bare number and computes mg/kg from it, where a nurse documenting weight in pounds produces a roughly 2.2× overdose with no hard stop. | ✅ Force weight entry in kilograms with explicit unit selection and label, auto-calculate the dose from validated weight, hard-stop doses exceeding mg/kg safety limits, and require pharmacist verification for high-alert medications. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

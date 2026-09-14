@@ -538,6 +538,51 @@ When micro-SaaS products go wrong, they go wrong in predictable ways. Here are t
 - [ ] **[MICROSAAS14]** At least 3 Mom Test interviews completed with documented quotes. At least 3 people said "I would pay for this" — recorded verbatim. Scorecard score ≥ 4.
 - [ ] **[MICROSAAS15]** Personal onboarding email template ready and Calendly link configured. Every new customer receives a personal welcome within 24 hours.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For VC-funded growth startups** → route to `business-strategist`.
+2. **Enterprise sales** → route to `sales-engineer`.
+3. **Or platform marketplaces** → route to `marketplace-platform-builder`.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Churn from missing features — deprioritizing the #1 customer-requested feature for months while." | Churn from missing features — deprioritizing the #1 customer-requested feature for months while building internal tools or nice-to-haves | Interview every canceling customer within 48 hours. Maintain a public roadmap sorted by customer votes. Ship the top-requested feature within 30 days of it reac |
+| "It is faster to skip this: Underpricing syndrome — charging $29/mo when your ICP would happily pay $79/mo because you anch." | Underpricing syndrome — charging $29/mo when your ICP would happily pay $79/mo because you anchored to competitor pricing instead of value delivered | Run Van Westendorp price sensitivity on 20+ target customers before setting price. Price at 10-20% of value delivered, not at competitor parity. Raise prices an |
+| "It is faster to skip this: Infrastructure cost overruns — unoptimized database queries, unmonitored serverless function in." | Infrastructure cost overruns — unoptimized database queries, unmonitored serverless function invocations, or forgetting to set billing alerts on cloud | Set billing alerts at 50%/80%/100% of expected monthly spend on day 1. Use free-tier-eligible services (Vercel, Supabase, Clerk) until $5K MRR. Review cloud bil |
+| "It is faster to skip this: Scope creep from non-customer feature requests — building analytics dashboards, admin panels, a." | Scope creep from non-customer feature requests — building analytics dashboards, admin panels, and internal tools before the core product works because | Ship the core workflow with a Stripe Checkout link. Query the database directly (`SELECT * FROM users`) instead of building an admin panel. Internal tools are f |
+| "It is faster to skip this: Ghost-town landing page — spending weeks on custom design and copy perfection before putting a ." | Ghost-town landing page — spending weeks on custom design and copy perfection before putting a "Buy" button in front of real people | Ship the landing page on day 1 with a Stripe Checkout link at a specific price. Use Carrd or a simple HTML template. Iterate copy based on real objections heard |
+
+This table is specific to `micro-saas-developer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Production Checklist **(STANDARD)**
+
+Run this before declaring the product launched, and re-run it at every $1K MRR milestone. Every item is a gate, not a suggestion — a solo founder has no release engineer to catch these later.
+
+- [ ] **CR1: Payment exists before the product does** — Verification: a live Stripe Checkout link (not a waitlist) is reachable from the landing page, and the interview log holds 3 verbatim quotes phrased as "I would pay for this," not "this looks cool." Ground Rule R2 is the gate; a mockup with no price is a fail.
+- [ ] **CR2: Price is ≥ $19/mo and anchored to value, not competitors** — Verification: recompute the value math from Phase 3 — hours saved per month × the customer's hourly rate — and show that the price lands at 10-20% of that figure. If the justification is "the competitor charges $29," the item fails.
+- [ ] **CR3: MVP scope fits 160 solo hours and 10 must-have features** — Verification: count the shipped must-haves and the tracked build hours. Anything in the build that failed the "does the product literally not function without this?" test is scope creep, and the count must come in at or under the R3 ceiling.
+- [ ] **CR4: Infrastructure is at or under $50/month, with every paid tier earned** — Verification: sum last month's invoices across hosting, database, auth, email, and analytics. Each paid line must cite a free-tier limit that was actually breached — not anticipated. Cost above $50 with under $500 MRR trips Proactive Trigger P6.
+- [ ] **CR5: Every free tier has a dated limit snapshot and a migration path** — Verification: each service in the stack has a record of its current limits as of the review date plus a tested route off it. Vercel, Heroku, and PlanetScale all withdrew free tiers; a stack with no exit plan is an unpriced risk.
+- [ ] **CR6: A stranger can pay and get access with zero founder involvement** — Verification: from an incognito browser with a brand-new email, complete landing page → pricing → checkout → payment → product access without touching the codebase. Any step needing a manual database edit fails Phase 3's gate.
+- [ ] **CR7: Time to First Value is under 5 minutes for a cold account** — Verification: time a first-time login with a stopwatch from signup click to the moment the product's core outcome is visible. If the flow needs a data import or integration first, pre-populate sample data or manually configure the first 10 accounts.
+- [ ] **CR8: The three Stripe webhooks are wired and exercised** — Verification: fire real test-mode events for `checkout.session.completed` (provisions access), `customer.subscription.deleted` (revokes access and queues the churn email), and `invoice.payment_failed` (starts dunning). Confirm each handler's effect, not just its 200 response.
+- [ ] **CR9: Every cancellation is interviewed while under 100 customers** — Verification: the churn log has a dated entry and a categorized reason (price, missing feature, found alternative, no longer need, poor experience, other) for every cancellation. A cancellation with no outreach attempt is a Ground Rule R6 violation.
+- [ ] **CR10: Unit economics are computed, not felt** — Verification: the tracker shows MRR, net new MRR, active customers, monthly churn %, LTV (average MRR divided by churn rate), and CAC expressed in founder hours — with three consecutive months of rows behind the current one.
+- [ ] **CR11: Exactly one product is under active development** — Verification: name the single product being built and the revenue target that ends the exclusivity. A second product in progress before ramen profitability is the Ground Rule R4 failure mode that ships nothing.
+- [ ] **CR12: Self-serve churn is separated from onboarded churn** — Verification: build the cohort table comparing customers who received a personal onboarding call against those who did not. Self-serve churn running 2x higher means the product is still being carried by the founder's touch, not by the product.
+- [ ] **CR13: The decision to go full-time clears the 2x / 6-month bar** — Verification: check both conditions against statements — MRR at or above 2x monthly expenses for six consecutive months, plus six months of personal living expenses saved. $3K MRR against a $100K salary expectation is not a green light (Proactive Trigger P7).
+- [ ] **CR14: The founder works at or under 40 hours with weekends offline** — Verification: pull two consecutive weeks of a time log and confirm the 2-hour morning deep-work block survives intact. A plan that only works at 60+ hours is a business that cannot outlive the founder's energy.
+- [ ] **CR15: One acquisition channel demonstrably produces signups** — Verification: analytics attribution shows at least one channel — outreach, community, SEO, or launch — delivering 10+ signups in a week. Flat MRR with no attributed channel means distribution work resumes before any new feature ships (Proactive Trigger P4).
+- [ ] **CR16: A customer can get their data out and deleted within 48 hours** — Verification: submit an export and a deletion request as a test customer and complete both inside the window, including the backup copy. This is the GDPR/CCPA floor and the trust floor for a product holding someone's business data.
+
+If any item fails, fix it before launch or before the next growth push — the checklist exists because each unchecked box is a failure mode this skill already documented.
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

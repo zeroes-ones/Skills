@@ -22,7 +22,7 @@ type: specialized
 status: stable
 version: 1.1.0
 updated: 2026-07-23
-token_budget: 2010
+token_budget: 2200
 chain:
   consumes_from: ["system-architect", "database-designer", "devops-engineer", cross-repo-refactoring, deprecation-engineer, git-submodules, using-agent-skills]
   feeds_into: ["devops-engineer", "database-reliability-engineer", "backend-developer", deprecation-engineer]
@@ -468,6 +468,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For new greenfield architecture**.
+2. **CI/CD pipeline construction**.
+3. **Or routine deployment automation**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Strangler fig migration is strangled by its own intercept layer — the routing proxy that decide." | Strangler fig migration is strangled by its own intercept layer — the routing proxy that decides "old system or new system" grows into a 10K-line rout | Routing logic must be stateless and simple: look up one key, route to one target. No business logic in the intercept layer. Set a hard limit: the routing proxy  |
+| "It is faster to skip this: Data migration validated by row count, not checksum — 50M rows migrated, row counts match, but ." | Data migration validated by row count, not checksum — 50M rows migrated, row counts match, but 12K rows have silently corrupted floating-point values  | ', col1, col2, ...))` on source, same on target. Run checksums in parallel across shards. Validate a random 1% sample with full row comparison. Checksum mismatc |
+| "It is faster to skip this: Dual-write without ordering guarantees — writes go to old and new system in parallel. Under con." | Dual-write without ordering guarantees — writes go to old and new system in parallel. Under concurrent load, the order of writes differs between syste | Dual-write with a sequencing log (Kafka, Kinesis) as the source of truth. Both sides consume from the same ordered stream. Verify monotonicity: record version o |
+| "It is faster to skip this: Migration timeline estimated by the engineering team without measuring data volume — "We'll mig." | Migration timeline estimated by the engineering team without measuring data volume — "We'll migrate 5TB in a weekend." At 500MB/s with 4 parallel stre | Measure actual throughput end-to-end with a 100GB sample. Include validation and smoke testing time — not just transfer time. Migration time = (data_volume / me |
+
+This table is specific to `migration-architect`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

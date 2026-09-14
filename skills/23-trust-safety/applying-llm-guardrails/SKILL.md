@@ -363,6 +363,29 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For model safety training (ai-engineer**.
+2. **Ml-engineer)**.
+3. **Content policy (content-policy-manager)**.
+4. **Or security red-teaming (offensive-security)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Threat model missing a critical abuse vector discovered in production." | Threat model missing a critical abuse vector discovered in production | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+| "It is faster to skip this: Privacy control bypass due to incomplete data flow mapping." | Privacy control bypass due to incomplete data flow mapping | Map all data flows end-to-end; tag PII at ingestion; implement automated DPIA reviews on schema changes |
+| "It is faster to skip this: Guardrails configured too permissively, allowing harmful content through." | Guardrails configured too permissively, allowing harmful content through | Calibrate guardrail thresholds with A/B testing; implement human-in-the-loop review for borderline decisions; monitor false negative rate weekly |
+| "It is faster to skip this: Sub-processor added without updating DPAs and BAAs." | Sub-processor added without updating DPAs and BAAs | Automate sub-processor inventory tracking; gate new integrations on DPA completion; audit quarterly against actual data flows |
+| "It is faster to skip this: Incident response playbook outdated when real incident occurs." | Incident response playbook outdated when real incident occurs | Tabletop exercise quarterly; update runbooks after every real incident; automate escalation paths with on-call rotation |
+| "It is faster to skip this: Threat model missing a critical abuse vector discovered in production." | Threat model missing a critical abuse vector discovered in production | Red-team the threat model with adversarial brainstorming; review against OWASP/STRIDE frameworks; update quarterly |
+
+This table is specific to `applying-llm-guardrails`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 **Upstream (skills this consumes):**

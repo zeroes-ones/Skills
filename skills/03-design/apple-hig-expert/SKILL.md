@@ -405,6 +405,46 @@ Surface these WITHOUT being asked:
 | `file_contains(code, "Image|icon")` AND NOT `file_contains(code, "accessibilityLabel|accessibilityHidden")` | Flag: unlabeled image/icon. Add `.accessibilityLabel()`. | VoiceOver users cannot perceive unlabeled images. |
 | `file_contains(code, "\.animation")` AND NOT `file_contains(code, "prefersReducedMotion|ReduceMotion")` | Flag: animation without reduced-motion fallback. Wrap in conditional. | Some users experience motion sickness from animations. |
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| for Material Design compliance | outside this skill's scope (see the description) |
+| web frontend UI | outside this skill's scope (see the description) |
+| general accessibility auditing | `accessibility-auditor` |
+| Non-Apple platform design | outside this skill's scope (see the description) |
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Hardcoded hex colors (#FF5733) instead of semantic colors — breaks Dark Mode, High Contrast, an." | Hardcoded hex colors (`#FF5733`) instead of semantic colors — breaks Dark Mode, High Contrast, and future OS themes | Use `Color.primary`, `.secondaryLabel`, `.systemBackground` exclusively. Zero hardcoded hex values. Verify via `hig_checker.py --colors` |
+| "It is faster to skip this: Fixed-height containers without scaledMetric — Dynamic Type at xxxLarge clips content, makes ap." | Fixed-height containers without `scaledMetric` — Dynamic Type at xxxLarge clips content, makes app unusable for low-vision users | Use `.scaledMetric` for all padding/insets. Test all 5 Dynamic Type sizes (xSmall through xxxLarge). No horizontal scrolling |
+| "It is faster to skip this: VoiceOver labels missing on custom controls — screen reader users cannot complete core workflow." | VoiceOver labels missing on custom controls — screen reader users cannot complete core workflows | Every interactive element needs `.accessibilityLabel()`. Every meaningful non-interactive element needs `.accessibilityValue()`. Test with VoiceOver rotor navig |
+| "It is faster to skip this: Liquid Glass applied without Reduce Transparency fallback — content becomes illegible for users." | Liquid Glass applied without Reduce Transparency fallback — content becomes illegible for users with visual processing disorders | Design opaque fallback for every glass surface. Test with `Settings → Accessibility → Display & Text Size → Reduce Transparency` enabled |
+| "It is faster to skip this: Navigation patterns mixed across platforms — iOS-style tab bar on macOS confuses users and viol." | Navigation patterns mixed across platforms — iOS-style tab bar on macOS confuses users and violates HIG | iOS: Tab bar + NavigationStack. macOS: Sidebar + split views. watchOS: Page-based navigation. visionOS: Ornament-based controls |
+| "It is faster to skip this: Animations without Reduce Motion fallback — vestibular disorder users experience nausea." | Animations without Reduce Motion fallback — vestibular disorder users experience nausea | Wrap all animations in `if !UIAccessibility.isReduceMotionEnabled`. Snap to end state without intermediate frames. Never auto-play infinite animations |
+
+This table is specific to `apple-hig-expert`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+Every row below is a failure mode this skill's Ground Rules (G1–G4, R1), Gotchas table, and Error Recovery table already exist to prevent. Each is something an HIG audit or Apple-platform design session in this domain actually ships.
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Writing `#FF5733` or `Color(red:green:blue:)` into the spec because the mockup used that brand swatch — it renders fine in Light Mode and is never seen on a dark surface. | ✅ Map every brand swatch to a semantic role (`.label`, `.secondaryLabel`, `.systemBackground`, `.tint`) and let the system resolve per appearance mode. Run `grep -rn 'Color(red:\|#' --include="*.swift"` and require an empty result before delivery. |
+| ❌ Sizing a text row with `.frame(height: 44)` because "it fits at the default Dynamic Type setting" — the layout silently clips at xxxLarge on the low-vision user who needs it most. | ✅ Use `.scaledMetric(varSize:relativeTo:)` for every padding and row inset, then render the screen at all five sizes (xSmall → xxxLarge) plus Accessibility Larger Text. If the layout needs horizontal scrolling at any size, it is not done. |
+| ❌ Marking a custom control `.accessibilityLabel("Button")` to satisfy the audit, leaving the VoiceOver user without the one fact the control conveys. | ✅ Label with the outcome the element produces ("Add to cart, 3 items"), add `.accessibilityValue()` for stateful controls, and combine related subviews with `.accessibilityElement(children: .combine)`. Walk every primary task end-to-end under the VoiceOver rotor on hardware. |
+| ❌ Layering `.glassEffect` over a photo carousel without an opaque path, so a user with Reduce Transparency enabled reads body text through a translucent smear. | ✅ Declare the material tier (thin/regular/thick) against the surface's z-order, and design the opaque fallback surface in the same spec. Verify by flipping System Settings → Accessibility → Display & Text Size → Reduce Transparency on a real device. |
+| ❌ Reusing the iOS tab bar on the macOS build "for design consistency", so the desktop app fights the menu bar and keyboard-first users lose their expected commands. | ✅ Start each platform from its own paradigm: iOS `TabView` + `NavigationStack`, macOS sidebar + `NavigationSplitView` with menu-bar commands, watchOS page-based, visionOS ornaments. One feature, four navigation answers. |
+| ❌ Adding a hero parallax and a spring transition as default-on "delight" without checking Reduce Motion, triggering nausea in vestibular-disorder users. | ✅ Gate every animation behind `UIAccessibility.isReduceMotionEnabled` / `@Environment(\.accessibilityReduceMotion)`. With it on, snap to the end state in one frame; never auto-play an infinite or scroll-driven animation. |
+| ❌ Shrinking a close or overflow icon to 28pt because the visual weight looked better, relying on users to hit it accurately. | ✅ Keep the glyph small but expand the hit region with `.contentShape(Rectangle())` plus padding so the tappable area is ≥ 44×44 pt, and confirm with `hig_checker.py target 44 44`. |
+| ❌ Signing off on contrast because `hig_checker.py contrast` passed against `#FFFFFF`, when the caption actually sits on a photo, gradient, or glass surface. | ✅ Re-check against the busiest composited region behind the text, then re-check again with Reduce Transparency enabled. A pass on a flat swatch is not evidence about the shipped surface. |
+| ❌ Auditing against the HIG remembered from iOS 25 training data and reporting `.glassEffect` guidance for an iOS 26 target without ever running the Research Gate. | ✅ Fetch the live HIG before producing output, tag each claim `[VERIFIED]` / `[SPEC-VERSION]` / `[COMMON-PRACTICE]` / `[INFERRED]` / `[UNKNOWN]`, and mark every unverified assertion `[TRAINING-DATA]` if the fetch fails. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

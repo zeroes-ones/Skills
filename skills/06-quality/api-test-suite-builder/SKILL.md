@@ -465,6 +465,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For UI/e2e testing**.
+2. **Performance**.
+3. **Load testing**.
+4. **Security penetration testing**.
+5. **Or manual QA test case writing**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Generating test files with hardcoded production-like data that contains PII." | Generating test files with hardcoded production-like data that contains PII | Use Faker or factory functions with deterministic seeds; never copy production data into test fixtures |
+| "It is faster to skip this: Writing tests only for 200 responses — skipping auth matrix, validation errors, and edge cases." | Writing tests only for 200 responses — skipping auth matrix, validation errors, and edge cases | Generate full auth matrix (401, 403, expired token, deleted user) and input validation matrix (missing, invalid, boundary, injection) for every endpoint |
+| "It is faster to skip this: Not running generated tests in CI — tests only pass on developer machines." | Not running generated tests in CI — tests only pass on developer machines | Add test execution to CI pipeline as a merge gate: `npm test` blocks merge on failure |
+| "It is faster to skip this: Skipping snapshot baseline validation — dynamic fields (timestamps, IDs) cause false failures." | Skipping snapshot baseline validation — dynamic fields (timestamps, IDs) cause false failures | Use snapshot serializers or matchers like `expect.any(String)` for timestamps, UUIDs, and auto-generated IDs |
+
+This table is specific to `api-test-suite-builder`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

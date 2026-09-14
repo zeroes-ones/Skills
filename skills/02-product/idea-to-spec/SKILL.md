@@ -20,7 +20,7 @@ type: product
 status: stable
 version: 1.1.0
 updated: 2026-07-23
-token_budget: 2300
+token_budget: 2500
 chain:
   consumes_from:
     - using-agent-skills
@@ -421,6 +421,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| Architecture decisions | outside this skill's scope (see the description) |
+| code implementation | outside this skill's scope (see the description) |
+| UI/UX design execution | outside this skill's scope (see the description) |
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: PRD written without engineering input, requiring major rework during implementation." | PRD written without engineering input, requiring major rework during implementation | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+| "It is faster to skip this: Feature shipped without success metrics defined, making impact unmeasurable." | Feature shipped without success metrics defined, making impact unmeasurable | Define North Star and counter metrics before development starts; instrument analytics during build, not after launch; set evaluation timeline with go/kill crite |
+| "It is faster to skip this: Stakeholder alignment meeting ends with false consensus due to unvoiced concerns." | Stakeholder alignment meeting ends with false consensus due to unvoiced concerns | Use anonymous pre-read feedback before alignment meetings; explicitly ask for dissenting views; document decisions with named dissent where applicable |
+| "It is faster to skip this: User research participants recruited from convenience sample biasing all findings." | User research participants recruited from convenience sample biasing all findings | Define screening criteria based on target segments; recruit from multiple channels; validate sample against customer base demographics before analysis |
+| "It is faster to skip this: Roadmap presentation to executives fails due to lack of strategy narrative connecting features ." | Roadmap presentation to executives fails due to lack of strategy narrative connecting features to business outcomes | Frame every feature as hypothesis with expected business impact; connect roadmap items to company OKRs; prepare trade-off scenarios for resource discussions |
+| "It is faster to skip this: PRD written without engineering input, requiring major rework during implementation." | PRD written without engineering input, requiring major rework during implementation | Co-write technical sections with engineering lead; conduct technical feasibility review before PRD finalization; include non-functional requirements |
+
+This table is specific to `idea-to-spec`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

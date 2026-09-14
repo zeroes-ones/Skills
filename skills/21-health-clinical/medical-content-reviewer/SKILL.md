@@ -222,6 +222,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For regulatory submission writing**.
+2. **Clinical trial protocol authoring**.
+3. **Peer-reviewed journal publication**.
+4. **Or non-health content review**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: "Statistically significant (p < 0.05)" without effect size — study with 500K participants finds." | "Statistically significant (p < 0.05)" without effect size — study with 500K participants finds 0.3 mmHg BP reduction (p=0.04). Statistically signific | Report BOTH p-value AND effect size with clinical relevance threshold; require MCID (minimum clinically important difference) for all clinical outcome claims |
+| "It is faster to skip this: Absolute vs relative risk in marketing — "Drug X reduces heart attack risk by 50%!" Baseline is." | Absolute vs relative risk in marketing — "Drug X reduces heart attack risk by 50%!" Baseline is 2% over 10 years, so 50% relative = 1% absolute reduct | Always present absolute risk reduction AND Number Needed to Treat (NNT) alongside relative risk; train marketing on the absolute vs relative distinction |
+| "It is faster to skip this: Conflict of interest hidden in acknowledgments — paper says "funded by PharmaCo" but lead autho." | Conflict of interest hidden in acknowledgments — paper says "funded by PharmaCo" but lead author is also on PharmaCo's advisory board (disclosed on se | Cross-reference ClinicalTrials.gov for sponsor information; check disclosures on ALL co-authors; require conflict-of-interest table for every cited study |
+| "It is faster to skip this: Preprint (medRxiv/bioRxiv) cited as evidence — preprint retracted 6 months later when peer revi." | Preprint (medRxiv/bioRxiv) cited as evidence — preprint retracted 6 months later when peer review found fabricated data. Content citing it becomes evi | Only cite published, peer-reviewed sources. If preprint is the only source, flag prominently as "awaiting peer review" and update within 30 days of journal publ |
+| "It is faster to skip this: Off-label promotion disguised as education — "disease state education" piece mentions only symp." | Off-label promotion disguised as education — "disease state education" piece mentions only symptoms treatable by your product without naming it. FDA a | Establish promotional review committee reviewing ALL external communications; create claims matrix mapping every marketing claim to exact clearance language |
+
+This table is specific to `medical-content-reviewer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 
@@ -543,7 +565,9 @@ graph LR
 ## Verification Guardrails
 <!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Best Practices **(STANDARD)**
 
 1. **Grade evidence using the GRADE framework.** Classify every clinical claim by evidence quality: High (RCTs, systematic reviews), Moderate (downgraded RCTs, upgraded observational studies), Low (observational studies), Very Low (case reports, expert opinion). Content citing Very Low evidence must include a qualifier such as "limited evidence suggests" and should not be presented as established fact.
 2. **Apply Oxford CEBM levels for treatment claims.** Level 1 (systematic reviews of RCTs) through Level 5 (expert opinion without critical appraisal). Patient-facing content should preferentially cite Level 1-2 evidence. Level 4-5 evidence must be explicitly qualified as "expert opinion, not proven by clinical trials."

@@ -472,6 +472,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For small well-understood tasks**.
+2. **Sprint planning** → route to `scrum-master`.
+3. **Implementation ticket creation** → route to `project-manager`.
+4. **Or project roadmap planning** → route to `product-manager`.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Shallow unknown elicitation that misses critical risks." | Shallow unknown elicitation that misses critical risks | Target 10-30 unknowns minimum; if fewer than 5 emerge, you're not digging deep enough |
+| "It is faster to skip this: Circular dependency graphs that stall investigation." | Circular dependency graphs that stall investigation | Run topological sort validation before accepting any DAG — cycles must be resolved immediately |
+| "It is faster to skip this: Premature synthesis before all BLOCKING tickets are done." | Premature synthesis before all BLOCKING tickets are done | Do not enter Phase 3 until all BLOCKING and ORDERING tickets are marked done |
+
+This table is specific to `wayfinder`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

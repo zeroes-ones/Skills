@@ -173,7 +173,7 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 - Before regulatory submission or compliance audit for software with safety implications
 - When a junior engineer implements a senior-designed specification — the spec is a claim, the implementation is the test
 
-### When NOT to Use
+### When NOT to Use This Skill
 
 - Prototypes, spikes, or throwaway code where the cost of review exceeds the cost of defects
 - Trivial changes: typos, formatting, log-level adjustments (diff < 20 lines with no logic change)
@@ -574,6 +574,33 @@ If a command or approach fails, follow this escalation path before giving up:
 | Data integrity concern (wrong output, silent failure) | Verify with a manual check: compare output against a known-correct baseline. Add assertions: `[command] | grep -q "[expected]" && echo "OK" || echo "FAIL"` | Run the operation on a smaller subset first. Compare checksums: `shasum`, `md5`. Check for silent truncation: `wc -l` before and after | Abort and flag for human review. Do not proceed past data integrity failures — the cost of propagating bad data exceeds the cost of delay |
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Performative doubt without specific failure conditions — "this could break" with no testable hy." | Performative doubt without specific failure conditions — "this could break" with no testable hypothesis | Enforce the "Doubt Theater Detection" rule: every doubt must contain a specific failure condition (IF...THEN), counter-example, or concrete test. Flag and dismi |
+| "It is faster to skip this: Single-model review of AI-generated code — the reviewing model shares the same blind spots as t." | Single-model review of AI-generated code — the reviewing model shares the same blind spots as the generating model | Cross-model escalation mandatory for CRITICAL claims. Always review Claude-generated code with GPT-4o and vice versa. Different training data = different blind  |
+| "It is faster to skip this: Doubt cycle never terminates — team stuck in perpetual "what if" analysis." | Doubt cycle never terminates — team stuck in perpetual "what if" analysis | Enforce hard cycle limits: CRITICAL max 3 cycles, HIGH max 3, MEDIUM max 2, LOW max 1. After limit, escalate or accept with documented risk. No infinite loops. |
+| "It is faster to skip this: False equivalence — treating all doubts with equal severity regardless of impact." | False equivalence — treating all doubts with equal severity regardless of impact | Apply severity classification rigorously: data loss/corruption = CRITICAL, unauthorized access = CRITICAL, silent wrong results = HIGH, degradation = MEDIUM. Al |
+
+This table is specific to `doubt-driven-development`: each row names a failure this work actually produces, and the response that failure requires.
+
+## When NOT to Use **(QUICK)**
+
+This skill is adversarial verification, not general code review. Route elsewhere when the claim/doubt/reconcile overhead buys nothing:
+
+| Condition | Use instead |
+|---|---|
+| The diff is < 20 lines of renaming, formatting, or log-level changes — no logic, no trust boundary | `code-reviewer` (standard review) |
+| The code is a prototype, spike, or throwaway whose cost of defects is below the cost of the review cycle | `prototype`, then `code-reviewer` |
+| The question is whether to build the change at all, not whether the built claim holds | `roi-gate` |
+| Tests are missing or happy-path-only and no claims have been written yet | `tdd-guide`, then return here for claim extraction |
+| The defect is already live and users are affected right now | `incident-responder` (the doubt cycle runs after mitigation) |
+| "Doubt" has been raised with no failure condition and no test — the doubt is theater, not a review | `grilling` (force the falsifiable question), then return here |
+| Only cosmetic or naming concerns remain — no invariant, error path, or trust boundary is in question | `code-simplification` |
 
 ## Cross-Skill Coordination
 

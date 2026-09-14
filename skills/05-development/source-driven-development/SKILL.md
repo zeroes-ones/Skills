@@ -483,6 +483,25 @@ If a command or approach fails, follow this escalation path before giving up:
 | Docs describe `async function` but code is synchronous in your version | Framework deprecated the sync API in a minor release. Docs were updated prematurely before the deprecation shipped | Cross-reference release notes for every version between your installed version and the doc version. Test with `node -e` one-liner | Docs can describe the FUTURE, not the PRESENT. Trust behavior over documentation when they disagree |
 | Security vulnerability in transitive dep undetected for 6 months | Team used docs from framework v4 security guide, but v5 changed the CSP configuration API entirely. The old config silently became a no-op | Subscribe to framework security advisories. Run `npm audit` in CI with `--audit-level=high`. Re-verify security config after every major version bump | Security documentation for the wrong version is worse than no documentation — it creates a false sense of safety |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For greenfield prototyping where speed matters more than correctness**.
+2. **For well-known standard library usage**.
+3. **Or for libraries where the team has deep institutional knowledge (>6 months daily use)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Docs describe v14 API but codebase runs v13 — silent breakage, developers use removed methods." | Docs describe v14 API but codebase runs v13 — silent breakage, developers use removed methods | Always pin exact versions, verify installed version matches docs URL before reading, add version-to-citation CI check |
+| "It is faster to skip this: LLM hallucinates framework APIs — generated code uses widget.frobnicate() which never existed." | LLM hallucinates framework APIs — generated code uses `widget.frobnicate()` which never existed | Every LLM-generated framework call must pass Level 1 doc verification before merge; never trust generated API surface without source confirmation |
+| "It is faster to skip this: Cherry-picked docs justify wrong decisions — developer quotes "X is good" while ignoring "but Y." | Cherry-picked docs justify wrong decisions — developer quotes "X is good" while ignoring "but Y is better for your case" | Require full-context citation including caveats and alternatives; the citation must establish the case matches, not just quote the favorable part |
+
+This table is specific to `source-driven-development`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

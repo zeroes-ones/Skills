@@ -535,6 +535,25 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For complex 3D games** → route to `game-developer`.
+2. **Multiplayer architecture** → route to `game-networking-developer`.
+3. **Or educational games with curriculum** → route to `educational-game-developer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Push notification opt-in below 10% — players reflexively deny system prompt on first launch." | Push notification opt-in below 10% — players reflexively deny system prompt on first launch | Always show in-app pre-prompt explaining value first; trigger system dialog only after player achievement milestone; pre-prompt doubles opt-in to 40-60% |
+| "It is faster to skip this: IAP purchase flow fails on 20% of Android devices — Play Store overlay doesn't launch on Xiaomi." | IAP purchase flow fails on 20% of Android devices — Play Store overlay doesn't launch on Xiaomi/Huawei | Handle ALL `BillingResult` codes explicitly, implement purchase acknowledgment within 3s, test on Xiaomi/Huawei/Samsung/Pixel, log every purchase step to analyt |
+| "It is faster to skip this: Low-end Android performance not tested — game runs at 3 FPS on $150 devices that dominate emerg." | Low-end Android performance not tested — game runs at 3 FPS on $150 devices that dominate emerging markets | Profile on minimum-spec device from pre-production, cap particles at 50, textures at 1024×1024, target 30 FPS minimum on Galaxy A14 equivalent |
+
+This table is specific to `casual-game-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

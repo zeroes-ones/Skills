@@ -623,6 +623,25 @@ When educational game development goes wrong, it goes wrong in predictable ways.
 - [ ] **[EDUGAME16]** Efficacy evidence pipeline: pre/post assessment built in, data collection for comparison with external measures, architecture supports future RCT
 - [ ] **[EDUGAME17]** Student data security: encryption at rest and in transit, access control with audit logs, never sold or used for non-educational purposes, retention policy documented, deletion mechanism tested
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For entertainment-only games** → route to `game-developer`.
+2. **Classroom management systems** → route to `fullstack-developer`.
+3. **Or pure e-learning platforms without game elements** → route to `education-access-developer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: COPPA violation via third-party SDK — analytics SDK collects device IDs from under-13 users, FT." | COPPA violation via third-party SDK — analytics SDK collects device IDs from under-13 users, FTC fine | Audit every third-party SDK for data collection, implement data minimization, use COPPA Safe Harbor certification, no behavioral ads for under-13 |
+| "It is faster to skip this: Engagement trap — game optimized for time-on-device, 80% session time in non-learning features." | Engagement trap — game optimized for time-on-device, 80% session time in non-learning features | Instrument productive vs. consumption time, target >70% productive, cut features that don't directly serve learning outcomes |
+| "It is faster to skip this: "Standards-aligned" misrepresentation — claimed Common Core alignment but topic only tangential." | "Standards-aligned" misrepresentation — claimed Common Core alignment but topic only tangentially matches | Produce per-standard alignment document mapping standard code → game level → mechanic → assessment depth; school districts audit these claims |
+
+This table is specific to `educational-game-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

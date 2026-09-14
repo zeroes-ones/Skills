@@ -395,6 +395,25 @@ If a command or approach fails, follow this escalation path before giving up:
 | TMS auto-translate fills previously human-reviewed translations with MT output — QA scores drop 15 points overnight | "Overwrite on source change" setting enabled in TMS. When a typo is fixed in the source string ("Submti"→"Submit"), TMS re-translates from MT and discards the human-approved translation | Configure TMS with "Preserve approved translations on source update" and manual review required for any source string change that affects > 5 locales. Human-approved translations should never be overwritten without explicit approval | MT engines are tools, not authorities. A human-reviewed translation is better than an MT retranslation of a typo-fixed source. Protect approved translations from automatic overwrite at the TMS configuration level |
 | Pseudo-localized build passes CI but 3 German buttons overflow their containers in production | Pseudo-loc uses `en-XA` which adds brackets and accents to simulate expansion. It does NOT actually translate text. German real text ("Einstellungen speichern" for "Save Settings") is 40% longer but the pseudo-loc expansion was only 30% | Pseudo-loc is a first-pass filter, not a substitute for real-locale testing. After pseudo-loc passes, run automated screenshot tests with the 3 most expansive real locales (German: +35%, Finnish: +40%, Arabic for RTL). Measure actual overflow, not simulated | Pseudo-loc catches 80% of issues; real-locale testing catches the remaining 20%. German is consistently the most expansive real locale — always include it in visual QA regardless of market priority |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For i18n architecture design**.
+2. **RTL layout implementation**.
+3. **Or manual translation workflows requiring human linguists**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: TM not shared across teams — 3 different teams translate "dashboard" 3 different ways in German." | TM not shared across teams — 3 different teams translate "dashboard" 3 different ways in German | Centralize TM in one TMS; all teams push/pull from same TM; run quarterly deduplication; TM shared across teams is the #1 ROI lever in localization |
+| "It is faster to skip this: String freeze violated — design changes copy mid-translation cycle, translators redo work 3-4x." | String freeze violated — design changes copy mid-translation cycle, translators redo work 3-4x | Enforce 2-week string freeze before translation; freeze checklist signed by PM/design/content; post-freeze changes go to "next release" batch |
+| "It is faster to skip this: MT quality tiers ignored — uniform post-editing applied to all language pairs." | MT quality tiers ignored — uniform post-editing applied to all language pairs | Segment into Tier 1 (ES/FR/DE, light post-edit), Tier 2 (JA/ZH/KO, full human review), Tier 3 (FI/HU/AR, MT + mandatory native reviewer); budget proportional to |
+
+This table is specific to `translation-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

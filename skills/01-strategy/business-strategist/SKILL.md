@@ -409,6 +409,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| Financial accounting | `accountant` |
+| payroll setup | `accountant` |
+| Tax compliance | `tax-strategist` |
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Revenue models that sound good on slides but collapse under unit economics." | Revenue models that sound good on slides but collapse under unit economics | Model unit economics before anything else: CAC, LTV, gross margin per customer, payback period. If LTV:CAC < 3:1 at scale, the model doesn't work no matter how  |
+| "It is faster to skip this: GTM strategies that assume viral growth without viral coefficient measurement." | GTM strategies that assume viral growth without viral coefficient measurement | Viral coefficient must be MEASURED, not assumed. Run $0 marketing experiments for 3 months. If viral coefficient < 1.0 without paid acquisition, you don't have  |
+| "It is faster to skip this: Pricing that leaves money on the table by not segmenting willingness-to-pay." | Pricing that leaves money on the table by not segmenting willingness-to-pay | Segment by: company size, use case intensity, geography, vertical. Enterprise buyers have 5-10x willingness-to-pay vs SMB. Offer tiered pricing (not just featur |
+| "It is faster to skip this: Confusing TAM expansion with "adjacent market entry" when the adjacent market requires entirely." | Confusing TAM expansion with "adjacent market entry" when the adjacent market requires entirely different GTM | Adjacent ≠ easy. Test with 5 pilot customers in the adjacent segment before committing resources. If the sales cycle, buyer persona, or channel differs by > 50% |
+| "It is faster to skip this: Annual planning that projects linear growth from exceptional quarters." | Annual planning that projects linear growth from exceptional quarters | Use trailing-12-month averages, not best-quarter extrapolation. Exceptional quarters regress to the mean. Build plans on 70th-percentile confidence, not "if eve |
+
+This table is specific to `business-strategist`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

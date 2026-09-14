@@ -310,6 +310,40 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For commercial renewal negotiations**.
+2. **New business development**.
+3. **Support ticket triage**.
+4. **Or product roadmap decisions**.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|-------------------|
+| ❌ Declaring onboarding complete the day the last integration task is checked off, with no evidence that end users reached their primary use case | ✅ Gate the phase on business-user activation: ≥80% of named users logged in and completed one core workflow, plus the customer confirming value realization in writing |
+| ❌ Publishing a single health score threshold (say, "red below 60") across every segment, so a 2,000-seat enterprise and a 5-seat startup are judged by the same bar | ✅ Segment thresholds by ACV tier and usage pattern — validate each tier's cut-point against 12 months of that segment's actual churn |
+| ❌ Presenting a churn-risk account with a save offer of "20% off" as the intervention plan, before asking why they are leaving | ✅ Root-cause first (missing feature, adoption collapse, budget cut, champion departure), then match the intervention — beta access, re-onboarding sprint, tier downgrade, or executive sponsor reconnect |
+| ❌ Reporting NRR by dividing total period-end ARR (including newly won logos) by starting ARR, which flatters the CS team with sales' wins | ✅ Compute NRR on the cohort of customers active at period start only: (starting ARR + expansion − contraction − churn) ÷ starting ARR; report GRR alongside it |
+| ❌ Running a QBR deck that opens with your product roadmap and feature releases, treating the session as a product update | ✅ Open with the customer's own business KPIs and the value realized against the success plan; keep the product portion to roughly the last 20% of the agenda |
+| ❌ Sending one undifferentiated "Tips & Tricks" nurture email to every account, ignoring maturity and company size | ✅ Split digital-touch content by segment and lifecycle stage; a 500-seat enterprise admin and a 5-seat founder need different emails or both will mark you as spam |
+| ❌ Marking an escalation resolved when engineering ships the fix, and letting the ticket sit in "Resolved" until the customer chases you | ✅ Close the loop with a customer-facing update within 24 business hours of the P0/P1 fix: what changed, what to verify, and a request for confirmation |
+| ❌ Scaling CS by hiring named CSMs to preserve a 1:50 ratio, even for a long tail of $5K–$15K accounts | ✅ Move sub-threshold accounts (typically below $25K–$50K ARR) to a digital-only track and reinvest the salary into automated onboarding, in-app guidance, and a knowledge base |
+| ❌ Reacting only to lagging signals — NPS, renewal sentiment, payment lateness — and reading them as a healthy account | ✅ Keep ≥60% of health-score weight on leading signals (DAU/WAU trend, feature adoption depth, login recency) and track the lead time between their decline and observed churn |
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|-----------------|-----------------|-------------------|
+| "The score is green, so the account is safe — no need to spend a CSM hour on it." | Every recorded churn-despite-green-score case in this domain traces to a signal the model does not measure: executive sponsor turnover, multi-threading collapse, a champion who changed roles. A green score is a hypothesis about product adoption, not a statement about organizational commitment. | Before relying on green, check relationship health explicitly: is the executive sponsor still attending QBRs, are there 3+ live contacts across departments, has the original champion changed roles in the last 2 quarters? |
+| "The customer asked for a discount and I have a save-offer budget, so let's just move on that." | A discount does not fix a missing capability, an adoption collapse, or a failed integration. It buys a renewal cycle and burns margin, and the same account churns next period with no remaining lever. | Diagnose the churn reason first — survey with "What would make you stay?" — then select the intervention that matches: beta access, re-onboarding, services, tier downgrade, or a discount only as the last resort after root cause is documented |
+| "Onboarding slipped two weeks, but we'll catch up once the implementation work is done." | Time-to-first-value is the earliest churn predictor. Every week past the segment target (SMB 7d / MM 14d / Enterprise 30d) raises the odds of the customer's internal "did we make a mistake?" conversation, which runs without you in the room. | Escalate the slipped milestone to the account-manager and sales-engineer within 48 hours, then publish a revised dated milestone plan with an executive check-in against it — not a verbal promise to catch up |
+| "Our NPS went up this quarter, so retention is on track." | NPS is a lagging sentiment signal and a small, self-selected sample. A segment NPS of +40 can coexist with a 50% drop in daily active users, which is the signal that actually precedes the renewal decision. | Never report NPS as standalone evidence for retention: pair it with health-score distribution, DAU/WAU trend, and NRR/GRR for the same segment before drawing any conclusion |
+| "The champion has gone quiet, but they're busy — I'll wait a couple of weeks before chasing." | Champion departure is the strongest single predictor of churn in accounts without multi-threading, and it is usually detected late because nobody was watching for it. | Trigger the 7-day rule: attempt contact through an alternate contact, partner channel, and executive sponsor within 7 days of silence; 14 days without a new live contact doubles churn probability |
+| "We flagged the ticket as resolved for engineering, so the customer knows." | Internal status is invisible to the customer — to them, an open critical issue with no update reads as silence, and silence at an enterprise account escalates to the VP or CEO level. | Send a customer-facing update within 24 business hours of any P0/P1 engineering resolution, stating what was fixed and asking for confirmation that it works as expected |
+
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s -- table of who to talk to when -->

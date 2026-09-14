@@ -472,6 +472,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For CI/CD pipeline configuration** → route to `ci-cd-builder`.
+2. **Monorepo tooling** → route to `monorepo-manager`.
+3. **Release coordination** → route to `release-manager`.
+4. **Or platform engineering** → route to `platform-engineer`.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: git push --force on a shared branch — overwrites teammates' commits that were pushed after your." | `git push --force` on a shared branch — overwrites teammates' commits that were pushed after your last fetch; their work is lost and unrecoverable unl | Never `--force` to shared branches; use `--force-with-lease` which checks that your local ref matches the remote before overwriting; configure branch protection |
+| "It is faster to skip this: git add . without reviewing — commits secrets, large binaries, debug logs, and temporary files ." | `git add .` without reviewing — commits secrets, large binaries, debug logs, and temporary files into the repository history where they live forever | Always use `git add -p` for interactive staging; maintain a comprehensive `.gitignore`; run `git diff --cached` before every commit; use pre-commit hooks to blo |
+| "It is faster to skip this: Rebasing a shared branch — rewriting history that others have based work on; every teammate's l." | Rebasing a shared branch — rewriting history that others have based work on; every teammate's local branch now diverges and requires force-push recove | Only rebase private branches that nobody else depends on; once a branch is pushed and shared, use merge commits instead; communicate branch state changes to the |
+| "It is faster to skip this: Squash-merging without preserving the PR description — the squash commit has a generic "Fix bug." | Squash-merging without preserving the PR description — the squash commit has a generic "Fix bug" message and the design rationale from the PR body is  | Configure squash-merge to use PR title + body as the commit message; every commit on `main` should be self-contained with the WHY in the body; link back to the  |
+
+This table is specific to `git-workflow`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

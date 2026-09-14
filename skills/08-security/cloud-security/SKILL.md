@@ -478,6 +478,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For cloud architecture (cloud-architect)**.
+2. **Appsec (security-engineer)**.
+3. **IAM design (iam-architect)**.
+4. **Or compliance audit (compliance-officer)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Assuming cloud provider defaults are secure — S3 Block Public Access was opt-in for accounts cr." | Assuming cloud provider defaults are secure — S3 Block Public Access was opt-in for accounts created before 2023, default VPCs create public subnets w | Run a cloud security baseline assessment (CIS, AWS Foundational Security Best Practices) on every account. Enable account-level S3 Block Public Access. Review d |
+| "It is faster to skip this: Managing IAM with individual user policies instead of groups and roles — when an engineer chang." | Managing IAM with individual user policies instead of groups and roles — when an engineer changes teams, their permissions accumulate across roles. Af | Use IAM groups for human users and IAM roles for services. Assign permissions to groups/roles, never to individual users. Implement permission boundaries and SC |
+| "It is faster to skip this: Running Kubernetes clusters with the default service account token mounted in every pod — a com." | Running Kubernetes clusters with the default service account token mounted in every pod — a compromised web app pod can now authenticate to the Kubern | Set `automateServiceAccountToken: false` on all pods that don't need Kubernetes API access. Use IRSA (IAM Roles for Service Accounts) or Workload Identity for c |
+
+This table is specific to `cloud-security`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

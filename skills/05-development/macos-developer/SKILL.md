@@ -470,6 +470,25 @@ If a command or approach fails, follow this escalation path before giving up:
 | Third-party plugins silently fail to load after notarization | Hardened Runtime blocks unsigned or third-party libraries via `dlopen`. Audio units, Photoshop plugins, Finder Sync extensions all fail. Development machines without hardened runtime don't reproduce | Add `com.apple.security.cs.disable-library-validation = true` if your app loads plugins. Pair with `com.apple.security.cs.disable-executable-page-protection = false` (never allow writable+executable). Document which library paths are validated | Hardened Runtime is secure by default — it blocks everything not explicitly allowed. Plugin loading requires explicit entitlement |
 | `NSView.draw(_:)` renders as black rectangle after macOS update | Developer overrode `draw(_:)` without calling `super.draw(_:)`. It worked on the dev macOS version. Apple changed superclass backing store setup in a macOS update — black rectangle | Always call `super.draw(dirtyRect)` at start of every `draw(_:)` override. If intentionally skipping (e.g., Metal rendering), document why and test on latest macOS beta within 7 days of WWDC | Apple changes superclass behavior in macOS updates. Non-standard overrides that "happen to work" are time bombs |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For iOS development**.
+2. **Cross-platform desktop with Electron/Tauri**.
+3. **Or Windows/Linux native apps**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Sandboxing retrofitted post-development — app uses Process(), hardcoded paths, direct file acce." | Sandboxing retrofitted post-development — app uses `Process()`, hardcoded paths, direct file access | Enable sandboxing from day one; every file access through Powerbox or sandbox-compliant directories; treat sandboxing as architecture, not configuration |
+| "It is faster to skip this: App not notarized — Gatekeeper shows "unidentified developer" to non-technical users." | App not notarized — Gatekeeper shows "unidentified developer" to non-technical users | Notarize every build in CI (2-5 min); staple ticket for offline validation; right-click bypass only works for technical users |
+| "It is faster to skip this: Missing activation policy — non-document app invisible: no dock icon, no Command-Tab entry." | Missing activation policy — non-document app invisible: no dock icon, no Command-Tab entry | Call `NSApp.setActivationPolicy(.regular)` in `applicationWillFinishLaunching` before `NSApp.activate()` |
+
+This table is specific to `macos-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -458,6 +458,38 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For monorepo tooling configuration** → route to `monorepo-manager`.
+2. **CI/CD pipeline implementation** → route to `ci-cd-builder`.
+3. **Or API design** → route to `api-designer`.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Drawing repo boundaries on technical layers (`frontend-repo`, `backend-repo`, `db-migrations-repo`) so every business feature needs a PR in all three | ✅ Draw boundaries on business capabilities (`payments`, `identity`, `search`), each repo carrying its own UI, service, and migration code, so a feature ships in one place |
+| ❌ Publishing an internal package on a merge without automated breaking-change detection, letting a changed function signature ride in on a MINOR bump | ✅ Run `semver-diff` / `api-extractor` (or the language equivalent) in CI and block any non-MAJOR publish that alters an exported signature; have consumers pin exact versions and receive the bump via a Renovate PR |
+| ❌ Listing three teams in CODEOWNERS "so everyone is aware" — which converts shared ownership into zero accountability | ✅ Name exactly one owning team as primary reviewer; list other interested teams under a separate contributors/reviewers field so incident response has a single escalation point |
+| ❌ Backing actively developed shared code with a git submodule, then merging while the submodule pointer sits in detached HEAD on the previous commit | ✅ Move the shared code to an internal registry with exact-version pinning; if a submodule is truly unavoidable, fail CI on `git submodule status --recursive \| grep -v "^ "` |
+| ❌ Letting Renovate/Dependabot open unbounded PRs per repo, so a Monday batch of 45 updates buries a `lodash` CVE at position #37 in the review queue | ✅ Cap open automated PRs (≤5 per repo), group framework updates into weekly batches, and split security patches into a separate stream with a <24h review SLA |
+| ❌ Updating a shared base image, Terraform module, or CI template and validating only the shared-infra repo's own build | ✅ Fan out smoke tests to every downstream consumer via `repository_dispatch` before merging, pin base images by digest, and include a "what changed" diff in the PR |
+| ❌ Splitting a monorepo with `cp -r` + `git init`, so every line in the new repos blames "Initial commit" and the design discussions are gone | ✅ Extract with `git filter-repo --path ... --path-rename ...` to preserve authors, dates, and messages; confirm with `git log --follow` on a key file before deleting the source |
+| ❌ Tagging internal releases `latest` or another mutable tag, so two deploys minutes apart resolve different dependency versions with no code diff in the deploy log | ✅ Pin to exact semver or a SHA256 digest and configure the registry to reject tag overwrites; immutability is what makes a rollback mean anything |
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "Each team should own its own repo — autonomy is the whole point." | Autonomy without redundancy is fragility. A repo with one maintainer is one resignation away from being unowned; a 20-repo split across 1–2 person teams produced a bus factor of 1 on 75% of the codebase, and two departures left repos no one could deploy. | Require ≥2 CODEOWNERS per repo drawn from different teams and a cross-training plan within 30 days for any repo below that; treat a team of 1 as not yet a team, and do not give it a repo boundary. |
+| "It's only a minor version — consumers on caret ranges will pick it up fine." | Semver is a social contract, not a technical guarantee. One unannounced signature change in a MINOR release broke all 12 consumers on their next `npm install`, simultaneously. | Gate the publish with automated breaking-change detection (`semver-diff`/`api-extractor`) and fail any non-MAJOR release that changes an exported interface; for internal libraries require exact pins plus a Renovate PR so each bump is opt-in. |
+| "We'll write the migration guide after the breaking change ships — the team is waiting on it." | Consumers discover the break in their own CI days later, often while on PTO or mid-sprint. A `design-system@3.0.0` with 12 breaking changes cost 15 teams 4–8 hours each, with two repos silently broken until their next deploy. | Refuse to ship the breaking interface until the codemod is tested against every consumer in CI, automated PRs are opened to all consumer repos at once, and an adoption dashboard with an escalation path for laggards exists. |
+| "Renovate keeps everything current automatically — that's the whole dependency strategy." | Automation without rate limiting is a self-DoS. Forty simultaneous PRs saturate the shared CI queue, PRs time out and auto-close, and a security patch waits 12 days behind version bumps. | Cap open automated PRs per repo, group framework updates weekly, auto-merge patch-level updates on green CI, and route security advisories through a separate stream with SLA-based review. |
+| "The submodule pins a commit SHA, so the build is deterministic by definition." | The pointer is only deterministic if you check it out deliberately. A developer checking out a feature branch leaves the submodule on the old commit, tests pass against code CI never saw, and the merged SHA looks correct. | Replace submodules with registry consumption plus version pinning; when a submodule is unavoidable, add a CI gate that fails on dirty or detached-HEAD submodules and never merge in that state. |
+| "We don't need coupling data — we already know which repos should split." | Splitting before measuring cross-repo change frequency is how you get a distributed monolith: three PRs per feature, no atomic rollback, and 30% of each sprint lost to coordination. | Compute the coupling coefficient (co-change commits / total commits) over 6 months first. >30% coupling with the same owning team means the two repos are a de facto monorepo and are merge candidates; only <5% coupling supports a split. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

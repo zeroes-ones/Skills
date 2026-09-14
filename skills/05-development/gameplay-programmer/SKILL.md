@@ -368,6 +368,28 @@ Run these checks before declaring work complete. ALL must pass.
 | V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
 | V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For rendering pipeline engineering**.
+2. **Engine architecture**.
+3. **Networking infrastructure**.
+4. **Or art/asset pipeline**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Using Instantiate/Destroy for bullets without object pooling — GC runs every 2 seconds at 200 p." | Using `Instantiate`/`Destroy` for bullets without object pooling — GC runs every 2 seconds at 200 projectiles/second, 15ms hitches | Pre-warm `ObjectPool<T>` with `Get()` → reset → `Release()`. Pool bullets, particles, enemies, and UI elements. A bullet-hell game without pooling is unshippabl |
+| "It is faster to skip this: Building single-player, then retrofitting multiplayer — every gameplay system must be rewritten." | Building single-player, then retrofitting multiplayer — every gameplay system must be rewritten for authoritative server | Input → Command pattern, server-authoritative validation, and state serialization from day one. Day-1 multiplayer costs 20% overhead; retroactive multiplayer co |
+| "It is faster to skip this: Not multiplying forces by Time.fixedDeltaTime in FixedUpdate() — physics behave differently at ." | Not multiplying forces by `Time.fixedDeltaTime` in `FixedUpdate()` — physics behave differently at 50Hz vs 30Hz (thermal throttling) | Test physics at `fixedDeltaTime = 0.033` (30Hz), `0.02` (50Hz), `0.013` (75Hz). Character behavior must be identical. Console certification REQUIRES stable fram |
+| "It is faster to skip this: AI tested only on clean test levels (3 enemies, no dynamic obstacles) — 20 enemies with destruc." | AI tested only on clean test levels (3 enemies, no dynamic obstacles) — 20 enemies with destructible cover on production levels takes 14ms, leaving 2m | Profile AI on production levels with full enemy counts, dynamic navmesh obstacles, and destructible cover. Test-level AI performance is fantasy data. Production |
+| "It is faster to skip this: Saving directly to the save file instead of atomic write-then-rename — crash mid-save corrupts ." | Saving directly to the save file instead of atomic write-then-rename — crash mid-save corrupts the file, user loses 40+ hours of progress | Write to temp file → fsync → rename over target. Include `saveVersion` header for migration. SHA256 checksum detects corruption on load. Atomic saves prevent th |
+
+This table is specific to `gameplay-programmer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

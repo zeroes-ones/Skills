@@ -403,6 +403,40 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general graphic design**.
+2. **Brand identity creation**.
+3. **Non-health illustration work**.
+4. **Or UI component design without clinical content**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Anatomical accuracy at the expense of communicative clarity — a technically perfect illustratio." | **Anatomical accuracy at the expense of communicative clarity** — a technically perfect illustration of the brachial plexus that a neurosurgeon loves  | Match rendering to audience: patient education uses simplified forms with warm colors; surgical planning uses precise anatomy with clinical palette. Know your a |
+| "It is faster to skip this: 3D model for web that's 500MB — the surgeon opens it on a hospital computer (integrated graphic." | **3D model for web that's 500MB** — the surgeon opens it on a hospital computer (integrated graphics, 8GB RAM, throttled internet) and the browser tab | Target load time under 10 seconds on a 3-year-old hospital workstation with shared WiFi. Medical environments run on outdated hardware — design for it. |
+| "It is faster to skip this: Color choices that are inaccessible — red/green coding for healthy vs diseased tissue is invisi." | **Color choices that are inaccessible** — red/green coding for healthy vs diseased tissue is invisible to 8% of male surgeons with color vision defici | Use blue/orange or add texture/pattern differentiation. Never rely on color alone to convey critical clinical information. Test with colorblind simulators. |
+| "It is faster to skip this: Unversioned medical illustrations in EHR systems — a surgical illustration embedded in the EHR ." | **Unversioned medical illustrations in EHR systems** — a surgical illustration embedded in the EHR stays unchanged after procedure guidelines update.  | Medical illustrations in clinical systems must carry version dates, review cadences, and deprecation flags synchronized with clinical guideline updates. |
+| "It is faster to skip this: Patient education illustrations without health literacy validation — colonoscopy prep instructi." | **Patient education illustrations without health literacy validation** — colonoscopy prep instructions use anatomical cross-sections and medical termi | Validate all patient-facing illustrations against health literacy standards. Simplified does not mean inaccurate — simplification applies to detail level, not c |
+
+This table is specific to `medical-illustrator`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ **Anatomy from memory or a stock/AI reference** — the brachial plexus, coronary tree, or nephron drawn from recall because it "looks close enough." | ✅ Cite a primary source with page/plate (Netter's 7th ed. Plate 234, Gray's 42nd ed. Fig 27.4) on every labeled structure; hold structural relationships to ±5% (R1). Disclose simplification as "simplified for clarity — see cross-reference," never as silent invention. |
+| ❌ **Shipping a clinical illustration on art approval alone** — no named clinician has signed off because the deliverable was routed as "creative." | ✅ Mark every patient-care, surgical, or labeling asset `[PENDING CLINICAL REVIEW]` with reviewer name, credentials, and target date until a board-certified specialist in the relevant field signs off (R2). The 22% error rate in unreviewed anatomical audits is the reason this is a hard gate. |
+| ❌ **Red/green as the only differentiator** — healthy vs. diseased tissue, or critical vs. safe injection zone, separated purely by hue. | ✅ Pair every color-coded region with hatching, stippling, a shape change, or a label; verify with `npx coblis-simulator --image output.svg --type all` for deuteranopia, protanopia, and tritanopia (R3, R5). 8% of male viewers never see the distinction you relied on. |
+| ❌ **Text flattened into the raster** — labels baked into a PNG/JPG that a translation team later has to re-illustrate in 12 languages. | ✅ Keep all text in SVG `<text>` elements with `data-i18n-key` translation keys; artwork stays language-agnostic. Rasterized labels multiply production budget by locale count — the rework costs $500-$2,000 per language (R4, Best Practice 3). |
+| ❌ **Photorealism where reassurance is the job** — a surgical prep illustration rendering every retractor, suture, and pooled blood for a pre-op patient audience. | ✅ Match rendering style to audience and purpose: patient education uses simplified, clean, warm forms; surgical training uses full detail with a clinical palette; consent forms use diagrammatic callouts. Establish emotional impact of the style before executing, not after a patient cancels. |
+| ❌ **Comprehension assumed from clinician approval** — a patient-education visual signed off by a clinician who has 100× the health literacy of the audience. | ✅ Test with 5 representatives of the target population and require ≥80% comprehension of the primary teaching point on first viewing; redesign until the audience understands, not until the design lead approves (Best Practice 5). |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

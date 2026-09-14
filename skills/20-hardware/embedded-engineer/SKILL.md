@@ -438,6 +438,27 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Flash write during voltage sag corrupts data | Brown-out drops VDD below flash minimum programming voltage (typically 2.7V) mid-write — the charge pump can't generate programming voltage, bits are partially programmed, and the sector is corrupted | Enable brown-out detection (BOD) at a threshold above the flash minimum programming voltage. Test by ramping supply voltage down with a programmable power supply during flash writes | Flash writes are the most voltage-sensitive operation in an MCU. BOD must be hardware-configured and tested — software voltage checks have too much latency to protect against fast transients |
 | Memory-mapped I/O write cached and never reaches peripheral | CPU data cache holds the write in cache line without flushing to the peripheral bus. The write is visible to the CPU (cache hit) but invisible to the peripheral | Mark MMIO regions as Device-nGnRnE (ARM) or Uncached (x86) in the MMU/MPU configuration. For systems without MMU, use memory barriers: `__DSB()` after MMIO writes, or use `volatile` with proper compiler barriers | CPU caches don't know about peripherals. Memory type configuration in the MMU/MPU is the only correct solution — `volatile` alone prevents compiler reordering but does NOT prevent hardware caching |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For PCB layout and hardware schematics**.
+2. **HDL/FPGA design**.
+3. **Firmware build system configuration**.
+4. **Or cloud connectivity implementation**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: ISR too long causing missed interrupts & watchdog resets — printf or blocking I/O in ISR handle." | ISR too long causing missed interrupts & watchdog resets — `printf` or blocking I/O in ISR handler delays critical control loops | Profile ISR with oscilloscope GPIO toggles; keep ISR <100µs; defer work to main loop via ring buffer; never block, malloc, or printf in ISR |
+| "It is faster to skip this: Dynamic memory allocation (malloc/free) in embedded causing heap fragmentation." | Dynamic memory allocation (`malloc`/`free`) in embedded causing heap fragmentation | Static allocation only; pre-allocate pools at init; avoid `malloc`/`free` after boot; use fixed-size block memory pools; `-Wl,--wrap,malloc` to trap accidental  |
+| "It is faster to skip this: Voltage brownout during flash write/erase corrupting firmware." | Voltage brownout during flash write/erase corrupting firmware | Enable BOD at threshold above flash minimum programming voltage; test with programmable PSU ramping voltage during writes; BOD must trigger before corruption |
+| "It is faster to skip this: Stack overflow from deep recursion or large local variables on memory-constrained MCU." | Stack overflow from deep recursion or large local variables on memory-constrained MCU | Use `-fstack-usage` and `-fstack-protector-strong`; size task stacks with 50% margin above worst-case; enable RTOS stack overflow detection; avoid >256B local b |
+
+This table is specific to `embedded-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s — who to talk to, when, what to share -->

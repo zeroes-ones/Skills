@@ -264,6 +264,44 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general appsec (appsec-engineer)**.
+2. **IAM (iam-architect)**.
+3. **Compliance (compliance-officer)**.
+4. **Or accounting (accountant**.
+5. **Fp-and-a-analyst)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Category." | Category | Mitigation |
+| "It is faster to skip this: PCI DSS." | PCI DSS | Map CDE across every layer. Verify provider AOC covers your scope. |
+| "It is faster to skip this: FRAUD." | FRAUD | Continuous monitoring. Automated retraining pipeline. Champion/challenger. |
+| "It is faster to skip this: KYC/AML." | KYC/AML | Independent risk scoring. Dual-source verification for high-risk. |
+| "It is faster to skip this: OPEN BANKING." | OPEN BANKING | Implement FAPI 2.0 profile. Verify with conformance suite. |
+| "It is faster to skip this: PAYMENT API." | PAYMENT API | Idempotency on all POST/PUT. Unique keys per request. |
+
+This table is specific to `financial-security`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| ❌ **Storing CVV or full track data "encrypted, for analytics"** — the vault is protected, so the retention seems defensible | ✅ Treat sensitive authentication data as memory-only: capture during authorization, irreversibly delete after, and never write it to a database, log, or backup (R1, PCI DSS Req 3.2) |
+| ❌ **Treating the cloud provider's PCI attestation as your own** — "AWS is PCI compliant, so we are" | ✅ Map your own cardholder data flow across every layer and confirm the provider's AOC covers the services you actually use, not the region in general |
+| ❌ **Launching a fraud model with no velocity layer** — the ML score looks sophisticated and the rules engine feels redundant | ✅ Ship per-account, per-device, per-IP, and geo-velocity checks first; card-testing bots hit 1000+ cards in minutes and only velocity catches them (R3) |
+| ❌ **A payment `POST` with no idempotency key** — "our clients don't retry, so a duplicate is unlikely" | ✅ Require a client-generated key per payment intent, store `(key, response, status)` with ≥24h TTL, and scope uniqueness per merchant account (R4) |
+| ❌ **SMS OTP as the possession factor for a $5,000 transfer** — it is cheap and every customer already has a phone | ✅ Reserve SMS as a low-value fallback; use app TOTP, FIDO2/WebAuthn, or push-with-number-matching for high-value PSD2 SCA (R7) |
+| ❌ **Masking PAN as "last 4 only" on receipts** — it hides more digits, so it feels more secure | ✅ Display first 6 + last 4 with the middle masked; the BIN is required for issuer identification and routing, and masking it breaks downstream systems (R6) |
+| ❌ **Outsourcing KYC to a vendor and treating its verdict as final** — the provider screens sanctions, so the liability feels transferred | ✅ Keep independent risk scoring and dual-source verification for high-risk and PEP applicants; a missed PEP is still your regulatory finding |
+| ❌ **Freezing a fraud model that caught 90% last quarter** — past performance is read as a sign the problem is solved | ✅ Retrain on the trailing 12 months, alert when PSI > 0.25, and run a champion/challenger model in shadow mode before full rollout |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

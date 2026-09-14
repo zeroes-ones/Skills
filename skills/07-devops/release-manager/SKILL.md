@@ -486,6 +486,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For CI/CD pipeline implementation**.
+2. **Infrastructure provisioning**.
+3. **Or incident response**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Code freeze but no branch protection — developers continue merging to the release branch becaus." | Code freeze but no branch protection — developers continue merging to the release branch because there's no enforcement; the "frozen" branch has 14 ne | Enable branch protection on release branches: require PR reviews, block direct pushes; use CODEOWNERS to require release commander approval; CI verifies branch  |
+| "It is faster to skip this: No rollback rehearsal before production deploy — the rollback procedure was documented but neve." | No rollback rehearsal before production deploy — the rollback procedure was documented but never tested; when it's needed, it takes 45 minutes instead | Run a rollback drill in staging before every release: deploy → verify → rollback → verify; time it; the rollback must complete in under 5 minutes; fix the proce |
+| "It is faster to skip this: Release notes auto-generated from commits without human curation — breaking changes buried in a." | Release notes auto-generated from commits without human curation — breaking changes buried in a 200-line changelog; customers upgrade and their integr | Auto-generate the draft from conventional commits, then have a human write the summary, call out breaking changes in bold at the top, and add upgrade instructio |
+| "It is faster to skip this: Skipping the go/no-go meeting because "everything looks fine" — the one failing integration tes." | Skipping the go/no-go meeting because "everything looks fine" — the one failing integration test was marked as "known flaky" 3 months ago but today it | Never skip the go/no-go meeting; every CONDITIONAL failure must be discussed, not rubber-stamped; track flaky test resolution — a test that's been flaky for 3 m |
+
+This table is specific to `release-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

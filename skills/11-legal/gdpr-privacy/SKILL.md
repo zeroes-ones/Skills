@@ -439,6 +439,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For security engineering**.
+2. **Compliance auditing for non-privacy frameworks (SOC 2**.
+3. **ISO 27001)**.
+4. **Or legal contract drafting**.
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It's only B2B, GDPR is a consumer law" | Art. 3 applies to processing of EU-resident data subjects regardless of whether the customer is a company — the data subjects are the individual employees and contacts, not the company | Enumerate the natural persons whose data is processed (employees, contacts, sole traders), map their Member State, and establish Art. 6 bases for each — do not gate the assessment on the customer's legal form |
+| "We'll bolt the privacy policy on before launch" | Art. 13 transparency must be delivered at the point of first collection, not retroactively; a policy written after the data model exists usually misdescribes it | Freeze the data-flow map and ROPA entry for each processing activity before the collection point ships; treat policy accuracy as a launch gate, not a post-launch task |
+| "The data is anonymized, so it's out of scope" | Re-identification risk is judged against all means reasonably likely to be used, including data you already hold; hashed or pseudonymized identifiers remain personal data under GDPR | Document the re-identification test against your own retained keys and side data; if re-identification is feasible with data you possess, process it as personal data with a lawful basis |
+| "Our US SaaS vendor is certified, the transfer is covered" | The exporter retains the Art. 44 accountability duty — a vendor's self-certification does not substitute for SCCs and a Transfer Impact Assessment of the destination's laws | Verify the specific entity and data flow, execute the 2021 SCCs, complete a documented TIA, and record the transfer in the ROPA before any data moves |
+| "We already have their consent from the old signup" | Consent must be specific and informed per purpose; a 2017 opt-in to "product updates" does not authorize analytics, ad tech, or data sharing added since | Re-consent for each newly introduced purpose or establish a different Art. 6 basis for it — never widen an existing consent's scope by inference |
+| "We'll handle DSARs manually when one arrives" | Art. 15 requires a complete response across every system holding the subject's data within 30 days, extensible only with a documented justification sent before the deadline | Pre-build extraction queries for each data store, run an end-to-end DSAR rehearsal against a synthetic subject, and track requests against the 30-day clock with a buffer |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -518,6 +518,28 @@ If a command or approach fails, follow this escalation path before giving up:
 | Domain rule "VIP customers get free shipping on orders over $50" enforced in 3 places: frontend validation, backend API, and checkout microservice — each with slightly different logic | Domain rules encoded only in code, not linked to a canonical source. When the rule changes (threshold from $50 to $75), one implementation is updated, two are missed. Inconsistent enforcement produces charging bugs | Extract domain rule as a named, testable predicate: `isEligibleForFreeShipping(customer, order)`. Document in CONTEXT.md and link to the enforcing function. Add a code audit: `grep -r "free.shipping" --include="*.ts"` to find all rule instances and verify canonical source | Domain rules are data, not code. They change independently of the code structure and must be discoverable across the codebase. If you can't find all instances of a rule with a single grep, it's not modeled — it's scattered |
 | Event storming session runs 4 hours, produces 200 sticky notes on a wall — two weeks later nobody can reconstruct the decisions | No artifact synthesis. Event storming produces raw material, not a finished model. Without synthesis into a context map or ubiquitous language glossary, the insights evaporate within days | Synthesize within 48 hours: produce a context map diagram, prioritized domain event catalog, aggregate inventory, and CONEXT.md update from the workshop. Share with all participants for async review. Schedule 1-hour follow-up to validate synthesis | Event storming is discovery, not design. The output of discovery is insight. The output of design is a context map. You need both — the workshop without synthesis is a team-building exercise, not domain modeling |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For code implementation developer skill)** → route to `appropriate`.
+2. **Database schema design** → route to `database-designer`.
+3. **API contract design** → route to `api-designer`.
+4. **Or system architecture diagrams** → route to `system-architect`.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Letting CONTEXT.md go stale beyond 30 days — every onboarded developer spends 2-3 weeks learnin." | Letting CONTEXT.md go stale beyond 30 days — every onboarded developer spends 2-3 weeks learning the domain through trial and error | CI check: `find . -name "CONTEXT.md" -mtime +30` flags staleness. Assign a glossary steward per bounded context. Treat CONTEXT.md freshness with the same rigor  |
+| "It is faster to skip this: Failing to separate bounded contexts before designing database schemas — "Account" means Identi." | Failing to separate bounded contexts before designing database schemas — "Account" means Identity in one context and Billing in another, schema collis | Draw a context map BEFORE any database schema. Each bounded context gets its own data model. "Account" in Identity ≠ "Account" in Billing. Map integration patte |
+| "It is faster to skip this: Encoding domain rules as implicit if-checks instead of named predicates — regulatory audit fail." | Encoding domain rules as implicit if-checks instead of named predicates — regulatory audit fails because rules are invisible | Every domain rule must be a named, testable predicate: `isEligibleForDiscount(customer, order)` not `if (customer.age > 65 && order.total > 100)`. Named rules a |
+| "It is faster to skip this: Ignoring term drift across sprints — "UserStatus" means active/inactive in Sprint 6, but online." | Ignoring term drift across sprints — "UserStatus" means active/inactive in Sprint 6, but online/offline presence in Sprint 12 | Maintain a term drift log. When a term gains a second meaning, trigger the R2 disambiguation protocol: either namespace the terms or rename one. The second mean |
+| "It is faster to skip this: Treating all subdomains as equally important — 70% of engineering effort goes to generic subdom." | Treating all subdomains as equally important — 70% of engineering effort goes to generic subdomains (auth, payments) instead of the core domain | Classify: Core domain (competitive advantage) gets 70% of effort. Supporting (custom, not differentiating) gets 20%. Generic (solved problems) gets 10% — buy, d |
+
+This table is specific to `domain-modeling`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

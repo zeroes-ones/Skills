@@ -402,6 +402,26 @@ If a command or approach fails, follow this escalation path before giving up:
 | Federation query returns partial data with `GRAPHQL_VALIDATION_FAILED` | Subgraph schema change broke composition. One team removed a field another subgraph references. Rover `subgraph check` wasn't in CI | Add `rover subgraph check` to every subgraph PR CI. Block merge if composition fails. Contract testing prevents broken supergraph at the PR, not at deploy | Federation composition is global — one subgraph's change can break every other subgraph's queries. CI composition checks are not optional |
 | `context.user` is undefined in nested resolver but works in root | Auth was set up for HTTP middleware only, but subscriptions and batched queries don't go through the same code path | Validate auth token in GraphQL context factory — the single function that runs for every request, every subscription connection, and every batched query. Never in middleware | GraphQL has multiple entry points (HTTP POST, WebSocket, batched HTTP). Auth in only one path creates silent-gap authorization failures |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For REST API design (api-designer)**.
+2. **Backend development (backend-developer)**.
+3. **API security (secure-api-design)**.
+4. **Or frontend GraphQL integration (frontend-developer)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: N+1 in resolvers — list field resolves one DB query per item, 100 items = 101 queries." | N+1 in resolvers — list field resolves one DB query per item, 100 items = 101 queries | Use DataLoader or equivalent batching on every list field resolver, verify with DB query log showing batch queries not sequential |
+| "It is faster to skip this: Query depth attack — unauthenticated client sends 20-level nested query, server OOMs." | Query depth attack — unauthenticated client sends 20-level nested query, server OOMs | Enforce query depth limit (5-7 max), configure complexity budget per field, disable introspection in production |
+| "It is faster to skip this: Null propagation explosion — non-null field returns null, entire response nulls up to root." | Null propagation explosion — `non-null` field returns null, entire response nulls up to root | Use non-null only where null propagation is acceptable; wrap nullable data in nullable fields; mutations return payload types with user errors |
+
+This table is specific to `graphql-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -515,6 +515,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For greenfield feature development** → route to `backend-developer`.
+2. **Frontend-developer)**.
+3. **Performance optimization without behavior preservation** → route to `performance-engineer`.
+4. **Security hardening** → route to `security-reviewer`.
+5. **Or API redesign** → route to `api-designer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Simplifying without baseline measurements — claiming improvement without data." | Simplifying without baseline measurements — claiming improvement without data | Always run cyclomatic complexity and coverage baselines before touching code |
+| "It is faster to skip this: Removing code that looks dead but is used via dynamic dispatch (reflection, eval)." | Removing code that looks dead but is used via dynamic dispatch (reflection, eval) | Use `git log -S` to check history and run full test suite after every deletion |
+| "It is faster to skip this: Extracting premature abstractions — one-use functions that add more code than they save." | Extracting premature abstractions — one-use functions that add more code than they save | Apply the rule of three: extract on the third occurrence, not the second |
+| "It is faster to skip this: Introducing functional patterns (reduce, compose) without team consensus." | Introducing functional patterns (reduce, compose) without team consensus | Keep simplification idiomatic to the language and team's skill level; pair refactors with team knowledge sharing |
+
+This table is specific to `code-simplification`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

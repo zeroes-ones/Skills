@@ -481,6 +481,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For one-time Q&A domain skill)** → route to `appropriate`.
+2. **Pair programming**.
+3. **Code review** → route to `code-reviewer`.
+4. **Or documentation reading assistance**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Skipping pre-assessment and teaching at the wrong level." | Skipping pre-assessment and teaching at the wrong level | Always run the 5-8 question pre-assessment — ask for demonstrations, not self-ratings |
+| "It is faster to skip this: Lecturing without guided or independent practice." | Lecturing without guided or independent practice | Follow the 5-10-10-10-5 timebox each session: review, introduce, guided practice, independent practice, teach-back |
+| "It is faster to skip this: Not verifying understanding via teach-back." | Not verifying understanding via teach-back | Every session ends with a teach-back: learner explains in their own words — repeat if accuracy < 90% |
+
+This table is specific to `teach`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

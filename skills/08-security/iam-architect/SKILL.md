@@ -521,6 +521,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For cloud IAM (cloud-security)**.
+2. **App authorization (backend-developer)**.
+3. **Compliance (compliance-officer)**.
+4. **Or identity proofing (privacy-engineer)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Using access tokens (opaque OAuth2 tokens) for authentication decisions — access tokens are mea." | Using access tokens (opaque OAuth2 tokens) for authentication decisions — access tokens are meant for resource access, not identity. The ID token (JWT | ID tokens for authentication (who you are). Access tokens for authorization (what you can access). Never use access tokens to establish user identity. Validate  |
+| "It is faster to skip this: Implementing RBAC without an permission audit trail — when a SOC 2 auditor asks "who had access." | Implementing RBAC without an permission audit trail — when a SOC 2 auditor asks "who had access to PII data in Q3?", you can't answer because permissi | Log all role assignments and permission changes to an immutable audit store. Maintain periodic snapshots of effective permissions per user. The question "who ha |
+| "It is faster to skip this: Storing JWTs in localStorage — any XSS vulnerability in your SPA gives the attacker access to t." | Storing JWTs in localStorage — any XSS vulnerability in your SPA gives the attacker access to the token, enabling full account takeover that persists  | Store tokens in httpOnly, Secure, SameSite=Strict cookies with short expiration (15 minutes). Use refresh token rotation with automatic invalidation on reuse. N |
+
+This table is specific to `iam-architect`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

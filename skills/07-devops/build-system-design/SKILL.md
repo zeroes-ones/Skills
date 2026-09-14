@@ -558,6 +558,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For monorepo tooling** → route to `monorepo-manager`.
+2. **CI/CD optimization** → route to `ci-cd-builder`.
+3. **Compiler optimization** → route to `performance-engineer`.
+4. **Or task runner config**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Not persisting the build cache between CI runs — every CI job starts with a clean workspace; ba." | Not persisting the build cache between CI runs — every CI job starts with a clean workspace; `bazel build` takes 90 minutes instead of 12 because ever | Configure `--disk_cache` pointing to a persistent volume or use `--remote_cache` with bazel-remote/Buildbarn; verify with `bazel clean && bazel build` — second  |
+| "It is faster to skip this: Genrule escape hatches during migration — 6 weeks into a Make→Bazel migration, half the team wr." | Genrule escape hatches during migration — 6 weeks into a Make→Bazel migration, half the team wraps old Makefiles in `genrule` instead of writing BUILD | Enforce a lint rule blocking `genrule` wrappers around `make`; provide one-pager per language for Bazel-native builds; enforce "new targets must be Bazel-native |
+| "It is faster to skip this: Autoscaler killing all remote execution workers — the RE cluster scales to zero during low traf." | Autoscaler killing all remote execution workers — the RE cluster scales to zero during low traffic because the autoscaler doesn't understand build tra | Set minimum instance count on RE worker pool to 1 during business hours; add a health check endpoint that the build system probes before starting with a 30-seco |
+| "It is faster to skip this: Affected graph showing every project as affected — nx affected:lint lints all 200 projects beca." | Affected graph showing every project as affected — `nx affected:lint` lints all 200 projects because `nx.json` implicit dependencies list is empty; on | Define `targetDefaults` in `nx.json` with `dependsOn` chains; run `nx graph` to verify that changing one file only highlights projects that depend on it |
+
+This table is specific to `build-system-design`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

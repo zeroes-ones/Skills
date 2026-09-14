@@ -331,6 +331,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For financial modeling and FP&A**.
+2. **Accounting close and reconciliation**.
+3. **Fundraising strategy**.
+4. **Or board reporting**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Vendor bank change fraud (BEC) — attacker spoofs executive email requesting wire transfer to "n." | Vendor bank change fraud (BEC) — attacker spoofs executive email requesting wire transfer to "new vendor account"; payment sent to attacker, ACH rever | Implement mandatory callback verification to a known phone number (not the one in the email) for ALL payment detail changes. Require video confirmation for wire |
+| "It is faster to skip this: Cash concentration risk — all operating accounts, credit facilities, and corporate cards at a s." | Cash concentration risk — all operating accounts, credit facilities, and corporate cards at a single bank; risk department freezes everything during a | Maintain ≥2 active banking relationships with operating accounts at each. Split credit facilities across institutions. Keep 30 days of operating cash at seconda |
+| "It is faster to skip this: Investment maturity mismatch — operating cash locked in 12-month instruments when needed in 4 m." | Investment maturity mismatch — operating cash locked in 12-month instruments when needed in 4 months; forced liquidation causes principal haircut and  | Build cash flow waterfall mapping expected outflows to investment maturities. Use laddered portfolio: 4-week, 8-week, 13-week, 26-week tranches. Never invest op |
+
+This table is specific to `treasury-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- NEIGHBORS: Skills this treasury manager works with — cash is the company's oxygen -->

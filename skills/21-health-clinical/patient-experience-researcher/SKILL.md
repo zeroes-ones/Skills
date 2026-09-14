@@ -428,6 +428,29 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For clinical trial protocol design**.
+2. **Medical device usability testing requiring FDA submission**.
+3. **Or general UX research without health**.
+4. **Regulatory constraints**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Research without underserved populations — biased products that fail in the real world. Study r." | Research without underserved populations — biased products that fail in the real world. Study recruits from academic medical center, missing Medicaid, | Recruit ≥ 30% from underserved populations; conduct interviews in preferred language with community health workers; validate design decisions per segment before |
+| "It is faster to skip this: Journey mapping without emotional waypoints — the "flatline" patient journey misses trust-build." | Journey mapping without emotional waypoints — the "flatline" patient journey misses trust-building moments. No emotional data captured, leading to 20- | Augment every journey map with emotional highs/lows using 1-10 sentiment scale; capture verbatim patient quotes; prioritize improvements at lowest emotional poi |
+| "It is faster to skip this: Conflating patient satisfaction with patient safety — "happy but harmed" discharge process with." | Conflating patient satisfaction with patient safety — "happy but harmed" discharge process with 24% readmission rate vs 14% standard. Satisfying eleme | Triangulate satisfaction scores, readmission rates, and safety incident reports; use Patient Experience + Clinical Safety Matrix; never improve satisfaction at  |
+| "It is faster to skip this: Assuming all patients want the same level of engagement — ignoring that 25-40% of chronic patie." | Assuming all patients want the same level of engagement — ignoring that 25-40% of chronic patients are at low activation (PAM Level 1-2). App engageme | Segment by activation level using PAM during onboarding; design tiered experiences from single daily action to comprehensive tools; adapt as activation changes |
+| "It is faster to skip this: Research insight reports filed away instead of driving change — 6 months of research produces 4." | Research insight reports filed away instead of driving change — 6 months of research produces 47-slide report that's never referenced in product roadm | Map every finding to a specific owner and dated action item within 2 weeks; embed researchers in product teams; require quarterly progress reviews on recommenda |
+| "It is faster to skip this: Single-timepoint patient interviews — interviewing during active treatment yields different nar." | Single-timepoint patient interviews — interviewing during active treatment yields different narrative than 2 weeks post-treatment. Timing skews the en | Interview at multiple timepoints (during treatment, 2 weeks post, 3 months post); compare narratives across timepoints; note timing context in all findings |
+
+This table is specific to `patient-experience-researcher`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 **(STANDARD)**

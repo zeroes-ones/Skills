@@ -434,6 +434,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For observability stack setup**.
+2. **CI/CD pipeline design**.
+3. **Or infrastructure provisioning**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Setting SLO at 100% — every minor blip burns error budget, forcing constant deploy freezes and ." | Setting SLO at 100% — every minor blip burns error budget, forcing constant deploy freezes and making the SLO a blocker instead of a decision tool | Set SLOs at the user's pain threshold (99.9% or 99.95%), not at perfection; use multi-window burn alerts to distinguish fast burns from slow burns |
+| "It is faster to skip this: Alerting on symptoms without SLO context — "CPU > 80%" pages for batch jobs that self-resolve, ." | Alerting on symptoms without SLO context — "CPU > 80%" pages for batch jobs that self-resolve, causing alert fatigue and on-call burnout | Alert on SLO burn rate, not static thresholds; every alert must tie to a specific SLO; if there's no SLO, there's no alert — the signal becomes noise |
+| "It is faster to skip this: Writing postmortems that blame individuals — "Bob pushed the wrong config" kills psychological ." | Writing postmortems that blame individuals — "Bob pushed the wrong config" kills psychological safety and guarantees the next incident goes unreported | Use blameless postmortem format: timeline → contributing factors → systemic fixes; replace "who" with "how did the system allow this"; track action items to com |
+| "It is faster to skip this: Capacity planning based on linear trending — exponential growth from a viral launch exhausts ca." | Capacity planning based on linear trending — exponential growth from a viral launch exhausts capacity 3 weeks before procurement can deliver | Model 3 scenarios: conservative, expected, aggressive; provision for aggressive when lead time > 30 days; automate horizontal scaling with cluster autoscaler fo |
+
+This table is specific to `site-reliability-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

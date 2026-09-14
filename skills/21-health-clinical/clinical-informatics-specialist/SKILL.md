@@ -468,6 +468,27 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Apply the USCDI v4 minimum data class standard for all interoperability endpoints.** USCDI v4 defines the floor for health data exchange in the US. Any FHIR endpoint claiming ONC compliance must support USCDI v4 data classes (Allergies, Care Team, Clinical Notes, Goals, Immunizations, Lab Results, Medications, Patient Demographics, Problems, Procedures, Provenance, Vital Signs, and more). Missing USCDI support = failing interoperability.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general API development**.
+2. **UI/frontend work**.
+3. **Or non-healthcare data integration**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: FHIR $validate fails with "Unknown code in ValueSet" — terminology server edition mismatch. EHR." | FHIR `$validate` fails with "Unknown code in ValueSet" — terminology server edition mismatch. EHR sends codes from July release, FHIR server validates | Verify terminology version alignment between source EHR and FHIR server quarterly; document edition gap in integration runbook; hold validation until server is  |
+| "It is faster to skip this: Bulk FHIR export NDJSON files empty despite source data present — _typeFilter uses incorrect se." | Bulk FHIR export NDJSON files empty despite source data present — `_typeFilter` uses incorrect search parameter or patient compartment membership miss | Verify `GET /Group/[id]/$export` returns manifest; check `_type` includes expected resource types; test Group membership and scope before production export |
+| "It is faster to skip this: EHR API returns 403 for previously working SMART on FHIR app — app registration disabled, OAuth." | EHR API returns 403 for previously working SMART on FHIR app — app registration disabled, OAuth scopes narrowed, IP allowlist changed, or rate-limit t | Monitor EHR vendor API changelog proactively; implement exponential backoff with jitter; maintain backup integration channel; document app registration dependen |
+| "It is faster to skip this: SNOMED→ICD-10 cross-map produces billing rejections — auto-mapping without episode-of-care cont." | SNOMED→ICD-10 cross-map produces billing rejections — auto-mapping without episode-of-care context. Single SNOMED code maps to 3 ICD-10 codes (initial | Implement context-aware mapping requiring episode-of-care flag (initial/subsequent/sequela) from EHR; flag ambiguous mappings for manual review rather than auto |
+| "It is faster to skip this: CCDA schematron validation fails on documents generated from FHIR — CCDA generated via string t." | CCDA schematron validation fails on documents generated from FHIR — CCDA generated via string templates instead of canonical FHIR Composition→C-CDA ma | Replace string-concatenation with FHIR Composition→C-CDA transformer using ONC bidirectional mapping spec; validate output with NIST C-CDA Validation Suite |
+
+This table is specific to `clinical-informatics-specialist`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

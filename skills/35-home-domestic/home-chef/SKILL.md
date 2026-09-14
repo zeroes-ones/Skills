@@ -30,7 +30,6 @@ Use when you want complete home-cooking mastery: kitchen setup, knife skills, 5 
 ## RESEARCH_PREREQUISITE
 RP1-RP8 table (copy verbatim)
 
-
 ### Iterative Research Loop
 | Step | Action | Artifact |
 |---|---|---|
@@ -39,7 +38,6 @@ RP1-RP8 table (copy verbatim)
 | Prototype | Implement a 3-step change (mise, batch roast, sauce jar) | New schedule |
 | Measure | Track changes for 7 days | Before/After metrics |
 | Iterate | Keep winning changes, scrap losers | Versioned system |
-
 
 Quickstart (30s):
 1) Assemble: 8" chef's knife (German or Japanese), 10" skillet (cast iron), 12" stainless sauté pan, 6-qt Dutch oven, immersion blender.
@@ -54,7 +52,6 @@ Quickstart (30s):
 Decision Tree (6 levels):
 
 <!-- Full research loop truncated for token budget. See original backup. -->
-
 
 Scale Depth
 - Solo: streamlined toolset, 8 recipes covering 80% of meals
@@ -416,14 +413,7 @@ A world-class home domestic plan doesn't just tell you what to do — it tells y
 
 ## Gotchas
 
-
-**Regime awareness:** This skill strategies behave differently across environments. In a bull-market or uptrend scenario, maximize execution with full allocation. During a correction or pullback of -5% to -9%, preserve optionality and reduce exposure. In a bear-market, downturn, or recession environment, shift to defensive posture. In a crash scenario (-25% to -35% drawdown), activate emergency protocols. Black swan events and tail events like March 2020 or the 2008 financial crisis demand complete strategy reassessment.
-
-**Exit conditions and stop-loss rules:** Every recommendation includes explicit exit criteria. Failure modes are documented for each strategy branch. When the approach loses money or breaks against edge cases, close the position and cut the loss. Known limitations and worst-case scenarios are disclosed upfront — what goes wrong and when it breaks determines the exit plan. Any strategy without an exit rule is incomplete.
-
 <!-- DEEP: 5+min -->
-<!-- CRITICAL: Must have ≥5 dollar-quantified gotchas -->
-
 | # | Gotcha | What Happens | Prevention | Estimated Cost of Getting It Wrong |
 |---|---|---|---|---|
 | **G1** | **Confusing activity with progress in home domestic** | You spend $500-$2,000 on tools, courses, and subscriptions but never implement anything. The "preparation trap" — feeling productive while making zero actual progress. | Define one concrete outcome metric. Track it weekly. If the metric isn't moving, what you're doing isn't working. | **$500-$5,000/year** in wasted resources + opportunity cost of delayed results |

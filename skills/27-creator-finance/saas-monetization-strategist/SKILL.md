@@ -533,6 +533,27 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 - [ ] **[MONETIZE14]** Monetization dashboard built: MRR, ARR, ARPU, ARPPU, LTV, CAC, LTV:CAC ratio, churn rate (voluntary + involuntary), NRR, expansion/contraction revenue, conversion rate by cohort
 - [ ] **[MONETIZE15]** Regulatory compliance verified: auto-renewal consent (where required), cancellation ease (as easy as signup), tax collection (VAT/GST/sales tax), platform IAP rules (Apple/Google), privacy consent for ad tracking
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general business strategy** → route to `business-strategist`.
+2. **Financial accounting** → route to `accountant`.
+3. **Or ad campaign management** → route to `marketing-manager`.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Pricing page A/B test misinterpretation — stopping a test after 3 days because variant B shows ." | Pricing page A/B test misinterpretation — stopping a test after 3 days because variant B shows +15% conversion when the sample size is 50 visitors and | Run A/B tests for minimum 2 full weeks covering at least 2 billing cycles. Require p < 0.05 AND minimum 200 conversions per variant before declaring a winner. N |
+| "It is faster to skip this: Grandfathering chaos — locking 80% of customers into $19/mo indefinitely while new customers pa." | Grandfathering chaos — locking 80% of customers into $19/mo indefinitely while new customers pay $49/mo, creating a two-class system where your bigges | Set explicit grandfathering windows: legacy pricing for 12-24 months with clear end date, then voluntary migration with 25% lifetime discount. Communicate price |
+| "It is faster to skip this: Metering bugs in usage-based billing — incorrect event counting, double-counting due to retry l." | Metering bugs in usage-based billing — incorrect event counting, double-counting due to retry logic, or timestamp skew causing usage to be attributed  | Store raw usage events in an append-only log with unique event IDs before aggregation. Reconcile metered usage against infrastructure billing (AWS/cloud provide |
+| "It is faster to skip this: Annual-plan revenue recognition on cash basis — recognizing $1,200 at payment time instead of $." | Annual-plan revenue recognition on cash basis — recognizing $1,200 at payment time instead of $100/month ratably over 12 months | Implement ratable revenue recognition from day one. Every transaction must track service_period_start and service_period_end. Use your payment provider's revenu |
+| "It is faster to skip this: Free trial requiring credit card but no dunning management — 20-40% of trial-to-paid "failures"." | Free trial requiring credit card but no dunning management — 20-40% of trial-to-paid "failures" are actually expired cards, not disinterested users | Implement smart retry logic: retry failed payments at 1, 3, 5, 7 days with exponential backoff. Enable card account updater services (Visa VAU, Mastercard ABU). |
+
+This table is specific to `saas-monetization-strategist`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -451,6 +451,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For clinical trial recruitment**.
+2. **Medical content creation**.
+3. **Crisis response management**.
+4. **Or general non-health community management**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Health community becomes a symptom-swapping forum — members share unverified remedies, one pers." | Health community becomes a symptom-swapping forum — members share unverified remedies, one person's "miracle cure" becomes lore, a new member tries it | Implement evidence-based content guidelines, expert moderation for medical claims, prominent "not medical advice" disclaimers, and automated flagging of unverif |
+| "It is faster to skip this: "Community engagement is up 200%!" — because a controversial vaccine safety post went viral. En." | "Community engagement is up 200%!" — because a controversial vaccine safety post went viral. Engagement metrics alone are dangerous; spikes can signal | Disaggregate engagement into supportive vs argumentative comments, new member welcome rate, and post-reporting rate. Quality of engagement over quantity. |
+| "It is faster to skip this: Volunteer moderator burnout — 10 volunteers handle 500 posts/day including suicide ideation, te." | Volunteer moderator burnout — 10 volunteers handle 500 posts/day including suicide ideation, terminal diagnosis grief, and caregiver trauma. After 6 m | Provide psychological support (counseling access), mandatory breaks, clear escalation paths for crisis content. Limit shifts and rotate high-trauma content expo |
+| "It is faster to skip this: Missing crisis escalation protocol — member posts suicidal ideation at 11 PM Friday. No moderat." | Missing crisis escalation protocol — member posts suicidal ideation at 11 PM Friday. No moderator sees it until Monday morning. The 48-hour gap betwee | Implement 24/7 crisis escalation with automated keyword detection, immediate escalation to trained crisis responders, and documented response SLA within 30 minu |
+| "It is faster to skip this: Health misinformation outpaces fact-checking — viral post claiming "vitamin C cures cancer" get." | Health misinformation outpaces fact-checking — viral post claiming "vitamin C cures cancer" gets 50,000 shares before moderation flags it. Correction  | Deploy proactive content screening with automated medical claim detection before publishing; pre-approve high-risk topics; build rapid-response fact-check workf |
+
+This table is specific to `community-operations-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 **(STANDARD)**

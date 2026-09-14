@@ -428,6 +428,26 @@ Complete when: Risk register reviewed with mitigation owners assigned, residual 
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For single-team project management**.
+2. **Sprint facilitation**.
+3. **Architecture design**.
+4. **Or product feature prioritization**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Cross-team dependency gaps discovered at integration time." | Cross-team dependency gaps discovered at integration time | Every inter-team handoff must have: API contract, SLA, integration test suite, and named owners on both sides |
+| "It is faster to skip this: Status reporting that reports past instead of projecting forward." | Status reporting that reports past instead of projecting forward | Require forward-looking status: "Will we hit the date at current velocity?" not "Are we past the date?" |
+| "It is faster to skip this: Risk register that is created but never reviewed." | Risk register that is created but never reviewed | Review the top 5 program risks every two weeks — stale risks are as dangerous as unidentified ones |
+
+This table is specific to `technical-program-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

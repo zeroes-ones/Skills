@@ -436,6 +436,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For meeting scheduling (use calendar tools)**.
+2. **Project management** → route to `project-manager`.
+3. **Or marketing strategy** → route to `marketing-manager`.
+4. **Though these skills coordinate closely**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Signing venue contracts without reviewing cancellation and attrition clauses." | Signing venue contracts without reviewing cancellation and attrition clauses | Have legal review every venue contract — pay special attention to force majeure, attrition, and F&B minimums |
+| "It is faster to skip this: No run-of-show or day-of coordination plan." | No run-of-show or day-of coordination plan | Create a minute-by-minute run-of-show with every line owned and transition buffers included |
+| "It is faster to skip this: AV and WiFi not tested on-site before event day." | AV and WiFi not tested on-site before event day | Test AV with actual equipment and WiFi under simulated load at least 24 hours before doors open |
+
+This table is specific to `event-planner`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

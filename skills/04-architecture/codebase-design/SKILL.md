@@ -472,6 +472,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 10. **Never add a public method "for future use."** YAGNI applies doubly to interfaces. A public method added speculatively costs every future reader the cognitive load of understanding it, every future maintainer the risk of breaking callers when changing it, and every newcomer the confusion of "who calls this and why?" Add public methods only when a real caller exists, and only the methods that caller actually needs.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For system architecture at the service level** → route to `system-architect`.
+2. **Database schema design** → route to `database-designer`.
+3. **API contract design** → route to `api-designer`.
+4. **Or monorepo structure** → route to `monorepo-manager`.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Deep module classified incorrectly, leading to wrong abstraction boundaries." | Deep module classified incorrectly, leading to wrong abstraction boundaries | Apply the deletion test: if removing the module's interface breaks nothing, it's shallow. Score depth before committing to interface |
+| "It is faster to skip this: Interface creep without governance — public methods accumulate unchecked." | Interface creep without governance — public methods accumulate unchecked | Implement interface minimization reviews every quarter. Cap public methods at N per module. Document seam placement rationale |
+| "It is faster to skip this: Pass-through modules kept alive instead of deleted." | Pass-through modules kept alive instead of deleted | Apply the deletion test quarterly. If a module only delegates without adding behavior, delete it and let consumers call the dependency directly |
+| "It is faster to skip this: Module locality violations causing circular dependencies." | Module locality violations causing circular dependencies | Enforce strict dependency direction with architecture tests. Use dependency-cruiser or similar to fail CI on cycles |
+
+This table is specific to `codebase-design`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

@@ -485,6 +485,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For routine community moderation**.
+2. **Non-health crisis management**.
+3. **Or clinical trial safety monitoring**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Crisis communication drafted during the crisis — CEO writing at 2 AM, PR fielding calls with "n." | Crisis communication drafted during the crisis — CEO writing at 2 AM, PR fielding calls with "no comment," Legal reviewing in real-time. No pre-drafte | Pre-draft crisis templates for TOP 5 scenarios (data breach, product outage, executive departure, lawsuit, safety incident); review and update quarterly |
+| "It is faster to skip this: First statement minimizes the incident — "minor service disruption" escalates to "10 million ac." | First statement minimizes the incident — "minor service disruption" escalates to "10 million accounts breached" over 4 hours. Each escalating statemen | Say "We don't know the full scope yet. Here's what we know, what we're doing, and when we'll update." Never minimize unknown scope. |
+| "It is faster to skip this: Internal communications that leak — "Internal Only — Do Not Share" email to 500 employees is on." | Internal communications that leak — "Internal Only — Do Not Share" email to 500 employees is on Twitter within 15 minutes. 40% of leaked memos become  | Write all crisis communications as if they'll be published on the front page. Assume zero internal confidentiality during a crisis. |
+| "It is faster to skip this: No post-crisis review process — crisis ends, everyone is exhausted, and the same root cause tri." | No post-crisis review process — crisis ends, everyone is exhausted, and the same root cause triggers an identical incident 6 months later. Repeat inci | Conduct formal post-incident review within 30 days; update templates and playbooks; track repeat-crisis metrics quarterly |
+| "It is faster to skip this: Single decision-maker during crisis — CEO is sole approver of public statements but is on a pla." | Single decision-maker during crisis — CEO is sole approver of public statements but is on a plane for 6 hours. Crisis escalates with no communication. | Designate 2+ authorized signatories with no overlapping unavailability; document delegation authority in crisis playbook; test decision-tree scenarios quarterly |
+
+This table is specific to `crisis-response-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 
@@ -624,7 +645,9 @@ graph LR
 ## Verification Guardrails
 <!-- STANDARD: 3min -->
 
-Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.## Best Practices
+Before delivering work, verify: self-check against What Good Looks Like, no broken references, continuity with State Log, no fabricated APIs/versions/capabilities, Error Recovery paths exercised, cross-skill dependencies satisfied. If any fail, revise before delivering.
+
+## Best Practices **(STANDARD)**
 
 1. **Deploy a standardized triage protocol for all safety incidents.** Use the S1-S5 severity taxonomy: S1 (Critical — death or life-threatening, activate within 15 minutes, CEO + Legal + Regulatory notified), S2 (Severe — requires hospitalization, activate within 1 hour, VP-level), S3 (High — affects >10 patients or has media potential, within 4 hours, Director-level), S4 (Medium — isolated event, <10 patients, within 24 hours), S5 (Low — near-miss, no patient impact, within 72 hours). Every incident must be classified before action.
 2. **Maintain an escalation matrix with role-specific activation triggers.** Map every incident type to: who is notified, within what timeframe, through which channel (phone for S1/S2, email + Slack for S3-S5), and who has decision authority at each level. The CEO is not the default approver for every crisis — pre-delegate communication authority to prevent the "CEO is on a plane for 6 hours with no statement" scenario.

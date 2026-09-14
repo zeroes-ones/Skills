@@ -455,6 +455,30 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For writing tests** → route to `tdd-guide`.
+2. **Qa-engineer)**.
+3. **Code review** → route to `code-reviewer`.
+4. **Or CI/CD pipeline configuration** → route to `ci-cd-builder`.
+
+## Anti-Rationalization **(QUICK)**
+
+The excuses that arrive at the Phase 5 gate, and the response each one requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "The reproduction case went red-to-green, so the regression suite is a formality I can skip." | The reproduction case exercises exactly one code path — the one the reporter hit. A fix in `checkout.ts` that changes a shared `price` accessor can turn the repro green while breaking the three other callers that relied on the old return shape. "The bug is gone" and "nothing else broke" are two separate truth claims; only Phase 4 tests the second. | Run the module suite, then every suite for modules that import the changed file (`grep -rn "import.*from.*'checkout'" --include="*.ts"`). Paste the pass/fail counts into the closing comment. An unrun dependent suite blocks the status transition — it does not defer it. |
+| "It failed once, then passed on the rerun — flaky, not a real failure." | The rerun produced a green result, not an explanation. Intermittent failures cluster around timing, concurrency, and shared state — the failure classes that surface only in production, where the rerun option does not exist. Dismissing the first run discards the only reproduction you had. | Capture the failing run's output (stack trace, seed, timestamp) BEFORE rerunning, then try to force the failure 5-10 times with the same seed or added concurrency. If it cannot be forced, add instrumentation at the failure point and leave the item open. One green rerun is not a fix. |
+| "Staging verified it and staging is production-shaped, so the post-deploy window is unnecessary." | Staging matches production in schema, not in scale, traffic mix, or data distribution. An index that turns a 2s query into 50ms over 10K staged rows can leave the production planner doing `Seq Scan` over 5M rows — verified locally, broken for the users it was written for. | Run `EXPLAIN ANALYZE` against production-sized data and confirm `Index Scan`, not `Seq Scan`. Keep the ticket open through a 24-72 hour monitoring window alerting on the error rate, p95 latency, and the business metric for that code path. Verification ends when the window is clean. |
+| "The suite is green, so the behavior is verified." | Green only means no assertion fired. `expect(result).toBeTruthy()` goes green for `{}` exactly as happily as for `{ price: 19.99 }`. A suite of weak matchers is a very confident way of knowing nothing. | For every assertion covering the changed behavior, compare the actual value field-by-field against the expected value from the bug report or acceptance criteria. Replace `toBeTruthy()` / `not.toBeNull()` / `toBeDefined()` with the exact expected shape before transitioning. |
+| "Two reviewers approved the PR — that is my verification." | Reviewers read the diff; they do not re-execute the reporter's steps, and they catch well under half of the defects that reach them. Approval answers "is this code reasonable?", not "does the reproduction case now produce the expected output?" | Treat approval as one gate among five, not as a substitute for them. Still run Phase 3 against the reporter's exact steps and Phase 4 across dependents, and attach both outputs; a high-stakes change additionally needs peer sign-off on that evidence. |
+| "The evidence is in the PR thread / CI artifact — I'll link it rather than paste it." | CI artifacts expire and PR threads get force-pushed, rebased, or archived. Six months from now "we verified it" is an unsupported claim sitting behind a 404, and the next investigation starts from zero. | Paste test output into the issue closing comment as a fenced code block, embed the BEFORE/AFTER screenshots in the issue body, and use a permanent CI run permalink. Attach the evidence before flipping status — a link that can rot is not evidence. |
+
+This table is specific to `verification-before-completion`: each row is an excuse that survives the Phase 3 green result and must be answered before the Phase 5 evidence gate and the Status Transition Gate admit the change.
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

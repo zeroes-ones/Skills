@@ -462,6 +462,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For single-repo refactoring (appropriate developer skill)**.
+2. **API design (api-designer)**.
+3. **Deprecation lifecycle (deprecation-engineer)**.
+4. **Or code search (code-reviewer)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Codemod tested on syntactic correctness only — passes type checks but swaps parameter order bec." | Codemod tested on syntactic correctness only — passes type checks but swaps parameter order because the codemod template inverted arguments. 200 autom | For every codemod, write a behavior equivalence test: migrated code must produce identical output to original for the same input. Run property-based testing wit |
+| "It is faster to skip this: Consumer discovery catches 95% of call sites — the missed 5% are in rarely-used import paths, d." | Consumer discovery catches 95% of call sites — the missed 5% are in rarely-used import paths, dynamic require() calls, and eval'd code. Those 5% becom | Exhaustive consumer discovery: search with 5+ query variants (different import styles, aliases, dynamic invocations). Cross-reference static analysis results wi |
+| "It is faster to skip this: Cross-repo automated PR storm: 40 repos get codemod PRs simultaneously. 12 fail CI due to repo-." | Cross-repo automated PR storm: 40 repos get codemod PRs simultaneously. 12 fail CI due to repo-specific edge cases the codemod didn't handle. Migratio | Dry-run codemod against ALL consumer repos before mass PR. Only open automated PRs for repos where CI passes. Rate-limit PR creation to 5/day to prevent overwhe |
+| "It is faster to skip this: Migration timeline set by the deprecating team's velocity, not the slowest consumer's — a consu." | Migration timeline set by the deprecating team's velocity, not the slowest consumer's — a consumer on a 90-day release cycle gets a 30-day deprecation | Timeline = max(slowest_consumer_release_cycle × 3, 90 days for internal, 180 days for external). Announce deprecation before writing migration code — the clock  |
+
+This table is specific to `cross-repo-refactoring`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

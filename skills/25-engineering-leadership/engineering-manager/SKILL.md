@@ -452,6 +452,25 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Your calendar reflects your real priorities — audit it quarterly.** If you say people development is priority #1 but your calendar shows 0 hours of 1:1 prep, 0 hours of career ladder work, and 30 hours of project management meetings, people development is not your priority. Match your calendar to your stated priorities. Delegate, decline, or delete everything that doesn't align.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For architecture decision-making**.
+2. **Technical strategy across teams**.
+3. **Or organizational design above team level**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Cancelling 1:1s when busy — the busier you are, the more you need them. Cancelled 1:1s signal "." | Cancelling 1:1s when busy — the busier you are, the more you need them. Cancelled 1:1s signal "you're not a priority" and the problems you're too busy | Treat 1:1s as production incidents: never cancel without rescheduling within the same week. If truly impossible, send a 5-minute async check-in covering "What's |
+| "It is faster to skip this: Performance reviews that surprise the engineer — feedback that's first delivered in the annual ." | Performance reviews that surprise the engineer — feedback that's first delivered in the annual review instead of continuously throughout the year | Give feedback within 48 hours of ANY performance event (good or corrective) and document it in the shared 1:1 notes doc. Before any review, ask yourself: "Is th |
+| "It is faster to skip this: Taking credit for team wins and blaming context for team failures — "I shipped X" when it goes ." | Taking credit for team wins and blaming context for team failures — "I shipped X" when it goes well, "the org made it impossible" when it doesn't | Always use "we" for wins and "I" for misses: "The team shipped X — let me tell you what each person did" and "I should have caught the dependency risk earlier — |
+
+This table is specific to `engineering-manager`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

@@ -264,6 +264,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general AI safety unrelated to healthcare**.
+2. **LLM pipeline engineering**.
+3. **Or traditional ML model evaluation**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Medical AI hallucinates a clinical trial citation — patient acts on fabricated evidence." | Medical AI hallucinates a clinical trial citation — patient acts on fabricated evidence | Implement Type A hallucination detection (fabricated clinical evidence) as critical alert. Always block, never surface. Root cause analysis required within 24 h |
+| "It is faster to skip this: Safety filter calibrated only for English — non-English queries bypass content guardrails." | Safety filter calibrated only for English — non-English queries bypass content guardrails | Calibrate per language independently. Monitor false negative rates per language subgroup. If any subgroup exceeds 2× average FN rate, adjust thresholds independ |
+| "It is faster to skip this: Content safety filter too aggressive — 25% false positive rate blocks legitimate patient educat." | Content safety filter too aggressive — 25% false positive rate blocks legitimate patient education | Calibrate sensitivity per use case and audience. Track false positive rate per subgroup. Target < 15% overall, < 20% per subgroup. Implement human-in-the-loop f |
+| "It is faster to skip this: PHI leak via model output — patient data exposed through generated text." | PHI leak via model output — patient data exposed through generated text | Deploy output guardrails scanning for PII/PHI in every generated response. Strip identifiers before logging. Implement automated breach detection with clinical  |
+
+This table is specific to `ai-safety-health-reviewer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

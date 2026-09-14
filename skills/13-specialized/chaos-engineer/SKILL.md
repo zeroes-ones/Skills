@@ -381,6 +381,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general monitoring setup**.
+2. **Standard incident response**.
+3. **Capacity planning**.
+4. **Or routine performance testing**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Chaos experiment in production without prior staging validation — a DNS timeout injection targe." | Chaos experiment in production without prior staging validation — a DNS timeout injection targeting 2% of traffic accidentally affects 100% due to an  | Never run a first-time experiment in production. Validate in staging at full blast radius → pre-production → production at 1% with human abort switch. Test labe |
+| "It is faster to skip this: Blast radius defined by instance count instead of dependency graph — terminating 1 of 100 insta." | Blast radius defined by instance count instead of dependency graph — terminating 1 of 100 instances (1%) sounds safe, but that instance holds the sole | Map downstream dependencies before injecting failure. Run dependency-discovery game days before production experiments. Blast radius = impact on dependency grap |
+| "It is faster to skip this: Game day without a tested rollback plan — chaos experiment auto-terminates after duration, but ." | Game day without a tested rollback plan — chaos experiment auto-terminates after duration, but pods are stuck in Terminating state awaiting an unreach | Every game day must include a rollback runbook tested at least once. Test rollback under degraded conditions (pods stuck in Terminating, leader election failure |
+| "It is faster to skip this: Not measuring steady state before injection — p99 latency and error rates are not baselined. Te." | Not measuring steady state before injection — p99 latency and error rates are not baselined. Team walks away believing the system is resilient when it | Collect 5+ minutes of steady-state metrics for every SLO before injection. If baseline isn't healthy, abort — you can't test resilience on a degraded system. |
+
+This table is specific to `chaos-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

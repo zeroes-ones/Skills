@@ -529,6 +529,25 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Your loyalty is to the engineering organization and the business, not to any single team.** When Team A's architecture optimizes for their velocity but degrades Team B's reliability, the Staff engineer advocates for the system-level optimum. This sometimes means telling a team "your approach is locally optimal but globally harmful — here's why and here's a better path." The ability to see and advocate for the whole system is what distinguishes Staff from Senior.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For people management**.
+2. **Single-team technical leadership**.
+3. **Or project management**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Solving problems nobody has — building frameworks, abstractions, or platforms without a concret." | Solving problems nobody has — building frameworks, abstractions, or platforms without a concrete customer team that has a burning need today | Every staff-level initiative starts with a named customer team: which specific team has this problem right now, what's the quantifiable pain (hours/week, error  |
+| "It is faster to skip this: Writing design docs that dictate implementation instead of defining constraints and trade-offs ." | Writing design docs that dictate implementation instead of defining constraints and trade-offs — telling teams HOW to build instead of defining WHAT t | Structure RFCs around constraints (must support X throughput, must degrade gracefully under Y failure), trade-offs (we're optimizing for Z at the expense of W), |
+| "It is faster to skip this: Avoiding messy organizational problems because they're "not technical" — the performance issue ." | Avoiding messy organizational problems because they're "not technical" — the performance issue is really a team-trust problem, the architecture bottle | When you identify a problem, ask: "Is this a technical problem, a people problem, or a process problem?" If it's people or process, your job is to name it, surf |
+
+This table is specific to `staff-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s — table of who to talk to when -->

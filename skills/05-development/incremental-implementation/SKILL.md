@@ -349,6 +349,36 @@ Before deploying or delivering work from this skill, verify:
 4. **Schema migration in slice:** NOT NULL without default breaks old code. Cost: $5,000 to $25,000 in production outage. **Fix:** Nullable with default. Remove nullability later.
 5. **Flag dependency chains:** X depends on Y; Y removed, X breaks. Cost: $3,000 to $10,000 cascading failure. **Fix:** Document dependencies in flags.yaml.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For architecture design** → route to `system-architect`.
+2. **Debugging production issues** → route to `debugging-and-error-recovery`.
+3. **Or one-shot prototypes** → route to `prototype`.
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "The feature is small — I'll merge it whole and wrap it in a flag later." | New behavior with no gate is default-ON for every user; the Gotchas section prices that exposure at $10,000–$50,000. "Later" is after the incident. | Create `feature_x_vs0` with `default: false` and `kill_switch: true` in flags.yaml *before* the first line of feature code. |
+| "VS-0 is a no-op route — it's a wasted PR. I'll fold the scaffold into VS-1." | VS-0 is the only slice that proves routing, auth, flag infrastructure, and CI plumbing end to end. Skipping it surfaces those failures at VS-3, when they cost $2,000–$8,000 to unwind. | Ship VS-0 alone, merge at 0% rollout, confirm the flag appears in the dashboard, then start VS-1. |
+| "I'll add the flag now and clean it up next sprint." | A flag still at 100% is live gating logic and a dependency edge; flag debt compounds — 47 active flags is a $5,000–$15,000 test-matrix problem. | Set `cleanup_after` to 100%-rollout + 7 days at flag creation and open the removal PR in the same sprint the rollout completes. |
+| "Tests cover the ON path; the OFF path is just the old code, already tested." | The branch condition itself is new code. A broken gate ships the old path to everyone or 500s the moment you flip. | Run the suite twice — `FLAG_feature_x_vsN=true npm test` and `=false npm test` — and require both to exit 0 before merge. |
+| "The migration is cleaner if I make the column NOT NULL now." | Old code still running behind the OFF flag writes nothing to that column; a NOT NULL without default turns rollout into a $5,000–$25,000 production outage. | Add the column nullable with a default. Tighten nullability in a later slice, after the flag is at 100% and old code is gone. |
+| "Rolling back means reverting the merge commit." | A revert is a rebuild-and-redeploy with a multi-minute blast window; a config toggle is ≤30 seconds and touches no artifact. | Make every new behavior kill-switchable, and prove the toggle in staging (flip OFF, confirm old behavior in ≤30s, zero 500s) before 1% rollout. |
+
+## Error Decoder **(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---|---|---|---|
+| `git bisect` lands on a commit where three flags changed together and cannot isolate the regression | Slices were bundled — one commit carried multiple VS flags, so no single commit maps to one behavior change | Split the offending commit into per-flag `feat domain-vsN` commits, then re-run bisect | Atomic commits are what make bisect a diagnostic tool instead of a coin flip — one slice, one flag, one test |
+| Reviewer approves a 280-line PR that contains no flag and no test file | Slice sizing rules were bypassed — the change exceeded the ~100-line slice budget, so the gate it should have tripped was never checked | Re-decompose into ≤100-line slices, wrap each in its own flag, add one test file per slice | PR length is a gate, not a preference — a slice that cannot get a real review in ten minutes is not a slice |
+| A flag degraded production for hours and no alert fired | The flag had no `auto_off_metric` or per-flag SLI, so the rollout was flying blind at 100% | Instrument per-flag latency and error-rate metrics, set the auto-off threshold, and re-verify at the dashboard before the next increment | An unobserved flag cannot protect itself — observability is part of the flag, not a follow-up ticket |
+| Flipping VS-3 OFF also silently disabled VS-1 behavior | Flag dependencies were never recorded; the flags form a DAG but were treated as an unordered set (Gotcha #5, $3,000–$10,000) | Document each dependency edge in flags.yaml and flip flags in dependency order during rollback | Rollback order is a property of the flag graph — record the edges or you will cascade failures on the way down |
+| Old clients started returning 500 after a data-layer slice merged | A destructive schema change (DROP/ALTER) shipped inside an otherwise additive slice | Roll back the migration, redo it as `ADD COLUMN` nullable with a default, redeploy | Additive-only schema is the contract that lets old code keep serving traffic behind the OFF flag |
+| The commit hook passed locally but CI rejected the same commit | Local pre-commit ran a subset of the pipeline — the flag both-states run and old-client integration tests were skipped | Run the CI-equivalent command (`npm test` with flag true and false) locally and fix before pushing | A commit is deployable only when the same suite CI runs passes — a green subset is not a green build |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

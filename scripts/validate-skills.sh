@@ -693,6 +693,31 @@ echo "[22] Agent discovery layer (skills-flat)..."
 FLAT_CHECK="$(cd "$(dirname "$0")/.." && pwd)/scripts/check-flat-index.py"
 check "Flat discovery layer resolves all skills with no collisions" python3 "$FLAT_CHECK"
 
+# --- [23] CONTENT DUPLICATION (cross-skill verbatim blocks) ---
+# Structural gates cannot see this: they check a heading exists, not that its content is
+# about this skill. Advisory here because 110 pre-existing blocks are grandfathered; the
+# strict gate exists for CI and for reviewing new skills.
+echo "[23] Content duplication (cross-skill verbatim blocks)..."
+DUP_CHECK="$(cd "$(dirname "$0")/.." && pwd)/scripts/check-content-duplication.py"
+DUP_JSON="$(python3 "$DUP_CHECK" --json 2>/dev/null || echo '{}')"
+DUP_N="$(printf '%s' "$DUP_JSON" | python3 -c "import sys,json;print(json.load(sys.stdin).get('non_generic_shared_blocks',0))" 2>/dev/null || echo 0)"
+if [ "${DUP_N:-0}" = "0" ]; then
+    echo -e "  ${GREEN}PASS${NC} No non-allowlisted shared blocks"
+else
+    echo -e "  ${YELLOW}ADVISORY${NC} $DUP_N shared block(s) — pre-existing; no NEW block may be introduced"
+fi
+
+# --- [24] DOMAIN COHERENCE (cross-domain vocabulary) ---
+echo "[24] Domain coherence (cross-domain vocabulary)..."
+COH_CHECK="$(cd "$(dirname "$0")/.." && pwd)/scripts/check-domain-coherence.py"
+COH_JSON="$(python3 "$COH_CHECK" --json 2>/dev/null || echo '{}')"
+COH_N="$(printf '%s' "$COH_JSON" | python3 -c "import sys,json;print(json.load(sys.stdin).get('violations',0))" 2>/dev/null || echo 0)"
+if [ "${COH_N:-0}" = "0" ]; then
+    echo -e "  ${GREEN}PASS${NC} No cross-domain vocabulary"
+else
+    echo -e "  ${YELLOW}ADVISORY${NC} $COH_N cross-domain phrase(s) across pre-existing skills"
+fi
+
 # --- SUMMARY ---
 echo ""
 echo "========================================"

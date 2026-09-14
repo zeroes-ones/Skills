@@ -928,6 +928,60 @@ Before deploying or shipping any marketplace feature, verify **every one** of th
 * **saas-monetization-strategist** - When designing commission models, seller subscription tiers, freemium structures, and upsell paths.
 * **accessibility-auditor** - Ensure marketplace UI (listings, booking flows, messaging) is accessible to all users including those with disabilities.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For single-vendor e-commerce stores** → route to `website-builder`.
+2. **Content creator platforms** → route to `creator-economy-builder`.
+3. **Or ad-based aggregators** → route to `growth-engineer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Building custom payments instead of using Stripe Connect — reinventing PCI compliance, currency." | Building custom payments instead of using Stripe Connect — reinventing PCI compliance, currency conversion, and payout scheduling | Use Stripe Connect (or Adyen/Mangopay for EU). Custom payments only justified at >$100M GMV with >$5M annual payment processing fees. Until then, off-the-shelf  |
+| "It is faster to skip this: Launching a two-sided marketplace to both sides simultaneously — no supply when first buyers ar." | Launching a two-sided marketplace to both sides simultaneously — no supply when first buyers arrive, no buyers when sellers list | Seed supply side first: 100+ quality listings before any demand-side marketing. Use "supply-side first" launch: manual curation → invite-only demand → public la |
+| "It is faster to skip this: Trust & safety as an afterthought — first fraud incident destroys marketplace reputation." | Trust & safety as an afterthought — first fraud incident destroys marketplace reputation | Launch with: identity verification, escrow for transactions >$100, review system with verified-purchase-only, dispute resolution SLA (48-hour response). Budget  |
+| "It is faster to skip this: Not modeling marketplace unit economics before writing code — take rate doesn't cover CAC." | Not modeling marketplace unit economics before writing code — take rate doesn't cover CAC | Model before code: GMV = (buyers × transactions/buyer × avg_order_value), Revenue = GMV × take_rate, Gross Profit = Revenue - CAC - hostings costs. If take_rate |
+| "It is faster to skip this: Using synchronous payment capture for all transactions — 3-second checkout kills conversion." | Using synchronous payment capture for all transactions — 3-second checkout kills conversion | Async capture: accept order immediately, capture payment in background queue. Show "processing" with optimistic confirmation. Only surface payment failure if ca |
+| "It is faster to skip this: Geographic expansion without local payment methods — launching in Germany with credit-card-only." | Geographic expansion without local payment methods — launching in Germany with credit-card-only | Integrate local payment methods per market before launch. Use Adyen/dLocal for unified API across 100+ methods. Minimum: top 3 payment methods per country cover |
+
+This table is specific to `marketplace-platform-builder`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Opening both sides at once — running buyer acquisition against a catalog that has not been seeded yet | ✅ Seed 50-100 verified listings in a single city or niche first, and gate demand spend on fill rate clearing 40% |
+| ❌ Letting buyer pay seller directly (Venmo, bank transfer, cash) so the take rate becomes voluntary | ✅ Route every transaction through Stripe Connect (or Adyen for Platforms / Mangopay) so the application fee is deducted before payout |
+| ❌ Copying the incumbent's 15-20% take rate on day one when your liquidity is a fraction of theirs | ✅ Price below the incumbent early (3-5%), then raise the rate as fill rate and time-to-match improve |
+| ❌ Shipping a review widget where any logged-in account can rate any listing | ✅ Verified-purchase-only reviews, double-blind submission, and review score weighted by transaction value |
+| ❌ Checking slot availability in application code, then inserting the booking | ✅ Put a UNIQUE constraint on `(listing_id, booking_date)` inside the INSERT so the second concurrent request fails atomically |
+| ❌ Storing booking times in the provider's local time and converting only at render | ✅ Store UTC, thread a timezone parameter through every display function, and show both parties' zones on the confirmation |
+| ❌ Letting first messages carry phone numbers and emails "because it's good for community" | ✅ Block phone/email/social/URL patterns in the first 5 messages and explain that on-platform deals are covered by the Buyer Guarantee |
+| ❌ Running PostgreSQL full-text search until it collapses at 50K listings, then firefighting | ✅ Stand Meilisearch or Elasticsearch up in shadow mode around 5K listings with a defined cutover at 10K |
+
+## Production Checklist **(STANDARD)**
+
+- [ ] **CR1: Connect account type matched to the seller demographic** — Verification: onboard 10 real test sellers; Express asks for fewer than 8 fields, Custom fewer than 25, and onboarding failure stays under 10% when broken down by country and account type.
+- [ ] **CR2: Application fee math holds at $5, $50, $500 and $5,000** — Verification: the fee never exceeds the payment amount (Stripe rejects `application_fee > amount`), and the net take rate stays positive at the $5 floor as well as the $5,000 ceiling.
+- [ ] **CR3: Escrow hold, release and reversal exercised end to end** — Verification: an automated test covers buyer-confirmed release, auto-release on timeout, freeze on dispute, and refund-to-buyer; ledger rows reconcile to Stripe balance transactions to the cent.
+- [ ] **CR4: Payout schedule and payout failure path are documented and tested** — Verification: simulate an invalid bank account and a closed Connect account; the seller is notified, funds return to the platform balance, and nothing is silently lost.
+- [ ] **CR5: Net take rate waterfall is instrumented** — Verification: the dashboard shows GMV → gross commission → minus processing → refunds → chargebacks → FX → Connect fees = net take rate, reconciled daily against the Stripe application-fee report.
+- [ ] **CR6: Marketplace facilitator tax is collected in every nexus state** — Verification: place a test order with a shipping address in each registered state; tax is calculated at checkout and appears in the remittance report.
+- [ ] **CR7: 1099-K pipeline covers every seller above threshold** — Verification: run the year-to-date report and confirm both the threshold logic (>$5,000 and >200 transactions, per the phase-in year) and that a TIN is mandatory before payout.
+- [ ] **CR8: Review integrity controls actually bite** — Verification: a non-party review attempt is rejected, a retaliatory review is blocked by double-blind, and 50 reviews sharing one payment method raise a collusion flag.
+- [ ] **CR9: Off-platform leakage is blocked in messaging** — Verification: send "555-123-4567", "user@gmail.com", "@username" and a competitor URL inside the first three messages; all four are blocked and the Buyer Guarantee copy is shown.
+- [ ] **CR10: Double-booking race test passes under load** — Verification: fire 10 concurrent booking requests at one slot through the production API; exactly one succeeds, nine receive "unavailable", and no orphaned payment authorizations remain.
+- [ ] **CR11: Search quality and latency measured at 1.5x current listing volume** — Verification: precision@10 exceeds 80% across the top 20 category queries, p95 stays under 200ms, and zero-result searches stay under 10% with an alert when they don't.
+- [ ] **CR12: Fraud rules block all five known vectors** — Verification: replay synthetic cases for stolen card, stock-photo listing, price anomaly (<50% of category median), account takeover (new device plus new payout method), and buyer-seller IP collusion; each fires its intended rule.
+- [ ] **CR13: Dispute SLA is instrumented, not aspirational** — Verification: open three disputes (not received, not as described, damaged) and confirm the seller's 48-hour response window, mediation proposal within 72h, arbitration path, and that funds stay in escrow throughout.
+- [ ] **CR14: Liquidity dashboard is live before demand spend begins** — Verification: fill rate, time-to-match, and supply/demand churn are visible daily, and a hard gate stops demand acquisition when fill rate sits below 10% for 7 consecutive days.
+- [ ] **CR15: Launch-zone supply density is verified, not assumed** — Verification: count verified active listings per launch zone — a delivery marketplace needs 10+ providers per zone, a curated product launch needs 50+ listings in one city.
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

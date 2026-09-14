@@ -451,6 +451,46 @@ Surface these WITHOUT being asked:
 | `file_contains(code, "clickable\|onClick\|onTap")` AND NOT `file_contains(code, "contentDescription\|semantics\|accessibilityLabel")` | Flag: interactive element without accessibility label. | TalkBack users cannot identify unlabeled interactive elements. |
 | `file_contains(code, "AnimatedVisibility\|animate\|animation")` AND NOT `file_contains(code, "reducedMotion\|AnimationConstants\|LookaheadScope")` | Flag: animation without reduced-motion fallback. | 12% of users have motion sensitivity. Must disable or reduce animations when system setting is enabled. |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For Apple HIG compliance** → route to `apple-hig-expert`.
+2. **General accessibility auditing** → route to `accessibility-auditor`.
+3. **Or web frontend UI design**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Design looks correct on Pixel but broken on Samsung — One UI overrides shape, font, and color." | Design looks correct on Pixel but broken on Samsung — One UI overrides shape, font, and color | Use system components (`MaterialTheme`) exclusively. Never custom-draw elements that bypass the theme engine. Test on at least one non-Pixel device (Samsung, On |
+| "It is faster to skip this: Missing window size class handling — single-column layout stretched to 10-inch tablet looks bro." | Missing window size class handling — single-column layout stretched to 10-inch tablet looks broken | Add `WindowWidthSizeClass` checks. Canonical layouts: List-Detail for Expanded, Supporting Pane for Medium. Test at 360dp, 600dp, and 840dp widths |
+| "It is faster to skip this: Dynamic Color adoption without brand color override — brand colors become unrecognizable on cer." | Dynamic Color adoption without brand color override — brand colors become unrecognizable on certain wallpapers | Override `primary` role with brand color. Keep Dynamic Color for containers and surfaces. Declare strategy explicitly: adopt/override/reject with documented rat |
+| "It is faster to skip this: Content unreachable at 200% text scale — TalkBack and Switch Access users cannot complete workf." | Content unreachable at 200% text scale — TalkBack and Switch Access users cannot complete workflows | Test typography at 85% and 200% system font scale. No text truncation, overlap, or layout breakage. Scrollable containers for content that exceeds viewport |
+| "It is faster to skip this: D-pad/Keyboard navigation landing on invisible or off-screen elements — TV and ChromeOS users s." | D-pad/Keyboard navigation landing on invisible or off-screen elements — TV and ChromeOS users stuck | Focus must never land on invisible or off-screen elements. Set `focusable = false` on hidden items. Test non-touch navigation on all target form factors |
+| "It is faster to skip this: Predictive back gesture shows blank screen — app feels unpolished on Android 14+." | Predictive back gesture shows blank screen — app feels unpolished on Android 14+ | Implement `OnBackInvokedCallback` with destination preview. Register during `onViewCreated`. Test with predictive back enabled in Developer Options |
+
+This table is specific to `material-design-expert`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+Failures that pass review on a Pixel emulator and then break on real Android devices:
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Picking a hex out of the Figma mock and shipping it as `0xFF1A73E8` in Compose — the app stays Google blue while the wallpaper-derived scheme around it goes orange | ✅ Assign the role, not the value: `MaterialTheme.colorScheme.primary`. If brand must survive, override that one role and leave surface/neutral tones to Dynamic Color |
+| ❌ Building the screen as `Column(Modifier.fillMaxSize())` wrapping a `LazyColumn` — a 10" tablet renders a 360dp phone layout stretched edge to edge | ✅ Gate on `WindowWidthSizeClass`: bottom nav + FAB below 600dp, Navigation Rail at 600–840dp, permanent drawer + List-Detail above 840dp; render-test all three widths |
+| ❌ Sizing labels with `fontSize = 14.dp` because it matched the mockup at 100% scale | ✅ Use `sp` for every text element so it tracks the system font scale, then verify no truncation or overlap at 85% and 200% |
+| ❌ Custom-drawing a pill button with `Box` + `background(shape)` to hit the mockup exactly | ✅ Use `Button` / `FilledTonalButton` so One UI and MIUI theme engines can restyle it; custom-draw only when no MD3 component fits, and then hand-build elevation, focus, and a11y behavior |
+| ❌ Intercepting back with a bare `BackHandler { }` that pops a route with no destination preview | ✅ Register an `OnBackInvokedCallback` during `onViewCreated` and render the preview, so predictive back on Android 14+ never flashes a blank frame |
+| ❌ Flipping `dynamicColor = true` globally for a brand-led product, then discovering primary is now lime green | ✅ Declare adopt / override / reject up front and record the rationale; override `primary` and `secondary` for brand, let Dynamic Color own containers and surfaces |
+| ❌ Compressing a phone dashboard into a Wear OS tile — six metrics, a sparkline, and a button on one carousel page | ✅ Design tiles as glanceable: one number or one primary action, readable in a <2-second wrist glance with no scrolling |
+| ❌ Reusing 14sp phone labels on Android TV because the mockup was authored at phone scale | ✅ Scale TV typography 2–3× and make the focused state unmistakable from across the room — a focus ring visible only up close fails the format |
+| ❌ Leaving `focusable = true` on nodes inside a collapsed `AnimatedVisibility` block | ✅ Set `focusable = false` on hidden items or remove them from the tree, so D-pad and keyboard traversal never lands somewhere invisible and off-screen |
+| ❌ Auditing on a Pixel emulator, calling the scorecard green, and shipping | ✅ Make a non-Pixel OEM device the primary test target — Samsung One UI or a ~$150 budget handset — because the median Android user is not on stock Android |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

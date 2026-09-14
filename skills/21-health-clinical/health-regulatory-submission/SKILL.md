@@ -325,6 +325,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For HIPAA compliance implementation**.
+2. **Clinical trial design**.
+3. **Post-market surveillance**.
+4. **Or non-software medical device regulation**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Incorrect device classification leading to the wrong submission pathway — AI diagnostic tool cl." | Incorrect device classification leading to the wrong submission pathway — AI diagnostic tool classified as Class I exempt when CADe functionality requ | Obtain formal classification from FDA regulatory consultant BEFORE development; submit 513(g) for novel devices; re-evaluate after any feature change affecting  |
+| "It is faster to skip this: 510(k) submission rejected because predicate device was recalled — team identified predicate in." | 510(k) submission rejected because predicate device was recalled — team identified predicate in 2020 but never re-checked FDA status. Predicate recall | Verify predicate device status within 30 days of submission; maintain predicate watchlist with quarterly checks; identify 2-3 backup predicates |
+| "It is faster to skip this: eCTD submission fails FDA gateway validation because XML references deprecated DTD version — te." | eCTD submission fails FDA gateway validation because XML references deprecated DTD version — team used last year's template. FDA validator rejects old | Subscribe to FDA eCTD update notifications; run FDA's free eCTD validator locally before upload; maintain pre-submission checklist with DTD version verification |
+| "It is faster to skip this: Clinical evidence demographics don't match intended use population — evidence from healthy volu." | Clinical evidence demographics don't match intended use population — evidence from healthy volunteers but device targets immunocompromised and pediatr | Verify clinical evidence demographics match intended use population before writing performance evaluation; submit gap analysis table showing evidence-population |
+| "It is faster to skip this: Post-market surveillance report flagged because AE trending used wrong denominator — events per." | Post-market surveillance report flagged because AE trending used wrong denominator — events per units sold instead of per patient-years of use. Device | Use patient-years or device-years as denominator; document exposure calculation methodology; provide worst-case sensitivity analysis if exposure data incomplete |
+
+This table is specific to `health-regulatory-submission`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

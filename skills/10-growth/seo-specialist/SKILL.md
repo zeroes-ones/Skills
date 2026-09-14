@@ -462,6 +462,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For paid search (SEM)**.
+2. **Social media strategy**.
+3. **Email marketing**.
+4. **Or conversion rate optimization**.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Ignoring Core Web Vitals while investing heavily in content and backlinks." | Ignoring Core Web Vitals while investing heavily in content and backlinks | Run CrUX and Lighthouse reports monthly. Fix LCP (optimize images, use CDN, eliminate render-blocking resources), CLS (reserve space for embeds/ads/images), and |
+| "It is faster to skip this: Executing a site migration or URL restructure without a comprehensive 301 redirect map." | Executing a site migration or URL restructure without a comprehensive 301 redirect map | Build a complete URL inventory before migration (crawl + server logs + Search Console). Map every old URL to its new equivalent 1:1. Test all redirects in stagi |
+| "It is faster to skip this: Chasing algorithm updates with reactive tactics instead of building topical authority and user-." | Chasing algorithm updates with reactive tactics instead of building topical authority and user-first content | Invest 80% of SEO budget in durable fundamentals: topical authority maps, expert-authored content with author bios, original research/data that earns natural ba |
+
+This table is specific to `seo-specialist`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

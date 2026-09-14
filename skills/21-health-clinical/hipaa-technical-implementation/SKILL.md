@@ -474,6 +474,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For GDPR compliance**.
+2. **General security hardening unrelated to PHI**.
+3. **HIPAA policy/legal analysis**.
+4. **Or non-healthcare data protection**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Production PHI copied to test environment via mysqldump prod \." | Production PHI copied to test environment via `mysqldump prod \ | Never copy production data to non-production environments; use data masking or synthetic data generators; test environments must meet same security controls as  |
+| "It is faster to skip this: Patient requests accounting of disclosures but team can't produce it — audit logs only go back ." | Patient requests accounting of disclosures but team can't produce it — audit logs only go back 90 days due to storage costs. HIPAA requires 6 years of | Configure audit log retention for 7 years minimum; archive logs to cold storage after 90 days; test retrieval capability quarterly |
+| "It is faster to skip this: Developer's laptop stolen containing "de-identified" patient data — ZIP+DOB+diagnosis date re-i." | Developer's laptop stolen containing "de-identified" patient data — ZIP+DOB+diagnosis date re-identifies 87% of patients via voter registration record | Enforce HIPAA Safe Harbor: remove all 18 identifiers. For limited data sets, ensure Data Use Agreement. Never allow production PHI on developer laptops; require |
+| "It is faster to skip this: Third-party SDK without BAA sends PHI to non-compliant service — analytics pixel on patient por." | Third-party SDK without BAA sends PHI to non-compliant service — analytics pixel on patient portal transmits appointment data to Google/Meta without H | Verify BAA coverage before merging any third-party dependency; deploy CSP headers and server-side analytics that strip PHI; audit all patient-facing pages for t |
+
+This table is specific to `hipaa-technical-implementation`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

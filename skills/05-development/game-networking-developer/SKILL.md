@@ -226,6 +226,27 @@ Run these checks before declaring work complete. ALL must pass.
 | V7 | Performance within budget | If constraints specified, verify compliance. If not, verify no unbounded loops or quadratic blowup. |
 | V8 | Anti-patterns from Gotchas section avoided | Re-read Gotchas section. Verify none of the listed anti-patterns appear in the output. |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For REST API development**.
+2. **Web backend development**.
+3. **Or non-real-time networking**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Choosing TCP for real-time gameplay because "reliable delivery" sounds safer." | Choosing TCP for real-time gameplay because "reliable delivery" sounds safer | Use UDP with a custom reliability layer (ENet, GameNetworkingSockets). TCP head-of-line blocking freezes all state on a single dropped packet. Reserve TCP for l |
+| "It is faster to skip this: Shipping P2P without TURN relay fallback — 30% of players behind symmetric NATs cannot connect." | Shipping P2P without TURN relay fallback — 30% of players behind symmetric NATs cannot connect | Implement ICE with relay escalation: P2P → STUN → TURN. Budget TURN relay for 5-15% of player-hours at $0.02-$0.10/GB. Never launch P2P without relay fallback. |
+| "It is faster to skip this: Running dedicated servers without auto-shutdown — idle servers burn 40% of cloud budget." | Running dedicated servers without auto-shutdown — idle servers burn 40% of cloud budget | Implement player-count monitoring with 5-minute shutdown timer when empty. Use Agones or GameLift for automatic allocation/deallocation. Set max session duratio |
+| "It is faster to skip this: Serializing game state as JSON at runtime — 50MB/s bandwidth for 64-player state at 60 tickrate." | Serializing game state as JSON at runtime — 50MB/s bandwidth for 64-player state at 60 tickrate | Use Flatbuffers, Cap'n Proto, or bit-packed custom serialization. Quantize floats to 16-bit fixed-point. Delta-compress positions. JSON is for config files, not |
+| "It is faster to skip this: Implementing client-side hit detection without server reconciliation — "ghost bullets" and rage." | Implementing client-side hit detection without server reconciliation — "ghost bullets" and rage-quits | Server-authoritative hit detection with backward reconciliation. Rewind target position to shooter's latency. VALVe's Source Engine approach is the gold standar |
+
+This table is specific to `game-networking-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

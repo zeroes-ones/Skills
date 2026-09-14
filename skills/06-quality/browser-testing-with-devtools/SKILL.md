@@ -586,6 +586,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For automated end-to-end testing** → route to `qa-engineer`.
+2. **Server-side debugging** → route to `debugging-and-error-recovery`.
+3. **Performance optimization without browser context** → route to `performance-engineer`.
+4. **Or writing new frontend code** → route to `frontend-developer`.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Debugging in production via console.log without stripping PII." | Debugging in production via console.log without stripping PII | Use structured logging library with debug-level disabled in prod; strip PII at the logging boundary |
+| "It is faster to skip this: Relying solely on Lighthouse score for performance decisions." | Relying solely on Lighthouse score for performance decisions | Correlate Lighthouse lab data with RUM field data (web-vitals); set budgets on field percentiles |
+| "It is faster to skip this: Taking heap snapshots on live production tabs." | Taking heap snapshots on live production tabs | Use Memory panel in DevTools on staging/dev; for prod, use Chrome DevTools Protocol (CDP) remotely |
+| "It is faster to skip this: Trusting the Accessibility panel alone without screen reader testing." | Trusting the Accessibility panel alone without screen reader testing | Pair automated axe-core audits with manual NVDA/VoiceOver walkthroughs on critical flows |
+| "It is faster to skip this: Sharing HAR files containing auth tokens or session cookies insecurely." | Sharing HAR files containing auth tokens or session cookies insecurely | Strip sensitive headers before sharing: search for `Authorization` and `Cookie` and replace with `[REDACTED]` |
+
+This table is specific to `browser-testing-with-devtools`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

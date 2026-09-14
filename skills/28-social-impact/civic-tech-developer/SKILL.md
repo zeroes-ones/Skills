@@ -189,7 +189,7 @@ You are a public-interest technologist who treats every line of code as infrastr
 - Building a system that integrates with government data APIs (data.gov, Socrata, CKAN, Open311, GTFS)
 - Creating offline-first field tools for community health workers, social workers, or humanitarian aid
 
-### When NOT to Use
+### When NOT to Use This Skill
 
 - Commercial SaaS with profit-primary motivation (route to backend-developer or fullstack-developer)
 - Corporate intranet or internal enterprise tool (route to fullstack-developer)
@@ -671,6 +671,53 @@ Before ANY public launch, every checkbox must be `[x]`. These are PASS/FAIL — 
 - [ ] **[CIVIC14] Community governance documented:** How are feature priorities decided? How are bugs reported and triaged? Who has commit access? How are community members credited? Is there a code of conduct? Governance model published and accessible — community members know how decisions are made and how to participate in making them.
 
 If any check fails: return to the corresponding phase, resolve, and restart verification from that item.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Government API integration breaks silently — city's Open311 endpoint changes authentication met." | Government API integration breaks silently — city's Open311 endpoint changes authentication method without notice, all citizen reports stop flowing to | Implement API health monitoring with automated tests that submit/retrieve a test report daily; build circuit breakers that queue reports locally when APIs fail; |
+| "It is faster to skip this: Data privacy violation from well-intentioned feature — adding "share your report publicly" opti." | Data privacy violation from well-intentioned feature — adding "share your report publicly" option exposes domestic violence shelter locations, witness | Default everything to private; run privacy threat modeling sessions before every feature release; implement geo-fuzzing (reduce precision to neighborhood level) |
+| "It is faster to skip this: Accessibility mandate lawsuit — civic tool funded by government grant fails Section 508 audit, ." | Accessibility mandate lawsuit — civic tool funded by government grant fails Section 508 audit, grant is rescinded and city faces ADA lawsuit from disa | Build WCAG 2.2 AA compliance from day one with VPAT documentation; test with screen reader users before first release; keyboard-only walkthrough for all citizen |
+| "It is faster to skip this: Civic engagement dropoff after launch — 10K users sign up in week 1, 9.7K never return because ." | Civic engagement dropoff after launch — 10K users sign up in week 1, 9.7K never return because the tool doesn't close the feedback loop (reports filed | Design the "status loop": every report gets status updates (received → assigned → in progress → resolved) with ETA; send proactive notifications when status cha |
+| "It is faster to skip this: SMS/IVR channel abandoned after pilot — built smartphone-first, SMS gateway was bolted on later." | SMS/IVR channel abandoned after pilot — built smartphone-first, SMS gateway was bolted on later, feature phone users get degraded experience and stop  | Co-design SMS/IVR channel as co-equal, not secondary; test every civic workflow on $30 feature phone before declaring it done; maintain feature parity between w |
+
+This table is specific to `civic-tech-developer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## When NOT to Use **(QUICK)**
+
+<!-- QUICK: 30s — these neighbours own the adjacent problem; this skill owns the civic tool itself -->
+
+| Condition | Use instead |
+|---|---|
+| The product is a commercial SaaS where revenue is the primary goal and public benefit is a side effect | `backend-developer` |
+| The system is internal to one organization — staff intranet, back-office dashboard, or employee-facing workflow | `fullstack-developer` |
+| The need is mobilization, not software: recruiting volunteers, coordinating mutual aid, or running an advocacy campaign | `community-organizing-tech` |
+| The job is the fundraising machinery — donor CRM, grant pipeline, recurring giving, peer-to-peer campaigns | `nonprofit-fundraising-engineer` |
+| The users are learners inside a structured curriculum and pedagogy drives the design, not civic participation | `education-access-developer` |
+| A shipped civic tool needs only an accessibility audit and remediation, with no new development | `accessibility-auditor` |
+
+## Production Checklist **(STANDARD)**
+
+Before launching a civic tool to the public, every box must be `[x]`. These are PASS/FAIL — there is no partial credit when the users are the public and the data belongs to vulnerable people.
+
+- [ ] **CR1: Community co-design on record** — Verification: at least 5 community interviews are logged with attribution, and every shipped feature traces to a ranked priority the community produced rather than an engineering wish list.
+- [ ] **CR2: Accessibility proven with people, not just scanners** — Verification: a screen reader user completes the primary flow unaided with NVDA, VoiceOver, or TalkBack; every flow finishes keyboard-only; body text holds ≥ 4.5:1 contrast; all touch targets measure ≥ 44×44 px.
+- [ ] **CR3: Airplane-mode test passes end to end** — Verification: with all radios off, a report is filed, queued, and shown as pending; when connectivity returns, Background Sync delivers it and the queue clears without user intervention.
+- [ ] **CR4: Offline conflict policy is deterministic** — Verification: two devices edit the same record while disconnected, both reconnect, and the merge is either reproducible (CRDT) or surfaced to a human for resolution — no silent last-write-wins data loss.
+- [ ] **CR5: Every language the community actually speaks is shipped** — Verification: all user-facing strings resolve from i18n resource files; RTL renders correctly with real Arabic or Hebrew content, not placeholders; a native speaker has signed off on each locale.
+- [ ] **CR6: Data minimization holds under audit** — Verification: every collected field carries a written justification and a retention period; no IP logging, precise GPS is geohashed to neighborhood level, and EXIF is stripped from uploaded photos.
+- [ ] **CR7: Encryption matches the vulnerability tier** — Verification: HIGH-vulnerability deployments encrypt report content client-side so the server never holds plaintext; TLS 1.3 terminates every connection; auto-delete actually fires on the configured 30/90/365-day schedule.
+- [ ] **CR8: Open data export is usable by a stranger** — Verification: an unauthenticated bulk CSV/JSON download plus a GTFS, Open311, or DCAT export both succeed, and the published data dictionary states each column's type, allowed values, and collection method.
+- [ ] **CR9: Public API is documented and bounded** — Verification: the OpenAPI 3.1 spec matches live responses, exceeding the rate limit returns 429 with `Retry-After`, and CORS permits exactly the documented public origins.
+- [ ] **CR10: Government response side is live, not planned** — Verification: a city staff account sees a new report within 30 seconds, can assign and resolve it, and a report aging past SLA raises an alert — while the reporting citizen sees each status change.
+- [ ] **CR11: Low-connectivity channels work on real hardware** — Verification: SMS commands sent from a real SIM on a target carrier return the correct confirmation, common typos and alternate phrasings still resolve, and the IVR menu is completable on a touch-tone phone.
+- [ ] **CR12: Page budget holds on the device people actually own** — Verification: the primary flow loads in under 5 seconds on a ~$30 Android Go device with 512 MB RAM throttled to 2G, with the initial payload under 100 KB compressed and each image under 50 KB.
+- [ ] **CR13: Privacy promises are published and readable** — Verification: a warrant canary is dated within the last 90 days, a transparency report records every government and legal data request, and the privacy notice reads at ≤ 8th-grade level in every supported language.
+- [ ] **CR14: Sustainability is funded past the grant** — Verification: a 3-year projection lists hosting, SMS gateway, maintenance engineering, and community management as line items, and a named institutional home has committed in writing — or a tested shutdown runbook exists with a data-export path.
+- [ ] **CR15: Impact is measured as outcomes and equity** — Verification: the dashboard reports problems resolved within SLA and participation broken down by neighborhood, not download counts; baseline data was captured before launch.
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->

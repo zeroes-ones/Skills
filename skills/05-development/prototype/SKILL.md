@@ -160,15 +160,6 @@ You are an experimentalist who treats every prototype as a disposable scientific
 - Before writing a complex algorithm — prototype the core logic to verify the approach
 - When a stakeholder asks "how long would X take?" and you need a spike to estimate
 
-### When NOT to Use
-
-- Production feature implementation (route to appropriate developer skill)
-- Writing test suites (route to qa-engineer)
-- Performance benchmarking with statistical rigor (route to performance-engineer)
-- API contract design (route to api-designer)
-- Security testing or penetration testing (route to security-reviewer)
-- Code that will be needed for more than 20 minutes (that's implementation, not prototyping)
-
 ## Route the Request
 <!-- STANDARD: 3min -->
 
@@ -494,6 +485,30 @@ If a command or approach fails, follow this escalation path before giving up:
 | Production incident traced to prototype code that "should have been deleted" | A developer built in the main repo, didn't follow disposal protocol, the PM shipped it. Six months later the developer left and nobody knew the caching layer was a prototype. Hardcoded TTL expired, site went down | Git-bisect to find the original commit. Check the decision document to understand the intended production replacement. If no document exists, treat it as production debt: write tests, add error handling, document the assumptions | R6 (never prototype in main repo) exists because this has happened hundreds of times. The most expensive prototype isn't the one that takes too long — it's the one that becomes production code without anyone noticing |
 | Prototype "proved" an approach works, but the production implementation failed | The prototype tested the happy path with ideal conditions, no error handling, and fresh caches. Production encountered cold caches, network partitions, malformed inputs, and concurrent writes — conditions the prototype never exercised | Augment prototype scope with failure-mode testing in the next spike. Not "does this approach work?" but "does this approach survive X, Y, Z failure modes?" Explicitly list what was NOT tested in the decision document | Prototype results are only as good as the failure modes they test. A "HIGH" quality result that only tests the happy path should be downgraded to "MEDIUM — happy path only, no failure mode testing" |
 | Stakeholder sees the prototype and says "this is great, ship it next sprint" | The prototype UI looks polished because the developer spent 30 minutes making it presentable. Stakeholder perceives a nearly-finished product, not a throwaway spike. The time spent "making it presentable" directly causes the prototype-in-production trap | Show prototypes as ASCII diagrams, CLI output, or rough sketches. Never present a polished prototype UI to a non-technical stakeholder. If UI feedback is needed, use wireframes or Figma mockups — not running code | The visual quality of a prototype is inversely correlated with the likelihood of proper disposal. The uglier the prototype looks, the less likely anyone will ask to ship it. Ship ugly prototypes for internal consumption |
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Prototype code lands in production — abandoned in main repo with no tests, no docs, hardcoded T." | Prototype code lands in production — abandoned in main repo with no tests, no docs, hardcoded TTLs | NEVER prototype in main repo; use `git worktree add` or temp directory outside repo; isolation forces explicit disposal; R6 ground rule is non-negotiable |
+| "It is faster to skip this: Compound question confounds results — testing 2+ design questions in one spike masks failures." | Compound question confounds results — testing 2+ design questions in one spike masks failures | One prototype, one question; if you have two questions, run two 20-minute spikes; compound questions produce false confidence |
+| "It is faster to skip this: Skipping prototype because "docs look perfect" — 2 sprints in, discover API doesn't work for yo." | Skipping prototype because "docs look perfect" — 2 sprints in, discover API doesn't work for your constraints | Always run at least one 20-minute prototype even when docs look perfect; docs describe what API CAN do generically, not what it CAN do for YOUR constraints |
+
+This table is specific to `prototype`: each row names a failure this work actually produces, and the response that failure requires.
+
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| The answer is already retrievable by reading the library's source, changelog, or type definitions — there is no empirical uncertainty left to resolve | `source-driven-development` |
+| You need the feature built for real, not a throwaway instrument; the code must survive past the time box | `fullstack-developer`, `backend-developer`, `frontend-developer` |
+| The open question is *what should this system look like* — boundaries, trade-offs, evaluation criteria — rather than *does approach X meet condition Z* | `system-architect` |
+| You need numbers that will be quoted as production characteristics (p95, throughput, cost per request), not a directional "viable / not viable" signal | `performance-engineer` |
+| The deliverable must be a test suite that stays in CI and guards regressions, not a one-shot experiment that gets deleted | `qa-engineer` |
+| The unknown is the contract itself — resource shapes, versioning, error semantics, pagination — which is designed, not discovered by writing a spike | `api-designer` |
+| The work is security testing, penetration testing, or threat modelling rather than a feasibility experiment | `security-reviewer` |
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->

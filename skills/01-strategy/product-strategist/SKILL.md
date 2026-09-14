@@ -355,6 +355,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+| Condition | Use instead |
+|---|---|
+| Sprint planning | outside this skill's scope (see the description) |
+| backlog grooming | outside this skill's scope (see the description) |
+| Day-to-day engineering management | outside this skill's scope (see the description) |
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Building features from competitor parity without strategic differentiation." | Building features from competitor parity without strategic differentiation | Every feature must answer: "Why would a customer choose US for this instead of the incumbent?" If the answer is "because we have it too," it's not worth buildin |
+| "It is faster to skip this: OKRs that measure output (features shipped) instead of outcomes (behavior changed)." | OKRs that measure output (features shipped) instead of outcomes (behavior changed) | Frame every OKR as a customer behavior change: "X% of users now do Y weekly" instead of "Ship Z feature." If you can't describe the behavior change, you haven't |
+| "It is faster to skip this: Skipping problem validation and jumping to solution design." | Skipping problem validation and jumping to solution design | Run at least 10 customer discovery interviews before writing a single requirement. Find the "struggling moment" — the specific situation where customers feel ac |
+| "It is faster to skip this: Pricing based on competitor-minus instead of willingness-to-pay." | Pricing based on competitor-minus instead of willingness-to-pay | Run Van Westendorp or conjoint analysis on your target segment. Your price should reflect YOUR value delivered, not what competitors charge. A competitor's pric |
+| "It is faster to skip this: Confusing TAM (total addressable market) with SAM (serviceable available market) in board decks." | Confusing TAM (total addressable market) with SAM (serviceable available market) in board decks | TAM = everyone who could theoretically use your product. SAM = the segment you can actually reach with your current GTM motion. Present SAM as your near-term re |
+
+This table is specific to `product-strategist`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

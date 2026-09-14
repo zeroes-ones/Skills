@@ -399,6 +399,26 @@ For full level definitions, see `skills/00-framework/skill-levels/SKILL.md`.
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For technical writing of content**.
+2. **Translation management**.
+3. **Or UI design**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Documentation generated from source code comments without human review — 400 pages of auto-gene." | Documentation generated from source code comments without human review — 400 pages of auto-generated API docs that list every parameter but explain no | Auto-generate as a starting layer, not the final product. Layer human-written guides, tutorials, and conceptual overviews on top. Every auto-generated page must |
+| "It is faster to skip this: Documentation structure mirrors the codebase structure, not the user's mental model — /api/v2/u." | Documentation structure mirrors the codebase structure, not the user's mental model — `/api/v2/users/{id}/profile/password/reset` is perfectly organiz | Organize docs by user task ("Reset a User's Password"), not by code location. Cross-reference: every task page links to the relevant API reference and vice vers |
+| "It is faster to skip this: Documentation build failure treated as non-blocking — CI skips the doc build step on a transien." | Documentation build failure treated as non-blocking — CI skips the doc build step on a transient error. Broken links and missing pages accumulate for  | Doc build must be a blocking CI step. Add `--fail-on-warnings` to the build. Run `muffet` or `lychee` link checker in CI. Set up a dead-link dashboard and alert |
+| "It is faster to skip this: Changelog and migration guides written after the release ships — the release goes out, breaking." | Changelog and migration guides written after the release ships — the release goes out, breaking changes aren't documented, and consumers discover them | Changelog and migration guide are part of the release checklist — they must be complete BEFORE the release tag is cut. Write migration guide sections as you imp |
+
+This table is specific to `documentation-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

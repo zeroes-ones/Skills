@@ -363,6 +363,43 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For corporate FP&A** → route to `fp-and-a-analyst`.
+2. **Quantitative trading** → route to `quantitative-analyst`.
+3. **Treasury** → route to `treasury-manager`.
+4. **Business accounting** → route to `accountant`.
+5. **Or algorithmic trading** → route to `algorithmic-trader`.
+
+## Anti-Rationalization **(QUICK)**
+
+Ways this work gets rationalized into a known failure, with the correction:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Category." | Category | Mitigation |
+| "It is faster to skip this: BUDGETING." | BUDGETING | Budget from NET take-home. Gross income = post-deduction deposits only. |
+| "It is faster to skip this: DEBT." | DEBT | Points are worthless if you carry a balance. Pay statement in full. |
+| "It is faster to skip this: DEBT." | DEBT | Federal protections outweigh rate savings. Never consolidate federal → private. |
+| "It is faster to skip this: INVESTING." | INVESTING | Treat 401k as untouchable. Build emergency fund instead. |
+| "It is faster to skip this: INVESTING." | INVESTING | Always roll over (direct trustee-to-trustee). Never take the check. |
+
+This table is specific to `personal-finance`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|-----------------|-------------------|
+| ❌ Recommending a specific ticker (AAPL, TSLA) as the primary growth engine for a household with under $1M net worth — single-name risk masquerading as a plan. | ✅ Build the core on VTI + VXUS + BND per the Bogleheads 3-fund structure; cap any individual picks at 5% of portfolio and label them explicitly as speculation per R1. |
+| ❌ Investing the emergency fund in VTI "because cash drag is costing 7% a year" — then needing it during a layoff that coincides with a 30% drawdown. | ✅ Hold 3–6 months of essential expenses in an FDIC-insured HYSA or money market fund yielding ~4%; if 6–12 months is needed (single earner, variable income), keep it all liquid and insured. |
+| ❌ Running a spreadsheet that says "pay off the 3.2% mortgage early" while a 24% credit card balance sits untouched. | ✅ Attack the highest APR first per DT3: anything above 8% is an emergency; a 4% debt is cheaper than expected market returns, so pay minimums and invest the difference. |
+| ❌ Using gross salary as the budget denominator — then wondering why a "$5,500/month income" can't cover a $5,000 lifestyle. | ✅ Budget from NET take-home after taxes, 401(k) deferral, and health premiums; 30–40% of gross evaporates before it reaches checking. |
+| ❌ Buying a $500K home on a 2-year timeline, treating transaction costs as a rounding error. | ✅ Apply the 5% rule and the 5-year horizon: under 3 years rent always wins; 3–5 years is borderline; the 6–8% round-trip closing cost eats the appreciation. |
+| ❌ Harvesting a VTI loss at $190 and immediately buying ITOT at $92 as a "different fund" — a wash sale the broker won't flag because the CUSIPs differ. | ✅ Pair TLH partners that track genuinely different indices (VTI → VOO or SCHB → SCHX), wait 31 days before repurchasing the original, and check IRA holdings for the same fund inside the window. |
+| ❌ Taking a 401(k) loan to fund a kitchen remodel, then repaying it with after-tax dollars while the borrowed shares miss the recovery. | ✅ Treat the 401(k) as untouchable and build a separate sinking fund for the remodel; a job change during the loan term forces a taxable distribution. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

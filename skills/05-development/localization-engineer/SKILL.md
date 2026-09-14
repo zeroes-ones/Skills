@@ -494,6 +494,25 @@ If a command or approach fails, follow this escalation path before giving up:
 | App translates correctly in dev but shows English in production | `fr-CA` fallback chain resolves differently in production build. Dev uses full locale data; production tree-shaking removed `fr` locale data, leaving only `fr-CA` | Configure locale data import explicitly: import both `fr` and `fr-CA` locale data. Set fallback chain: `['fr-CA', 'fr', 'en']`. Test production build locale resolution | Tree-shaking and bundle optimization silently remove locale data that "isn't directly imported." Explicit imports + integration test in production build mode catch this |
 | Plural forms render incorrectly for zero count in English | ICU `{count, plural, one {# item} other {# items}}` — `zero` is not for English. CLDR defines `zero` only for Arabic, Latvian. English uses `other` for 0 → shows "0 items" not "No items" | Add explicit `=0 {No items}` match. ICU exact matches (`=0`, `=1`) take precedence over CLDR category matches (`one`, `other`). Test plural forms for 0, 1, 2, 5, 21 for every language | ICU plural rules are language-specific. `zero` is a CLDR category (used by Arabic), not a universal catch-all. Always add explicit `=0` case for human-readable zero states |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For translation management via TMS APIs**.
+2. **General accessibility testing**.
+3. **Or pure frontend styling**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: RTL layout breaks — CSS direction: rtl flips text but not SVGs, icons, carousels, or custom ele." | RTL layout breaks — CSS `direction: rtl` flips text but not SVGs, icons, carousels, or custom elements | Use logical properties (`margin-inline-start`), add `transform: scaleX(-1)` for directional icons, test `ar` locale from day one |
+| "It is faster to skip this: German text expansion breaks UI — fixed-width containers truncate 30% longer strings." | German text expansion breaks UI — fixed-width containers truncate 30% longer strings | Design all UI with 30-40% expansion headroom, use `min-width`/`max-width`, pseudo-localize with length expansion in CI |
+| "It is faster to skip this: ICU zero-plural in English — {count, plural, one {...} other {...}} shows "0 items" not "No ite." | ICU zero-plural in English — `{count, plural, one {...} other {...}}` shows "0 items" not "No items" | Always add explicit `=0 {No items}` case; ICU `zero` is a CLDR category for Arabic/Latvian, not English |
+
+This table is specific to `localization-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

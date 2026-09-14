@@ -399,6 +399,42 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general B2B SaaS marketing**.
+2. **Consumer brand marketing**.
+3. **Non-healthcare product positioning**.
+4. **Or demand generation campaign execution**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Buzzword positioning: "AI-powered, enterprise-grade, cloud-native, end-to-end platform" — 5 buz." | **Buzzword positioning: "AI-powered, enterprise-grade, cloud-native, end-to-end platform"** — 5 buzzwords and 0 meaning. If your competitor can say th | Write a one-sentence positioning statement your competitor can't truthfully say: "We're the only CRM that sales teams don't need training to use." No buzzwords. |
+| "It is faster to skip this: Competitive battlecard that's a feature grid — your column is all checkmarks, competitor's has ." | **Competitive battlecard that's a feature grid** — your column is all checkmarks, competitor's has gaps. Competitor's AE says "Feature X ships next qu | Include unique value (features only you CAN build), air cover (analyst quotes scoring you higher), and kill points (specific pain their customers experience tha |
+| "It is faster to skip this: Messaging that works in a pitch deck but fails on a landing page — the deck has a narrative by ." | **Messaging that works in a pitch deck but fails on a landing page** — the deck has a narrative by a salesperson; the landing page is scanned in 8 sec | Landing page messaging must answer WHAT is this, WHO is it for, WHY should I care — in that order, in 3 seconds or less. |
+| "It is faster to skip this: Case study that reads like a press release — "Company X achieved 10x ROI with our platform" wit." | **Case study that reads like a press release** — "Company X achieved 10x ROI with our platform" without baseline, timeline, or methodology. | Every claim needs a named customer (or permissioned blind), a quantified baseline, and a measured timeframe. Credibility-destroying fluff costs more than no cas |
+| "It is faster to skip this: Product launch with messaging frozen 6 months prior — the deck finalized in January launches in." | **Product launch with messaging frozen 6 months prior** — the deck finalized in January launches in July, ignoring a competitor's March launch and May | Revisit messaging 2 weeks before launch with a fresh competitive and market scan. Messaging must be alive, not frozen. |
+
+This table is specific to `product-marketing-manager`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| ❌ **Leading the battle card with "30% cheaper than the incumbent's native module"** — price is the one axis where the sales rep has a clean, quotable number | ✅ Lead with durable differentiators: FDA clearance status, integration depth into the customer's EHR, peer-reviewed outcome data — price belongs in a supporting line, never the headline (R6) |
+| ❌ **"Improves patient outcomes" on the value-prop slide with no citation** — a clinician said it in a scoping call, so it reads as already verified | ✅ Attach study name, journal, year, sample size, and the specific outcome metric within 5 lines of every efficacy claim, and hold the material until regulatory signs off on the claim (R1) |
+| ❌ **One message deck reused for the CMIO, the practice manager, and the patient** — "we wrote it once, and the story is the same" | ✅ Build separate message sets by persona: CMIO gets clinical workflow and reimbursement impact, the practice manager gets staffing and throughput, patients get access and quality of life (Phase 4/5) |
+| ❌ **A launch plan with a ship date and a press release but no conditions under which the launch is delayed** | ✅ Publish a T-2 week go/no-go table with measurable thresholds — message recall ≥80%, sales certification ≥90%, demand-gen live — and pre-commit to delaying if any pillar misses (R5) |
+| ❌ **RFP response promising automated coding suggestions "coming this quarter"** — the buyer asked directly and the capability is genuinely on the roadmap | ✅ Annotate every non-GA capability `[ROADMAP — Target: Q3 2026. Not yet available.]` in all external-facing material; a health system treats a roadmap promise as a procurement commitment (R4) |
+| ❌ **"3:1 ROI in year one" in the one-pager with the calculation living in one person's head** | ✅ Publish the formula, key assumptions, data source, and time horizon next to the number; healthcare buyers audit ROI, and one unsupported figure discredits the entire deck (R3) |
+| ❌ **Copying a competitor's category term — "AI-powered diagnostics" — because it is what buyers search for** | ✅ Verify the term actually applies to this product with engineering sign-off and documented evidence first; adopting their category means accepting their evaluation criteria (R7) |
+| ❌ **Win/loss analysis that only interviews the deals you lost** — "we know why we win, so there's nothing to learn" | ✅ Interview won deals with the same template as losses; the reason buyers chose you is often not the differentiator you marketed, and that gap is what silently leaks the next quarter's pipeline (Phase 9) |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

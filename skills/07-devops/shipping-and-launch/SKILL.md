@@ -523,6 +523,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For CI/CD pipeline design** → route to `ci-cd-builder`.
+2. **Release coordination calendars** → route to `release-manager`.
+3. **Incident response during a live incident** → route to `incident-responder`.
+4. **Or performance benchmarking** → route to `performance-engineer`.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Launching on a Friday at 5 PM — if something breaks, the on-call engineer is alone, tired, and ." | Launching on a Friday at 5 PM — if something breaks, the on-call engineer is alone, tired, and has no escalation path until Monday morning | Schedule launches for Tuesday-Thursday mornings; never launch before a holiday or weekend; ensure at least 2 engineers are available for the first 4 hours post- |
+| "It is faster to skip this: Dark launching with 1% mirrored traffic but never comparing responses — the dark launch runs fo." | Dark launching with 1% mirrored traffic but never comparing responses — the dark launch runs for 24 hours "successfully" but the new code returns 500s | Dark launch must include automated response comparison: diff old vs new responses, alert on any discrepancy > 0%; a dark launch without comparison is just warmi |
+| "It is faster to skip this: Killing a feature flag after 2 weeks without checking if the flag is still referenced in code —." | Killing a feature flag after 2 weeks without checking if the flag is still referenced in code — removing the flag key crashes the application for user | Keep flags as kill switches for minimum 2 weeks post 100% rollout; before removal, grep the entire codebase for the flag key; schedule flag removal as a separat |
+
+This table is specific to `shipping-and-launch`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

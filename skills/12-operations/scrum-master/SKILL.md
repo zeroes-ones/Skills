@@ -374,6 +374,26 @@ Complete when: Performance metrics baselined and monitored: key indicators withi
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For project planning (WBS/Gantt)**.
+2. **Cross-team program management**.
+3. **Product roadmap prioritization**.
+4. **Or engineering performance evaluation**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Zombie sprint goals that the team cannot articulate." | Zombie sprint goals that the team cannot articulate | Every standup starts with the sprint goal — if anyone can't state it, pause the sprint |
+| "It is faster to skip this: Retrospective theater with no follow-through on action items." | Retrospective theater with no follow-through on action items | Track retrospective action items to >=80% completion within the sprint they were assigned |
+| "It is faster to skip this: WIP limit violations that go unchecked." | WIP limit violations that go unchecked | Monitor WIP limits daily — no team member should have >3 items in progress simultaneously |
+
+This table is specific to `scrum-master`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

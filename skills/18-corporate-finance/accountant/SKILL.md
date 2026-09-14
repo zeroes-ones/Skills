@@ -369,6 +369,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For financial modeling and forecasting**.
+2. **Fundraising strategy**.
+3. **Treasury and cash management**.
+4. **Or tax strategy and planning**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Misclassifying operating vs capital leases under ASC 842 — leases that should be capitalized re." | Misclassifying operating vs capital leases under ASC 842 — leases that should be capitalized remain off-balance-sheet, understating liabilities and as | Apply ASC 842 bright-line tests: lease term >12 months AND present value of payments is material. Capitalize right-of-use asset and lease liability. Maintain a  |
+| "It is faster to skip this: Missing deferred revenue schedules — annual prepayments recorded as immediate revenue; Q1 looks." | Missing deferred revenue schedules — annual prepayments recorded as immediate revenue; Q1 looks amazing, Q2-Q4 miss by $30K/quarter | Under ASC 606, revenue is recognized when performance obligations are satisfied. Annual prepayment = monthly recognition over contract term. Automate amortizati |
+| "It is faster to skip this: Equity compensation expense not recorded for option grants — ASC 718 requires fair value expens." | Equity compensation expense not recorded for option grants — ASC 718 requires fair value expensing over vesting period; missing entries understate com | Calculate fair value of all option grants using Black-Scholes or binomial model at grant date. Recognize expense ratably over vesting period. Track forfeitures. |
+
+This table is specific to `accountant`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- NEIGHBORS: Skills this accountant works with — financial data flows across the entire company -->

@@ -160,23 +160,20 @@ sys.exit(min(errs, 1))
     # or a newly-introduced violation blocks exactly as before.
     if [ -n "$NON_FW_SKILLS" ]; then
         tmpl_output=$(python3 "$REPO_ROOT/scripts/lib/lint-template.py" --changed --delta --no-color 2>/dev/null) && tmpl_ok=true || tmpl_ok=false
+        # --delta exits 0 when every remaining violation is pre-existing, and its
+        # OUTPUT still lists them (headed "pre-existing"). Grepping that output for ✗
+        # therefore failed the gate on grandfathered debt — a bug, not a check. Trust
+        # the exit code, which is what --delta exists to compute.
         if $tmpl_ok; then
-            pass "G6  Template compliance (14 sections, anti-hallucination, ground rules structure)"
-        else
-            # Separate errors from warnings
-            err_count=$(echo "$tmpl_output" | grep -c '✗' || true)
-            wrn_count=$(echo "$tmpl_output" | grep -c '⚠' || true)
-            if [ "${err_count:-0}" -gt 0 ]; then
-                fail "G6  Template compliance"
-                echo "$tmpl_output" | head -25
-                errors=$((errors + 1))
-            else
-                pass "G6  Template compliance"
-                if [ "${wrn_count:-0}" -gt 0 ]; then
-                    echo "$tmpl_output" | head -10
-                    warnings=$((warnings + 1))
-                fi
+            pass "G6  Template compliance (sections, anti-hallucination, ground rules)"
+            pre_count=$(echo "$tmpl_output" | grep -c '✗' || true)
+            if [ "${pre_count:-0}" -gt 0 ]; then
+                echo "      ($pre_count pre-existing violation(s) grandfathered by --delta)"
             fi
+        else
+            fail "G6  Template compliance"
+            echo "$tmpl_output" | head -25
+            errors=$((errors + 1))
         fi
     fi
 
@@ -225,7 +222,9 @@ except OSError:
 m = re.search(r'^##\s+Decision Trees.*?\n(.*?)(?=^##\s|\Z)', t, re.M | re.S)
 seg = m.group(1) if m else ''
 fences = len(re.findall(r'\`\`\`', seg)) // 2
-glyphs = len(re.findall(r'[├└│┌┐┘┴┬┼▼▲◄►]|→|->|──', seg))
+# Branch artefacts: box-drawing glyphs, arrows, AND plain-ASCII tree notation
+# (|-- , +-- , `-- ) which many skills use instead of box drawing.
+glyphs = len(re.findall(r'[├└│┌┐┘┴┬┼▼▲◄►]|→|->|──|\|--|\+--|`--', seg))
 # pass if there is a fenced diagram, or dense branch glyphs
 print(1 if (fences >= 1 and glyphs >= 8) or glyphs >= 20 else 0)
 " 2>/dev/null || echo 1)

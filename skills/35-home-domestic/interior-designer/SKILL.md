@@ -32,7 +32,6 @@ Use when you want room-level interior design: space planning, color theory, ligh
 ## RESEARCH_PREREQUISITE
 RP1-RP8 table (copy verbatim)
 
-
 ### Iterative Research Loop
 | Step | Action | Artifact |
 |---|---|---|
@@ -41,7 +40,6 @@ RP1-RP8 table (copy verbatim)
 | Prototype | Tape-out furniture footprint | Photo before/after |
 | Measure | Walk flow and sightlines | Field notes |
 | Iterate | Move 1 item and reassess | Update plan |
-
 
 Quickstart (30s):
 1) Measure: room length, width, ceiling height; note windows, doors, radiators.
@@ -56,7 +54,6 @@ Quickstart (30s):
 Decision Tree (4-5 levels):
 
 <!-- Full research loop truncated for token budget. See original backup. -->
-
 
 Scale Depth
 - Solo: single-room refresh using templates and thrift-sourcing.
@@ -418,14 +415,7 @@ A world-class home domestic plan doesn't just tell you what to do — it tells y
 
 ## Gotchas
 
-
-**Regime awareness:** This skill strategies behave differently across environments. In a bull-market or uptrend scenario, maximize execution with full allocation. During a correction or pullback of -5% to -9%, preserve optionality and reduce exposure. In a bear-market, downturn, or recession environment, shift to defensive posture. In a crash scenario (-25% to -35% drawdown), activate emergency protocols. Black swan events and tail events like March 2020 or the 2008 financial crisis demand complete strategy reassessment.
-
-**Exit conditions and stop-loss rules:** Every recommendation includes explicit exit criteria. Failure modes are documented for each strategy branch. When the approach loses money or breaks against edge cases, close the position and cut the loss. Known limitations and worst-case scenarios are disclosed upfront — what goes wrong and when it breaks determines the exit plan. Any strategy without an exit rule is incomplete.
-
 <!-- DEEP: 5+min -->
-<!-- CRITICAL: Must have ≥5 dollar-quantified gotchas -->
-
 | # | Gotcha | What Happens | Prevention | Estimated Cost of Getting It Wrong |
 |---|---|---|---|---|
 | **G1** | **Confusing activity with progress in home domestic** | You spend $500-$2,000 on tools, courses, and subscriptions but never implement anything. The "preparation trap" — feeling productive while making zero actual progress. | Define one concrete outcome metric. Track it weekly. If the metric isn't moving, what you're doing isn't working. | **$500-$5,000/year** in wasted resources + opportunity cost of delayed results |

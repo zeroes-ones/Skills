@@ -349,6 +349,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For new logo acquisition**.
+2. **Customer onboarding and adoption**.
+3. **Product roadmap prioritization**.
+4. **Or support ticket management**.
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "The renewal is five months out — I'll pick it up once this quarter closes." | Five months is only ~30 days of usable runway before the customer's legal review and budget committee start. The value log and procurement map are supposed to be built in that window, not after it. | Open the value log this week: adoption data, support history, documented wins. Book the value-delivery review for the 90-day mark and map the procurement calendar backwards from contract end. |
+| "My champion has been here eight years — I don't need a second contact." | Champion tenure is not a contract term. A departure, reorg, or acquisition removes your only relationship, and the successor often arrives with a competitor already known to them (Rule R5). | Run the single-point-of-failure audit. Identify the economic buyer, the procurement contact, and two power users, and log a contact with each inside 30 days. |
+| "I'll apply an 8% uplift and justify it with market rates and inflation." | Rule R4 blocks this: cost-push language tells procurement nothing about value created here, so the renewal collapses into a line-item price comparison you will lose. | Rebuild the justification from this customer's incremental value — modules adopted since last term, use cases enabled, hours or dollars saved — and name the source of each metric. |
+| "Adoption is soft, but a bigger seat package will push the team into standardizing on us." | Expansion sold on top of weak adoption turns indifferent users into active detractors and hands procurement a post-sale grievance to use at the next renewal (Rule R3). | Withdraw the expansion pitch. Deliver an adoption acceleration plan and resume the conversation only when active usage of the current seat base exceeds 70%. |
+| "Procurement already knows our rate — I'll open with 10% off to keep things cordial." | An unsolicited concession sets the anchor. The next round starts from the discounted number, and procurement peer networks carry that floor to 10-15 comparable accounts. | Never put price ahead of value delivered. If there was a service failure, resolve it separately with an SLA-tied service credit rather than a renewal discount. |
+| "Health score is 82, so I'll mark this one Commit and stop watching it." | Health score is a lagging adoption signal, not a procurement signal. Commit without a verified buying-center contact is how forecasts miss by 30%+ (Rule R2). | Stage the deal on verified evidence only: procurement contact engaged, their stated process timeline, and legal review initiated. Anything less stays in Upside. |
+
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s -- table of who to talk to when -->

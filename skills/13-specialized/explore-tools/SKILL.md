@@ -464,6 +464,46 @@ At small scale, free/OSS tools are cheap and engineering time is abundant. At en
 **Medium Team Rule:** Evaluate cost per engineer. A $500/month tool across a 50-person team = $10/person/month. If it saves 30 min/person/month, it pays for itself at $150/hr rates.
 **Enterprise Rule:** Compliance, security, and reliability dominate. The cost of a breach ($4M+ average) or compliance failure ($20M GDPR fine) dwarfs any tool cost. Pay for enterprise-grade tools with SLAs, audits, and dedicated support.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For code implementation**.
+2. **Architecture design**.
+3. **Or team process decisions —** → route to `backend-developer`.
+4. **System-architect**.
+5. **Or project-manager**.
+
+## Anti-Patterns **(STANDARD)**
+
+The ways tool evaluation fails in practice — each with the correction that prevents it, drawn from the ground rules and gotchas above.
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Recommending on star count or download count alone — "50K stars, ship it" | ✅ Pull four health numbers first: last commit date, releases in the past 12 months, bus factor, and unresolved HIGH/CRITICAL CVEs. A 5K-star project with weekly commits beats a 50K-star project with none. |
+| ❌ Presenting a single recommendation and calling it analysis | ✅ Deliver four options — top pick, runner-up with the dimension where it wins, budget option, and future-proof option — each with the trade-off it accepts. |
+| ❌ Quoting the public list price as the monthly cost | ✅ Build the TCO: list price + enterprise add-ons (SSO, RBAC, audit logs, API access, premium support) + hosting + migration + training, at 1-year current scale and 3-year 10x scale. Call sales for the real quote. |
+| ❌ Checking only the candidate's own license for compatibility | ✅ Scan the full transitive tree (`license-checker --production`, `fossa analyze`, `snyk test --all-projects`). One GPL dependency at depth 3 imposes copyleft on the whole product. |
+| ❌ Weighting every evaluation criterion equally | ✅ Weight by blast radius — maintenance 25%, size/cost 20%, community/docs/security 15% each — then re-run with security doubled. If the winner changes, the original weights were wrong. |
+| ❌ Accepting the vendor benchmark as your performance evidence | ✅ Benchmark a representative slice of your own data for at least 30 minutes and publish the methodology alongside the result. |
+| ❌ Shipping a frontend library without measuring its install cost | ✅ Check bundlephobia.com for minified, gzipped, and full-tree size; verify tree-shaking support; prefer per-function imports over whole-library imports. |
+| ❌ Stating versions, pricing, or maintenance status from memory | ✅ Tag every assertion [VERIFIED], [COMPUTED], or [ESTIMATED], and append the registry link plus your knowledge-cutoff date so the reader can re-check. |
+| ❌ Validating the tool on CI only and calling it compatible | ✅ Gate on every platform the team actually uses (macOS arm64, Linux x86_64, Windows), including native-binary and container fallbacks. |
+| ❌ Defaulting to the stack you already know | ✅ Force two alternatives through the same matrix, then state what you would have picked had you never heard of your familiar tool. |
+
+## Anti-Rationalization **(QUICK)**
+
+The excuses this skill exists to catch, and the response each one requires.
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "I've used it for years — I know it works." | Familiarity is evidence about you, not about the tool's fit for this problem. Comfort bias is the top cause of suboptimal selection. | Run two alternatives through the 8-dimension matrix first, then name what you would have chosen had you never used the familiar tool. |
+| "Fifty thousand stars — it's obviously fine." | Stars are a lagging indicator that survives long after a project dies; `moment.js` carried 47K when it was officially deprecated. | Before shortlisting, record last commit date, releases in the past 12 months, bus factor, issue-close rate, and unresolved HIGH/CRITICAL CVEs. |
+| "The free tier covers us." | Free tiers are defined by their limits and the limit is reached at the worst moment — Vercel Hobby bars commercial use, Auth0 free stops at 7K MAU. | Write down the exact numeric limit, set a billing alert at 50% of it, test the behavior at the cap, and budget the first paid tier into the recommendation. |
+| "We'll migrate later if it doesn't work out." | Exit cost is an adoption cost deferred, and integration depth only grows — measured later, it is larger. | Document the migration path and its estimated engineering hours in the ADR before adoption, and name the observable trigger that starts it. |
+| "The vendor's benchmark says it's 5x faster." | Vendor benchmarks are marketing run on idealized workloads that rarely resemble your data shape, concurrency, or cold-start profile. | Benchmark your own representative workload for 30+ minutes and report the delta together with the method and the data shape used. |
+| "Legal can review the license when we're closer to shipping." | Copyleft is transitive and legal review happens after the dependency is already woven into the build. | Scan the full dependency tree at candidate-selection time against an explicit approved/blocked license list, and flag anything non-permissive for legal before adoption. |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 
@@ -496,12 +536,9 @@ These are signals that should trigger the explore-tools specialist to investigat
 
 > 📎 Full content extracted to [references/sub-skills-table.md](references/sub-skills-table.md) — 16 lines of detailed guidance, patterns, and code examples.
 
-## Error Decoder — War Stories from the Trenches
-<!-- STANDARD: 3min -->
+## Error Decoder **(STANDARD)**
 
-**(STANDARD)**
-
-When this domain goes wrong, it goes wrong in predictable ways. Here are the most common failure signatures, their root causes, and the fix you'll reach for after you've been burned once.
+War stories from the trenches — when tool evaluation goes wrong, it goes wrong in predictable ways. These are the most common failure signatures, their root causes, and the fix you reach for after being burned once.
 
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|

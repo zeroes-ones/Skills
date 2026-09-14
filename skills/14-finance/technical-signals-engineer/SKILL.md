@@ -460,6 +460,13 @@ if (rsi_oversold_cross_up(rsi) and               # momentum cluster
 
 Problems solved: correct formulas, multi-cluster, regime-aware, time-frame aligned, asset-appropriate, corporate-action aware.
 
+
+- Complete when every indicator's parameters are stated and justified
+- Complete when the signal is evaluated on more than one timeframe
+- Complete when the market regime is classified before indicator selection
+- Complete when false-signal rate is stated for the current regime
+- Complete when the entry, exit, and invalidation levels are all defined
+- Complete when the signal's failure condition is written down before it is used
 ## References
 
 - [indicator-formulas.md](references/indicator-formulas.md) — Exact mathematical formulas for every indicator with original author citations

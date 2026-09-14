@@ -429,6 +429,27 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general appsec (security-engineer)**.
+2. **Code review (security-reviewer)**.
+3. **Non-security CI/CD (ci-cd-builder)**.
+4. **Container vulns (vulnerability-management)**.
+5. **Or license compliance (legal-advisor)**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Generating SBOMs but never consuming them — the SBOM sits in the release artifacts while a crit." | Generating SBOMs but never consuming them — the SBOM sits in the release artifacts while a critical Log4j-level CVE in a transitive dependency goes un | Automate SBOM-to-vulnerability correlation in CI. Every SBOM generation step must be followed by a vulnerability scan against the SBOM components. Block deploym |
+| "It is faster to skip this: Signing container images with cosign but never verifying signatures at deployment — the signing." | Signing container images with cosign but never verifying signatures at deployment — the signing infrastructure is in place, but admission controllers  | Configure Kubernetes admission controllers (Kyverno, OPA, or Binary Authorization) to reject unsigned images. Run `cosign verify` as a required step in every de |
+| "It is faster to skip this: Allowing developers to use :latest tags in production deployments — the image deployed today ma." | Allowing developers to use `:latest` tags in production deployments — the image deployed today may be different from the image deployed tomorrow, maki | Enforce immutable tags or content-digest pinning for all production deployments. Block `:latest` at admission control. Every production deployment must referenc |
+
+This table is specific to `supply-chain-security`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

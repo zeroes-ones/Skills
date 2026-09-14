@@ -397,6 +397,55 @@ Run these checks on every generated skill before declaring it complete. ALL must
 
 > 📎 Full content extracted to [references/verification-guardrails.md](references/verification-guardrails.md) — 21 lines of detailed guidance, patterns, and code examples.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For writing code documentation**.
+2. **API docs**.
+3. **User manuals**.
+4. **Or general content —** → route to `technical-writer`.
+5. **Documentation-engineer**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Generating a skill from memory without domain research — the "I know this domain" fallacy." | Generating a skill from memory without domain research — the "I know this domain" fallacy | Research phase is non-negotiable: spend 30+ minutes reading postmortems, CVEs, incident reports, and stack overflow threads for gotcha material before writing a |
+| "It is faster to skip this: Copying trigger patterns from other skills — "use when building... or designing... or implement." | Copying trigger patterns from other skills — "use when building... or designing... or implementing..." matches everything | Use the `grep` uniqueness test: if your trigger phrase appears in >3 other skills' SKILL.md decision trees, it's too generic. Craft triggers with domain-specifi |
+| "It is faster to skip this: Decision tree with >7 options at a single node — cognitive overload for the routing agent." | Decision tree with >7 options at a single node — cognitive overload for the routing agent | Follow the 3-Option Rule: every decision tree node should offer 3 options, maximum 5. If you have more, create a parent node that splits the options into catego |
+| "It is faster to skip this: Missing the "I don't know" branch in every decision tree — agent forced to pick wrong option wh." | Missing the "I don't know" branch in every decision tree — agent forced to pick wrong option when uncertain | Every decision tree branch must end with: either a concrete action path OR an explicit "route to general-purpose agent with context" fallback. No dead ends |
+| "It is faster to skip this: Token budget not calibrated — skill is 800 lines but model has 200K context vs 32K." | Token budget not calibrated — skill is 800 lines but model has 200K context vs 32K | Write skill for the 32K-token agent constraint. Budget: YAML frontmatter ~500 tokens, Description ~100, Decision Tree ~3000, Core Workflow ~2000, Gotchas ~2000, |
+| "It is faster to skip this: Skill contains vendor-specific frontmatter fields that break on non-Claude platforms." | Skill contains vendor-specific frontmatter fields that break on non-Claude platforms | Portability test: run `grep -r "model:" skills/your-skill/SKILL.md` — if found, remove. No `claude:` fields, no `model:` overrides, no `temperature:` in SKILL.m |
+
+This table is specific to `dynamic-skill-creator`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ **Placeholder text left standing** — a section holding `TODO`, `TBD`, `[Coming soon]` or a bare ellipsis | ✅ Complete every section or delete it; the R2 grep must return zero hits before the skill ships |
+| ❌ **A gotcha whose cost is a platitude** — "misconfiguration can be expensive" | ✅ Attach a dollar range from a real incident class (CVE, post-mortem, outage report) or show the downtime × revenue calculation |
+| ❌ **A decision-tree node offering eight options** — the agent degrades to random selection | ✅ Split it into a parent category node; keep 3 options per node, five at the absolute maximum |
+| ❌ **A ground rule the agent cannot mechanically check** — "be careful with authentication" | ✅ Pair a negative constraint with a grep-able trigger and an exact STOP response the agent can emit |
+| ❌ **Frontmatter carrying fields some target agents silently drop** — they load the skill degraded and never say so | ✅ Keep only fields the declared portability targets consume, and move vendor-specific config out of SKILL.md |
+| ❌ **Anti-rationalization collapsed into bullets or two columns** — it satisfies the phrase count and changes nothing | ✅ Four columns including the named cognitive bias, so the agent can argue against its own reasoning |
+| ❌ **A section that restates another section in the same file** — token cost paid twice, agent reads neither closely | ✅ Give each section one job and cross-reference it by name instead of repeating its content |
+| ❌ **A chain edge declared in one direction only** — the peer never names this skill back | ✅ Mirror the edge in the peer's `consumes_from` and re-run the chain symmetry validator |
+
+## Error Decoder **(STANDARD)**
+
+| Symptom | Root Cause | Fix | Lesson |
+|---------|-----------|-----|--------|
+| Skill never appears in routing even though its content is good | Chain edge is one-directional — `feeds_into` names a peer that never declares the matching `consumes_from` | Add the reciprocal entry and re-run `python3 scripts/validate_chains.py` | An edge the graph cannot traverse does not exist (R6) |
+| The skill instructs the agent to run `scripts/verify-x.sh`; the file was never created | Executable claims written as prose without the artifact behind them | Create every promised script in `scripts/` and every promised document in `references/`; lint the reference links | Unverifiable advice is worse than none — the agent retries a file that isn't there |
+| A "finished" skill still contains `TODO` or `[Coming soon]` | Sections filled to satisfy the heading count rather than the content bar | Run the placeholder grep (R2) before declaring completion; any hit is a blocker, not a note | Placeholder text trains the agent that incompleteness is acceptable |
+| Anti-rationalization ships as bullets or two columns, and the agent keeps repeating the mistake | The section satisfied the phrase count but never named the bias or the required counter-action (R4) | Use the four-column form — temptation, why it feels right, devastating reality, prevention — and name the bias | A rationalization the agent cannot argue against is what actually changes behaviour |
+| The skill applies the wrong platform's model — "use IAM roles" on a GCP task | Scope too broad: one skill covering several domains with different primitives | Split by platform; keep the shared workflow generic and push specifics into `references/` | Breadth is purchased with precision — the agent interpolates the gap |
+| An MVS skill was generated for a security or compliance domain | Speed pressure met a high-stakes domain, so the shallow tier was applied | Require full depth for security/critical domains — 8+ ground rules, 15+ gotchas; MVS is for low-risk domains only | A shallow skill in a high-stakes domain is false confidence, not a shortcut |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

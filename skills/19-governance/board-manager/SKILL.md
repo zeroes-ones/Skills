@@ -219,6 +219,30 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Board deck as an information dump without an ask — 80 slides of metrics, operational updates, a." | Board deck as an information dump without an ask — 80 slides of metrics, operational updates, and FYI items with no actual decision points. The board  | Every board deck slide should either support a specific decision on the agenda or be cut. End each section with an explicit ask: "The board is asked to approve  |
+| "It is faster to skip this: Not documenting board decisions in minutes — the board agrees to authorize a $2M acquisition an." | Not documenting board decisions in minutes — the board agrees to authorize a $2M acquisition and a new executive compensation plan during the meeting. | Draft minutes within 48 hours of the meeting while memory is fresh. Record: motions made, seconds, vote counts, outcomes, and action items with owner and deadli |
+| "It is faster to skip this: Waiting until the board meeting to surface problems — management knows about a key customer chu." | Waiting until the board meeting to surface problems — management knows about a key customer churn event, a critical VP departure, and a 6-week product | No-surprises rule: material problems go to the board chair and lead independent director within 24 hours of management awareness. A 15-minute pre-meeting call t |
+
+This table is specific to `board-manager`: each row names a failure this work actually produces, and the response that failure requires.
+## When NOT to Use **(QUICK)**
+
+Route out when the work is not board governance. Each row names the skill that actually owns the question:
+
+| Condition | Use instead |
+|---|---|
+| You need a legal opinion on whether a director breached duty of care or duty of loyalty, or whether indemnification/advancement applies | `legal-advisor` — this skill structures the process; it does not issue the legal conclusion counsel must give |
+| You are modeling dilution, option-pool expansion, or how adding a fifth board seat reshapes the cap table | `fp-and-a-analyst` — cap table math belongs there; come back once the seat economics are settled |
+| You are drafting or negotiating the board-seat provision in a term sheet, or the financing itself | `investor-relations` — board composition here starts after the seat is agreed |
+| The task is the transaction, not its approval: target screening, valuation, deal structure, or integration planning | `m-and-a-strategist` — the only M&A surface this skill covers is the board resolution authorizing it |
+| The request is company strategy, org design, whether to raise at all, or day-to-day management — not how the board will govern the outcome | `ceo-strategist` — strategic narrative and priorities precede the board package, and convening a board pre-revenue is governance overhead with no fiduciary content |
+| The work is the audit itself (financial statements, ASC 606/718 treatment, close calendar) rather than the audit committee's oversight of it | `accountant` — this skill governs committee composition and charter, not the accounting |
+
 ## Cross-Skill Coordination
 
 <!-- NEIGHBORS: Board governance connects financial reporting, legal compliance, and investor communications -->

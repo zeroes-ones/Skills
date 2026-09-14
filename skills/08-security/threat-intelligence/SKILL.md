@@ -505,6 +505,25 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For incident response operations**.
+2. **Vulnerability management triage**.
+3. **Or compliance audit preparation**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Consuming threat intelligence feeds without deduplication and aging — 500K IOCs accumulate in t." | Consuming threat intelligence feeds without deduplication and aging — 500K IOCs accumulate in the SIEM watchlist, 70% are stale (>90 days old), and ev | Configure automatic IOC expiration: network IOCs at 14 days, host IOCs at 30 days, file hashes at 90 days (unless revalidated). Deduplicate on ingest. Monitor w |
+| "It is faster to skip this: Sharing intelligence with ISAC/ISAO peers without sanitizing victim identity and internal infra." | Sharing intelligence with ISAC/ISAO peers without sanitizing victim identity and internal infrastructure — a report shared with 200 organizations cont | Sanitization checklist: replace org name with sector/size description, replace internal IPs with functional descriptions, remove hostnames, have a second analys |
+| "It is faster to skip this: Threat intelligence analysts producing reports in isolation without embedding with the SOC for ." | Threat intelligence analysts producing reports in isolation without embedding with the SOC for a week per quarter — intelligence products answer quest | Rotate CTI analysts through SOC embedding for one week per quarter. Every intelligence product must be co-designed with a consumer. Measure intelligence utiliza |
+
+This table is specific to `threat-intelligence`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

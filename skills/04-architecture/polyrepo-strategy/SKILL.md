@@ -472,6 +472,41 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For monorepo tooling** → route to `monorepo-manager`.
+2. **CI/CD implementation** → route to `ci-cd-builder`.
+3. **API design** → route to `api-designer`.
+4. **Or team org design** → route to `engineering-manager`.
+5. **Cto-advisor)**.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|----------------|-------------------|
+| ❌ **Split by code type, not team boundary** — carving out `utils-repo`, `types-repo`, and `components-repo` so every feature now touches three repos and PR count triples | ✅ Extract by the team that owns the release cadence; a repo should map to one owning team's blast radius (Gotchas: Decision Gotchas) |
+| ❌ **`repository_dispatch` with no contract test** — upstream release dispatches downstream CI, but nothing verifies the provider still satisfies the consumer's expectations | ✅ Publish an API contract from the provider and run consumer-driven tests (Pact) that block the provider's merge, not just the consumer's build |
+| ❌ **"We'll migrate the consumers ourselves"** — the library team opens PRs against repos it does not own and misses the consumer's edge cases | ✅ Provide the migration guide, codemod, and review support; the consumer team owns its own migration PR (Breaking Change Propagation, Step 5) |
+| ❌ **Splitting a monorepo before shared CI templates exist** — repos leave the monorepo each carrying a hand-copied workflow and immediately drift | ✅ Stand up canonical reusable workflows and drift detection *before* extraction; most split failures happen at this step (Split vs Merge, Step 4) |
+| ❌ **Git submodules for shared infrastructure code** — submodules pin a commit but cannot resolve versions, so Terraform module consumers silently run different code | ✅ Versioned modules in a dedicated infra repo consumed by explicit version pin; submodules only for files that must be byte-identical and change rarely (R6) |
+| ❌ **Announcing inner source with no maintainer bandwidth** — "contribute to any repo!" while maintainers are already at capacity, so cross-team PRs rot for two weeks | ✅ Publish CODEOWNERS with ≥2 maintainers, a <48h initial-review SLA, and a CONTRIBUTING.md before opening contribution (R7) |
+| ❌ **Semver ranges for cross-repo dependencies** — `^2.0.0` means "anything below 3.0.0", including the breaking `2.3.0` that shipped after your last CI run | ✅ Pin exactly for cross-repo consumers, upgrade intentionally via Renovate PRs, and run a build that checks every dependency out at HEAD |
+| ❌ **Publishing `latest` into the internal registry** — the same tag names a different artifact at 10:01 than at 10:00, so no deployment is reproducible | ✅ Tag every artifact with the git SHA and enforce immutable tags at the registry; consumers reference the SHA |
+| ❌ **Hybrid as a word rather than an architecture** — services in separate repos, shared libs in a monorepo, but no registry and no shared CI, so teams get the coordination cost of both models | ✅ Ship the coordination layer with the topology: internal package registry for shared libs, canonical CI templates, and contract tests at each boundary |
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|-----------------|-----------------|-------------------|
+| "We're only 40 engineers — we coordinate releases in the weekly standup." | Standup coordination is a person, not a mechanism. It breaks on holidays, reorgs, and the week the coordinator is on leave — and it does not survive a headcount doubling. | Measure the cross-repo PR rate over 3 months. If a repo pair exceeds 30%, automate it (contract tests + dispatch) or merge the pair. Do not accept a verbal agreement as the coordination mechanism (R2). |
+| "Our end-to-end integration suite already covers cross-repo compatibility." | The e2e suite only runs where every repo is deployed together, so it reports breakage hours after the provider merged — and it is slow and flaky enough that teams skip it. | Move the assertion to the provider's PR: consumer-driven contracts run against the provider in isolation and block that merge. E2e remains a periodic check, not the gate. |
+| "We pin exact versions everywhere, so nothing can break." | Pinning converts every routine bump into a 50-repo manual campaign. When a critical CVE lands you update and test each repo individually instead of bumping one shared range — measured in delayed exposure, not saved effort. | Adopt a shared Renovate preset with auto-merge for patch versions, keep the pin intentional rather than default, and track a version matrix flagging repos >2 minor versions behind. |
+| "The deprecated interface is clearly unused — we can delete it in the next release." | Import counts and grep hits miss the consumer that deploys quarterly on-prem and the service whose lockfile still references the old major. Dead-looking code in a polyrepo may be a live consumer mid-release-cycle. | Enumerate consumers from the dependency graph, classify by deploy recency, and hold the removal until all active consumers have migrated plus one release-cycle buffer (R5, Breaking Change Propagation Step 5). |
+| "Inner source already failed here, so cross-team contribution does not work in this org." | It failed because external PRs sat unreviewed, not because the model is wrong. The failure cause was undefined review SLA and unallocated maintainer time — both fixable. | Restart with the three governance preconditions: CODEOWNERS with ≥2 maintainers, a monitored <48h review SLA, and CI that actually runs on forked PRs. Measure cross-team PR share quarterly. |
+| "Our teams are autonomous, so each one should own its own CI pipeline." | N independent pipelines mean N divergent quality gates. A CVE fix then requires editing and testing every pipeline, and the platform team cannot remediate centrally during an incident. | Keep autonomy over *what* each repo builds; centralize *how* via reusable workflows in a `.github` repo, with drift detection that alerts when a repo diverges from the canonical template (R4). |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

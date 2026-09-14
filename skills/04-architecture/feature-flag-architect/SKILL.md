@@ -532,6 +532,42 @@ A feature flag system that meets this standard: (1) Every flag has an owner, rem
 |----------|--------|-----------|
 | (none yet) | — | — |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For release process coordination** → route to `release-manager`.
+2. **Launch-day monitoring setup** → route to `shipping-and-launch`.
+3. **Or A/B test experiment design** → route to `ab-testing-specialist`.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Kill switch rots because old code path deleted while flag was at 100% — the one time you need i." | Kill switch rots because old code path deleted while flag was at 100% — the one time you need it, it does nothing | CI gate: test flag=OFF path on every commit regardless of current rollout %. If flag_OFF test fails → block merge until old path is restored or flag is declared |
+| "It is faster to skip this: Mobile flag defaults set to "show new feature" instead of "show old behavior" — app store revie." | Mobile flag defaults set to "show new feature" instead of "show old behavior" — app store review window is 1-14 days of broken behavior | Default must be safe behavior (old path). Assume SDK will be unreachable for 14 days. Test: deploy app with airplane mode ON and verify no broken features. Fire |
+| "It is faster to skip this: Flag SDK evaluated synchronously at app startup with no timeout — SDK outage = app won't start." | Flag SDK evaluated synchronously at app startup with no timeout — SDK outage = app won't start | Non-blocking evaluation with timeout (100ms). Cache last-known-good flag state in local storage. Circuit breaker: after 5 consecutive failures, use cache for 5  |
+| "It is faster to skip this: PII leaked through flag evaluation context to third-party analytics — user emails in LaunchDark." | PII leaked through flag evaluation context to third-party analytics — user emails in LaunchDarkly audit logs | token'` on flag context construction. Use `user_id` + server-side derived attributes only. Never pass raw PII to flag SDK. Add pre-commit hook that blocks PII p |
+| "It is faster to skip this: Untested flag=OFF paths rot silently — 6 months of "flag is always ON in prod, why test OFF?" l." | Untested flag=OFF paths rot silently — 6 months of "flag is always ON in prod, why test OFF?" leads to broken kill switches | CI requires both states tested on every commit. `test_flag_on()` and `test_flag_off()` must both pass. If flag_OFF test is skipped with `// TODO: test flag off` |
+| "It is faster to skip this: Combinatorial explosion: 10 feature flags = 1024 test scenarios — test suite takes 8 hours or o." | Combinatorial explosion: 10 feature flags = 1024 test scenarios — test suite takes 8 hours or only tests "all flags ON" | Pairwise testing (t-way) reduces 1024 to ~100 scenarios. Flag interaction budget: max 5 active flags per service. Flag dependency graph: if flag A depends on fl |
+
+This table is specific to `feature-flag-architect`: each row names a failure this work actually produces, and the response that failure requires.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Wrap a flag around a code path whose fallback was refactored away, then call it a kill switch — flag=OFF resolves to nothing and the "emergency brake" has no brake shoes | ✅ Test the flag=OFF path on every commit regardless of current rollout %, and block the merge if that test fails until the old path is restored or the flag is formally declared non-reversible |
+| ❌ Evaluate the flag SDK synchronously at app startup with no timeout, so a flag-service outage becomes a total app outage | ✅ Evaluate non-blocking with a 100ms timeout, cache last-known-good state locally, trip a circuit breaker after 5 consecutive failures, and fall through to the safe default |
+| ❌ Ship mobile flag defaults that turn the new feature ON, leaving the entire 1–14 day store review window running behavior nobody tested | ✅ Set mobile defaults to the old/safe behavior and verify the app is fully functional with airplane mode ON for the maximum staleness window |
+| ❌ Pass `{"email": user.email, "plan": user.plan}` as flag evaluation context, so PII lands in the provider's audit logs, debug trails, and every downstream analytics export | ✅ Pass only opaque identifiers (`user_id`, `session_id`) plus server-side derived attributes such as `user_tier`, and pre-commit-block PII patterns in flag-context files |
+| ❌ Leave `// LEGACY: old flag path` commented out at removal time "just in case", so a `grep` during incident response returns dead code | ✅ Delete the old path entirely — code, flag registration, tests, and ticket — and recover it from git history if it is ever needed again |
+| ❌ Toggle flags by hand in the provider's admin UI while application code deploys through a separate pipeline, creating split-brain states where code and flag config disagree | ✅ Keep flag config as code in the same repo and deployment pipeline as the application so flag state and code deploy atomically, with environment overrides version-controlled |
+| ❌ Test only the flag=ON branch because "the flag is at 100% in prod", then discover the OFF branch crashes the one time a kill switch is needed | ✅ Require one test per path per flag in CI, and fail the build when a flag=OFF test is skipped or marked TODO for more than two weeks |
+| ❌ Add "one more flag" without retiring another, driving a service to 10+ live flags and a 2^N test matrix no suite can cover | ✅ Enforce a flag budget (≈5 active flags per service), require a new flag to retire an old one, and cover interacting flag pairs with pairwise testing |
+
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

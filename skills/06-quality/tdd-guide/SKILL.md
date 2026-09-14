@@ -518,6 +518,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general QA strategy**.
+2. **Test automation framework setup**.
+3. **Performance testing**.
+4. **Or e2e test authoring without TDD workflow**.
+
+## Anti-Rationalization **(QUICK)**
+
+The excuses below are the ones that actually break a red-green-refactor loop. None of them is a judgement call — each has a mechanical answer.
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "I already know this test will pass — running it is just ceremony." | The observed RED is the only evidence the test can detect the failure. A first-run pass usually means the assertion is vacuous, the branch is unreachable, or you are exercising a different path than you intended. | Run the test before writing the implementation and read the failure message. It must name the missing method or the wrong value you predicted. If it passes on first run, rewrite the test — it is not driving anything. |
+| "Floats are just numbers, `add(2, 3) === 5` covers the arithmetic." | Integer-only examples never touch representation behaviour. `0.1 + 0.2`, `Number.MAX_SAFE_INTEGER + 1`, and `divide(1, 0)` all pass an integer-only suite and still corrupt a ledger. | Add the boundary examples (zero, negative, ±large, fractional) or replace the example with an invariant — `add(a, b) === add(b, a)`, `total_before === total_after` — and run it under Hypothesis/fast-check with the failing seed logged. |
+| "The test is flaky, so I'll mark it `.skip` and file a ticket." | A `.skip` is a permanent coverage hole that nobody re-opens, and the flake is almost always a real race, shared mutable state, or test-order dependency rather than a runner defect. | Reproduce it deterministically (fixed seed, `--runInBand`, pinned clock). Fix the shared state or the unawaited promise. Only an environment-bound test may be quarantined, and then with a named owner and an expiry date. |
+| "This legacy class has no tests — characterization tests would just freeze the existing bugs." | Freezing and fixing are two separate commits. Without the baseline you cannot prove your refactor preserved behaviour, so you also cannot tell which change introduced the new defect. | Write characterization tests first. Flag every assertion that encodes suspicious behaviour with `// BUG: TICKET-123 — domain expert review` rather than silently asserting the bug is correct. Refactor in one commit, fix the bug in the next. |
+| "The test mocks the database, so it belongs in the fast unit suite." | The file still pays network latency and still fails when the container is not up, so a red `unit` job no longer means what the team believes it means — CI signal degrades for everyone. | Either swap in an in-memory implementation so it genuinely touches no I/O, or move it to the integration suite with its own time budget. Never label a database-backed test a unit test. |
+| "The tests are green — I'll clean up the duplication next sprint." | The green suite is the only moment refactoring is cheap; the next sprint starts without the context and with more callers depending on the copied logic, so the extraction cost grows while the trigger stays the same. | Apply the rule of three now: inline on first use, copy on second, extract on third. If no duplication or expressiveness trigger fires, skip the refactor deliberately and say so — do not defer one that already fired. |
+
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

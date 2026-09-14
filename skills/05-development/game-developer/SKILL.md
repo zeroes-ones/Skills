@@ -399,6 +399,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For general software development** → route to `backend-developer`.
+2. **Frontend-developer)**.
+3. **Graphics programming without game context**.
+4. **Game design**.
+5. **Narrative writing** → route to `product-manager`.
+6. **Content-strategist)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Frame-rate-dependent physics — Update() without deltaTime, game runs 2x speed on 144Hz." | Frame-rate-dependent physics — Update() without deltaTime, game runs 2x speed on 144Hz | Multiply every continuous change by `Time.deltaTime`, set `Application.targetFrameRate` for testing, profile at 30/60/144 FPS |
+| "It is faster to skip this: Save file corruption on crash — game crashes mid-write, player loses 60-hour save." | Save file corruption on crash — game crashes mid-write, player loses 60-hour save | Write to temp file first, then atomic rename; include version header + checksum; keep last N backups; test kill-process-mid-save |
+| "It is faster to skip this: Asset memory leak — AssetBundle.Unload(false) keeps textures, OOM after 10 level loads." | Asset memory leak — `AssetBundle.Unload(false)` keeps textures, OOM after 10 level loads | Use `Unload(true)` or `Resources.UnloadUnusedAssets()`, profile memory per scene load, implement Addressables with explicit `Release()` |
+
+This table is specific to `game-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

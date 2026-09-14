@@ -461,6 +461,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For MCP protocol specification (api-designer)**.
+2. **Agent orchestration (multi-agent-orchestration)**.
+3. **Or general API security (appsec-engineer)**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: MCP server with root filesystem scope — prompt injection reads ~/.ssh/id_rsa." | MCP server with root filesystem scope — prompt injection reads ~/.ssh/id_rsa | Scope filesystem servers to specific project directories only (never `/` or `~`). Validate with `grep` for root-scoped paths before deploying. |
+| "It is faster to skip this: Database MCP server with execute_sql set to allow — agent can DROP TABLE." | Database MCP server with `execute_sql` set to `allow` — agent can DROP TABLE | Set write operations to `require-approval`. Destructive operations (DDL, DROP) to `deny`. Audit every tool's capability before setting authorization. |
+| "It is faster to skip this: Streamable HTTP MCP server without authentication — open proxy to internal data." | Streamable HTTP MCP server without authentication — open proxy to internal data | Require OAuth 2.0 bearer tokens on every remote HTTP transport. Validate token on every request. Never expose unauthenticated MCP endpoints. |
+| "It is faster to skip this: Zombie MCP processes accumulate after agent disconnect — resource exhaustion over time." | Zombie MCP processes accumulate after agent disconnect — resource exhaustion over time | Implement shutdown handshake (initialize → use → shutdown). Use process supervision (systemd, supervisord) to reap orphaned processes. Monitor process count per |
+
+This table is specific to `mcp-management`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

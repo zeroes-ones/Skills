@@ -422,6 +422,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For technical documentation authoring**.
+2. **Product management**.
+3. **Paid marketing campaigns**.
+4. **Or internal developer tools**.
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Measuring DevRel by vanity metrics (stars, followers, pageviews) instead of product-qualified s." | Measuring DevRel by vanity metrics (stars, followers, pageviews) instead of product-qualified signups | Tie every DevRel activity to a product metric: tutorial → signups within 30 days, conference talk → demo requests within 2 weeks, community answer → reduced sup |
+| "It is faster to skip this: Shipping tutorials and sample apps without automated CI testing against the latest SDK/API vers." | Shipping tutorials and sample apps without automated CI testing against the latest SDK/API version | Every tutorial and sample repo runs in CI on a weekly schedule against the latest release. Broken builds auto-assign to the DevRel engineer who owns that conten |
+| "It is faster to skip this: Treating community (Discord, forums, GitHub) as a free support channel instead of a developer e." | Treating community (Discord, forums, GitHub) as a free support channel instead of a developer experience feedback loop | Assign a DevRel engineer to triage community patterns weekly: top-3 recurring questions → product ticket, top-3 friction points → docs improvement, community co |
+
+This table is specific to `devrel-advocate`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

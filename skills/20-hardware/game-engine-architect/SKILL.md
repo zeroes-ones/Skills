@@ -338,6 +338,39 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For mobile optimization (mobile-developer)**.
+2. **UI/UX (ui-ux-designer)**.
+3. **Backend servers (backend-developer)**.
+4. **Or general C++ (language skill)**.
+
+## Anti-Patterns **(STANDARD)**
+
+| ❌ Anti-Pattern | ✅ Do This Instead |
+|---|---|
+| ❌ Selecting deferred rendering because the scene wants many dynamic lights, without checking the target GPU tier first | ✅ Pick clustered forward when the target is an integrated GPU or Switch-class hardware — the deferred G-Buffer write+read bandwidth alone exceeds the Switch's 3.25GB usable pool, which is why that platform ships forward-only with baked lighting |
+| ❌ Calling `EntityManager.AddComponent<T>()` or `DestroyEntity()` inside `IJobChunk.Execute()` | ✅ Record structural changes with `EntityCommandBuffer.ParallelWriter` and apply them in one batch at the `EntityCommandBufferSystem` barrier — a structural change mid-job forces a sync point and turns a 0.5ms job into a 15ms frame spike |
+| ❌ Running 60Hz physics against a 144Hz renderer with no interpolation in the render path | ✅ Derive the render transform as `Lerp(previousPhysicsState, currentPhysicsState, accumulator / fixed_dt)` — without it the renderer repeats the last physics pose and then jumps, which players report as lag |
+| ❌ Shipping client-predicted movement while the server only validates the input it receives | ✅ Keep server-authoritative state and rewind-and-replay reconciliation behind a distance threshold — prediction with no correction is the first-72-hours cheating vector on every online launch |
+| ❌ Treating draw call or SetPass call count as the optimization metric | ✅ Profile `Update()`/`LateUpdate()` script overhead too — 100 draw calls alongside 3000 `MonoBehaviour.Update()` calls is a CPU-bound frame with an idle GPU |
+| ❌ Allocating `NativeList<T>`/`NativeArray<T>` in a Burst job whose `Dispose()` sits behind `#if UNITY_EDITOR` | ✅ Dispose in `OnDestroy` for every build configuration and add a `[BurstDiscard]` leak assertion — the allocator is malloc-backed and not GC-tracked, so the leak only appears as an OS kill hours into a session |
+| ❌ Leaving Nanite enabled on translucent, masked, or two-sided foliage without an overdraw budget | ✅ Visualize with `r.Nanite.Visualize.Overdraw 1`, set `r.Nanite.MaxPixelsPerEdge` for foliage meshes, and route masked materials to simplified fallback meshes at distance |
+| ❌ Letting the driver compile graphics pipeline state objects on first material load mid-gameplay | ✅ Ship a pre-baked `r.ShaderPipelineCache` (`.upipelinecache`), a warmed-up `ShaderVariantCollection`, or a serialized `VkPipelineCache` — a 50-500ms runtime PSO compile is a certification failure by itself |
+
+## Anti-Rationalization **(QUICK)**
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "Interpolation is polish — we'll add it once the movement code is stable" | Physics at 60Hz against a 144Hz display leaves 84 frames per second showing a repeated or jumped pose; the resulting rubber-banding reads as bad netcode even in a single-player build | Put the interpolation factor in the render path before movement ships, and test 30Hz/60Hz physics against a 144Hz display before closing the task |
+| "The PSO cache rebuilds on first launch, so shader stutter happens once per install" | It happens once per material variant per session, not once per install — 200 materials means 200 hitches, and any frame over 50ms fails Sony TRC R5054 | Run a full gameplay coverage pass, bake the pipeline cache into the build, and confirm zero runtime PSO creation in a capture of the first ten minutes of play |
+| "Client and server positions are only 2cm apart, which is inside tolerance" | The 2cm drift is the visible half; the same missing correction lets a modified client report whatever position it likes and teleport | Measure misprediction against a latency-injected simulator, hold corrections under 1%, and confirm the server replays inputs instead of trusting client state |
+| "Nanite is on by default in UE5, so Epic already tuned the geometry budget for us" | Nanite pays the meshlet traversal cost even where it falls back to conventional rasterization; masked foliage at 1440p on an RTX 2060 can reach 80% overdraw at 100% GPU utilization | Capture `r.Nanite.Visualize.Overdraw 1` on the foliage-heaviest level at min-spec, then set `r.Nanite.MaxPixelsPerEdge` and fallback meshes before that level is signed off |
+| "Our arena allocator covers the hot path, so the 8-hour soak test is redundant" | Per-frame allocation is only half the budget — fragmentation is what drives allocation failure after hours of play, and it does not reproduce in a ten-minute run | Run the automated 8-hour gameplay soak, require zero allocation failures and per-frame allocation under 1KB after loading, and keep peak usage under 85% of the console budget |
+| "The 15ms DOTS spike needs a huge entity count to reproduce, so QA probably won't hit it" | The spike is a sync point from a structural change inside a job, so it appears exactly when QA adds its spawn-500-enemies case — typically the week before certification | Grep every job for `EntityManager` structural calls, move them to an `EntityCommandBuffer`, and benchmark at the projected peak entity count rather than the current one |
+
 ## Cross-Skill Coordination
 
 <!-- QUICK: 30s — who to talk to, when, what to share -->

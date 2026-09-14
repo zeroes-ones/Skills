@@ -276,6 +276,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For data engineering pipeline infrastructure**.
+2. **ML model building**.
+3. **Or general-purpose data science**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Building real-time streaming pipeline when daily batch suffices." | Building real-time streaming pipeline when daily batch suffices | Default to batch. Require a named business decision requiring sub-minute data before approving streaming. 80% of BI use cases are served by daily batch. |
+| "It is faster to skip this: No semantic layer — "revenue" has 5 conflicting definitions across teams." | No semantic layer — "revenue" has 5 conflicting definitions across teams | Implement centralized semantic layer (dbt Metrics, LookML) before the organization has > 3 teams building dashboards. Every metric has exactly one governed defi |
+| "It is faster to skip this: BI tool selected by feature matrix instead of organizational fit." | BI tool selected by feature matrix instead of organizational fit | Select by: (1) alignment with existing data stack and team skills, (2) primary user persona match, (3) semantic layer governance needs, (4) embedding/distributi |
+| "It is faster to skip this: Dashboard built without a clear question — "interesting chart" with no action." | Dashboard built without a clear question — "interesting chart" with no action | Every dashboard must answer a specific decision: "What action will you take based on this metric?" If nobody can name the decision, the dashboard is decoration. |
+
+This table is specific to `business-intelligence-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

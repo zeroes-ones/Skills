@@ -552,6 +552,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For monorepo config** → route to `monorepo-manager`.
+2. **CI/CD pipeline setup** → route to `ci-cd-builder`.
+3. **Security incident response** → route to `incident-responder`.
+4. **Or legal license review** → route to `legal-advisor`.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Auto-merging major version bumps without runtime smoke tests — Renovate auto-merges lodash@5.0.." | Auto-merging major version bumps without runtime smoke tests — Renovate auto-merges `lodash@5.0.0` because CI passes TypeScript checks, but legacy JS  | Add runtime smoke tests that exercise a dependency's API surface before auto-merge; run `node -e "require('lodash').pluck"` for every major version bump; only a |
+| "It is faster to skip this: Pinning all dependencies to exact versions — eliminates auto-updates entirely; three years late." | Pinning all dependencies to exact versions — eliminates auto-updates entirely; three years later you're 47 patch versions behind on Express with a cri | Use `^` ranges for well-maintained packages with good test coverage; reserve exact pinning for packages that have broken semver historically; auto-merge patch u |
+| "It is faster to skip this: Generating an SBOM without classification — the 14,000-line report includes every dev and test ." | Generating an SBOM without classification — the 14,000-line report includes every dev and test dependency; compliance team flags all of them and engin | Generate a trimmed SBOM with `--omit dev --omit optional`; add a `bom-ref` classification layer marking components as `runtime`, `build`, `test`, or `optional`; |
+
+This table is specific to `dependency-governance`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

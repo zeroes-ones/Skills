@@ -527,6 +527,26 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For financial planning and analysis**.
+2. **Accounting**.
+3. **Or general FP&A work**.
+
+## Anti-Rationalization **(QUICK)**
+
+The justifications to expect, and the response each one demands:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Enabling S3 versioning without noncurrent-version expiration — every object update creates a ne." | Enabling S3 versioning without noncurrent-version expiration — every object update creates a new chargeable version; a 10GB file updated daily accumul | Always pair versioning with `NoncurrentVersionExpiration` lifecycle rules; set `NoncurrentDays: 3` for non-critical data; monitor `NumberOfObjects` and `BucketS |
+| "It is faster to skip this: Buying 3-year RIs for a workload that gets deprecated in 6 months — the RI commitment outlives ." | Buying 3-year RIs for a workload that gets deprecated in 6 months — the RI commitment outlives the workload; you pay for compute you can't use for 2.5 | Purchase 1-year commitments for any workload whose lifetime is uncertain; use Savings Plans (more flexible than RIs) for variable instance families; never commi |
+| "It is faster to skip this: Leaving NAT Gateways in dev/staging environments running 24/7 — a $32/month NAT Gateway × 3 env." | Leaving NAT Gateways in dev/staging environments running 24/7 — a $32/month NAT Gateway × 3 environments × 12 months = $1,152/year for traffic that ne | Schedule non-production NAT Gateways to shut down during off-hours (nights/weekends); use VPC endpoints for S3/DynamoDB to avoid NAT Gateway charges entirely; m |
+| "It is faster to skip this: Not setting billing alerts on new accounts — a misconfigured autoscaling group spins up 500 ins." | Not setting billing alerts on new accounts — a misconfigured autoscaling group spins up 500 instances overnight; the bill arrives at $15,000 before an | Set budget alerts at 50%, 80%, 100%, and 120% on every account; configure hard spending limits where the cloud provider supports them; use AWS Budget Actions to |
+
+This table is specific to `finops-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

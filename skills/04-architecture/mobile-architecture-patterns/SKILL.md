@@ -229,6 +229,26 @@ Run these checks before declaring work complete. ALL must pass.
 - [ ] **[MAP11]** Main thread I/O eliminated: all database queries, network calls, and file operations on background queues — <16ms main thread blocked per frame
 - [ ] **[MAP12]** ViewModel/Presenter max size: 150 lines. Business logic extracted to UseCases/Interactors. ViewModel only transforms domain models to view state
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For backend architecture**.
+2. **Web architecture**.
+3. **Or game architecture**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Business logic in ViewControllers/Activities — framework migration becomes impossible." | Business logic in ViewControllers/Activities — framework migration becomes impossible | All business logic must be in ViewModels/Presenters/UseCases. View layer has zero logic beyond presentation. Enforce with architecture tests |
+| "It is faster to skip this: No offline-first architecture — app fails on unreliable mobile networks." | No offline-first architecture — app fails on unreliable mobile networks | Design offline-first from v1. Local database (Room/Core Data) is source of truth. Sync engine handles network transitions transparently |
+| "It is faster to skip this: Skipping dependency injection setup — painful refactoring when adding tests." | Skipping dependency injection setup — painful refactoring when adding tests | Set up DI (Dagger/Hilt, Koin, Swinject) on Day 1. Inject dependencies through constructors. Never use service locator pattern |
+| "It is faster to skip this: No state restoration for process death — user loses context after app backgrounding." | No state restoration for process death — user loses context after app backgrounding | Save UI state to Bundle/SavedStateHandle on every onSaveInstanceState. Restore in onCreate. Test by killing app process from developer options |
+
+This table is specific to `mobile-architecture-patterns`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

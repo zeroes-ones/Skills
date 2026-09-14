@@ -251,6 +251,27 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 | Thermal simulation trusted datasheet theta-JA | Datasheet θJA is measured on a JEDEC standard board (4-layer, 1oz Cu, specific copper area, still air). Your 2-layer board with different copper weight and airflow has θJA 1.5x-3x higher. At 2W dissipation, the 40°C/W datasheet θJA predicts 80°C rise; actual board sees 120°C rise = junction exceeds Tj_max | Characterize θJA on your actual board. Use a thermal camera during operation or attach thermocouple to IC case and calculate Tj = T_case + (θJC × P). Run worst-case: max ambient + max load + minimum airflow. If margin is <15°C, add heatsink, thermal vias, or copper area | Datasheet θJA is a comparison metric between packages, not a design value. It's measured under idealized conditions that your board doesn't replicate. Always characterize actual thermal performance — semiconductor lifetime halves for every 10°C rise above rated |
 | Single-source component goes EOL at month 4 of 24-month production | No lifecycle analysis was performed at design-in. The component was already NRND (Not Recommended for New Design) when the schematic was captured. The manufacturer issued a PCN with a 6-month last-time-buy window, but no one was subscribed to alerts | Every BOM component at design-in must: check lifecycle status (active/NRND/EOL), verify projected availability (5+ years), identify second-source alternatives (pin-compatible, different manufacturer), subscribe to manufacturer PCN alerts. Quarterly BOM health review flags any component within 12 months of projected EOL | A single $2 component that goes EOL triggers a $150K-$500K redesign cycle (engineering + respin + tooling + lost production). Component lifecycle management is not procurement's job — it's the design engineer's responsibility at component selection time |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For firmware development**.
+2. **RTOS configuration**.
+3. **Device driver implementation**.
+4. **Or embedded software testing**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Component selected without verifying lifetime availability — EOL'd during prototype phase." | Component selected without verifying lifetime availability — EOL'd during prototype phase | Check lifecycle status & projected availability at design-in; require second-source or pin-compatible alternative; subscribe to manufacturer PCN alerts; quarter |
+| "It is faster to skip this: Power budget calculated at nominal values but peak draw during radio TX or inrush causes browno." | Power budget calculated at nominal values but peak draw during radio TX or inrush causes brownout reset | Budget for peak current not average; measure inrush & TX burst with current probe; add bulk capacitance for transient loads; 20% margin above worst-case measure |
+| "It is faster to skip this: EMI/EMC failures at certification lab requiring board respin." | EMI/EMC failures at certification lab requiring board respin | Pre-compliance testing before formal lab submission; minimize hot-loop area in switching regulators; add ferrite beads & common-mode chokes on I/O; maintain 6dB |
+| "It is faster to skip this: Thermal design ignores enclosure/sealing — junction temperature overshoots by 20°C+ at max ambi." | Thermal design ignores enclosure/sealing — junction temperature overshoots by 20°C+ at max ambient | Simulate junction temps at max ambient in sealed enclosure with actual airflow; measure θJA on production-representative board (not datasheet value); ≥15°C Tj m |
+
+This table is specific to `hardware-architect`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

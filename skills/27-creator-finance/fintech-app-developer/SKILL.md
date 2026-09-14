@@ -195,10 +195,6 @@ Use fintech-app-developer when building software that moves, stores, or manages 
 - Setting up sandbox and testing environments for payment flows that exercise all edge cases before production
 - Adding fraud detection — velocity checks, amount anomalies, card testing prevention — to payment flows
 
-### When NOT to Use
-
-Do NOT use fintech-app-developer for PCI DSS compliance auditing or QSA assessment preparation (route to **financial-security**). Do NOT use for general accounting, tax calculation, or financial reporting controls (route to **accountant** or **fp-and-a-analyst**). Do NOT use for payment hardware integration, POS terminal development, or EMV chip-level programming (route to **desktop-developer** or **embedded-engineer**). Do NOT use for cryptocurrency wallet development, blockchain payment rails, or DeFi protocols (route to **blockchain-developer**). Do NOT use for banking license applications, MSB registration, or regulatory licensing strategy (route to **compliance-officer** or **legal-advisor**).
-
 ## Route the Request
 <!-- STANDARD: 3min -->
 
@@ -737,6 +733,33 @@ Every item must pass before ANY production deployment that processes real money.
 | [FINTECH13] | Production API keys are NOT in any non-production environment | Check staging/QA configs → only test mode API keys (sk_test_, test_*, sandbox_). Attempt to use staging keys against production → fails. | Accidental production charges on test data + processor account flag |
 | [FINTECH14] | Revenue reporting: MRR, churn, LTV, transaction fees correctly calculated on test data | Create 100 subscriptions with known patterns → MRR matches manual calculation. Cancel 5 subscriptions → churn = 5%. | $10K-100K in incorrect financial reporting leading to bad business decisions |
 | [FINTECH15] | Database backups include ledger_entries and are tested with restore drill | Restore latest backup to test environment → run balance verification: all account balances = SUM(ledger_entries). Test restore completes in < 1 hour. | Complete loss of financial transaction history — unrecoverable |
+
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: PCI compliance failures from storing raw card data — a single log statement that prints req.bod." | PCI compliance failures from storing raw card data — a single log statement that prints `req.body.card_number` means card data hits your logs, your mo | cvc" --include="*.{js,ts,py,go,java}"` across the entire codebase before every deploy — zero non-test matches is the only acceptable result. Configure log scrub |
+| "It is faster to skip this: Idempotency bugs causing double charges — checking idempotency store AFTER creating the payment." | Idempotency bugs causing double charges — checking idempotency store AFTER creating the payment instead of before, or a race condition where two concu | The idempotency check-and-create must be atomic: use a database transaction with SELECT FOR UPDATE on the idempotency key row, or a Redis SETNX with TTL 24h. Th |
+| "It is faster to skip this: Reconciliation drift — webhook delivery failures, out-of-order events, or a reconciliation job ." | Reconciliation drift — webhook delivery failures, out-of-order events, or a reconciliation job that silently stops running for 3 weeks while transacti | Run reconciliation every 1-6 hours, not daily. Alert on ANY reconciliation job failure (if the cron scheduler fails silently, you lose visibility). Implement a  |
+| "It is faster to skip this: Float-based money math — using double or float for amounts, then wondering why $0.10 + $0.20 = ." | Float-based money math — using `double` or `float` for amounts, then wondering why $0.10 + $0.20 = $0.30000000000000004 in IEEE 754 | Store every amount as integer cents: $10.99 = 1099. For division (fee calculation), use banker's rounding (round half to even) to avoid systematic bias. `DECIMA |
+| "It is faster to skip this: Single payment processor with no fallback — Stripe has 99.95% uptime = 4.38 hours/year of downt." | Single payment processor with no fallback — Stripe has 99.95% uptime = 4.38 hours/year of downtime, and during those 4.38 hours you process zero payme | Implement multi-acquirer routing: Stripe primary + Adyen/Braintree secondary behind a payment orchestration layer (Spreedly, Primer). Circuit breaker: after 5 c |
+
+This table is specific to `fintech-app-developer`: each row names a failure this work actually produces, and the response that failure requires.
+
+## When NOT to Use **(QUICK)**
+
+The boundary is drawn at "code that moves, stores, or settles money." Everything on either side of that line has a different specialist:
+
+| Condition | Use instead |
+|---|---|
+| The task is PCI DSS audit preparation — mapping SAQ A/A-EP/D controls, gathering QSA evidence, or writing the assessed environment description. This skill *reduces* scope via tokenization; it does not *attest* to it. | `financial-security` |
+| The work is accounting, not money movement: journal entries from an exported ledger, month-end close, ASC 606 revenue-recognition policy, or tax filing on collected fees. | `accountant` |
+| The question is a financial model rather than a payment system: three-statement forecast, board-ready ARR/NRR/cohort package, or burn-and-runway scenario built from the revenue data this skill emits. | `fp-and-a-analyst` |
+| Money settles on a blockchain — self-custodied keys, MPC signing, on-chain escrow, or stablecoin rails. The ledger and idempotency discipline transfers; the settlement, custody, and gas mechanics do not. | `blockchain-developer` |
+| The deliverable is card-present hardware: POS terminal firmware, EMV kernel/chip-level flows, NFC reader drivers, or PCI PTS device certification. | `embedded-engineer` |
+| The blocker is legal or regulatory standing — money transmitter licensing, MSB registration, e-money/EMI authorization, or a BaaS charter decision. Tokenization does not resolve a licensing obligation. | `compliance-officer` |
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->

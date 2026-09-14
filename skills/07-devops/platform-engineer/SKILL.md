@@ -436,6 +436,25 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For cloud architecture design**.
+2. **CI/CD pipeline authoring**.
+3. **Or Kubernetes cluster operations**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Building the platform without measuring developer productivity first — you optimize the wrong t." | Building the platform without measuring developer productivity first — you optimize the wrong things and platform adoption stays at 20% because it doe | Measure DORA metrics and run developer NPS surveys before building anything; prioritize the top 3 friction points by developer-hours-saved; validate each golden |
+| "It is faster to skip this: Treating the platform as a project, not a product — after initial launch, the platform team mov." | Treating the platform as a project, not a product — after initial launch, the platform team moves to the next project and the platform stagnates with  | Staff a permanent platform product team (not a temporary tiger team); maintain a public roadmap; run quarterly NPS surveys; treat deprecation as a first-class f |
+| "It is faster to skip this: Designing golden paths that work for the platform team but not for service teams — template req." | Designing golden paths that work for the platform team but not for service teams — template requires 8 manual steps after scaffolding because the plat | Dogfood every golden path by having a platform engineer join a service team for a sprint and use the path end-to-end; time-to-10th-PR is the metric; if it's ove |
+
+This table is specific to `platform-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

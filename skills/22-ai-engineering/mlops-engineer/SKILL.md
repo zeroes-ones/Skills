@@ -241,6 +241,26 @@ If a command or approach fails, follow this escalation path before giving up:
 | MLflow `log_model` with `conda_env` produces different libraries in production | `conda_env.yml` doesn't pin exact versions. Conda resolves dependencies differently on the production server — a NumPy minor version difference changes model outputs silently. | Use `pip_requirements` with exact version pins (`numpy==1.26.3`). Or container-based deployment (Docker). Verify: `pip freeze > requirements.lock` and commit lockfile with model artifact. | Environment reproducibility is the foundation of ML reliability. Without exact version pins, "works on my machine" becomes "fails silently in production" — the model doesn't crash, it just produces wrong predictions. |
 | Feature store online/offline values diverge after infrastructure migration | Redis cluster migration changed TTL behavior, causing some feature values to expire earlier than configured. Offline store (Spark) values remain correct. Online queries return stale defaults. | Monitor feature freshness: track the age of feature values served online vs the expected update frequency. Alert when any feature value is older than 2× its update interval. Run daily parity checks between online and offline values for 1,000 random keys. | Feature stores have two independent data paths — offline (training) and online (serving). Infrastructure changes to one path can break parity without affecting the other. Continuous parity monitoring is the only way to catch divergence before it affects predictions. |
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For LLM application engineering**.
+2. **Model research and training**.
+3. **Or general DevOps infrastructure**.
+
+## Anti-Rationalization **(QUICK)**
+
+The rationalizations this skill exists to catch, and what each one costs:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Training-serving feature skew — features computed differently in batch training vs real-time se." | Training-serving feature skew — features computed differently in batch training vs real-time serving | Sample 1,000 requests, compute features both ways, assert 100% match. Gate deployment on parity check passing. Use feature store for consistent computation. |
+| "It is faster to skip this: GPU underutilization below 30% — paying for compute that's not being used." | GPU underutilization below 30% — paying for compute that's not being used | Profile GPU utilization. Enable dynamic batching. Right-size GPU (A100 → A10G if utilization permits). Use spot instances for batch inference. Track $ per model |
+| "It is faster to skip this: Continuous batching disabled in vLLM — serving at 10% of potential throughput." | Continuous batching disabled in vLLM — serving at 10% of potential throughput | Enable continuous batching in vLLM. Profile throughput at batch sizes 1, 2, 4, 8, 16, 32. Use PagedAttention (enabled by default in vLLM). |
+| "It is faster to skip this: Model registry shows version mismatch — "production" label points to wrong model during inciden." | Model registry shows version mismatch — "production" label points to wrong model during incident | Verify registry production version matches serving version as part of CI/CD. Use automated stage transitions with webhook triggers. Run `verify_registry.py` on  |
+
+This table is specific to `mlops-engineer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

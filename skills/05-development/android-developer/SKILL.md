@@ -456,6 +456,25 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For iOS development**.
+2. **Cross-platform mobile**.
+3. **Or backend API development**.
+
+## Anti-Rationalization **(QUICK)**
+
+Excuses that lead directly to the failure modes above, each with the response it requires:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: ProGuard/R8 strips reflection-based classes — release build crashes, debug works fine." | ProGuard/R8 strips reflection-based classes — release build crashes, debug works fine | Add `@Keep` on all serialization models, configure `-keep` rules for every reflection library, always test release build on physical device before shipping |
+| "It is faster to skip this: remember loses state on rotation — form inputs, scroll position wiped on config change." | `remember` loses state on rotation — form inputs, scroll position wiped on config change | Use `rememberSaveable` for state surviving config changes; provide custom `Saver` for complex objects; use `SavedStateHandle` in ViewModels |
+| "It is faster to skip this: Image loading OOM on budget devices — 12MP image decoded at full resolution allocates ~48MB." | Image loading OOM on budget devices — 12MP image decoded at full resolution allocates ~48MB | Use Coil/Glide for automatic downsampling, set `inSampleSize` for `BitmapFactory`, never load full-resolution images; budget devices dominate global Android mar |
+
+This table is specific to `android-developer`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
 

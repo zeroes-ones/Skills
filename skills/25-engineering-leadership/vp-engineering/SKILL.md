@@ -400,6 +400,25 @@ When this domain goes wrong, it goes wrong in predictable ways. Here are the mos
 
 10. **Strategic Narrative Aligns 500+ People Without Your Presence.** Craft and repeat a clear engineering narrative: where we are, where we're going, why it matters, how each team contributes. This narrative should be repeatable by any engineer in the org. When decisions are made without you, the narrative ensures they align with your intent. Refresh the narrative every 6 months as strategy evolves.
 
+## When NOT to Use **(QUICK)**
+
+**Do NOT use this skill when:**
+
+1. **For single-team management**.
+2. **Individual contributor technical leadership**.
+3. **Or CTO-level technology vision**.
+
+## Anti-Rationalization **(QUICK)**
+
+Shortcuts that look reasonable and produce the failures documented above:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Hiring to fill headcount instead of specific capability gaps — opening reqs because you have bu." | Hiring to fill headcount instead of specific capability gaps — opening reqs because you have budget, not because you've identified the concrete skill  | Write a "hire for gap" one-pager before every req: what specific capability is missing, which business outcome it blocks, and how you'll know the hire closed th |
+| "It is faster to skip this: Reorgs that shuffle boxes on the org chart without changing decision rights, accountability, or." | Reorgs that shuffle boxes on the org chart without changing decision rights, accountability, or resource allocation — structure changes but behavior d | Before any reorg, define the 3 specific decisions that will be made differently post-reorg, who gains/loses authority for each, and measure whether those decisi |
+| "It is faster to skip this: Platform team created without a product manager or internal customer feedback loop — builds inf." | Platform team created without a product manager or internal customer feedback loop — builds infrastructure nobody asked for while teams keep building  | Assign a PM to the platform team with an NPS survey of internal customers, publish a quarterly roadmap voted on by consuming teams, and sunset any platform serv |
+
+This table is specific to `vp-engineering`: each row names a failure this work actually produces, and the response that failure requires.
 ## Cross-Skill Coordination
 
 <!-- STANDARD: 3min -->

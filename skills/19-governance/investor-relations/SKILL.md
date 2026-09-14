@@ -208,6 +208,31 @@ If a command or approach fails, follow this escalation path before giving up:
 
 **Hard failure boundary:** If 3 different approaches all fail, STOP. Do not iterate infinitely. Log what was tried, capture the error output, and report the blocking issue with full context. Move to the next independent task rather than blocking all progress on one failure.
 
+## Anti-Rationalization **(QUICK)**
+
+Where practitioners talk themselves past the rules above — and the required answer:
+
+| Rationalization | Why it is wrong | Required response |
+|---|---|---|
+| "It is faster to skip this: Selective disclosure — CEO shares material non-public information with a select group of invest." | Selective disclosure — CEO shares material non-public information with a select group of investors at a conference dinner without simultaneous broad d | All material information goes through an 8-K filing or broadly distributed press release BEFORE any selective communication. Pre-approved talking points for eve |
+| "It is faster to skip this: Guiding too aggressively on earnings — management provides overly precise annual guidance ("$1.." | Guiding too aggressively on earnings — management provides overly precise annual guidance ("$1.42-$1.44 EPS"), then misses by $0.02 because a single l | Guide on ranges with adequate buffer, not aspirational precision. If a single deal or one-week delay can cause a miss, the range is too tight. Consider withdraw |
+| "It is faster to skip this: Ghosting investors after a bad quarter — earnings miss, stock drops 20%, and IR goes completely." | Ghosting investors after a bad quarter — earnings miss, stock drops 20%, and IR goes completely silent. No proactive outreach calls, no interim update | Overcommunicate after misses: CEO letter to shareholders within 48 hours acknowledging the miss with root cause analysis and corrective actions. IR calls every  |
+
+This table is specific to `investor-relations`: each row names a failure this work actually produces, and the response that failure requires.
+
+## When NOT to Use **(QUICK)**
+
+<!-- QUICK: 30s — this skill packages and communicates the raise; four adjacent skills own the inputs and the legal machinery -->
+
+| Condition | Use instead |
+|---|---|
+| You need the term sheet redlined, a side letter drafted, or the definitive agreements negotiated — not a comparison matrix showing which sheet is founder-friendlier | `legal-advisor` |
+| You need the three-statement model, the cap table built from source documents, or the dilution math itself — the artifact this skill packages | `fp-and-a-analyst` |
+| You are preparing the board deck, recruiting an independent director, or running the governance calendar around the round | `board-manager` |
+| You are evaluating or selling the company — target screening, diligence on the other side of the table, deal structuring and integration | `m-and-a-strategist` |
+| You are reconciling option grants, booking SAFE conversions, or closing the monthly equity ledger for day-to-day investor accounting | `accountant` |
+| You are designing the deck's visual system or narrative craft as a standalone artifact, with no raise, pipeline, or diligence workflow attached | `presentation-designer` |
+
 ## Cross-Skill Coordination
 
 <!-- NEIGHBORS: IR connects fundraising strategy, financial reporting, and board governance -->
