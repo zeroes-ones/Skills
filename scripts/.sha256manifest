@@ -1,13 +1,13 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-14T19:32:39Z
+# Generated: 2026-09-14T20:57:41Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    bfc7f584afbc50671557d84d6175a7cefe554b4f
+# Commit:    303525a8852e325cc4a09fcfdbaf662cff66f687
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
 
 e16e03671c521938e9be6d24f4d944648e1c1671344c4d8d41daadafeb913868  .githooks/commit-msg
-1b835d9830699a4a580a4fc131bed23e52eb2444703c2d235f1649f3c2df8cf1  .githooks/pre-commit
+ca3f8a02e81671d2883ba3ca5dec5728c4baf8087bc14b10c78ceb6bcfd8cb3f  .githooks/pre-commit
 ef8c6e4ace23f0c4d14b8865f2e543c4ea94b2d8850bfd0241e695e461e940a7  .githooks/pre-push
 63bad0ccc35c995cc82645b621ebdc014a7c7d2fe32dec985d6a3a246d161cb2  scripts/_compile_skill.py
 ffd847830fc4daa5ff70cdde91f58597623f5103959130f1240d1b9d82e6ea25  scripts/add-finance-rp-extensions.py
@@ -20,6 +20,8 @@ faee631777544e92d7f2b676903643d0bfdea22887c68b768069f90685389471  scripts/audit-
 82ed0852688d3cebeaf5eb98012cbd9f76e40338d16b4875f8ce132eef585226  scripts/build-flat-index.sh
 f3ced2ba8eb676c16f81956aa90f8e533d78e8c2039a95ad94fc24c493e6d91f  scripts/build-skill-index.py
 83e5bc2f876a6d31cc3fc9c54cbafbddb83bce9158f28780dcb83dbe8c236efe  scripts/calculate-roi.sh
+5969e0a0960ac883b7b8f32702786067b0f6460538025ebba58d12771a0da444  scripts/check-content-duplication.py
+fa89e66da7a4330aec4a564af7d8f73714abb3553e9afe6408b16574030d1382  scripts/check-domain-coherence.py
 b18907aef4aff281b3dc2f30ce2785ec0bca72f81a03a0f664d5de4fc425411d  scripts/check-flat-index.py
 0275d3713f1c34388927b27c4b9b4bb6c68e4c5f0a2329d88594901317ab609b  scripts/check-token-budget.py
 b34d876e8dd8148c56a17d28b0e160abb1fa5d78648be4f6c2f06e99315991aa  scripts/compile-skills.sh
@@ -72,7 +74,7 @@ f493603183b51e52b96c5dc0ea512bedfc14ae3a906f2b76d80283646c8a4ca4  scripts/skill-
 5efe46068f41d543978a8df504ea429125bd03c425675074b8d3a8fd3e739c37  scripts/trim-context.sh
 0a95e1fb6019c454162c2e3222fe9d461c65eecf7a3a8955373a26a7f13d7cb0  scripts/upgrade_to_10_v2.py
 c4bfad9ebfc2d17b8ca57c4f1c29fc402e9fede4b88ba09f36177dcf06c04fa4  scripts/validate_chains.py
-e809e4f59262c1fa21271783994181700aba3d3d5fd046c8c65b9648850a2d6b  scripts/validate-skills.sh
+8cd436b683ab586016c093193d7603077a757db2bd04c061a2547d1cb5d87f26  scripts/validate-skills.sh
 29dd457674787d54a2cb2ebb22174996eb968a004cf06fe33fcea1b8d4fe4226  scripts/validate-workflows.py
 466de1da9ba1cfcc63869044e4a40eff6609f11a5bc8de8a9a9c06f767fe07a0  scripts/verify-script-integrity.sh
 ba05301fc66f4b37e48e0d95662ce801792126193e308545ef70fa7e4c4e1617  scripts/workflow-eligibility.py

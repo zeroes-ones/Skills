@@ -199,7 +199,11 @@ sys.exit(min(errs, 1))
         errors=$((errors + 1))
     fi
 
-    # ── G8: Decision trees count (\u22653) ────────────────────────────────────
+    # ── G8: Decision trees (≥3, each with an actual branch artifact) ──────
+    # Counting `###` headings alone is not enough: 18 skills shipped "### Decision Tree N:"
+    # headings with zero branch characters and no diagram — a compliance paragraph wearing
+    # a tree's heading. A tree must contain at least one branching artifact (an ASCII
+    # diagram in a code fence, or branch glyphs / arrows).
     dt_failures=0
     while IFS= read -r f; do
         [ -z "$f" ] && continue
@@ -207,14 +211,33 @@ sys.exit(min(errs, 1))
         dt_count=$(sed -n '/^## Decision Trees/,/^## Gotchas/p' "$REPO_ROOT/$f" 2>/dev/null | grep -c '^###' || true)
         dt_count=${dt_count:-0}
         if [ "$dt_count" -lt 3 ] 2>/dev/null; then
-            echo "  ✗ $f: only $dt_count decision tree(s) (need \u22653)"
+            echo "  ✗ $f: only $dt_count decision tree(s) (need ≥3)"
+            dt_failures=$((dt_failures + 1))
+            continue
+        fi
+        # Branch-artifact check on the Decision Trees section.
+        dt_has_branch=$(python3 -c "
+import re, sys
+try:
+    t = open('$REPO_ROOT/$f', encoding='utf-8', errors='replace').read()
+except OSError:
+    sys.exit(0)
+m = re.search(r'^##\s+Decision Trees.*?\n(.*?)(?=^##\s|\Z)', t, re.M | re.S)
+seg = m.group(1) if m else ''
+fences = len(re.findall(r'\`\`\`', seg)) // 2
+glyphs = len(re.findall(r'[├└│┌┐┘┴┬┼▼▲◄►]|→|->|──', seg))
+# pass if there is a fenced diagram, or dense branch glyphs
+print(1 if (fences >= 1 and glyphs >= 8) or glyphs >= 20 else 0)
+" 2>/dev/null || echo 1)
+        if [ "$dt_has_branch" = "0" ]; then
+            echo "  ✗ $f: Decision Trees section has $dt_count heading(s) but no branching diagram"
             dt_failures=$((dt_failures + 1))
         fi
     done <<< "$NON_FW_SKILLS"
     if [ "$dt_failures" -eq 0 ]; then
-        pass "G8  Decision trees (\u22653 under ## Decision Trees)"
+        pass "G8  Decision trees (≥3, each with a branching artifact)"
     else
-        fail "G8  Decision trees — $dt_failures skill(s) below minimum"
+        fail "G8  Decision trees — $dt_failures skill(s) below minimum or without a diagram"
         errors=$((errors + 1))
     fi
 
