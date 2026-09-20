@@ -7,7 +7,7 @@ Verification is a valid node in default mode** (WORKFLOW-SYSTEM.md §8): the ski
 Production Checklist tables act as the completion-criteria source, and `scripts/workflow-runner.py`
 enforces loop budgets, stagnation, step budgets, and handoff bookkeeping in code.
 
-## Coverage legend (the four shapes)
+## Coverage legend (the six shapes)
 
 | Manifest | Shape | What it proves |
 |----------|-------|----------------|
@@ -16,6 +16,17 @@ enforces loop budgets, stagnation, step budgets, and handoff bookkeeping in code
 | `parallel-audits-merge.yaml` | **Parallel, multi-agent** | three specialist auditors over one change, join: all, human gate fires after the last auditor |
 | `agent-efficiency-pass.yaml` | **Serial, prompt/efficiency skills** | using-agent-skills → llm-engineer → context-compaction-strategies → token-efficiency |
 | `senior-dev-loop.yaml` | **Bounded loop, single-agent (flagship)** | micro-SDLC over flagship skills: incremental-implementation ↔ code-reviewer until `review.verdict == pass`; exhaustion escalates to a human ship gate — see `docs/flagship-senior-engineering.md` |
+| `repo-self-check.yaml` | **Parallel fan-out, dogfooding** | three quality gates (workflow validation, skill lints, golden evals) fan out from one start node and join into a human release gate |
+
+Six manifests cover five distinct shapes (two are bounded loops). Two caveats apply to every row:
+
+- `parallel-audits-merge.yaml` and `repo-self-check.yaml` declare `join: all`; that is currently the
+  only join the engine implements, so the declaration is not what makes them merge — the code always
+  does. See WORKFLOW-SYSTEM.md §2.4.
+- The runner executes parallel members **one at a time, in frontier order** (`active.pop(0)`, FIFO);
+  there is no concurrency in `scripts/workflow-runner.py`. `parallel-audits-merge.yaml`'s own
+  description states this ("the stdlib runner executes them in FIFO order"). "Parallel" is a graph
+  shape here, not engine threading.
 
 Together they cover single- and multi-agent handoffs, serial and parallel work, and the
 prompt-engineering + efficiency layers of the library — the shapes requested for library-wide
@@ -32,7 +43,7 @@ coverage.
    declare contracts on 24 delivery hubs (the 14 phase-1 set plus mobile-developer,
    compliance-officer, performance-engineer, ui-ux-designer, algorithmic-trader,
    incident-responder, legal-advisor, growth-engineer, data-scientist, analytics-engineer), and
-   `python3 scripts/validate-workflows.py --coverage` proves all 297 skills resolve as nodes.
+   `python3 scripts/validate-workflows.py --coverage` proves all 327 skills resolve as nodes.
 3. **Validate and run.** Every manifest here must stay valid:
    `python3 scripts/validate-workflows.py --all`. To run headless (stub executor):
    `python3 scripts/workflow-runner.py --manifest workflow/manifests/<name>.yaml`.

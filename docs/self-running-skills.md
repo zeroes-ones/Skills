@@ -19,9 +19,13 @@ Every node execution produces a **handoff record** — the runner already stamps
  "payload": "handoff-v1", "sha": "99a735cf7df6"}
 ```
 
-`handoff-v1` carries: `status, summary, artifacts, decisions, open_questions,
-verification_evidence, context, budget, next`. The `sha` is the sender's node-record hash, so
-the receiver can detect corrupted state (mismatch aborts — never propagate).
+`handoff-v1` carries: `status, summary, artifacts, decisions, open_questions, constraints,
+verification_evidence, context, budget, next`. The `sha` is the sender's node-record hash; it is
+**not** what detects corruption — the sender's record is rewritten after the hop, so re-reading
+`sha` would report corruption on a healthy run. Corruption is detected by `handoff.integrity`
+(a frozen sender snapshot + digest), verified at send time and on every `--state` resume; a
+mismatch aborts with `StateCorruption` naming the hop. It covers the handoff record, not edits to
+`nodes[...]` — see `WORKFLOW-SYSTEM.md` §4.1 for the detects / does-not-detect split.
 
 Rules that make continuation safe and automatic:
 

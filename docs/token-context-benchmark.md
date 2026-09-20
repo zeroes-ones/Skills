@@ -139,7 +139,7 @@ compilation (which acts only on the one skill actually loaded).
 |---|---|---|
 | `audit-library.py` | 9.8/10 (320 skills) | **No — exits 0 always, not in CI** |
 | `validate-skills.sh` | PASS 14 / FAIL 0 | Yes (blocking) |
-| `check-token-budget.py` | 320/320 within budget | Yes (blocking) |
+| `check-token-budget.py` | compile coverage 327/327; budget UNMEASURED w/o tiktoken | Coverage yes (blocking); budget comparison no (exit 2 unless `--allow-unmeasured`) |
 | Golden evals | 3/320 skills, 7 cases, green | Yes |
 | Workflow manifests | 6, selftest 24/24 | Yes |
 | Skills >500-line advisory budget | **286** | No (advisory) |

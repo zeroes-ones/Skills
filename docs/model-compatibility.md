@@ -4,6 +4,12 @@
 > **Last updated:** 2026-07-24
 > **Purpose:** Evaluates 166 skills across frontier models, tracking which models require `--solo` mode, which handle full instruction sets, and token optimization metadata per model.
 
+> **Staleness caveat (2026-09-20).** This measurement was taken on a **166-skill** corpus; the
+> library is now **327 skills** (`find skills -name SKILL.md | wc -l`). Per-model *patterns* —
+> which models need `--solo`, which degrade on long instruction sets — are the durable part and are
+> still directionally useful. The **counts and per-skill rows are not current** and were not
+> re-measured. Treat the method as sound and the numbers as a dated snapshot.
+
 ---
 
 ## Table of Contents

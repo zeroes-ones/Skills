@@ -55,12 +55,15 @@ def _plugin_file(pid, desc):
     }
 
 
+def _plugin_json_bytes(pid, desc):
+    return (json.dumps(_plugin_file(pid, desc), indent=2) + "\n").encode("utf-8")
+
+
 def _write_plugin_json(pid, desc):
     d = os.path.join(ROOT, "plugins", pid)
     os.makedirs(d, exist_ok=True)
-    with open(os.path.join(d, "plugin.json"), "w", encoding="utf-8") as f:
-        json.dump(_plugin_file(pid, desc), f, indent=2)
-        f.write("\n")
+    with open(os.path.join(d, "plugin.json"), "wb") as f:
+        f.write(_plugin_json_bytes(pid, desc))
 
 
 def _ensure_symlink(link, target_rel):
@@ -142,15 +145,27 @@ def build():
     }
 
 
-def write_outputs(catalog):
-    """Materialize plugin dirs + marketplace.json. Returns dict of written bytes."""
+def write_outputs(catalog, materialize=True):
+    """Materialize plugin dirs + marketplace.json. Returns (file_bytes, links).
+
+    file_bytes maps absolute path -> expected content; links maps absolute symlink
+    path -> expected target. With materialize=False (used by --check) nothing is
+    written and no symlink is created: the function only computes what SHOULD be on
+    disk, so the caller can compare against it. Writing first and comparing after —
+    the previous behaviour — repaired any drift before checking for it, so the gate
+    could never fail.
+    """
     files = {}
+    links = {}
 
     # zeroes-ones-all
     pid = "zeroes-ones-all"
     desc = next(p["description"] for p in catalog["plugins"] if p["name"] == pid)
-    _write_plugin_json(pid, desc)
-    _ensure_symlink(os.path.join(ROOT, "plugins", pid, "skills"), "../../skills-flat")
+    if materialize:
+        _write_plugin_json(pid, desc)
+        _ensure_symlink(os.path.join(ROOT, "plugins", pid, "skills"), "../../skills-flat")
+    files[os.path.join(ROOT, "plugins", pid, "plugin.json")] = _plugin_json_bytes(pid, desc)
+    links[os.path.join(ROOT, "plugins", pid, "skills")] = "../../skills-flat"
 
     # flagship plugins
     flagship_dir = os.path.join(ROOT, "flagship")
@@ -161,8 +176,13 @@ def write_outputs(catalog):
             fs = json.load(open(os.path.join(flagship_dir, fn), encoding="utf-8"))
             pid = "flagship-%s" % fs["id"]
             desc = next(p["description"] for p in catalog["plugins"] if p["name"] == pid)
-            _write_plugin_json(pid, desc)
-            _skill_symlinks(pid, [s["name"] for s in fs.get("skills", [])])
+            if materialize:
+                _write_plugin_json(pid, desc)
+                _skill_symlinks(pid, [s["name"] for s in fs.get("skills", [])])
+            files[os.path.join(ROOT, "plugins", pid, "plugin.json")] = _plugin_json_bytes(pid, desc)
+            for nm in fs.get("skills", []):
+                links[os.path.join(ROOT, "plugins", pid, "skills", nm["name"])] = \
+                    "../../../skills-flat/%s" % nm["name"]
 
     # per-domain plugins
     for entry in catalog["plugins"]:
@@ -177,13 +197,16 @@ def write_outputs(catalog):
                 break
         if domain_dir is None:
             continue
-        _write_plugin_json(pid, entry["description"])
-        _ensure_symlink(os.path.join(ROOT, "plugins", pid, "skills"),
-                        "../../skills/%s" % domain_dir)
+        if materialize:
+            _write_plugin_json(pid, entry["description"])
+            _ensure_symlink(os.path.join(ROOT, "plugins", pid, "skills"),
+                            "../../skills/%s" % domain_dir)
+        files[os.path.join(ROOT, "plugins", pid, "plugin.json")] = _plugin_json_bytes(pid, entry["description"])
+        links[os.path.join(ROOT, "plugins", pid, "skills")] = "../../skills/%s" % domain_dir
 
     mkt = json.dumps(catalog, indent=2) + "\n"
     files[os.path.join(ROOT, ".claude-plugin", "marketplace.json")] = mkt.encode("utf-8")
-    return files
+    return files, links
 
 
 def validate_catalog(catalog):
@@ -219,11 +242,9 @@ def main():
     args = ap.parse_args()
 
     catalog = build()
-    files = write_outputs(catalog)
-    if not validate_catalog(catalog):
-        raise SystemExit(1)
-
     if args.check:
+        # Read-only freshness gate: compute expected content WITHOUT writing, then compare.
+        files, links = write_outputs(catalog, materialize=False)
         drifted = []
         for path, content in files.items():
             rel = os.path.relpath(path, ROOT)
@@ -231,6 +252,12 @@ def main():
                 drifted.append(f"{rel}: MISSING")
             elif open(path, "rb").read() != content:
                 drifted.append(f"{rel}: STALE")
+        for link, target_rel in links.items():
+            rel = os.path.relpath(link, ROOT)
+            if not os.path.islink(link):
+                drifted.append(f"{rel}: MISSING symlink")
+            elif os.readlink(link) != target_rel:
+                drifted.append(f"{rel}: STALE symlink -> {os.readlink(link)}")
         if drifted:
             print("Marketplace outputs are stale. Regenerate with:")
             print("  python3 scripts/emit-marketplace.py")
@@ -239,6 +266,10 @@ def main():
             sys.exit(1)
         print("✓ marketplace outputs are fresh (%d plugins)" % len(catalog["plugins"]))
         return
+
+    write_outputs(catalog)
+    if not validate_catalog(catalog):
+        raise SystemExit(1)
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:

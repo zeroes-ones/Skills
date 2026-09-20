@@ -552,12 +552,21 @@ A world-class leveling system produces:
 - **Transparent:** Every engineer knows what L(N+1) requires, has a growth plan, and understands the evidence standard for promotion
 
 The leveling system doesn't rank people — it creates clarity. Everyone knows where they are, what's next, and how to get there.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
+
+### Completion Criteria
+
+| ☐ | # | Complete when | Check that proves it |
+|---|---|---|---|
+| ☐ | CR01 | Complete when the L1–L5 ladder is applied with each level defined by an increase in at least two of the four axes — a title change alone never advances a level | Each level in the guide shows a scope, autonomy, impact, and craft statement; no adjacent levels differ on only one axis |
+| ☐ | CR02 | Complete when scope is expressed as the breadth the person actually operates at, not the breadth of the team they sit in | The scope anchor names what the person owns (task, feature, project, multi-team, company) and cites work they did at that breadth |
+| ☐ | CR03 | Complete when autonomy is expressed as the decisions a person makes without escalation, evidenced by named decisions rather than a "seniority feel" | The autonomy anchor lists concrete decisions taken unsupervised; an L2 example does not read as an L1 waiting for instructions |
+| ☐ | CR04 | Complete when impact is expressed as the outcome the work changes and its reach, not the volume of output produced | The impact anchor names an outcome and who it affected; "shipped a lot" is rejected as an impact statement |
+| ☐ | CR05 | Complete when craft is expressed as the depth at which the person improves the domain — practicing it, teaching it, setting its standards, or redefining it | The craft anchor shows what the person changed for others (a pattern, a standard, a teaching artifact), not just personal proficiency |
+| ☐ | CR06 | Complete when the same evidence set is judged against all four axes before a level is assigned, so a strong axis cannot silently carry a weak one | The assignment record scores all four axes; a level claim resting on one axis is flagged for a second rater |
+| ☐ | CR07 | Complete when calibration is run as independent rating before discussion, so the initial ratings are not anchored by the first voice in the room | Rating sheets are dated and collected before the consensus meeting; the spread between initial ratings is recorded |
+| ☐ | CR08 | Complete when a level assignment is reproducible: a different calibrator, given the same behavioral evidence, reaches the same level or the one adjacent | Replay the evidence with a second rater; outcomes agree exactly or within one level, and disagreements are logged with the axis that split them |
+| ☐ | CR09 | Complete when the ladder is checked for gaps — every role family in scope maps to a level, and no level is defined only by absence of the level above it | Cross-reference the role families against the ladder; each level has a positive definition, not "not yet L(N+1)" |
+| ☐ | CR10 | Complete when a level transition is described by observable behavior, so the person can tell what evidence would move them up | Each transition names the behavior that appears at the next level and disappears at the current one, drawn from real work |
 ## <!-- DEEP: 10+min --> Anti-Rationalization — No Excuses
 
 | Rationalization | Reality |
@@ -643,13 +652,13 @@ Detailed reference material loaded on demand:
 
 ## Production Checklist
 
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |
+| ☐ | CR01 | Every level L1–L5 carries a statement on all four axes — scope, autonomy, impact, craft — with no axis left blank or borrowed from the level above | Evidence: the level table shows four populated anchors per level; an axis that repeats verbatim across two levels is flagged |
+| ☐ | CR02 | Autonomy is written as observable behaviour — the decisions the person makes unsupervised and the point at which they escalate — not as a label such as "independent" or "senior" | Evidence: each autonomy anchor names a decision or escalation trigger; "works independently" alone is rejected as unverifiable |
+| ☐ | CR03 | Adjacent levels differ on at least two axes, so no level is advanced by a single dimension | Evidence: diff each level-pair across the four axes; a pair changing only craft or only scope is flagged for redefinition |
+| ☐ | CR04 | Scope is stated as what the person owns (task → feature → project → multi-team → company), not as the headcount of the team they sit in | Evidence: the scope anchor names the owned unit; "sits in a 40-person org" is not treated as scope evidence |
+| ☐ | CR05 | Impact names the outcome changed and its reach; output volume is not accepted as an impact statement | Evidence: each impact anchor pairs an outcome with who it affected; "delivered a lot" fails the check |
+| ☐ | CR06 | The craft axis shows movement from practising the domain to teaching it, setting its standards, and redefining them | Evidence: each craft anchor states what the person changed for others — a pattern, standard, or teaching artifact |
+| ☐ | CR07 | Each adjacent transition is described by observable behaviour: what appears at L(N+1) and what stops at L(N) | Evidence: every transition row names a behaviour, not an aspiration; the person can state the evidence that would move them up |
+| ☐ | CR08 | Calibration examples exist for more than one level, drawn from real work rather than a single illustrative case | Evidence: at least two levels carry a concrete example with context, so the anchors are shown, not merely asserted |
+| ☐ | CR09 | The taxonomy is applied to at least one named role family across all five levels, with no family mapped only partially | Evidence: a role-family table covers L1–L5; any family stopping mid-ladder is logged as a gap, not left implicit |
+| ☐ | CR10 | Level assignment is reproducible: a second calibrator given the same evidence reaches the same level or the one adjacent | Evidence: replayed evidence yields agreement within one level, and the split axis is recorded when it does not |

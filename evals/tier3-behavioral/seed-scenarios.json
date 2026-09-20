@@ -242,12 +242,13 @@
           "type": "loop_behavior",
           "skill": "agent-handoff-protocol",
           "input": "You have finished the code-reviewer node of a workflow. Write the handoff payload the next node (fixer) will consume.",
-          "expected_behavior": "The payload contains all nine registry keys with content: status, summary, artifacts, decisions, open_questions, verification_evidence, context, budget, and optionally next. An empty verification_evidence map is treated as not done.",
+          "expected_behavior": "The payload contains all ten registry keys with content: status, summary, artifacts, decisions, open_questions, constraints, verification_evidence, context, budget, and optionally next. An empty verification_evidence map is treated as not done; a non_negotiable constraint received from upstream is carried forward unchanged.",
           "validation": [
             { "label": "status key", "patterns": ["status"] },
             { "label": "artifacts key", "patterns": ["artifact", "path", "sha"] },
             { "label": "decisions key", "patterns": ["decision"] },
             { "label": "open questions key", "patterns": ["open_question", "open question"] },
+            { "label": "constraints key", "patterns": ["constraint"] },
             { "label": "verification evidence key", "patterns": ["verification_evidence", "verification evidence"] },
             { "label": "context and budget keys", "patterns": ["context", "budget"] }
           ],

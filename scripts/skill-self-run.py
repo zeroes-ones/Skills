@@ -30,7 +30,7 @@ import sys
 SKILLS_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                            "skills")
 BUDGET = {"xs": 30, "s": 50, "m": 80, "l": 120}
-HANDOFF = ("status, summary, artifacts, decisions, open_questions, "
+HANDOFF = ("status, summary, artifacts, decisions, open_questions, constraints, "
            "verification_evidence, context, budget, next")
 
 

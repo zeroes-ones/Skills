@@ -384,18 +384,20 @@ Is a rule being silenced at a site, or globally?
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| The same formatting issue is raised in review repeatedly | The convention is enforced by humans, not a tool (R1) | Automate it; remove it from the review checklist entirely. Recurring style review commonly wastes **$30,000 cost** per team per year in review attention | A style decision made twice is a style decision not enforced |
-| A formatting commit destroys `git blame` for a year of history | The reformat was not isolated, or not blame-ignored (R3) | A dedicated formatting-only commit, added to `.git-blame-ignore-revs`. A blame-archaeology delay of hours per investigation commonly costs **$20,000 cost** per year | History is a tool; a reformat can break it |
-| The linter is disabled "temporarily" and never re-enabled | The gate produced noise, so it was routed around (R6) | Exclude generated code, bound suppressions, and re-enable with a visible count. A disabled gate commonly costs **$60,000 cost** in defects it would have caught | Noise teaches people to ignore the check |
-| Unformatted code reaches the main branch despite a hook | The hook is skippable, or absent in a web UI or a bot commit (R2) | Add the CI gate as the authority. Bypassed enforcement commonly costs **$25,000 cost** in cleanup and inconsistency | A convenience is not an authority |
-| Reviewers argue about line width or quote style | No declared policy, or a policy with two authorities | Declare it once, automate it, and stop. A recurring argument commonly costs **$40,000 cost** per year in meeting time and rework | Unsettled style is a recurring tax |
-| The linter reports thousands of issues on a legacy codebase | No migration plan; the gate was enabled before the baseline | Establish a baseline: fix the autofixable set, then gate on no-new-findings. A blocked release from a sudden gate commonly costs **$90,000 cost** | A gate without a baseline blocks everything at once |
-| Generated files are flagged on every change | Generated/vendored paths are in scope (R6) | Exclude by path and header marker, and verify. Remediation of a noisy gate commonly costs **$15,000 cost** | Exclusions must be verified, not just configured |
-| Two formatters disagree, producing churn on every save | A stretched tool or overlapping scopes (R5) | One formatter per language; remove the overlap. Churn remediation commonly costs **$35,000 cost** | Overlapping tools produce perpetual diffs |
-| A security lint rule was suppressed to unblock a release | The suppression policy did not distinguish security rules (Anti-Hallucination) | Revert the suppression; fix the finding or escalate to `appsec-engineer`. A shipped injection defect commonly costs **$250,000 cost** plus legal exposure | Some rules are not suppressible to ship a release |
-| New engineers ask how style works here | The policy is implicit, spread across configs | Write the policy in one place; onboarding cost commonly **$10,000 cost** per hire | Implicit policy is re-derived by every new person |
+| The same formatting issue is raised in review repeatedly | The convention is enforced by humans, not a tool (R1) | Automate it; remove it from the review checklist entirely. Recurring style review commonly wastes **$30,000 [ESTIMATED]** per team per year in review attention | A style decision made twice is a style decision not enforced |
+| A formatting commit destroys `git blame` for a year of history | The reformat was not isolated, or not blame-ignored (R3) | A dedicated formatting-only commit, added to `.git-blame-ignore-revs`. A blame-archaeology delay of hours per investigation commonly costs **$20,000 [ESTIMATED]** per year | History is a tool; a reformat can break it |
+| The linter is disabled "temporarily" and never re-enabled | The gate produced noise, so it was routed around (R6) | Exclude generated code, bound suppressions, and re-enable with a visible count. A disabled gate commonly costs **$60,000 [ESTIMATED]** in defects it would have caught | Noise teaches people to ignore the check |
+| Unformatted code reaches the main branch despite a hook | The hook is skippable, or absent in a web UI or a bot commit (R2) | Add the CI gate as the authority. Bypassed enforcement commonly costs **$25,000 [ESTIMATED]** in cleanup and inconsistency | A convenience is not an authority |
+| Reviewers argue about line width or quote style | No declared policy, or a policy with two authorities | Declare it once, automate it, and stop. A recurring argument commonly costs **$40,000 [ESTIMATED]** per year in meeting time and rework | Unsettled style is a recurring tax |
+| The linter reports thousands of issues on a legacy codebase | No migration plan; the gate was enabled before the baseline | Establish a baseline: fix the autofixable set, then gate on no-new-findings. A blocked release from a sudden gate commonly costs **$90,000 [ESTIMATED]** | A gate without a baseline blocks everything at once |
+| Generated files are flagged on every change | Generated/vendored paths are in scope (R6) | Exclude by path and header marker, and verify. Remediation of a noisy gate commonly costs **$15,000 [ESTIMATED]** | Exclusions must be verified, not just configured |
+| Two formatters disagree, producing churn on every save | A stretched tool or overlapping scopes (R5) | One formatter per language; remove the overlap. Churn remediation commonly costs **$35,000 [ESTIMATED]** | Overlapping tools produce perpetual diffs |
+| A security lint rule was suppressed to unblock a release | The suppression policy did not distinguish security rules (Anti-Hallucination) | Revert the suppression; fix the finding or escalate to `appsec-engineer`. A shipped injection defect commonly costs **$250,000 [ESTIMATED]** plus legal exposure | Some rules are not suppressible to ship a release |
+| New engineers ask how style works here | The policy is implicit, spread across configs | Write the policy in one place; onboarding cost commonly **$10,000 [ESTIMATED]** per hire | Implicit policy is re-derived by every new person |
 
 ## Error Recovery **(QUICK)**
 
@@ -520,18 +522,20 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Style enforced by review | The same comment recurs; commonly **$30,000 cost** per team per year | Automate it and remove it from review (R1) |
-| Enforcement only in a hook | Unformatted code on main; commonly **$25,000 cost** | CI as the authority (R2) |
-| Unisolated reformat | Blame archaeology; commonly **$20,000 cost** per year | Dedicated commit + `.git-blame-ignore-revs` (R3) |
-| Unbounded suppressions | A rule effectively disabled; commonly **$60,000 cost** in missed defects | Reason, scope, visible count, budget (R4) |
-| Gate enabled before a baseline | A blocked release; commonly **$90,000 cost** | Establish the baseline, gate on no-new-findings |
-| Generated files in scope | Noise that teaches people to ignore the gate; commonly **$15,000 cost** | Exclude and verify (R6) |
-| Overlapping formatters | Perpetual churn diffs; commonly **$35,000 cost** | One formatter per language (R5) |
-| A security rule suppressed to ship | A shipped defect; commonly **$250,000 cost** plus legal exposure | Never suppress; fix or escalate |
-| Two authorities for one style question | Recurring argument; commonly **$40,000 cost** per year | Declare once, automate, stop |
-| Implicit policy | Every new hire re-derives it; commonly **$10,000 cost** per hire | Write the policy in one place |
+| Style enforced by review | The same comment recurs; commonly **$30,000 [ESTIMATED]** per team per year | Automate it and remove it from review (R1) |
+| Enforcement only in a hook | Unformatted code on main; commonly **$25,000 [ESTIMATED]** | CI as the authority (R2) |
+| Unisolated reformat | Blame archaeology; commonly **$20,000 [ESTIMATED]** per year | Dedicated commit + `.git-blame-ignore-revs` (R3) |
+| Unbounded suppressions | A rule effectively disabled; commonly **$60,000 [ESTIMATED]** in missed defects | Reason, scope, visible count, budget (R4) |
+| Gate enabled before a baseline | A blocked release; commonly **$90,000 [ESTIMATED]** | Establish the baseline, gate on no-new-findings |
+| Generated files in scope | Noise that teaches people to ignore the gate; commonly **$15,000 [ESTIMATED]** | Exclude and verify (R6) |
+| Overlapping formatters | Perpetual churn diffs; commonly **$35,000 [ESTIMATED]** | One formatter per language (R5) |
+| A security rule suppressed to ship | A shipped defect; commonly **$250,000 [ESTIMATED]** plus legal exposure | Never suppress; fix or escalate |
+| Two authorities for one style question | Recurring argument; commonly **$40,000 [ESTIMATED]** per year | Declare once, automate, stop |
+| Implicit policy | Every new hire re-derives it; commonly **$10,000 [ESTIMATED]** per hire | Write the policy in one place |
 
 ## State Log **(QUICK)**
 

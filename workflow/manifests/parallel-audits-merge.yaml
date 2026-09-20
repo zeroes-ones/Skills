@@ -8,6 +8,7 @@ payloads:
     - artifacts
     - decisions
     - open_questions
+    - constraints
     - verification_evidence
     - context
     - budget
@@ -18,24 +19,25 @@ start: developer
 nodes:
   - id: developer
     skill: backend-developer
+    inputs: [findings]
     outputs: [change]
   - id: code-reviewer
     skill: code-reviewer
     inputs: [change]
-    outputs: [code-findings]
+    outputs: [review-report]
   - id: security-reviewer
     skill: security-reviewer
     inputs: [change]
-    outputs: [security-findings]
+    outputs: [security-report]
   - id: qa-engineer
     skill: qa-engineer
     inputs: [change]
-    outputs: [qa-findings]
+    outputs: [qa-report]
 gates:
   - id: release-gate
     type: gate
     kind: human
-    requires: [code-findings, security-findings, qa-findings]
+    requires: [review-report, security-report, qa-report]
     description: Human merges the audit board once all three specialists have reported.
 parallel:
   - id: auditors

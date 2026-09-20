@@ -258,14 +258,14 @@ HARD circuit breakers: daily loss limit, 2-consecutive-loss pause, VIX spike hal
 **Gamma Scalp (GOOD):** SPX ATM straddle, IV=14%, HV=18%. Entry at 9:45 AM. Hedge band = GEX × 0.50. 8 hedges during the day at ±$250 per hedge. Total scalp P&L: +$1,600. Theta cost: -$800. Net: +$800 after costs. [COMPUTED: Requires realized > implied]
 
 **Momentum Options (GOOD):** SPY momentum signal confirmed (volume, price, T&S). Enter ATM $520 call, 10 DTE, $3.00 ($300/contract). Target: 50% (+$150). Stop: 30% (-$90). Time stop: 60 min. Hit target in 45 min. P&L: +$150. FalseStopGuard held through two minor pullbacks that were noise (low volume, <3 bars).
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+| ☐ | Complete when any 0DTE trade is a butterfly on SPX or SPY, with no credit spread, iron condor, or long-premium 0DTE structure in the plan | Trade plan lists structure = butterfly and underlying = SPX or SPY for every 0DTE entry |
+| ☐ | Complete when every proposed entry falls inside the 9:35 AM–3:00 PM ET window, with 0DTE closes scheduled by 2:45 PM | Entry and exit timestamps in the plan sit inside the window; no new entry after 15:00 ET |
+| ☐ | Complete when the target option's spread is under 5% of mid at the planned entry time | Compute `(ask - bid) / mid` on the target contract; flag if >= 0.05 and switch to shares or another underlying |
+| ☐ | Complete when the daily loss limit is set as a dollar figure and the 2-consecutive-max-loss pause and VIX-spike halt are both wired to it | Risk-control config shows the three breakers with their trigger values; simulate each and confirm trading stops |
+| ☐ | Complete when each gamma-scalp setup shows IV percentile below 30% and GEX above $100 per 1% move before entry | Scalp checklist records IV percentile and GEX; both must clear their threshold or the setup is skipped |
+| ☐ | Complete when every stop on a DTE <= 3 position carries the gamma-adjusted buffer rather than a standard percentage stop | Stop value in the plan equals the gamma-adjusted level; a bare `stop = entry * (1 - x%)` fails this row |
+| ☐ | Complete when momentum and ORB entries show all three confirmations — volume, price, and time-and-sales — before the ticket | Confirmation log lists the volume reading, the price break, and the T&S evidence for each entry |
+| ☐ | Complete when the session plan states which broker route is used and gamma-scalp hedging is routed through a direct-access path | Plan names the routing for each strategy; any scalp on a PFOF route is flagged as an execution-quality failure |
 ## Operating at Different Levels
 
 | Level | Scope | Key Capability |
@@ -415,20 +415,66 @@ Use this skill when the task matches the description's trigger conditions. When 
 
 ## Decision Trees
 
-1. Is the task in this skill's scope? If no, route to the owning skill.
-2. Is the required input available and verifiable? If no, request or escalate.
-3. Is the output verifiable against the request? If no, revise with evidence.
-### Decision Tree 1: In-scope or out?
-- In-scope: follow Core Workflow and verify.
-- Out-of-scope: route to the owning skill and stop.
+### Decision Tree 1: Trade or stand down?
 
-### Decision Tree 2: Verify locally or escalate?
-- Locally verifiable: run the check and record the result.
-- Blocked externally: escalate once with full context.
+```
+Intraday session → candidate setup on the tape
+│
+├─ Time window ET
+│  ├─ Before 9:35 AM → STAND DOWN; opening 2 minutes are price discovery, not a market (E5)
+│  ├─ 9:35 AM-3:00 PM, outside 11:30-1:30 → normal sizing window (§6)
+│  ├─ 11:30 AM-1:30 PM → reduce size 50% (Phase 3)
+│  └─ After 3:00 PM → CLOSE-ONLY; gamma is exponential into the close (R2)
+├─ Option spread (ask − bid) / mid > 5% → STAND DOWN; use shares instead (R5)
+├─ ORB quality
+│  ├─ All 3 confirmations (volume, price, T&S) missing → skip, the move is unconfirmed (§5.2)
+│  └─ Option spread > 5% on a confirmed ORB → use SPY shares, options are the secondary vehicle (R10)
+├─ 0DTE gamma risk
+│  ├─ Structure ≠ butterfly → REJECT; credit spreads, iron condors, long premium are negative EV (R1)
+│  ├─ Underlying = individual stock → REJECT; 0DTE on single names is assignment roulette
+│  └─ SPX/SPY butterfly → enter 9:35-10:00 AM, close by 2:45 PM (§1)
+└─ Circuit breaker state
+   ├─ Daily loss limit hit → STOP FOR THE DAY (R3)
+   ├─ 2 consecutive max-loss trades → 30-minute pause, resume at 50% size (R4)
+   └─ VIX spike > 50% intraday → close all positions, go flat (R6)
+```
 
-### Decision Tree 3: Ship or revise?
-- Meets What Good Looks Like: deliver with evidence.
-- Gaps found: revise before delivering.
+### Decision Tree 2: Which intraday setup?
+
+```
+Setup selection → depends on the vol environment and signal strength
+│
+├─ IV percentile < 30% AND current HV > IV → gamma scalp is viable (§2)
+│  ├─ GEX > $100 per 1% move → accept (R8)
+│  └─ GEX < $100 per 1% move → SKIP; hedging cost exceeds the scalp edge (R8)
+├─ IV rank < 30% and buying premium → butterfly on SPX only (R1)
+├─ IV rank > 50% → reduce position sizes (Phase 1)
+├─ Opening range broken with volume → ORB continuation (§3)
+│  ├─ Strong signal → ATM debit spread
+│  └─ Moderate signal → ATM single leg
+└─ Momentum: 3-confirmation present (volume, price, T&S) → enter (§3)
+   └─ Only 2 of 3 confirmed → wait; partial confirmation is a coin flip
+```
+
+### Decision Tree 3: Entry timing by microstructure, and exit when the thesis breaks?
+
+```
+Ticket ready → route the entry, then define the exit before the fill
+│
+├─ Entry timing
+│  ├─ 9:35-11:00 AM → optimal liquidity window (§6)
+│  ├─ Spread still > 5% of option price → wait for it to tighten; never pay it
+│  ├─ Order type → LIMIT only, never market on intraday options
+│  └─ Multi-leg → native spread order; never leg in manually
+├─ Gamma-scalp routing
+│  ├─ DMA broker, sub-50ms (IBKR Pro) → hedges stay on time
+│  └─ PFOF routing → scalp is unprofitable; hedge latency kills it. Switch route or skip
+└─ Exit when thesis breaks intraday
+   ├─ Pullback on low volume and < 3 bars → FalseStopGuard holds the stop (E3)
+   ├─ Reversal confirmed by volume + wick + thin-window → exit at stop, no averaging down
+   ├─ DTE ≤ 3 → stop carries the gamma-adjusted buffer, not a standard percentage (R9)
+   └─ Time stop reached with no catalyst → exit; 0DTE close by 2:45 PM, all others by 3:00 PM
+```
 
 ## Proactive Triggers
 

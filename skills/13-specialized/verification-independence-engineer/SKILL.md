@@ -101,7 +101,7 @@ Design who checks the work, so the check is a real check rather than the produce
 | Rationalization | Why it is wrong | Required response |
 |------------------|-----------------|-------------------|
 | "It checks its own output before answering." | That is the producer grading itself with the reasoning that produced the output. If the reasoning was flawed, the check inherits the flaw. | Split the roles (R1); a self-check is a draft, not a verification. |
-| "It is a different agent, so it is independent." | Two agents sharing a model, a context, or a prompt lineage share the blind spots. Separateness is not independence. | State and verify the independence properties: model, context, information (R3, R6). |
+| "It is a different agent, so it is independent." | Two agents sharing a model, a context, or a prompt lineage share the blind spots. Separateness is not independence. | State and verify the independence properties: role, model, context, information (R3, R6). |
 | "It is a different model, so it is definitely better." | A validator that has never rejected anything is a rubber stamp, whatever model runs it. | Calibrate against known-bad cases and watch the rejection rate (R5). |
 | "The reviewer sees everything, so it has maximum context." | Giving the validator the producer's chain of thought makes it inherit the producer's reasoning — including its errors. | Enforce the information boundary: conclusion and evidence only (R2). |
 | "Resolution rate is up, so the agent is working." | A metric alone is a target; the agent will satisfy it by whatever path is cheapest, including paths that betray why the metric existed. | Pair the target with a harm metric before optimising it (R4). |
@@ -116,7 +116,7 @@ Design who checks the work, so the check is a real check rather than the produce
 | **R3** | **REFUSE to call two agents independent when they share a model and a context lineage.** Independence requires a declared, verifiable difference. | Producer and verifier use the same model with no fresh context, or the verifier's context is seeded from the producer's session | STOP. Respond: "These two share blind spots, so agreement between them is weak evidence. State how the verifier differs — a different model, or at minimum a fresh context that never saw the producer's session. Prefer both." |
 | **R4** | **REFUSE to optimise a metric that has no paired harm metric.** A target without a guard is an instruction to satisfy the number by any available path. | Metric used in a gate, `exit_when`, or reward with no counter-metric guarding the intent it could betray | STOP. Respond: "What does this number exist to protect, and what would go up if it were gamed? Name the harm metric that must not degrade while this improves. Without it, the loop optimises the metric against its own purpose." |
 | **R5** | **REFUSE to trust a validator that has never rejected anything.** An uncalibrated validator is a rubber stamp with a verdict field. | Verifier's rejection rate is unmeasured, is zero, or is not observed over a known-bad set | STOP. Respond: "Has this validator ever failed something that was genuinely bad? Show its agreement with known-bad cases. A validator that approves everything provides no signal — it makes failure harder to see, not easier." |
-| **R6** | **REFUSE to claim independence without stating and verifying the properties.** "It is a separate agent" is a description, not a proof. | Independence asserted in prose with no declared model, context, information boundary, or authority difference | STOP. Respond: "State the four properties — which model, which context, what the validator may see, and what authority its verdict has. Then show the check that enforces each. Unstated independence is assumed independence." |
+| **R6** | **REFUSE to claim independence without stating and verifying the properties.** "It is a separate agent" is a description, not a proof. | Independence asserted in prose with no declared role, model, context, or information boundary difference | STOP. Respond: "State the four properties — is the verifier a different node with its own verdict, which model, which context, and what the validator may see. Then show the check that enforces each. Unstated independence is assumed independence." |
 
 ## Anti-Hallucination
 
@@ -129,11 +129,12 @@ Design who checks the work, so the check is a real check rather than the produce
 
 The core failure this skill addresses is structural, not behavioural: **the producer is also the referee.** A system that executes a task and then evaluates its own execution is using the same reasoning for both. If that reasoning contains an error, the evaluation does not catch it — it reproduces it. Prompting the producer to "check your work" changes the wording, not the structure.
 
-The fix is equally structural: **separate the producing node from the verifying node.** Once they are separate, the interesting questions are all about *how separate*. Three properties decide whether a check is real, and they are independent of each other:
+The fix is equally structural: **separate the producing node from the verifying node.** Once they are separate, the interesting questions are all about *how separate*. Four properties decide whether a check is real, and they are independent of each other:
 
-1. **Model independence** — a different model has different blind spots. Same model, same blind spots, and the check is weak.
-2. **Context independence** — a verifier with a fresh context has not been led by the producer's framing. This is the cheapest form of independence and the one most often missing.
-3. **Information independence** — the verifier sees the claim and the evidence, not the reasoning. A verifier that reads the producer's chain of thought inherits its errors and will agree for the same wrong reason.
+1. **Role independence** — the verifier is a different node from the producer, with its own verdict. This one is necessary and not sufficient: a separate node that shares everything else is still a twin.
+2. **Model independence** — a different model has different blind spots. Same model, same blind spots, and the check is weak.
+3. **Context independence** — a verifier with a fresh context has not been led by the producer's framing. This is the cheapest form of independence and the one most often missing.
+4. **Information independence** — the verifier sees the claim and the evidence, not the reasoning. A verifier that reads the producer's chain of thought inherits its errors and will agree for the same wrong reason.
 
 The second half of the discipline is about the **target**, not the checker. A system optimised to move a number will move that number — by any path the environment permits. This is not malice; it is the metric working exactly as specified. The failure is that the metric was specified as a *proxy* for something the specifier cared about, and the proxy and the intent diverge as soon as the proxy becomes the target. The discipline is therefore: **for every optimised metric, name the harm it could cause and measure that too.** The number that matters is not "did the metric improve" but "did the metric improve while the thing it stood for did not get worse".
 
@@ -160,7 +161,7 @@ The second half of the discipline is about the **target**, not the checker. A sy
 | Novice | Take a checklist you use and mark which items are self-checked versus independently checked | 20 min | Every item labelled producer or verifier |
 | Intermediate | Build a known-bad set of 10 artifacts your validator must reject | 1 h | The validator rejects all 10, and you know its rejection rate |
 | Advanced | Take a system whose checks pass and find one target with no harm metric | 2 h | A paired harm metric, with a baseline and a threshold |
-| Expert | Prove a validator's independence on all three axes and show the enforcement for each | 1 day | A written independence statement plus a test per property |
+| Expert | Prove a validator's independence on all four axes and show the enforcement for each | 1 day | A written independence statement plus a test per property |
 
 ## Operating at Different Levels **(STANDARD)**
 
@@ -303,7 +304,7 @@ What does this metric stand for? (write the intent, not the number)
 |-------|------|-------------|---------------|
 | **1. Map the split** | 20 min | List every artifact and who produces it; mark who approves it | Complete when every artifact has a named producer and a named verifier (R1) |
 | **2. Find the self-checks** | 15 min | Locate nodes whose verdict reads their own output | Complete when each self-check is either replaced by a verifier or recorded as a draft |
-| **3. Declare independence** | 25 min | For each producer→verifier pair, state model, context, information boundary and authority | Complete when all four properties are declared (R6) |
+| **3. Declare independence** | 25 min | For each producer→verifier pair, state role, model, context and information boundary | Complete when all four properties are declared (R6) |
 | **4. Enforce the boundary** | 20 min | Restrict verifier inputs to the artifact and evidence; withhold reasoning | Complete when a test shows the verdict does not move when reasoning is hidden (R2) |
 | **5. Calibrate** | 30 min | Build a known-bad set and measure the rejection rate | Complete when the validator rejects the known-bad set and the rate is instrumented (R5) |
 | **6. Find the targets** | 20 min | List every gate, `exit_when`, and reward metric | Complete when each target has a stated intent |
@@ -318,7 +319,7 @@ What does this metric stand for? (write the intent, not the number)
 3. **Make the verifier's job to falsify.** A verifier asked "is this good?" agrees; a verifier asked "find the flaw" works.
 4. **Calibrate before trusting.** A validator's verdicts are only evidence after it has rejected things you know are bad.
 5. **Instrument the rejection rate per artifact class.** A single aggregate passes the same way a single hit rate does — by hiding the class that matters.
-6. **State independence as four properties, not as a word.** Model, context, information, authority (R6).
+6. **State independence as four properties, not as a word.** Role, model, context, information (R6).
 7. **Give the validator authority proportional to its independence.** A fresh-context reviewer cannot block a ship; an independent, calibrated validator can.
 8. **Write the intent before the number.** A metric whose purpose is unwritten cannot be guarded.
 9. **Gate on the pair, never the target alone.** "Resolution rate up AND churn flat" is a decision; "resolution rate up" is a trap.
@@ -419,7 +420,7 @@ What does this metric stand for? (write the intent, not the number)
 - [ ] **CR5: Fresh context verified** — Verification: the validator's context is not seeded from the producer's session (R3)
 - [ ] **CR6: Known-bad set exists** — Verification: ≥10 known-bad artifacts the validator is expected to reject (R5)
 - [ ] **CR7: Rejection rate instrumented** — Verification: rejections are tracked per artifact class, with an alert on a validator that stops rejecting
-- [ ] **CR8: Independence properties written** — Verification: model, context, information and authority stated per pair, with a test each (R6)
+- [ ] **CR8: Independence properties written** — Verification: role, model, context and information stated per pair, with a test each (R6)
 - [ ] **CR9: Target intents stated** — Verification: every optimised metric has a written intent, not just a formula (R4)
 - [ ] **CR10: Harm metrics paired** — Verification: every optimised target is gated together with its harm metric, or the gap is a recorded accepted risk with an owner (R4)
 - [ ] **CR11: Verifier authority defined** — Verification: each verdict states what it can block, and irreversible outcomes route to a human gate
@@ -447,7 +448,7 @@ Run this sequence. Do not proceed past a failure.
 
 1. **Split check.** Does every consequential artifact have a verifier that is not its producer? If any gate reads the producing node's own verdict, stop and fix R1.
 2. **Boundary check.** Does the verifier receive the claim and the evidence only? Hide the producer's reasoning and re-run — if the verdict moves, stop and fix R2.
-3. **Independence check.** Are model, context, information and authority declared for each pair, each with a test? If independence is prose only, stop and fix R6.
+3. **Independence check.** Are role, model, context and information declared for each pair, each with a test? If independence is prose only, stop and fix R6.
 4. **Calibration check.** Does a known-bad set exist, and does the validator reject it? If the rejection rate is unmeasured or zero, stop and fix R5.
 5. **Intent check.** Does every optimised metric have a written intent? If not, stop and write it before the metric is gated on.
 6. **HARM-PAIR check.** Is every optimised target gated together with a harm metric, or a recorded accepted risk with an owner? If neither, stop and fix R4.

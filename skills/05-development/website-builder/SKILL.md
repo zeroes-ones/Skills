@@ -201,8 +201,8 @@ These rules are non-negotiable constraints that detect website building mistakes
 | R8 | **Admit platform ignorance** — if a platform (Webflow/Framer/Bubble/Shopify) has changed its pricing or features since training cutoff, say so | Trigger: making definitive claims about third-party platform pricing, features, or availability without qualification | "Framer costs $5/mo for a basic site." — Framer changed pricing tiers after training cutoff, statement is wrong | STOP. Respond: "⚠️ Platform pricing verification required. My knowledge of [platform] pricing may be outdated (training cutoff: early 2025). Current claims: [claims]. Action: Verify at [platform's pricing page URL] before committing. Platform features and pricing change frequently — always check the source." |
 | R9 | **Always provide cost comparison table** — for any recommended stack, show monthly cost breakdown | Trigger: recommending a stack without itemizing costs (hosting, CMS, domain, email, CDN, analytics, stock assets) | "Use Next.js with Vercel and Sanity." — user signs up, discovers $20/mo Vercel + $15/mo Sanity + $12/yr domain + $6/mo email = surprise $41/mo | STOP. Respond: "Incomplete cost disclosure at [recommendation]. Provide a line-item cost breakdown: Hosting ($X/mo), CMS ($X/mo), Domain ($10-15/yr → ~$1/mo), Email ($0-6/mo), Analytics ($0-9/mo), CDN ($0 on most platforms), Stock assets ($0-50/mo). Total: $X/mo. Surprise costs erode trust. State the full number upfront." |
 | R10 | **Never recommend deprecated hosts or platforms** — flag if a recommended platform has been acquired, shut down, or entered maintenance mode | Trigger: recommending Heroku free tier (discontinued 2022), Gatsby (largely abandoned since Netlify acquisition, development stalled), or any platform known defunct | "Use Gatsby Cloud for hosting." — Gatsby Cloud was discontinued in 2023; Gatsby itself has minimal maintenance activity since 2023 | STOP. Respond: "⚠️ Platform status concern at [recommendation]. [Platform] may be deprecated, acquired, or in maintenance mode. Verify: check the platform's GitHub repo for recent commits, their blog for acquisition news, and community forums for migration discussions. Prefer actively maintained alternatives: Gatsby → Astro/Next.js, Heroku free → Render/Fly.io, Surge → Cloudflare Pages." |
-| **R11** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| **R12** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| **R11** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → detect the installed versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| **R12** | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 * **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 * **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -364,20 +364,6 @@ Detailed reference material
 
 > 📎 Full content extracted to [references/cost-matrix---full-transparency.md](references/cost-matrix---full-transparency.md) — 54 lines of detailed guidance, patterns, and code examples.
 
-## Gotchas — Dollar-Quantified Website Footguns
-<!-- STANDARD: 3min -->
-
-* **"I'll just use WordPress" → $3,200/mo in security cleanup.** WordPress power...
-
-> 📎 Full content extracted to [references/gotchas---dollar-quantified-website-footguns.md](references/gotchas---dollar-quantified-website-footguns.md) — 25 lines of detailed guidance, patterns, and code examples.
-
-## Error Recovery — Explicit Step-by-Step
-<!-- STANDARD: 3min -->
-
-**Symptoms:** Build process crashes with `JavaScript heap out of memory`, `FATAL...
-
-> 📎 Full content extracted to [references/error-recovery---explicit-step-by-step.md](references/error-recovery---explicit-step-by-step.md) — 68 lines of detailed guidance, patterns, and code examples.
-
 ## Error Recovery
 <!-- DEEP: 10+min -->
 <!-- STANDARD: 3min -->
@@ -390,6 +376,14 @@ Detailed reference material
 | Images load as broken on production but work locally | Relative paths that break with base URL change, or CDN misconfigured to block referrer | Use absolute URLs or `import` for assets. Check CDN CORS headers. Verify `assetPrefix` in framework config matches production domain |
 | Mobile menu doesn't open — JS error in console | Third-party script loaded synchronously blocks menu JS execution | Load third-party scripts with `async` or `defer`. Use Partytown for heavy scripts. Check browser console for render-blocking errors |
 | Fonts flash invisible for 3 seconds then appear | `font-display: block` (default) hides text during font load; on slow 3G this means invisible text for seconds | Set `font-display: swap` on all `@font-face` declarations. Preload critical fonts: `<link rel="preload" as="font" crossorigin>` |
+
+### Explicit Step-by-Step
+
+<!-- STANDARD: 3min -->
+
+**Symptoms:** Build process crashes with `JavaScript heap out of memory`, `FATAL...
+
+> 📎 Full content extracted to [references/error-recovery---explicit-step-by-step.md](references/error-recovery---explicit-step-by-step.md) — 68 lines of detailed guidance, patterns, and code examples.
 
 ## Gotchas
 <!-- DEEP: 10+min -->
@@ -404,6 +398,14 @@ Detailed reference material
 | Deploying without CSP headers — first XSS vulnerability compromises entire site | $50K-$500K in breach costs; XSS via a third-party script or user content can exfiltrate all user data | Set Content-Security-Policy without `unsafe-inline` or `unsafe-eval`. Add HSTS, X-Frame-Options, X-Content-Type-Options. Test with Mozilla Observatory |
 | Not compressing or optimizing images — 5MB hero image on homepage | $20K-$80K in lost SEO traffic; Largest Contentful Paint blocked by unoptimized image drops search rankings | Use `<img>` with `srcset` and `sizes`. Convert to WebP/AVIF with `<picture>`. Lazy load below-fold images. Target: hero image <100KB, all images <200KB |
 | Using `target="_blank"` without `rel="noopener noreferrer"` — security vulnerability | $10K-$50K in phishing risk; opened page can redirect original page to phishing site via `window.opener.location` | Always use `rel="noopener noreferrer"` with `target="_blank"`. ESLint rule: `react/jsx-no-target-blank`. This is a known security anti-pattern |
+
+### Dollar-Quantified Website Footguns
+
+<!-- STANDARD: 3min -->
+
+* **"I'll just use WordPress" → $3,200/mo in security cleanup.** WordPress power...
+
+> 📎 Full content extracted to [references/gotchas---dollar-quantified-website-footguns.md](references/gotchas---dollar-quantified-website-footguns.md) — 25 lines of detailed guidance, patterns, and code examples.
 
 ## Verification Guardrails — Binary Deployment Checklist
 <!-- STANDARD: 3min -->
@@ -549,7 +551,7 @@ Before beginning a new phase, verify:
 | **Set up CI/CD for a static site with Lighthouse budget in GitHub Actions** | DevOps for websites | Build fails if Lighthouse Performance < 90 or Accessibility < 95; deploys on passing | 1-2 hours |
 | **Migrate a site from one host to another in under 4 hours** | Platform portability, domain configuration | Zero downtime, SSL intact, all redirects preserved, DNS propagation handled | 4 hours |
 
-## Error Decoder — War Stories from the Trenches
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -581,13 +583,6 @@ When website builds go wrong, they go wrong in predictable ways. Here are the mo
 | ☐ | Complete when SPA fallback configured: server returns `index.html` for all routes; no 404 on page refresh for client-side routes | `curl -I https://site.com/about` returns 200, not 404; Netlify `_redirects` or Vercel `rewrites` configured |
 | ☐ | Complete when CSP headers set without `unsafe-inline` or `unsafe-eval`; security headers (HSTS, X-Frame-Options, X-Content-Type-Options) present | `curl -I https://site.com | grep -E "Content-Security|Strict-Transport|X-Frame|X-Content"` confirms all headers |
 | ☐ | Complete when Site migratable in <4 hours: content stored as markdown in git, no proprietary lock-in, DNS and SSL documented | Migration runbook tested: clone repo → install deps → build → deploy to alternate host in <4 hours |
-
-## Production Checklist — Pre-Launch Verification
-<!-- STANDARD: 3min -->
-
-* [ ] **P1. Lighthouse Performance ≥ 90 on mobile** (simulated 4G, Moto G4). Tar...
-
-> 📎 Full content extracted to [references/production-checklist---pre-launch-verification.md](references/production-checklist---pre-launch-verification.md) — 22 lines of detailed guidance, patterns, and code examples.
 
 ## What Good Looks Like
 <!-- STANDARD: 3min -->
@@ -639,14 +634,6 @@ Detailed reference material loaded on demand:
 * A specialized peer skill owns the exact scenario — route there instead.
 * There is no way to verify the output against a source of truth.
 
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
-| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
-| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
-
 ## Anti-Patterns
 
 * ❌ Adding unverified claims to look complete | ✅ Marking unknowns as unknown
@@ -657,13 +644,21 @@ Detailed reference material loaded on demand:
 
 ## Production Checklist
 
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |
+| ☐ | CR01 | Complete when the build output directory and the deploy target agree, so the production URL serves the freshly built site rather than a stale edge copy | `curl -I` on a changed page shows the new content; HTML served with `max-age=0, must-revalidate` |
+| ☐ | CR02 | Complete when routing is configured so a direct request to any client-side route returns 200, not a 404 | `curl -I` on a client-side route returns 200; a fallback rule is present for the host in use |
+| ☐ | CR03 | Complete when every page meets the Core Web Vitals budget on mobile — LCP < 2.5s, FID < 100ms, CLS < 0.1, and Lighthouse Performance ≥ 90 at simulated 4G | Lighthouse CI report attached per template; a page under budget fails this row |
+| ☐ | CR04 | Complete when every image carries explicit `width`/`height`, a `srcset`, and a modern format, with below-fold images lazy-loaded | Zero images without dimensions; the hero asset sits within the stated size budget |
+| ☐ | CR05 | Complete when third-party scripts are `async`/`defer` or offloaded and no render-blocking resource remains | Lighthouse shows zero render-blocking resources and per-script blocking time under budget |
+| ☐ | CR06 | Complete when each page has a unique title, meta description, canonical URL, and valid JSON-LD for its type | Rich Results Test reports zero errors; the canonical resolves to the production domain |
+| ☐ | CR07 | Complete when `robots.txt` and `sitemap.xml` are reachable and no page carries an unintended `noindex` | Both files return 200 and the sitemap is accepted by Search Console |
+| ☐ | CR08 | Complete when hosting and build costs are itemised against the stated monthly budget and the exit path is checked | Cost breakdown per service; migration to an alternate host demonstrated within the stated hours |
+| ☐ | CR09 | Complete when automated and manual accessibility checks pass — keyboard reachability, colour contrast, semantics, and form labels | The axe/Lighthouse a11y score meets target and a keyboard-only pass is recorded |
+| ☐ | CR10 | Complete when security headers ship on responses — CSP without `unsafe-inline`/`unsafe-eval`, HSTS, X-Frame-Options, X-Content-Type-Options | `curl -I` shows every header; a missing or permissive CSP fails this row |
+
+### Pre-Launch Verification
+
+<!-- STANDARD: 3min -->
+
+* [ ] **P1. Lighthouse Performance ≥ 90 on mobile** (simulated 4G, Moto G4). Tar...
+
+> 📎 Full content extracted to [references/production-checklist---pre-launch-verification.md](references/production-checklist---pre-launch-verification.md) — 22 lines of detailed guidance, patterns, and code examples.

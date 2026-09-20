@@ -134,9 +134,9 @@ where a person reads `workflow/templates/escalate.md` and decides).
 |---|---|---|
 | spec → architect → backend | **single-agent, serial** | point-to-point: one sender payload → one receiver, each edge stamps `{from, to, payload, sha}` |
 | code-reviewer + security-reviewer | **multi-agent, parallel** | one `backend` payload **fanned out** to both auditors; they write disjoint outputs (`code-findings`, `security-findings`); the `join: all` fires `fixer` only after both report |
-| qa → release-gate | single-agent | final handoff carries status/summary/artifacts/decisions/open_questions/verification_evidence/context/budget/next (the `handoff-v1` registry) |
+| qa → release-gate | single-agent | final handoff carries status/summary/artifacts/decisions/open_questions/constraints/verification_evidence/context/budget/next (the `handoff-v1` registry) |
 
-The payload registry (`status, summary, artifacts, decisions, open_questions,
+The payload registry (`status, summary, artifacts, decisions, open_questions, constraints,
 verification_evidence, context, budget, next`) is why the next node — human or agent — never has
 to re-derive context: the handoff *is* the context.
 

@@ -8,32 +8,56 @@
 # no block scalars.
 #
 # See WORKFLOW-SYSTEM.md Sections 2 and 2.4-2.7 for semantics and the condition vocabulary.
+#
+# ---------------------------------------------------------------------------------------------
+# FLAT TOP-LEVEL IS AUTHORITATIVE. The fields marked (flat) below are read as TOP-LEVEL keys of the
+# manifest — `name:`, `version:`, `start:`, `end:`, `state:`, `payloads:`, `budget:` — not nested
+# under `meta:`/`control:`. The grouping into `meta:` and `control:` in this document is
+# organisational only and is the one thing here that does NOT match the code:
+#
+#   scripts/validate-workflows.py:137   name = data.get("name")
+#   scripts/validate-workflows.py:469   declared = data.get("payloads") or {}
+#   scripts/validate-workflows.py:415   start = data.get("start")
+#   scripts/workflow-runner.py          manifest.get("start") / .get("budget") / .get("gates")
+#
+# A manifest written with literal `meta:` / `control:` wrappers does not validate. Every manifest in
+# workflow/manifests/ uses the flat form. The running code's contract is unchanged; this document now
+# describes it.
+# ---------------------------------------------------------------------------------------------
 
-meta:
+meta:                                         # (grouping only — fields are flat top-level keys)
   name:
     type: string
     required: true
     pattern: "^[a-z0-9][a-z0-9-]*$"          # lowercase slug; filename must equal name + .yaml
     example: review-and-fix
+    flat: true
   version:
     type: string
     required: false
     default: "1.0.0"
+    flat: true
   description:
     type: string
     required: false
     max_length: 1024
+    flat: true
+    validated: false                          # max_length is not enforced by the validator
 
-control:
+control:                                      # (grouping only — fields are flat top-level keys)
   start:
     type: string                             # node id; default = the node with no incoming edges
     required: false
+    flat: true
   end:
     type: list[string]                       # node ids; default = nodes with no outgoing edges
     required: false
+    flat: true
   state:
     type: map
     required: false
+    flat: true
+    read_at_runtime: false                    # stored/not read by either script — see WORKFLOW-SYSTEM.md 2.7
     fields:
       shared:
         type: boolean
@@ -43,19 +67,27 @@ control:
       merge:
         type: string                         # append-unique | replace | majority
         default: append-unique
+        read_at_runtime: false               # zero `merge` references in either script
   payloads:
     type: map                                 # payload registry: name -> list of required keys
     required: false
+    flat: true
     item:
-      type: list[string]                      # keys from the canonical registry (see below)
+      type: list[string]                      # keys from the canonical registry (V8 below; the
+                                              # validator's CANONICAL_PAYLOAD_KEYS is the same set)
   budget:
     type: map
     required: false
+    flat: true
     fields:
       max_steps:
         type: integer
         required: true
         min: 1
+        default_runtime: "10 x node count when absent"   # workflow-runner.py, main()
+      max_cost_usd:
+        type: number                          # optional cost cap; enforced when usage was reported
+        required: false
 
 nodes:
   type: list[map]
@@ -72,54 +104,73 @@ nodes:
       required: false
       default: skill
       enum: [skill, gate, supervisor, task]
+      read_at_runtime: false                  # validated; the runner does NOT dispatch on type.
+                                              # `kind` is the only gate discriminator it reads.
     skill:
       type: string                            # REQUIRED when type == skill; must resolve to a
       required: false                         #   skills/*/SKILL.md frontmatter name
+      read_at_runtime: true                   # read only to locate the `workflow:` contract
     kind:
       type: string                            # REQUIRED when type == gate
       enum: [human, auto, agent]              # agent = identify-agent gate (reroute before human)
+      read_at_runtime: true                   # gate.get("kind") == "agent" routes to the reroute path
     description:
       type: string
       required: false
+      read_at_runtime: false
     inputs:
       type: list[string]                      # run-state field / artifact names consumed
       required: false
+      read_at_runtime: false                  # linted only; never checked before a node runs
     outputs:
       type: list[string]                      # run-state field / artifact names produced
       required: false
+      read_at_runtime: partial                # read only for the parallel disjointness check
     max_iterations:
       type: integer                           # revision attempts for this node (1 = no loop)
       required: false
       default: 1
       min: 1
+      read_at_runtime: partial                # used only as a floor for --contract-rework; there is
+                                              # no node-level revision loop. Loop bounds come from
+                                              # loops[].max_iterations.
     on_exhaustion:
       type: string
       required: false
       default: escalate
       enum: [escalate, next, fail]
+      read_at_runtime: false                  # zero occurrences in the runner
+      note: "Dead. Exhaustion routing is loops[].escalate_to only."
     escalate_to:
       type: string                            # node id in this manifest
       required: false
+      read_at_runtime: false                  # dead at node level; only loop/gate escalate_to fire
     workers:
       type: list[string]                      # REQUIRED when type == supervisor
       required: false
+      read_at_runtime: false                  # validated, never executed (see type above)
     routing:
       type: string                            # supervisor routing policy
       required: false
       default: parallel
       enum: [parallel, sequential, select]
+      read_at_runtime: false
     select:
       type: string                            # routing == select -> single worker node id
       required: false
+      read_at_runtime: false
     executor:
       type: string                            # type == task -> executor handler name
       required: false
+      read_at_runtime: false                  # the executor is the run-wide --executor flag
     safety:
       type: list[string]                      # B5 per-edge policy: inject-check | pii-check
       required: false                         # overrides the runner-global guardrail for this node
+      read_at_runtime: true                   # Runner._node_safety
     gate:
       type: map                               # type == gate (auto) -> condition + targets
       required: false
+      read_at_runtime: false                  # an auto gate does not branch on this
       fields:
         pass_when: { type: string }           # condition vocabulary (Section 2.6)
         else_go: { type: string }             # node id when condition false
@@ -184,6 +235,9 @@ loops:
           type: boolean
           default: true
   rule: "A node may belong to at most one loop; loops must not nest or overlap."
+  rule_enforced: static                       # validate-workflows.py `_check_loop_overlap` rejects
+                                              # a node in two loops (fixture invalid-overlapping-loop.yaml).
+                                              # Only the static check exists; nothing merges loops at run time.
 
 parallel:
   type: list[map]
@@ -203,10 +257,14 @@ parallel:
       required: false
       default: all
       enum: [all, majority, any]
+      read_at_runtime: false                  # stored, never branched on: the runner's join is
+                                              # always 'all'. See WORKFLOW-SYSTEM.md 2.4.
     outputs:
       type: list[string]                      # merged run-state fields written at the join
       required: false
+      read_at_runtime: false                  # no merge step exists
   rule: "Members of one parallel block must declare disjoint outputs (single-writer ownership)."
+  rule_enforced: static                       # validator checks it; no merge-time check exists
 
 gates:
   type: list[map]
@@ -224,41 +282,61 @@ gates:
       type: string
       required: true
       enum: [human, auto, agent]              # agent = pre-human identify/reroute gate
+      read_at_runtime: true                   # the only gate field the runner branches on
     pool:                                     # kind: agent -> candidate corrective channels
       type: list[string]
       required: false
       resolvable: node                        # each id must be a member of a referencing loop
+      read_at_runtime: true
     max_reroutes:                             # kind: agent -> bounded reroute budget
       type: integer
       required: false
       min: 1
+      read_at_runtime: true
     escalate_to:                              # kind: agent -> terminal gate after reroutes/stagnation
       type: string
       required: false
       resolvable: node
+      read_at_runtime: true
     requires:
       type: list[string]                      # artifact/field names that must exist pre-gate
       required: false
+      read_at_runtime: false                  # no pre-gate artifact assertion happens
     pass_when:                                # kind: auto -> condition deciding pass/fail
       type: string
       required: false
+      read_at_runtime: false                  # syntax-checked, never evaluated
     description:
       type: string
       required: false
+      read_at_runtime: false
 
 # ---------------------------------------------------------------- validation rules (summary)
-# V1  name slug matches filename, is unique across workflow/manifests/.
+# V1  name slug matches filename + pattern. (Uniqueness across workflow/manifests/ is NOT checked —
+#     each file is validated independently.)
 # V2  every node id unique across nodes/loops/parallel/gates.
 # V3  edges/loops/parallel/gates reference existing node ids; skills resolve under skills/.
 # V4  undeclared cycles rejected (graph minus declared loop edges must be acyclic).
+#     STATIC ONLY — the runner has no cycle detection.
 # V5  every loop has exit_when + max_iterations; escalate_to resolves.
-# V6  parallel members write disjoint outputs.
-# V7  edge 'when' and loop 'exit_when' strings match the condition vocabulary.
-# V8  payload names resolve to meta.payloads; payload keys drawn from the canonical registry
-#     (status, summary, artifacts, decisions, open_questions, verification_evidence,
-#      context, budget, next).
+# V6  parallel members write disjoint outputs. STATIC ONLY — there is no merge-time check.
+# V7  edge 'when', loop 'exit_when', and gate 'pass_when' strings match the condition vocabulary.
+# V8  payload names resolve to a declared payloads block; payload keys drawn from the canonical
+#     registry (status, summary, artifacts, decisions, open_questions, constraints,
+#      verification_evidence, context, budget, next). Only fires when a payloads block is present —
+#      a manifest with no registry accepts any edge payload name. The key list above and
+#      CANONICAL_PAYLOAD_KEYS in scripts/validate-workflows.py must stay identical; the validator's
+#      --selftest asserts the equality, reading this very list.
 # V9  start/end resolve; every node reachable from start.
 # V10 kind: agent gates require pool (node ids), max_reroutes >= 1 and a terminal escalate_to;
 #     each pool member must belong to a loop that escalates to the gate. Agent gates reroute a
 #     bounded number of times (loop window reset, identified channel first) before escalating to
 #     the terminal (human) gate; they never act as a manifest end.
+#
+# ---------------------------------------------------------------- NOT validated (be aware)
+# - A node belonging to two loops, or nested loops.
+# - budget.max_steps presence, type, or min.
+# - nodes[].inputs / nodes[].outputs semantics beyond the parallel disjointness check.
+# - nodes[].max_iterations, on_exhaustion, escalate_to, executor, workers, routing, select, gate.
+# - gates[].requires and gate pass_when/else_go behaviour.
+# - type: supervisor / type: task execution semantics.

@@ -14,6 +14,7 @@ on:
       - 'scripts/check-token-budget.py'
       - 'scripts/emit-skill-registry.py'
       - 'scripts/eval-routing.py'
+      - 'scripts/run-routing-evals.js'
       - 'docs/graph-explorer/**'
       - 'flagship/**'
       - 'plugins/**'
@@ -33,6 +34,7 @@ on:
       - 'scripts/check-token-budget.py'
       - 'scripts/emit-skill-registry.py'
       - 'scripts/eval-routing.py'
+      - 'scripts/run-routing-evals.js'
       - 'docs/graph-explorer/**'
       - 'flagship/**'
       - 'plugins/**'
@@ -207,14 +209,30 @@ jobs:
       - name: Compile all skills
         run: bash scripts/compile-skills.sh --all
 
-      - name: Compiled token budget + compile coverage gate
-        run: python3 scripts/check-token-budget.py
+      - name: Compile coverage gate + token budget measurement
+        # Coverage and declared-budget mismatches are hard failures. The
+        # compiled_tokens <= budget comparison is only a *token* comparison with a
+        # real BPE tokenizer; without one (tiktoken is not installed in CI) it is
+        # UNMEASURED, which the tool states plainly instead of passing tautologically.
+        # Install tiktoken here to promote the budget comparison to a real gate.
+        run: python3 scripts/check-token-budget.py --allow-unmeasured
 
       - name: Skill registry required-field gate
         run: python3 scripts/emit-skill-registry.py --check
 
       - name: Routing baseline (informational)
         run: python3 scripts/eval-routing.py
+
+      - name: Routing regression ratchet (floor from evals/routing-baseline.json)
+        run: node scripts/run-routing-evals.js --ratchet
+
+      - name: Behavioral evals must not be falsely green
+        # ADVISORY: 0 of 38 scenarios have a recorded_output today, so this is a known gap
+        # that no commit can close. `run-behavioral-evals.js` exits non-zero on an all-skipped
+        # run BY DESIGN (it used to exit 0, which was the false green we removed). Blocking on
+        # it would fail every build until sessions are recorded; `|| true` keeps the signal
+        # visible in the log without freezing the pipeline.
+        run: node scripts/run-behavioral-evals.js || true
 
       - name: Session-start hook guard
         run: bash hooks/session-start-test.sh

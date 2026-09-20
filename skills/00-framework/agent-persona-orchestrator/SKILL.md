@@ -153,10 +153,10 @@ Personas are isolated execution contexts, not just prompt prefixes. The orchestr
 
 ## <!-- STANDARD: 3min --> Ground Rules — Read Before Anything Else
 
-- **Personas cannot invoke other personas.** This is a hard constraint, not a guideline. Only the user or a slash command routes between personas.
+- **Personas cannot invoke other personas.** No persona may spawn, call, or delegate to another persona. Only the user or a slash command routes between personas. This is a hard constraint, not a guideline.
 - **Personas are tool-restricted by design.** A read-only persona that can write files has been misconfigured. Audit allowed_tools at persona creation and on every modification.
 - **The orchestrator (user/slash command) is the only coupling point.** No shared state between personas. Each persona receives its full context independently.
-- **Only one endorsed multi-persona pattern: parallel fan-out with merge.** Sequential chaining, nested delegation, and persona-to-persona handoffs are explicitly unsupported.
+- **The default multi-persona pattern is parallel fan-out with merge.** Independent audits should run in parallel and merge at the orchestrator. A workflow MAY instead sequence personas when each stage consumes the prior stage's explicit artifact (for example, a producer's diff or report handed to a reviewer), the handoff artifact is named, and separation of duties is preserved — the reviewer is never the persona that produced the artifact. What stays unsupported is direct invocation: a persona spawning another persona, nested delegation, and untracked persona-to-persona handoffs.
 - **Every persona has exactly one default skill.** Multiple default skills create ambiguity in which skill drives the persona's behavior. Additional skills can be invoked explicitly through the orchestrator.
 - **Merge output must be actionable.** The merge step produces a single report with clear pass/fail signals, prioritized findings, and de-duplicated issues. If the merge output is "here are 4 raw outputs," the orchestration has failed.
 
@@ -292,7 +292,7 @@ orchestration:
 
 ## <!-- STANDARD: 3min --> Parallel Fan-Out Pattern
 
-The only endorsed multi-persona pattern. No sequential chaining. No persona-to-persona handoffs. No nested delegation.
+The default multi-persona pattern: independent audits run in parallel and merge at the orchestrator. No persona-to-persona invocation and no nested delegation. (Sequencing personas is also valid when one stage consumes the prior stage's explicit artifact — see Ground Rules.)
 
 ### Pattern Definition
 
@@ -367,7 +367,8 @@ How many personas can this workflow support?
 ├── 1 persona → Single invocation (no orchestration needed)
 ├── 2-3 personas → Parallel fan-out with union merge
 ├── 4+ personas → Parallel fan-out with priority-only merge (reduce noise)
-└── N/A (sequential dependency required) → Redesign workflow. Sequential persona chains are unsupported.
+├── Stage B consumes Stage A's artifact (diff, report, spec) → Sequence the personas, name the handoff artifact, and keep producer ≠ reviewer
+└── A persona would need to spawn another persona directly → Unsupported. Redesign so the orchestrator routes between them.
 
 ```
 
@@ -444,7 +445,7 @@ else:
 
 | Anti-Pattern | Why It Fails | Fix |
 |---|---|---|
-| **Persona A calling Persona B** | Violates the hard constraint. Creates cascading failures, untraceable decisions, and circular dependencies. | Redesign as parallel fan-out from orchestrator. The orchestrator invokes both and merges. |
+| **Persona A calling Persona B** | Violates the hard constraint. Creates cascading failures, untraceable decisions, and circular dependencies. | If the stages are independent, fan them out in parallel and merge. If B genuinely consumes A's output, sequence them in the orchestrator with a named handoff artifact — never let A invoke B directly. |
 | **Shared state between personas** | One persona's intermediate state bleeding into another creates non-reproducible results. | Each persona receives its full context independently. No shared files, no shared database, no shared environment variables. |
 | **Silent degradation** | A persona fails but the orchestrator proceeds without surfacing the failure in the merge report. | Every persona failure is surfaced in the merge output. "Incomplete" is a valid state; "silent" is not. |
 | **Persona with no prohibited_tools** | A persona without explicit prohibitions is just a general-purpose agent with a different prompt. | Every persona must declare prohibited_tools. Read-only personas must have Edit/Write/Bash in prohibited_tools. |
@@ -460,7 +461,7 @@ Before deploying a persona-orchestrated workflow to production:
 - [ ] **Every persona has allowed_tools AND prohibited_tools defined.** No persona is missing either list.
 - [ ] **Every persona has can_invoke: [] (empty).** No persona-to-persona invocation paths exist.
 - [ ] **Every persona has exactly one default_skill.** No zero-skill or multi-skill defaults.
-- [ ] **Parallel fan-out is the only multi-persona pattern.** No sequential chains, nested calls, or handoffs.
+- [ ] **Parallel fan-out is the default multi-persona pattern.** Independent audits run in parallel; any sequential stage is an explicit, named-artifact handoff with producer ≠ reviewer, never a direct persona-to-persona call.
 - [ ] **Merge strategy is declared and tested.** Union, intersection, weighted, or priority-only — and tested with synthetic outputs.
 - [ ] **Timeout per persona is configured.** Default: 120s. Adjusted per persona based on expected scope.
 - [ ] **Severity normalization table exists.** Every persona's severity labels are mapped to the canonical scale.
@@ -502,7 +503,7 @@ Before deploying a persona-orchestrated workflow to production:
 3. **Define prohibited_tools:** Everything the persona must not do. Write-capable personas must still prohibit mutation of source code.
 4. **Select default_skill:** Exactly one skill from the skills registry. Must already exist as a SKILL.md.
 5. **Write system_prompt_additions:** Domain scoping, output format, severity scale, and explicit boundaries.
-6. **Set parallelizable: true:** All personas must be independently parallelizable. If the persona depends on another persona's output, redesign it.
+6. **Set parallelizable: true:** A persona must be independently invocable — it never spawns another persona. If a workflow needs Stage B to consume Stage A's artifact, sequence the personas in the orchestrator with a named handoff artifact; the persona definition itself stays self-contained.
 7. **Test in isolation:** Run the persona alone against a known test case before adding it to any fan-out pipeline.
 8. **Register in merge logic:** Add the persona's output schema to the merge step. Define its severity mapping and de-duplication categories.
 
@@ -549,7 +550,7 @@ Before deploying a persona-orchestrated workflow to production:
 
 | Rationalization | Reality |
 |---|---|
-| "We just need one more persona-to-persona call — just this once" | The hard constraint exists to prevent cascading dependencies. One exception becomes the pattern. If Persona A genuinely needs Persona B's output, refactor as parallel fan-out from the orchestrator. |
+| "We just need one more persona-to-persona call — just this once" | Direct invocation is what the hard constraint prevents: a persona spawning another creates cascading dependencies and untraceable routing. One exception becomes the pattern. If Persona B genuinely needs Persona A's output, sequence them in the orchestrator with a named handoff artifact and producer ≠ reviewer — do not let A call B. |
 | "Shared state between personas would make this faster" | Shared state makes results non-reproducible. The orchestrator's isolation guarantee is what makes debugging possible. Speed gain is imaginary — the debugging cost of shared-state bugs exceeds any latency savings. |
 | "This persona doesn't need prohibited_tools — it's read-only by convention" | Conventions are violated. Prohibited_tools are enforced. If a persona can write files, it will — either through prompt injection, model error, or future modification. Explicit prohibitions are the only defense. |
 | "We can just concatenate persona outputs for now; we'll build merge later" | Concatenation is not merge. It offloads integration onto the human and guarantees inconsistency. The first persona output sets expectations; by the third raw output, the human is pattern-matching manually. Build merge first. |
@@ -584,12 +585,12 @@ A world-class persona orchestration system produces:
 The persona orchestrator doesn't audit code — it makes audits trustworthy. Trust comes from isolation, reproducibility, and clear failure boundaries.
 
 ---
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
+| ☐ | Complete when each persona in the run is justified by a named failure mode or risk dimension it catches | Record the per-persona justification with the risk profile; zero personas added "just to be safe" |
+| ☐ | Complete when every persona ran inside its declared `allowed_tools` — no tool call outside the allow-list | Inspect the per-persona tool-call trace; every call appears in that persona's `allowed_tools` |
+| ☐ | Complete when no persona invoked a `prohibited_tools` entry — read-only personas never Edit/Write/Bash | Grep persona traces for prohibited calls; read-only personas show zero write or shell calls |
+| ☐ | Complete when merge de-duplicates on (file_path, line_number, category) — the same finding from two personas yields one entry | Replay synthetic outputs carrying a shared finding; the merged report contains exactly one row |
+| ☐ | Complete when every persona has its own timeout and a timed-out persona does not stall the others | Force one persona past its deadline; the remaining personas still return and the merge completes |
+| ☐ | Complete when degraded or invalid personas are reported in the merge output, never silently dropped | Configure one persona to time out; the merge report names it as degraded with the timeout value |
 ## Deliberate Practice
 
 To build persona orchestration instinct:
@@ -611,7 +612,7 @@ Before delivering persona orchestration work, verify:
 | No fabricated tools | Every tool name in `allowed_tools`/`prohibited_tools` is verified against the agent tool registry | Hallucinated tool names prevent personas from starting; the orchestrator produces unusable configurations |
 | Severity with evidence | Every Critical/High finding cites specific file+line+pattern with CWE or equivalent tag | Uncited severities are opinions — two reviewers reach opposite conclusions on the same finding |
 | Uncertainty tagged | Any claim without 100% certainty is tagged [ESTIMATED] or [LIKELY] with confidence bound | Untagged claims propagate as facts through merge pipelines, producing false confidence |
-| Persona boundary respected | Output never recommends persona-to-persona calls, shared state, or sequential chaining | Boundary violations produce cascading failures that are untraceable — the orchestrator's isolation guarantee collapses |
+| Persona boundary respected | Output never recommends direct persona-to-persona invocation, shared state, or unnamed handoffs; any sequential stage is an explicit artifact handoff with producer ≠ reviewer | Boundary violations produce cascading failures that are untraceable — the orchestrator's isolation guarantee collapses |
 | Version provenance | Every persona definition references a semver tag; audit trails are reproducible | Without versioning, regression investigations cannot determine which persona version introduced a finding pattern |
 
 ## Verification
@@ -640,7 +641,7 @@ Before delivering persona orchestration work, verify:
 | ☐ | Every persona has `allowed_tools` AND `prohibited_tools` defined with zero empty lists | Audit each persona YAML definition; grep for `prohibited_tools: \[\]` — zero matches |
 | ☐ | Every persona has `can_invoke: []` (empty array — no persona-to-persona invocation paths exist) | Grep for `can_invoke.*\[.*\w` across all persona definitions — zero matches |
 | ☐ | Every persona has exactly one `default_skill` that references an existing SKILL.md in the filesystem | Cross-reference `default_skill` values against `skills/*/skill-name/SKILL.md` — every path resolves |
-| ☐ | All fan-out workflows use parallel execution only — zero sequential chains, nested delegation, or persona-to-persona handoffs | Audit orchestrator code for sync/await patterns between personas; parallel fan-out is the only endorsed multi-persona pattern |
+| ☐ | Independent audits run as parallel fan-out; any sequential stage is an explicit named-artifact handoff with producer ≠ reviewer — never a direct persona-to-persona call | Audit the workflow graph: parallel branches for independent audits; sequential edges only where a named artifact crosses the boundary |
 | ☐ | Merge logic de-duplicates on (file_path, line_number, category) — no raw concatenation of persona outputs | Test with synthetic inputs containing same finding from two personas; merged output has exactly one entry |
 | ☐ | Every merge report surfaces degraded/invalid personas explicitly in the output — no silent ingestion of failures | Test with one persona configured to time out; merge output includes "⚠ Incomplete: [persona-name] degraded (timeout 120s)" |
 | ☐ | Gate rules are enforceable in CI/CD — Critical+High findings block deployment with documented waiver requirement | Test deployment pipeline with simulated Critical finding; CI reports BLOCK, waiver mechanism exists |
@@ -716,13 +717,13 @@ Detailed reference material loaded on demand:
 
 ## Production Checklist
 
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |
+| ☐ | CR01 | Persona selection is justified: every persona in the run maps to a named risk dimension it catches | Evidence: the risk profile plus the per-persona justification, with no unjustified additions |
+| ☐ | CR02 | `allowed_tools` is respected: every tool call in each persona trace appears in that persona's allow-list | Evidence: per-persona tool-call trace with zero out-of-scope calls |
+| ☐ | CR03 | `prohibited_tools` is never exercised: read-only personas show zero Edit/Write/Bash calls | Evidence: grep result over persona traces showing zero prohibited invocations |
+| ☐ | CR04 | `can_invoke` stays empty for every persona — routing happens only at the orchestrator | Evidence: persona definitions with `can_invoke: []` and no direct persona-to-persona calls in the run trace |
+| ☐ | CR05 | Sequential stages, where used, hand off an explicit named artifact and preserve separation of duties | Evidence: the artifact passed between stages plus proof the producing and reviewing personas differ |
+| ☐ | CR06 | Merge de-duplicates on (file_path, line_number, category) — two personas flagging one issue yield one entry | Evidence: merged report showing a single row for a deliberately duplicated finding |
+| ☐ | CR07 | Severity normalization maps each persona's labels onto the canonical scale before gating | Evidence: the normalization table plus a merged report where cross-persona severities are comparable |
+| ☐ | CR08 | Every persona has its own timeout; a timed-out persona leaves the others unaffected | Evidence: timeout configuration per persona and a forced-timeout run where the merge still completes |
+| ☐ | CR09 | Degraded and invalid personas are surfaced in the merge report, never silently ingested | Evidence: merge output naming the degraded persona, its failure mode, and the timeout or schema error |
+| ☐ | CR10 | Gate rules are enforceable: Critical/High findings block with a documented waiver path, not an override | Evidence: a run against a simulated Critical finding showing BLOCK plus the waiver record |

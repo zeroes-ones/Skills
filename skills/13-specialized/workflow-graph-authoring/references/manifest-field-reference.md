@@ -24,7 +24,7 @@ Deep-dive companion to `workflow-graph-authoring`. Canonical contract:
 | `payloads` | map | no | — | name → list of registry keys (see below) |
 
 Payload keys must come from the canonical registry: `status`, `summary`, `artifacts`,
-`decisions`, `open_questions`, `verification_evidence`, `context`, `budget`, `next`.
+`decisions`, `open_questions`, `constraints`, `verification_evidence`, `context`, `budget`, `next`.
 
 ## nodes[]
 
@@ -112,7 +112,7 @@ name: my-workflow
 version: "1.0.0"
 description: One line.
 payloads:
-  handoff-v1: [status, summary, artifacts, decisions, open_questions,
+  handoff-v1: [status, summary, artifacts, decisions, open_questions, constraints,
               verification_evidence, context, budget, next]
 start: spec
 nodes:

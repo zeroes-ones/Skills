@@ -18,6 +18,23 @@ only worth what the weakest axis allows**, so state all four and verify all four
 | **Information** | Does the verifier see the reasoning, or only the claim and evidence? | Withhold the reasoning trace; pass the artifact + evidence (R2) | Protection from a producer who wrote bad *evidence* |
 | **Model** | Do the verifier's blind spots differ from the producer's? | A different model family for judgment-shaped checks | Anything if the check is calibration-free (R5) |
 
+### The enforcement test for each property
+
+A property is only real when a test can fail because of it. Each row below is the test that
+*disproves* independence on that axis — cheap, mechanical, and runnable against the graph or the
+validator's configuration. The information axis has the hiding test (below); the other three have
+an equivalent.
+
+| Property | Enforcement test | What a failure looks like |
+|----------|-----------------|--------------------------|
+| **Role** | Walk every consequential artifact and assert its approving node id is not the node that produced it; assert no gate or `exit_when` reads the producing node's own verdict. | The same node (or session) appears on both sides — R1. |
+| **Context** | Dump the verifier's context seed and assert it is null or empty; assert it does not contain the producer's session id, prior turns, or scratchpad. | The verifier's context was seeded from the producer's session — R3. |
+| **Information** | The hiding test: run the validator with the reasoning attached, then without; assert the verdict is identical. | The verdict moves when the reasoning is hidden — R2. |
+| **Model** | Read the declared model on both nodes and assert they differ for judgment-shaped checks; for mechanical properties, assert the check is deterministic instead. | Same model family on both sides of a judgment-shaped check — R3. |
+
+Each test must be enforced at the graph edge or node configuration, not requested in a prompt — a
+prompt-level restriction is a request, and R2 asks for a boundary.
+
 ### Why role alone is worthless
 
 A "separate agent" that shares a model, a context, and the producer's transcript is the same

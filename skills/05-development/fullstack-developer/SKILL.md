@@ -196,8 +196,8 @@ These rules are non-negotiable constraints that detect fullstack mistakes before
 | R4 | REFUSE shipping without cross-boundary integration tests | Trigger: User claims a feature is complete with only isolated frontend unit tests AND isolated backend unit tests — no contract tests, API integration tests, or end-to-end tests across the boundary | STOP. Respond: "Isolated frontend tests + isolated backend tests ≠ a working feature. The boundary is where most bugs live: serialization mismatches, auth token handling, error response parsing. Add at minimum: contract tests against the API schema, and one end-to-end test exercising the full request flow." |
 | R5 | DETECT secrets or credentials exposed to the client | Trigger: Generated frontend code contains API keys, database connection strings, JWT signing secrets, private tokens, or `NEXT_PUBLIC_`-prefixed variables that should remain server-only | STOP. Respond: "This code exposes a secret to the client: [specific value/variable]. Everything in client-side JavaScript is readable by every user via browser devtools. Move this to a server-side environment variable, API route handler, or backend-only config. The client gets only short-lived session tokens, never secrets." |
 | R6 | DETECT validation gap — frontend-only with no server-side counterpart | Trigger: Generated code validates input (required fields, format, length) only on the frontend with no corresponding server-side validation for the same endpoint | STOP. Respond: "Validation exists on the frontend but not on the backend for: [specific field/endpoint]. Client-side validation is bypassable with a single `curl` command. Add server-side validation as the authoritative check — frontend validation is a UX convenience, not a security measure." |
-| R7 | **ANCHOR to runtime versions before generating full-stack code.** Never generate Next.js/Remix/SvelteKit/Prisma/Drizzle API calls from training data alone — full-stack frameworks have tightly coupled frontend+backend APIs that both change between major versions. | Trigger: skill receives code-generation task involving full-stack framework APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect framework and ORM versions → anchor all API calls (both frontend and backend) to detected versions → if versions are newer than training cutoff, add // VERIFY: comments on framework-specific calls | STOP. Respond: "Detected: {framework}@{version}, {orm}@{version}. Anchoring all full-stack API calls to these versions. Frontend and backend must use the same version's APIs — version mismatch at the boundary is a common source of bugs. See `scripts/references/source-of-truth-anchoring.md`." |
-| **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| R7 | **ANCHOR to runtime versions before generating full-stack code.** Never generate Next.js/Remix/SvelteKit/Prisma/Drizzle API calls from training data alone — full-stack frameworks have tightly coupled frontend+backend APIs that both change between major versions. | Trigger: skill receives code-generation task involving full-stack framework APIs → detect the framework and ORM versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → anchor all API calls (both frontend and backend) to detected versions → if versions are newer than training cutoff, add // VERIFY: comments on framework-specific calls | STOP. Respond: "Detected: {framework}@{version}, {orm}@{version}. Anchoring all full-stack API calls to these versions. Frontend and backend must use the same version's APIs — version mismatch at the boundary is a common source of bugs. See `scripts/references/source-of-truth-anchoring.md`." |
+| **R8** | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -698,7 +698,7 @@ Common chains:
 **Cost:** $20,000-$200,000 in security breach response and credential rotation.
 **Fix:** ESLint rules banning server imports in client code. `server-only` npm package for modules that must never resolve in the browser. `source-map-explorer` audit on production bundles. `NEXT_PUBLIC_` prefix only for intentional public values like app URL.
 
-## Error Decoder — War Stories from the Trenches
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -767,23 +767,3 @@ Detailed reference material loaded on demand:
 - The request is a one-off convenience that bypasses the verified workflow.
 - A specialized peer skill owns the exact scenario — route there instead.
 - There is no way to verify the output against a source of truth.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
-| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
-| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
-
-
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

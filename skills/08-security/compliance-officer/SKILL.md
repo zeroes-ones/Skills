@@ -172,8 +172,8 @@ These rules are **negative constraints** — they define what you MUST NOT do, w
 | **R7** | **DETECT and WARN about over-scoping audits to include non-regulated systems.** Every system in scope adds 3-5 controls to test. Over-scoping multiplies time, cost, and complexity. | Trigger: user's scope list includes dev/staging environments, internal wikis, or HR tools not processing regulated data | WARN: Flag "The following systems may not need to be in scope: [list]. Only systems that process, store, or transmit regulated data belong in scope. Each system in scope adds 3-5 controls to test and hours of evidence collection. Confirm with your auditor before finalizing." |
 | **R8** | **DETECT and WARN when policies are written by the compliance team in isolation and published without operational review.** A policy that says "all access reviews will be completed within 5 business days" — written by compliance — gets published. Engineering manager responsible for 200 access reviews with a team of 3 discovers this policy during the audit, not during policy creation. The policy is operationally impossible. The finding: "control not operating as designed" — because it was designed without the operator in the room. | Trigger: policy document with no evidence of review/approval from the team who will execute it | WARN. Every policy requires sign-off from: (1) the person responsible for executing it, (2) that person's manager (resource commitment). If the executor says "we can't do this at this cadence," the policy cadence changes — not the other way around. |
 | **R9** | **REFUSE to accept a "clean" penetration test report as evidence of security without understanding scope.** "We passed our pen test!" — but the scope excluded the admin API, the CI/CD pipeline, and the third-party integrations that handle customer data. A clean report on 60% of your attack surface is a false sense of security. Auditors and customers read "clean pen test" as "you're secure" when the test was scoped to make you look good. | Trigger: pen test report presented as security evidence without a scope definition section | STOP. Require: pen test scope documented and compared to: (1) data flow diagram (what systems touch customer data?), (2) threat model (what are the highest-risk components?), (3) previous pen test scope (are we testing less this year?). Gaps between scope and risk surface must be documented and justified — or the report is incomplete. |
-| **R10** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| **R11** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| **R10** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → detect the installed versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| **R11** | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -399,7 +399,7 @@ Complete when: Quality gates passed: peer review completed, automated checks gre
 
 ```
 
-## Error Decoder — War Stories from the Trenches
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -644,23 +644,3 @@ Detailed reference material loaded on demand:
 - The request is a one-off convenience that bypasses the verified workflow.
 - A specialized peer skill owns the exact scenario — route there instead.
 - There is no way to verify the output against a source of truth.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
-| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
-| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
-
-
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

@@ -1,0 +1,25 @@
+name: invalid-overlapping-loop
+version: "1.0.0"
+start: fixer
+nodes:
+  - id: fixer
+    skill: backend-developer
+    outputs: [fix-report]
+  - id: qa
+    skill: qa-engineer
+    outputs: [qa-report]
+edges:
+  - from: fixer
+    to: qa
+    when: fixer.status == done
+loops:
+  - id: fix-loop
+    nodes: [fixer, qa]
+    exit_when: qa.verdict == pass
+    max_iterations: 2
+    escalate_to: qa
+  - id: qa-loop
+    nodes: [qa]
+    exit_when: qa.verdict == pass
+    max_iterations: 2
+    escalate_to: fixer

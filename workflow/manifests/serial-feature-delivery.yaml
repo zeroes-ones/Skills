@@ -8,6 +8,7 @@ payloads:
     - artifacts
     - decisions
     - open_questions
+    - constraints
     - verification_evidence
     - context
     - budget
@@ -18,15 +19,16 @@ start: spec
 nodes:
   - id: spec
     skill: idea-to-spec
+    inputs: [idea]
     outputs: [spec]
   - id: architect
     skill: system-architect
-    inputs: [spec]
+    inputs: [requirements, non-functional-requirements]
     outputs: [architecture]
   - id: reviewer
     skill: code-reviewer
-    inputs: [architecture]
-    outputs: [review-verdict]
+    inputs: [change]
+    outputs: [review-report]
 edges:
   - from: spec
     to: architect

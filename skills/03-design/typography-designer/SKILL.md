@@ -344,16 +344,18 @@ Finally: does any figure sit next to Latin letters in a code-like context?
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| Page visibly rewraps when the webfont loads; CLS 0.15 on mobile | No metric-matched fallback — generic fallback has different metrics (R1) | Add a fallback `@font-face` with `size-adjust` and ascent/descent overrides derived from the two metrics; re-measure. Typical rework and support cost is **$25,000 cost** per product surface | The fallback is a designed state, not an accident |
-| Text will not enlarge with the browser's font-size setting | Sizes authored in `px`, so the root preference is ignored (R2) | Re-author text sizes in `rem`; keep `px` only for borders and hairlines. Compliance remediation commonly runs **$40,000 cost** per product | `px` text opts out of the reader's preference |
+| Page visibly rewraps when the webfont loads; CLS 0.15 on mobile | No metric-matched fallback — generic fallback has different metrics (R1) | Add a fallback `@font-face` with `size-adjust` and ascent/descent overrides derived from the two metrics; re-measure. Typical rework and support cost is **$25,000 [ESTIMATED]** per product surface | The fallback is a designed state, not an accident |
+| Text will not enlarge with the browser's font-size setting | Sizes authored in `px`, so the root preference is ignored (R2) | Re-author text sizes in `rem`; keep `px` only for borders and hairlines. Compliance remediation commonly runs **$40,000 [ESTIMATED]** per product | `px` text opts out of the reader's preference |
 | Arabic or Devanagari text renders with broken joins or disconnected matras | `letter-spacing` applied to a joined script, or a subset that dropped the joining forms (R5) | Remove tracking from joined-script roles; re-subset preserving shaping forms; verify in the shipped file | Tracking is a Latin-script affordance |
 | Boxes (tofu) appear only for some users in a locale | Coverage assumed from the family name; the shipped file lacks some characters (R5) | Prove coverage per file against the actual content characters; extend the fallback chain per script | Coverage is a file property, not a family property |
-| Content is clipped when a reader applies text-spacing overrides | Fixed-height text containers or `overflow: hidden` on text (R6) | Let height come from content; remove clipping; re-test the four overrides. Remediation typically costs **$30,000 cost** per release cycle | Users may override spacing, and must not lose content |
+| Content is clipped when a reader applies text-spacing overrides | Fixed-height text containers or `overflow: hidden` on text (R6) | Let height come from content; remove clipping; re-test the four overrides. Remediation typically costs **$30,000 [ESTIMATED]** per release cycle | Users may override spacing, and must not lose content |
 | Heading hierarchy has eleven near-identical sizes | Sizes chosen ad hoc with no declared ratio (R3) | Declare base and ratio; regenerate the ladder; remap roles | An unstated ratio is the defect |
 | Table figures jitter and columns never align | Proportional figures used in a tabular context | Apply `tabular-nums` to column contexts (Decision Tree 4) | Figure style is a semantic decision |
-| Legal exposure after an app ships with a desktop-only font | Licence checked for the wrong context (R4) | Replace the face or obtain the correct grant; record it in the register. A forced font replacement commonly costs **$60,000 cost** mid-project | A licence is per-context, not per-file |
+| Legal exposure after an app ships with a desktop-only font | Licence checked for the wrong context (R4) | Replace the face or obtain the correct grant; record it in the register. A forced font replacement commonly costs **$60,000 [ESTIMATED]** mid-project | A licence is per-context, not per-file |
 | Small text is legible on the designer's display but not on the target phone | Verified only on desktop antialiasing and a high-DPI emulator | Test at real sizes on the real device and locale | Hinting differs; verify on the target screen |
 
 ## Error Recovery **(QUICK)**
@@ -549,14 +551,16 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Webfont with a generic fallback | Visible rewrap on every cold load; CLS budget consumed; roughly **$25,000 cost** per surface in rework and support | Metric-matched fallback with a measured shift (R1) |
-| Text sized in `px` | The reader's font-size preference is ignored; conformance failure costing around **$40,000 cost** to remediate per product | `rem` for all text roles (R2) |
+| Webfont with a generic fallback | Visible rewrap on every cold load; CLS budget consumed; roughly **$25,000 [ESTIMATED]** per surface in rework and support | Metric-matched fallback with a measured shift (R1) |
+| Text sized in `px` | The reader's font-size preference is ignored; conformance failure costing around **$40,000 [ESTIMATED]** to remediate per product | `rem` for all text roles (R2) |
 | Tracking applied to Arabic or Indic text | Broken joins and unreadable words ship to entire markets | Never track joined scripts; verify shaping (R5) |
 | Coverage assumed from the family name | Tofu boxes for real users in a shipping locale | Prove coverage against the shipped file (R5) |
-| Fixed-height text containers | Content clipped for users who apply spacing overrides; roughly **$30,000 cost** per release cycle in fixes | Content-driven height; test the four overrides (R6) |
-| Desktop-only font licence in a shipped app | Forced replacement or legal exposure; commonly **$60,000 cost** mid-project | Record the grant per context before design (R4) |
+| Fixed-height text containers | Content clipped for users who apply spacing overrides; roughly **$30,000 [ESTIMATED]** per release cycle in fixes | Content-driven height; test the four overrides (R6) |
+| Desktop-only font licence in a shipped app | Forced replacement or legal exposure; commonly **$60,000 [ESTIMATED]** mid-project | Record the grant per context before design (R4) |
 | Unstated scale ratio | The ladder fragments into a dozen near-identical sizes | Declare base and ratio; generate steps (R3) |
 | Proportional figures in tables | Columns never align; scanning slows in exactly the task that needs speed | Tabular figures in columns (Decision Tree 4) |
 | Subset that drops a producible character | Tofu on user-generated or locale-specific input | Subset by `unicode-range` and test at the content extremes |

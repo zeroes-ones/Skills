@@ -359,17 +359,19 @@ Which surface is it?
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| Users repeatedly miss the back affordance on one platform | Phone navigation model ported to a platform whose convention differs | Adopt the platform's back behaviour per screen. Convention-violation rework typically costs **$30,000 cost** per release cycle | Back is learned behaviour, not a design choice |
-| iPad layout breaks in split view | Layout designed to a device width, not to size classes (R2) | Design against size classes; verify at the smallest split. Rework typically **$40,000 cost** per product | Multitasking decouples size from device |
-| TV app is unusable with a remote | Touch assumptions: hover states, small targets, no visible focus | Build a spatial focus model with a persistent focus indicator. A TV rework commonly costs **$60,000 cost** | On TV, focus *is* the navigation |
-| App rejected at platform review for convention violations | System affordances reimplemented, or a core convention overridden | Restore the system affordance; record any remaining deviation. A rejection cycle typically **$25,000 cost** in schedule | Platform review enforces its own conventions |
-| Text does not respond to the platform's text-size setting | Custom font applied without dynamic-size plumbing (R5) | Use platform text styles, or reproduce the scaling; verify at the largest setting. Accessibility remediation commonly **$35,000 cost** | The system face carries the user's preference |
-| Wearable app is unusable: too much on screen | Phone information density moved to a watch (R2, Decision Tree 4) | One task per screen; escalate detail to the phone. A wearable rework typically **$30,000 cost** | Attention budget differs by surface |
-| Keyboard users cannot complete the primary task | Focus order undefined; focus indicator invisible (R4) | Define focus order; make focus visible; add shortcuts. Remediation commonly **$20,000 cost** | Touch-only testing misses every keyboard user |
+| Users repeatedly miss the back affordance on one platform | Phone navigation model ported to a platform whose convention differs | Adopt the platform's back behaviour per screen. Convention-violation rework typically costs **$30,000 [ESTIMATED]** per release cycle | Back is learned behaviour, not a design choice |
+| iPad layout breaks in split view | Layout designed to a device width, not to size classes (R2) | Design against size classes; verify at the smallest split. Rework typically **$40,000 [ESTIMATED]** per product | Multitasking decouples size from device |
+| TV app is unusable with a remote | Touch assumptions: hover states, small targets, no visible focus | Build a spatial focus model with a persistent focus indicator. A TV rework commonly costs **$60,000 [ESTIMATED]** | On TV, focus *is* the navigation |
+| App rejected at platform review for convention violations | System affordances reimplemented, or a core convention overridden | Restore the system affordance; record any remaining deviation. A rejection cycle typically **$25,000 [ESTIMATED]** in schedule | Platform review enforces its own conventions |
+| Text does not respond to the platform's text-size setting | Custom font applied without dynamic-size plumbing (R5) | Use platform text styles, or reproduce the scaling; verify at the largest setting. Accessibility remediation commonly **$35,000 [ESTIMATED]** | The system face carries the user's preference |
+| Wearable app is unusable: too much on screen | Phone information density moved to a watch (R2, Decision Tree 4) | One task per screen; escalate detail to the phone. A wearable rework typically **$30,000 [ESTIMATED]** | Attention budget differs by surface |
+| Keyboard users cannot complete the primary task | Focus order undefined; focus indicator invisible (R4) | Define focus order; make focus visible; add shortcuts. Remediation commonly **$20,000 [ESTIMATED]** | Touch-only testing misses every keyboard user |
 | Android build uses iOS navigation and vice versa after a framework upgrade | Framework default widgets used without per-platform adaptation | Adopt platform component libraries, or record the trade (Decision Tree 2) | The framework default is not a platform convention |
-| Users report the app "feels foreign" on a new platform | Brand applied uniformly with no convention mapping | Map conventions per element category (R1); record deviations. Perceived-quality remediation typically **$50,000 cost** | Familiarity is a feature |
+| Users report the app "feels foreign" on a new platform | Brand applied uniformly with no convention mapping | Map conventions per element category (R1); record deviations. Perceived-quality remediation typically **$50,000 [ESTIMATED]** | Familiarity is a feature |
 
 ## Error Recovery **(QUICK)**
 
@@ -571,16 +573,18 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Phone navigation ported to another platform | Back-affordance confusion; convention rework typically **$30,000 cost** per release cycle | Per-platform navigation model (CR7) |
-| Tablet as stretched phone | Split view breaks; rework commonly **$40,000 cost** per product | Size-class design at the smallest multitasking case (R2) |
-| TV build with touch assumptions | Unusable with a remote; a rework typically **$60,000 cost** | Spatial focus model with a visible indicator |
-| System affordance reimplemented | Platform review rejection; a cycle commonly **$25,000 cost** in schedule | Use the system affordance, always |
-| Custom font without resize plumbing | Text ignores the user's size setting; remediation commonly **$35,000 cost** | Platform text styles or reproduced scaling (R5) |
-| Phone density on a watch | The app is unusable in the glance budget; rework typically **$30,000 cost** | One task per screen; escalate detail to the phone |
-| Undefined focus order on pointer surfaces | Keyboard users cannot complete tasks; remediation commonly **$20,000 cost** | Deliberate focus order and visible focus (R4) |
-| Framework default treated as platform conformance | The app "feels foreign"; remediation typically **$50,000 cost** | Platform component libraries, or a recorded trade |
+| Phone navigation ported to another platform | Back-affordance confusion; convention rework typically **$30,000 [ESTIMATED]** per release cycle | Per-platform navigation model (CR7) |
+| Tablet as stretched phone | Split view breaks; rework commonly **$40,000 [ESTIMATED]** per product | Size-class design at the smallest multitasking case (R2) |
+| TV build with touch assumptions | Unusable with a remote; a rework typically **$60,000 [ESTIMATED]** | Spatial focus model with a visible indicator |
+| System affordance reimplemented | Platform review rejection; a cycle commonly **$25,000 [ESTIMATED]** in schedule | Use the system affordance, always |
+| Custom font without resize plumbing | Text ignores the user's size setting; remediation commonly **$35,000 [ESTIMATED]** | Platform text styles or reproduced scaling (R5) |
+| Phone density on a watch | The app is unusable in the glance budget; rework typically **$30,000 [ESTIMATED]** | One task per screen; escalate detail to the phone |
+| Undefined focus order on pointer surfaces | Keyboard users cannot complete tasks; remediation commonly **$20,000 [ESTIMATED]** | Deliberate focus order and visible focus (R4) |
+| Framework default treated as platform conformance | The app "feels foreign"; remediation typically **$50,000 [ESTIMATED]** | Platform component libraries, or a recorded trade |
 | Deviations left unrecorded | Preserved forever as bugs, unreviewable in an audit | A deviation log with rationale (R3) |
 
 ## Anti-Rationalization — No Excuses **(QUICK)**

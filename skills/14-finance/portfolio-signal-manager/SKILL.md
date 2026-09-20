@@ -551,8 +551,21 @@ A world-class portfolio signal management system:
 - **You know the worst-case scenario before it happens.** Stress tests cover 2008, 2020, 2022, and flash-crash scenarios. Worst-case drawdown is known and accepted (or mitigated) before the first dollar is deployed.
 - **Conflict resolution is documented, not assumed.** When technicals say BUY and fundamentals say SELL, the weighted decision matrix produces a documented resolution with rationale. Six months later, you can audit whether the resolution was right.
 - **Position sizing is mechanical, not emotional.** No "conviction sizing." No "I really like this one" double-size. Every position is sized by formula, with caps that prevent any single position from dominating the portfolio.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+
+### Completion Criteria
+
+| ☐ | # | Complete when | Check that proves it |
+|---|---|---|---|
+| ☐ | CR01 | Complete when every signal that entered the system has an explicit resolution — AGREE or CONFLICT_RESOLVED, never silently dropped | Count ingested signals against resolved records; every signal ID appears in a resolution row |
+| ☐ | CR02 | Complete when confidence scores from different sources were calibrated before comparison, so an 80 from each source means the same historical accuracy | Each source's calibration multiplier is shown alongside its raw confidence; uncalibrated raw scores never enter the decision score |
+| ☐ | CR03 | Complete when a technical/fundamental conflict is resolved by the weighted decision matrix, with regime weights, decision score, and a written rationale | The conflict record shows both source directions, the regime, the weights, the computed Decision_Score, and the threshold band it landed in |
+| ☐ | CR04 | Complete when every selected position's size comes from a named method — vol-adjusted 1/N, capped half-Kelly, or risk-parity — and the method's eligibility preconditions are met | Sized position cites its method; no manual "looks about right" size survives, and Kelly rows prove >50 trades and win_rate >0.45 |
+| ☐ | CR05 | Complete when the sizing method was chosen by portfolio state, not preference: concentrated high-conviction reads use capped Kelly, uncorrelated sleeves use risk-parity, and the default is vol-adjusted 1/N | The method-selection rationale names the state that drove it and the caps applied |
+| ☐ | CR06 | Complete when no position exceeds the per-position cap and no sector exceeds its cap after the new position is added | Position and sector percentages are recomputed post-trade, not quoted pre-trade |
+| ☐ | CR07 | Complete when correlation was checked pairwise before allocation, and N_effective is computed and above the diversification floor | Pairwise correlations are listed for candidate positions; N_effective is shown with its floor test |
+| ☐ | CR08 | Complete when every open position carries a stop, and a conflict-resolved caution position carries the tightened stop and reduced size | Stop records exist per position; caution positions show the 1.5× ATR stop and the size cap |
+| ☐ | CR09 | Complete when circuit breakers are armed with named trigger values and actions, and the trigger has been simulated at least once | Breaker table lists trigger and action per breaker; the simulation result confirms halt/reduce/flatten |
+| ☐ | CR10 | Complete when worst-case drawdown is known from stress scenarios and is either accepted or mitigated before capital is deployed | Stress-test output shows per-scenario drawdown and the leverage/hedge action taken when a scenario breaches the limit |
 ## Failure Modes & Exit Rules
 
 **Failure modes and known limitations** (what can go wrong, when it breaks):

@@ -8,6 +8,7 @@ payloads:
     - artifacts
     - decisions
     - open_questions
+    - constraints
     - verification_evidence
     - context
     - budget
@@ -18,6 +19,7 @@ start: implement
 nodes:
   - id: implement
     skill: incremental-implementation
+    inputs: [spec]
     outputs: [change]
   - id: review
     skill: code-reviewer

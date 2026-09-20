@@ -380,17 +380,19 @@ Lifecycle and removal
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| An extension update breaks dozens of integrations at once | No stability tiers and no version negotiation (R2) | Declare tiers; require a version declaration; define mismatch behaviour. A public break commonly costs **$150,000 cost** in ecosystem trust and remediation | An unstated contract is broken by accident |
-| A malicious extension exfiltrates user data | Capabilities declared but not enforced; full host authority (R3) | Enforce capabilities at a chokepoint; default deny. A third-party data incident commonly costs **$400,000 cost** plus regulatory exposure | A declared-but-unenforced permission is not a control |
-| The platform cannot remove a compromised extension at scale | No revoke, disable or removal path (R4) | Add revoke, disable and forced-update mechanisms. Remediation without a removal path commonly costs **$250,000 cost** | Without removal, the first serious incident has no remedy |
-| An extension crash takes down the host | Untrusted code in-process with no isolation (R5) | Sandbox or isolate; contain the failure. A host outage from third-party code commonly costs **$180,000 cost** | One extension's defect becomes your outage |
-| Extension authors abandon the platform | No local development or testing story (R6) | Ship local build/test/debug tooling and a clear onboarding path. A failed ecosystem launch commonly costs **$200,000 cost** | Ecosystems are won in the developer's first hour |
-| Every platform release requires an ecosystem-wide migration | Extension points exposed internals, so every internal change is breaking (R1) | Replace the exposed internals with abstractions; introduce an experimental tier for the rest. A re-platforming project commonly costs **$300,000 cost** | Exposing internals makes the platform permanently expensive to change |
-| A plugin update needs a host restart for every user | Lifecycle built on unload-and-reload (R4) | Load versioned extensions alongside; route new work to the new version. Remediation commonly costs **$90,000 cost** | Unload is not a mechanism you can rely on |
-| Users will not install extensions | No capability transparency, or no way to leave | Show capabilities at install; define removal and data handling. Adoption remediation commonly costs **$120,000 cost** | Adoption is a trust and reversibility problem |
-| A store review rejection blocks an extension class | Distribution policy never confirmed for the platform (R4) | Confirm the channel's rules before designing the distribution model. A rejected distribution model commonly costs **$110,000 cost** in redesign | A forbidden distribution model is not an option |
+| An extension update breaks dozens of integrations at once | No stability tiers and no version negotiation (R2) | Declare tiers; require a version declaration; define mismatch behaviour. A public break commonly costs **$150,000 [ESTIMATED]** in ecosystem trust and remediation | An unstated contract is broken by accident |
+| A malicious extension exfiltrates user data | Capabilities declared but not enforced; full host authority (R3) | Enforce capabilities at a chokepoint; default deny. A third-party data incident commonly costs **$400,000 [ESTIMATED]** plus regulatory exposure | A declared-but-unenforced permission is not a control |
+| The platform cannot remove a compromised extension at scale | No revoke, disable or removal path (R4) | Add revoke, disable and forced-update mechanisms. Remediation without a removal path commonly costs **$250,000 [ESTIMATED]** | Without removal, the first serious incident has no remedy |
+| An extension crash takes down the host | Untrusted code in-process with no isolation (R5) | Sandbox or isolate; contain the failure. A host outage from third-party code commonly costs **$180,000 [ESTIMATED]** | One extension's defect becomes your outage |
+| Extension authors abandon the platform | No local development or testing story (R6) | Ship local build/test/debug tooling and a clear onboarding path. A failed ecosystem launch commonly costs **$200,000 [ESTIMATED]** | Ecosystems are won in the developer's first hour |
+| Every platform release requires an ecosystem-wide migration | Extension points exposed internals, so every internal change is breaking (R1) | Replace the exposed internals with abstractions; introduce an experimental tier for the rest. A re-platforming project commonly costs **$300,000 [ESTIMATED]** | Exposing internals makes the platform permanently expensive to change |
+| A plugin update needs a host restart for every user | Lifecycle built on unload-and-reload (R4) | Load versioned extensions alongside; route new work to the new version. Remediation commonly costs **$90,000 [ESTIMATED]** | Unload is not a mechanism you can rely on |
+| Users will not install extensions | No capability transparency, or no way to leave | Show capabilities at install; define removal and data handling. Adoption remediation commonly costs **$120,000 [ESTIMATED]** | Adoption is a trust and reversibility problem |
+| A store review rejection blocks an extension class | Distribution policy never confirmed for the platform (R4) | Confirm the channel's rules before designing the distribution model. A rejected distribution model commonly costs **$110,000 [ESTIMATED]** in redesign | A forbidden distribution model is not an option |
 | Support cannot diagnose extension problems | No extension identity, version or capability reported in diagnostics | Require identity and version in the manifest; surface them in diagnostics and crash reports | An unidentifiable extension is undiagnosable |
 
 ## Error Recovery **(QUICK)**
@@ -523,17 +525,19 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| No stability tiers | A platform release breaks integrations publicly; commonly **$150,000 cost** | Declare tiers and a version rule (R2) |
-| Capabilities declared but unenforced | A third-party data incident; commonly **$400,000 cost** plus regulatory exposure | Enforce at one chokepoint, default deny (R3) |
-| No removal path | A known-bad extension stays installed at scale; remediation commonly **$250,000 cost** | Disable, rollback and removal as first-class states (R4) |
-| Untrusted code in-process | A third-party defect becomes a host outage; commonly **$180,000 cost** | Isolate by a named mechanism, per class (R5) |
-| No local development story | The ecosystem never forms; a failed launch commonly **$200,000 cost** | Ship DX tooling as a launch deliverable (R6) |
-| Internal types exposed as extension points | Every internal change becomes breaking; re-platforming commonly **$300,000 cost** | Expose abstractions; use an experimental tier |
-| Lifecycle built on unload-and-reload | A host restart for every extension update; commonly **$90,000 cost** | Load versioned extensions alongside |
-| No capability transparency at install | Users will not install; adoption remediation commonly **$120,000 cost** | Show capabilities at install and on expansion |
-| Distribution model never confirmed against the channel | A rejected model needs redesign; commonly **$110,000 cost** | Confirm the channel's rules before designing distribution |
+| No stability tiers | A platform release breaks integrations publicly; commonly **$150,000 [ESTIMATED]** | Declare tiers and a version rule (R2) |
+| Capabilities declared but unenforced | A third-party data incident; commonly **$400,000 [ESTIMATED]** plus regulatory exposure | Enforce at one chokepoint, default deny (R3) |
+| No removal path | A known-bad extension stays installed at scale; remediation commonly **$250,000 [ESTIMATED]** | Disable, rollback and removal as first-class states (R4) |
+| Untrusted code in-process | A third-party defect becomes a host outage; commonly **$180,000 [ESTIMATED]** | Isolate by a named mechanism, per class (R5) |
+| No local development story | The ecosystem never forms; a failed launch commonly **$200,000 [ESTIMATED]** | Ship DX tooling as a launch deliverable (R6) |
+| Internal types exposed as extension points | Every internal change becomes breaking; re-platforming commonly **$300,000 [ESTIMATED]** | Expose abstractions; use an experimental tier |
+| Lifecycle built on unload-and-reload | A host restart for every extension update; commonly **$90,000 [ESTIMATED]** | Load versioned extensions alongside |
+| No capability transparency at install | Users will not install; adoption remediation commonly **$120,000 [ESTIMATED]** | Show capabilities at install and on expansion |
+| Distribution model never confirmed against the channel | A rejected model needs redesign; commonly **$110,000 [ESTIMATED]** | Confirm the channel's rules before designing distribution |
 | No extension identity in diagnostics | Support cannot diagnose; every ecosystem incident is slower | Require identity and version in the manifest |
 
 ## State Log **(QUICK)**

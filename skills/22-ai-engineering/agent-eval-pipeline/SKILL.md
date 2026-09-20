@@ -135,17 +135,17 @@ This ensures the agent pauses to re-verify ALL research dimensions before making
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|--------------------|--------------------|--------------------|
-| 1 | **No eval without baseline** — Every evaluation MUST compare against a frozen golden baseline. Running evals in isolation produces scores with no reference point. | `eval_config.yaml` missing `baseline:` key OR baseline file not found | STOP — Create baseline first: `python scripts/capture_baseline.py --agent-version <version>` |
-| 2 | **No deployment without statistical decision** — Never deploy on a raw pass-rate comparison. Binary pass/fail comparison across N runs is statistically underpowered. Use SPRT or bootstrap CI. | Deployment decision based on raw pass rate comparison (e.g., "95% > 93%") | STOP — Run statistical eval: `python scripts/run_eval.py --method sprt` |
-| 3 | **No judge without calibration** — LLM-as-judge MUST be calibrated against 3+ human raters on 50+ examples per dimension. Uncalibrated judges produce scores that correlate poorly with real quality. | `judge_config.yaml` missing `calibration:` block OR kappa < 0.70 | STOP — Calibrate judge: `python scripts/calibrate_judge.py --human-raters 3 --samples 50` |
+| 1 | **No eval without baseline** — Every evaluation MUST compare against a frozen golden baseline. Running evals in isolation produces scores with no reference point. | `eval_config.yaml` missing `baseline:` key OR baseline file not found | STOP — Freeze a baseline first: capture the reference output set and commit it under version control (the golden-corpus shape this repo does ship is `evals/golden/<skill>/cases.json`, graded by `python3 scripts/grade-golden.py`). A `capture_baseline.py` helper for your own agent versions is a tool you build — it is not shipped here |
+| 2 | **No deployment without statistical decision** — Never deploy on a raw pass-rate comparison. Binary pass/fail comparison across N runs is statistically underpowered. Use SPRT or bootstrap CI. | Deployment decision based on raw pass rate comparison (e.g., "95% > 93%") | STOP — Run a sequential (SPRT) or bootstrap-CI test over N runs. No SPRT runner ships in this repo; the shipped harnesses (`bash scripts/run-evals.sh`, `python3 scripts/behavioral-evals.py --all`) check structure and behavioral adherence, not deploy decisions — the statistical test is a tool you build |
+| 3 | **No judge without calibration** — LLM-as-judge MUST be calibrated against 3+ human raters on 50+ examples per dimension. Uncalibrated judges produce scores that correlate poorly with real quality. | `judge_config.yaml` missing `calibration:` block OR kappa < 0.70 | STOP — Calibrate the judge against 3+ human raters on 50+ examples per dimension and report agreement (κ). `calibrate_judge.py` is a tool you build; the method is documented in `references/llm-as-judge-calibration.md` |
 | 3b | **No judge that sees the producer's reasoning** — an evaluator MUST receive the artifact and its evidence, never the producer's chain of thought, scratchpad, or self-assessment. A judge that reads the reasoning inherits its blind spots and agrees for the same wrong reason. | Judge input includes the producer's reasoning trace or full transcript, rather than the artifact + evidence | STOP — reduce the judge's input to claim + evidence. Verify by hiding the reasoning and re-scoring: if the score moves, the boundary is not enforced |
 | 3c | **No judge that has never rejected** — a judge whose rejection rate is unmeasured or zero provides no signal; it makes failure harder to see, not easier. | Judge rejection rate unmeasured, or 0 rejects across the window on consequential work | STOP — build a known-bad set (≥10 historical failures/near-misses/seeded defects), measure the rejection rate per artifact class, and instrument it |
 | 3d | **No metric gated alone** — every target the pipeline gates on MUST be paired with a harm metric guarding the intent it stands for. A bare target is an instruction to satisfy the number by the cheapest available path. | A gate or reward reads a metric with no paired counter-metric, and the metric has no written intent | STOP — state the metric's intent, find the cheapest betraying path, and gate on the pair (e.g. pass rate AND rejection rate; resolution rate AND reopen/churn) |
-| 4 | **No drift detection without frozen baseline** — Behavioral drift detection requires a frozen golden baseline committed to version control. Without it, drift is undefined. | `drift_config.yaml` missing `baseline_commit:` key | STOP — Establish baseline: `python scripts/capture_baseline.py --freeze` |
+| 4 | **No drift detection without frozen baseline** — Behavioral drift detection requires a frozen golden baseline committed to version control. Without it, drift is undefined. | `drift_config.yaml` missing `baseline_commit:` key | STOP — Freeze the baseline: commit the reference outputs for the current agent version and record the baseline commit SHA in your drift config. No baseline-capture CLI ships in this repo — this is a tool you build |
 | 5 | **Budget gates are hard stops** — Monthly eval budget cap is non-negotiable. When reached, non-blocking evals become advisory-only; blocking evals continue. | Monthly spend >= $500 (from LLM API billing) | HARD STOP — L3 E2E evals become warn-only; L1+L2 continue as blocking |
-| 6 | **No deployment without canary** — Never deploy agent changes to 100% of traffic without 5% canary validation. | Deployment targeting 100% traffic without prior 5% canary run | STOP — Run canary deployment first: `python scripts/canary_deploy.py --percentage 5 --duration 10m` |
-| **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| 6 | **No deployment without canary** — Never deploy agent changes to 100% of traffic without 5% canary validation. | Deployment targeting 100% traffic without prior 5% canary run | STOP — Run canary first: route 5% of traffic to the candidate for a bounded window, compare against the baseline, then promote. No canary CLI ships in this repo; use your deployment platform's native canary or a feature-flag percentage rollout |
+| **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → detect the installed versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| **R2** | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 * **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 * **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -459,7 +459,7 @@ If a command or approach fails, follow this escalation path before giving up:
 | `qa-engineer` | Test pyramid foundation, statistical test theory, CI/CD integration | Testing methodology transfers directly with agent-specific adaptations |
 | `observability-engineer` | Metrics collection, dashboard design, alert configuration | Drift detection dashboards, eval metrics visualization, Prometheus setup |
 | `ci-cd-builder` | Pipeline design, quality gates, canary deployment patterns | CI/CD eval gates, canary rollout configuration, artifact management |
-| `verification-independence-engineer` | Independence properties for evaluators (model, context, information, authority) and the metric-pair rule | Before wiring a judge or a gate — determines what the judge may see and what the gate reads |
+| `verification-independence-engineer` | Independence properties for evaluators (model, context, information, role) and the metric-pair rule | Before wiring a judge or a gate — determines what the judge may see and what the gate reads |
 
 ### Downstream (skills that depend on this one)
 
@@ -483,14 +483,14 @@ If a command or approach fails, follow this escalation path before giving up:
 
 | Severity | Trigger | Automated Response |
 |----------|---------|-------------------|
-| !!! | `eval_pipeline/l1_failure` — One or more L1 tool correctness tests fail | `scripts/block_merge.sh --reason "L1 tool regression" --commit $COMMIT_SHA` |
-| !!! | `eval_pipeline/statistical_regression_detected` — AgentAssay (p<0.05, d>0.3) | `scripts/auto_rollback.sh --commit $COMMIT_SHA --reason "Statistical regression: $DIMENSION"` |
-| !!! | `eval_pipeline/safety_boundary_drift` — Safety violations increased >2% | `scripts/block_deploy.sh --reason "Safety boundary drift +${DRIFT_PP}pp" --alert oncall` |
-| !! | `eval_pipeline/l3_completion_below_threshold` — L3 completion rate < 90% | `scripts/slack_alert.sh --channel #agent-alerts --message "L3 completion dropped to ${RATE}%"` |
-| !! | `eval_pipeline/drift_detected` — Any drift dimension > threshold | `scripts/slack_alert.sh --channel #agent-alerts --attach drift_report.json` |
-| !! | `eval_pipeline/budget_warning` — Monthly eval spend >= 80% ($400) | `scripts/slack_alert.sh --channel #agent-costs --message "Eval budget at ${PCT}%: $${SPENT} / $500"` |
-| ! | `eval_pipeline/judge_kappa_degraded` — Monthly recalibration kappa < 0.65 | `scripts/create_calibration_ticket.sh --priority "P2" --reason "Judge with ${DIMENSION}"` |
-| ! | `eval_pipeline/l3_canary_unstable` — Canary deployment variance > threshold | `scripts/slack_alert.sh --channel #agent-eng --message "Canary eval unstable (cv=${CV})"` |
+| !!! | `eval_pipeline/l1_failure` — One or more L1 tool correctness tests fail | Wire the CI check to your VCS/CI provider's required-status check so the change cannot merge. No block-merge helper ships in this repo |
+| !!! | `eval_pipeline/statistical_regression_detected` — AgentAssay (p<0.05, d>0.3) | Trigger your deployment platform's rollback to the last known-good version and freeze promotion. No rollback helper ships in this repo |
+| !!! | `eval_pipeline/safety_boundary_drift` — Safety violations increased >2% | Block promotion and page the on-call owner. Use your pipeline's deploy gate or feature-flag kill switch; no block-deploy helper ships in this repo |
+| !! | `eval_pipeline/l3_completion_below_threshold` — L3 completion rate < 90% | Post to your team alerting channel (`#agent-alerts` or equivalent). No Slack-named helper ships in this repo — call your chat provider's webhook |
+| !! | `eval_pipeline/drift_detected` — Any drift dimension > threshold | Same alerting channel, attaching the drift report. The detector is the `detect_drift.py` tool you build; the notification is a webhook you own |
+| !! | `eval_pipeline/budget_warning` — Monthly eval spend >= 80% of the cap | Post to your cost channel. The cap is $500/month in this skill's example — set your own and read it from your billing provider, not from a shipped script |
+| ! | `eval_pipeline/judge_kappa_degraded` — Recalibration kappa < 0.65 | Open a recalibration ticket in your issue tracker (P2). The kappa measurement itself is your `calibrate_judge.py` tool |
+| ! | `eval_pipeline/l3_canary_unstable` — Canary deployment variance > threshold | Alert the eval owners on your channel; halt canary promotion until variance settles. No canary helper ships in this repo |
 
 ## State Log
 <!-- DEEP: 10+min -->
@@ -646,45 +646,37 @@ Before any production agent deployment, verify ALL of:
 <!-- STANDARD: Section XIV — commands that prove the skill is actionable. See SKILL-QUALITY-STANDARDS.md. -->
 
 ```bash
-# Phase 1: Setup eval harness
-docker pull agent-registry/harness:latest
-python scripts/setup_harness.py --config eval-harness-config.yml
+# Phase 1: Run the harnesses that actually ship in this repo.
 
-# Phase 2: Run full agent evaluation pipeline
-python scripts/run_agent_eval.py \
-  --baseline agent:v3.1.0 \
-  --candidate agent:${CANDIDATE_VERSION} \
-  --scenarios 50 \
-  --statistical-method sprt \
-  --judge-model gpt-4o
+# Tier 1 — structural validation of the eval corpus
+bash scripts/run-evals.sh                  # add --tier 2 for routing, --tier 3 for behavioral
 
-# Expected: SPRT decision within 22 tests, bootstrap CI reported
+# Tier 2 — per-skill behavioral scenarios (injects deliberately flawed prompts)
+python3 scripts/behavioral-evals.py --all
+python3 scripts/behavioral-evals.py --suite ground-rules --json --ci
 
-# Phase 3: Check evaluation results
-python scripts/report_eval.py --run-id ${RUN_ID}
-# Expected output:
-#   L1 Tool Correctness: 100/100 (100%)
-#   L2 Scenario Pass Rate: 48/50 (96%) — SPRT: accept_null at test 22
-#   L3 E2E Completion: 47/50 (94%)
-#   AgentAssay: no regression detected (p=0.42, d=0.08)
-#   Drift check: all dimensions within baseline
-#   Eval cost: $18.40 (budget remaining: $431.60)
+# Tier 3 — deterministic golden-case grading
+bash scripts/eval-skill.sh --all                       # every evals/golden/<skill> case set
+python3 scripts/grade-golden.py --red                  # prove the grader FAILS a degraded output
+python3 scripts/grade-golden.py --output-dir DIR       # grade real recorded agent outputs
 
-# Phase 4: Validate judge calibration
-python scripts/validate_judge.py --dimensions completeness correctness tool_usage efficiency safety
-# Expected: Kappa >= 0.70 on all dimensions
+# Phase 2: Score a completed run (0-100 effectiveness contract)
+python3 scripts/run-effectiveness.py --state run-state.json --threshold 100
 
-# Phase 5: Run drift detection (daily)
-python scripts/detect_drift.py --baseline baselines/golden_v3.1.0.json
-# Expected: All dimensions GREEN, or specific drift alert with dimension + magnitude
+# Phase 3: Your own pipeline — these are NOT shipped here; build them against your agent runtime
+#   capture_baseline.py   freeze reference outputs per agent version, emit a committable baseline
+#   run_agent_eval.py     run baseline vs candidate over N scenarios, apply SPRT/bootstrap CI
+#   calibrate_judge.py    score 3+ human raters x 50+ examples/dimension, report kappa
+#   validate_judge.py     re-check kappa per dimension before a judge gates a release
+#   detect_drift.py       diff candidate distributions against the frozen baseline, alert per dimension
+#   report_eval.py        emit the run summary (L1/L2/L3, decision, cost)
+#   simulate_pr.py        exercise the CI gate on a synthetic change
 
-# Phase 6: Verify CI/CD gate behavior
-python scripts/simulate_pr.py --pr-type "tool_change" --agent-version ${CANDIDATE_VERSION}
-# Expected: L1 blocks on failure, L2 blocks on regression, L3 produces Slack alert
-
+# Expected from the shipped harnesses: exit 0 on pass, 1 on violation, 2 on harness error.
+# Expected from a RED->GREEN check: grade-golden passes the reference output and fails the degraded one.
 ```
 
-**Portability target:** The eval harness container runs on any Docker host with >= 16GB RAM. Judge model requires OpenAI-compatible API. Statistical methods use pure Python (numpy + scipy). CI/CD integration supports GitHub Actions, GitLab CI, and Jenkins (adapters in `references/ci-cd-eval-gates.md`).
+**Portability target:** The shipped harnesses are stdlib-only Python 3.10+ and need no container. If you build the containerised pipeline above, it needs a Docker host with >= 16GB RAM and an OpenAI-compatible judge endpoint; statistical methods are pure Python (numpy + scipy). CI/CD integration supports GitHub Actions, GitLab CI, and Jenkins (adapters in `references/ci-cd-eval-gates.md`).
 
 ## Verification Guardrails
 

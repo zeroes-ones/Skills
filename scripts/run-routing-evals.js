@@ -5,8 +5,10 @@
  * against realistic user prompts. Measures rank-1 hit rate, MRR, description
  * collisions, and false-positive routing.
  *
- * Usage: node scripts/run-routing-evals.js [--suite id] [--json] [--threshold 0.1]
- * Exit: 0 if rank-1 hit rate >= 80%, 1 otherwise
+ * Usage: node scripts/run-routing-evals.js [--suite id] [--json] [--threshold 0.1] [--ratchet]
+ * Exit: default mode 0 only if rank-1 hit rate >= 80% (aspirational target).
+ *       --ratchet mode gates on evals/routing-baseline.json instead (regression only),
+ *       so 0 while the floor holds even though the target is unmet.
  *
  * Inspired by addyosmani/agent-skills TF-IDF routing evals.
  */
@@ -25,14 +27,22 @@ const TIER2_FILE = path.join(EVALS_DIR, 'tier2-routing-evals.json');
 const TARGET_RANK1_RATE = 0.80; // 80% rank-1 hit rate target
 const TARGET_MRR = 0.90;        // 90% MRR target
 
-// Regression ratchet — the MEASURED floor as of 2026-09-14 (rank-1 72.8%, MRR 79.9%,
-// 4 must-not violations). Distinct from the targets above: the targets are aspirational
-// and currently unmet, so gating on them would fail every run. These floors block a
-// regression without pretending the aspirational bar is met. Raise them as the router
-// improves; lowering one silently is exactly the failure this exists to prevent.
-const FLOOR_RANK1 = 0.72;
-const FLOOR_MRR = 0.79;
-const FLOOR_MUSTNOT = 4;
+// ---------------------------------------------------------------------------
+// Regression ratchet baseline — the RECORDED measurement, in a file so a change
+// that lowers it is visible in the diff instead of hidden in a constant.
+// ---------------------------------------------------------------------------
+// Default mode still gates on the aspirational targets (80% / 90% / 0 violations),
+// which are NOT met, so default mode exits 1 every run. --ratchet gates on the
+// recorded baseline instead: it fails only on a regression below the last measured
+// floor, and reports the gap to the targets without failing on it. That is the mode
+// CI and run-ci-locally.sh wire in, because a gate that is red from day one is a
+// gate everyone learns to ignore.
+// See docs/B6-ROUTING-SCOPE.md — the rule is monotone improvement over the floor.
+const BASELINE_FILE = path.join(EVALS_DIR, 'routing-baseline.json');
+
+// Used when the baseline file is missing. Deliberately equal to the recorded
+// baseline so a missing file cannot loosen the gate.
+const FALLBACK_FLOOR = { rank1_rate: 0.72, mrr: 0.79, must_not_violations: 4 };
 
 // ---------------------------------------------------------------------------
 // CLI args
@@ -43,10 +53,42 @@ const targetSuite = (() => {
   return idx >= 0 ? args[idx + 1] : null;
 })();
 const jsonOutput = args.includes('--json');
+const ratchetMode = args.includes('--ratchet');
 const threshold = (() => {
   const idx = args.indexOf('--threshold');
   return idx >= 0 ? parseFloat(args[idx + 1]) : 0.15;
 })();
+
+// Load the recorded baseline. Missing or malformed => fall back to the last known
+// floor (never to zero) and say so, so the gate can never be loosened by deleting
+// the file.
+function loadBaseline() {
+  if (!fs.existsSync(BASELINE_FILE)) {
+    console.warn(`WARNING: ${BASELINE_FILE} not found — using built-in floor ${JSON.stringify(FALLBACK_FLOOR)}`);
+    return { floor: FALLBACK_FLOOR, recorded: null };
+  }
+  try {
+    const data = JSON.parse(fs.readFileSync(BASELINE_FILE, 'utf-8'));
+    if (typeof data.rank1_rate !== 'number' || typeof data.mrr !== 'number') {
+      throw new Error('rank1_rate / mrr must be numbers');
+    }
+    return {
+      floor: {
+        rank1_rate: data.rank1_rate,
+        mrr: data.mrr,
+        must_not_violations: typeof data.must_not_violations === 'number'
+          ? data.must_not_violations
+          : FALLBACK_FLOOR.must_not_violations,
+      },
+      recorded: data,
+    };
+  } catch (e) {
+    console.warn(`WARNING: ${BASELINE_FILE} unreadable (${e.message}) — using built-in floor`);
+    return { floor: FALLBACK_FLOOR, recorded: null };
+  }
+}
+
+const baseline = loadBaseline();
 
 // ---------------------------------------------------------------------------
 // 1. Collect all skills and their descriptions
@@ -516,18 +558,34 @@ if (jsonOutput) {
 
   // Regression ratchet. The aspirational targets (80% / 90% / 0 violations) are not yet
   // met, so gating on them would fail every run and teach everyone to ignore the gate.
-  // These floors are the MEASURED floor as of 2026-09-14; a change that drops below them
-  // is a real regression and must block. Raising them as the router improves is expected.
+  // The floors come from evals/routing-baseline.json — the last RECORDED measurement, so
+  // lowering one shows up in a diff rather than hiding in this file. A change below them
+  // is a real regression and must block; raising them as the router improves is expected.
   // See docs/B6-ROUTING-SCOPE.md — the rule is monotone improvement over the floor.
   console.log('\n--- Regression ratchet (floor, not target) ---');
-  console.log(`Rank-1 floor:          ${(FLOOR_RANK1 * 100).toFixed(1)}%   ${rank1Rate >= FLOOR_RANK1 ? 'OK' : 'BELOW FLOOR'}`);
-  console.log(`MRR floor:             ${(FLOOR_MRR * 100).toFixed(1)}%   ${mrr >= FLOOR_MRR ? 'OK' : 'BELOW FLOOR'}`);
-  console.log(`Must-not ceiling:      ${FLOOR_MUSTNOT}     ${mustNotViolations.length <= FLOOR_MUSTNOT ? 'OK' : 'ABOVE CEILING'}`);
+  console.log(`Rank-1 floor:          ${(baseline.floor.rank1_rate * 100).toFixed(1)}%   ${rank1Rate >= baseline.floor.rank1_rate ? 'OK' : 'BELOW FLOOR'}`);
+  console.log(`MRR floor:             ${(baseline.floor.mrr * 100).toFixed(1)}%   ${mrr >= baseline.floor.mrr ? 'OK' : 'BELOW FLOOR'}`);
+  console.log(`Must-not ceiling:      ${baseline.floor.must_not_violations}     ${mustNotViolations.length <= baseline.floor.must_not_violations ? 'OK' : 'ABOVE CEILING'}`);
+  console.log(`Gap to target:         rank-1 ${((TARGET_RANK1_RATE - rank1Rate) * 100).toFixed(1)}pp, MRR ${((TARGET_MRR - mrr) * 100).toFixed(1)}pp (reported, not gated)`);
+  console.log(`Mode:                  ${ratchetMode ? 'RATCHET (gate on the floor above)' : 'TARGET (gate on 80% / 90%)'}`);
 }
 
-// Exit code: ratchet first (a regression always fails), then the aspirational target.
-const ratchetOk = rank1Rate >= FLOOR_RANK1
-  && mrr >= FLOOR_MRR
-  && mustNotViolations.length <= FLOOR_MUSTNOT;
+// Exit code. --ratchet gates ONLY on the recorded floor, and reports the gap to the
+// aspirational target without failing on it. Default mode keeps the original
+// absolute-target behaviour, so it stays available for when the target is reachable.
+const ratchetOk = rank1Rate >= baseline.floor.rank1_rate
+  && mrr >= baseline.floor.mrr
+  && mustNotViolations.length <= baseline.floor.must_not_violations;
 const targetOk = rank1Rate >= TARGET_RANK1_RATE && mustNotViolations.length === 0;
+if (ratchetMode) {
+  if (!ratchetOk) {
+    if (!jsonOutput) {
+      console.log('\n❌ REGRESSION — a metric fell below the recorded baseline.');
+      console.log(`   Fix the router, or raise the floor in ${BASELINE_FILE} if the drop is intended (and say so).`);
+    }
+  } else if (!jsonOutput) {
+    console.log('\n✅ No regression. (Absolute target still unmet — see the gap line above.)');
+  }
+  process.exit(ratchetOk ? 0 : 1);
+}
 process.exit(ratchetOk && targetOk ? 0 : 1);

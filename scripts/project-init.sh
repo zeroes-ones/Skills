@@ -91,6 +91,7 @@ payloads:
     - artifacts
     - decisions
     - open_questions
+    - constraints
     - verification_evidence
     - context
     - budget

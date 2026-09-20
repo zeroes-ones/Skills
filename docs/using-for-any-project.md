@@ -25,7 +25,7 @@ when a skill is central to the flow. Manifests are plain YAML:
 ```yaml
 name: docs-review-loop
 payloads:
-  handoff-v1: [status, summary, artifacts, decisions, open_questions,
+  handoff-v1: [status, summary, artifacts, decisions, open_questions, constraints,
               verification_evidence, context, budget, next]
 nodes:
   - id: writer

@@ -111,8 +111,8 @@ not yet in the stdlib engine.
 
 **Requirements:**
 
-- One payload contract per boundary: the nine-key registry (`status`, `summary`, `artifacts`,
-  `decisions`, `open_questions`, `verification_evidence`, `context`, `budget`, `next`) —
+- One payload contract per boundary: the ten-key registry (`status`, `summary`, `artifacts`,
+  `decisions`, `open_questions`, `constraints`, `verification_evidence`, `context`, `budget`, `next`) —
   `WORKFLOW-SYSTEM.md` §5 + `agent-handoff-protocol/references/workflow-payload-registry.md`.
 - Hash-verified state transfer; mismatch aborts instead of propagating
   (run-state rules R1-R6).

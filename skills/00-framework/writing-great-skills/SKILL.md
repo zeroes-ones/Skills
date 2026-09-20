@@ -82,8 +82,8 @@ These rules catch the failure modes that make skills flabby, confusing, or activ
 | R5 | DETECT sprawl — skills that exceed their token budget by >20%. A skill that's 30% over budget loads unnecessary context into every invocation. | Trigger: `wc -l SKILL.md` returns >600 lines (500 budget + 20%) | STOP. Respond: "Sprawl detected: SKILL.md is over budget. Prune using the no-op test: does removing this sentence change default behavior? If no, delete. Target: <500 lines for body content." |
 | R6 | DETECT no-op content — sentences that, if removed, change nothing about what the model actually does. "Remember to write clean code" changes zero behavior. | Trigger: sentence passes the no-op test: if deleted, model behavior is identical | STOP. Respond: "No-op content detected. This sentence does not change default model behavior. Replace with a concrete constraint or delete." |
 | R7 | REFUSE to describe process in the description field. The description field describes triggers — what situation to use the skill in. Process belongs in Core Workflow. | Trigger: description contains procedural language ("first", "then", "step", "start by", "followed by") | STOP. Respond: "Process language detected in description field. Description must describe only TRIGGERS. Move procedural content to Core Workflow. Format: 'Use when [triggers]. Handles [capabilities]. Do NOT use for [boundaries].'" |
-| R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → detect the installed versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| R9 | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 ## The Expert's Mindset
 
@@ -453,7 +453,6 @@ This skill maintains a **decision ledger** for skill authoring sessions.
 ```markdown
 # My Skill
 This skill helps you do things.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
 ## How to Use
 1. Figure out the problem
 2. Solve it
@@ -466,6 +465,19 @@ This skill helps you do things.
 ```
 
 Problems: No triggers, no boundaries, no completion criteria, no-op tips, no ground rules, no gotchas, no decision trees, no references.
+
+### Completion Criteria
+
+| ☐ | # | Complete when | Check that proves it |
+|---|---|---|---|
+| ☐ | CR01 | Complete when the no-op test has been run sentence-by-sentence and the delete-rate is under the stated threshold | No-op score (DELETE ÷ total sentences) is computed and reported below 5%; any surviving advice sentence is named with the behavior it changes |
+| ☐ | CR02 | Complete when each of the catalogued failure modes has been checked against the draft — premature completion, duplication, sediment, sprawl, no-op, negation — not just the one that prompted the edit | All six modes are addressed in the audit, each with a pass/fail and the evidence line that decided it |
+| ☐ | CR03 | Complete when duplication is detected mechanically: no sentence over 15 words appears more than once | A repeated-sentence scan is run and returns zero duplicates; the single authoritative occurrence is identified for any concept that looked duplicated |
+| ☐ | CR04 | Complete when sediment is removed — definitional content lives in the reference tier, and the step sections contain only procedural instructions of the form "Do X. Complete when Y." | `grep` for definitional markers ("is a", "refers to", "means", "defined as") in the steps sections returns zero hits, or each surviving hit is justified |
+| ☐ | CR05 | Complete when sprawl is checked: body content is within the 500-line budget, and anything at or beyond the 20%-over trigger has been pruned, not relabeled | The body line count is measured after frontmatter; over-budget drafts show what was moved to references or deleted, not a raised budget |
+| ☐ | CR06 | Complete when negation is checked in the primary framing — the skill name and description state what the skill does, with boundaries expressed as explicit routing rather than "don't"/"never" framing | Description carries the Use-when / Handles / Do-NOT-use structure; no negation term leads the name or description |
+| ☐ | CR07 | Complete when the 12-dimension quality audit has been scored, and every dimension that scored below target has a named fix or an explicit waiver | The audit returns 12 scored dimensions with the total; each miss maps to a concrete edit, not to "good enough" |
+| ☐ | CR08 | Complete when every reference link resolves and the count meets the stated minimum, so pushed-out material is actually reachable | Each linked reference file is confirmed to exist; the reference count is shown against the minimum |
 
 ### After (Great Skill)
 
@@ -661,23 +673,13 @@ Take a 700-line skill. Run no-op elimination, sediment mining, and merge similar
 
 ## Production Checklist
 
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |
-* In-scope: proceed through Core Workflow.
-* Out-of-scope: route to the owning skill and stop.
-
-### Decision Tree 2: Verify or escalate?
-* Verifiable locally: run the check and record the result.
-* Blocked externally: escalate once with full context.
-
-### Decision Tree 3: Ship or revise?
-* Meets What Good Looks Like: deliver with evidence.
-* Gaps found: revise before delivering.
+| ☐ | CR01 | Frontmatter is correct: `name` matches the directory name, `description` uses the Use-when / Handles / Do-NOT-use structure inside the 1024-character limit, `license` is present, and a portability target is declared | Evidence: each field is read back from the file; a description missing one of the three phrases, or written as process, is rewritten before delivery |
+| ☐ | CR02 | `chain.consumes_from` and `chain.feeds_into` are both present and symmetric — every skill this one feeds into names it as a consumer | Evidence: the edge is checked against the counterpart skill's chain block; a one-sided edge is repaired rather than assumed |
+| ☐ | CR03 | Every Core Workflow phase ends on a checkable condition, so no step can be declared done on output that merely looks complete | Evidence: each phase carries a completion clause naming an artifact or state; a step whose end cannot be observed is rewritten or cut |
+| ☐ | CR04 | All six failure modes are tested against the draft — premature completion, duplication, sediment, sprawl, no-op, negation — not only the one that prompted the edit | Evidence: each mode carries a pass/fail plus the line, command, or sample that decided it |
+| ☐ | CR05 | Every sentence survives the no-op test: removing it would change model behavior | Evidence: delete-count ÷ sentence-count is reported against the skill's under-5% target; a borderline survivor is named with the behavior it changes |
+| ☐ | CR06 | Single source of truth holds — no sentence over 15 words appears twice, and each concept has exactly one authoritative location | Evidence: a repeated-sentence scan returns zero duplicates; a second site links to the definition instead of restating it |
+| ☐ | CR07 | Body content is inside the 500-line budget, and anything past the 20%-over trigger (over 600 lines) was pruned or pushed to `references/`, never relabeled | Evidence: the body line count is measured after frontmatter; an over-budget draft shows what moved out, not a raised budget |
+| ☐ | CR08 | Progressive disclosure is wired: three or more QUICK markers route the agent into the cheapest useful path, and DEEP markers gate the expensive material | Evidence: the markers are counted; reference-tier material sits in `references/` rather than in the steps tier |
+| ☐ | CR09 | `## Decision Trees` carries three or more trees whose leaves are actions or section jumps, not restatements of the branch condition | Evidence: each leaf terminates in a concrete fix or a jump target; a leaf that only rephrases its own question is rewritten |
+| ☐ | CR10 | The 12-dimension quality audit is scored, and every dimension below target has a named fix or an explicit waiver | Evidence: the audit returns 12 scores plus a total; GOTCHAS shows 5+ dollar-quantified costs and REFERENCES shows every link resolving |

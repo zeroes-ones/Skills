@@ -61,6 +61,48 @@ Final suite-level (config C):
 | routing-semantic-adversarial | 14 | 0.0% | 7.1% | 0.096 | 0 |
 | **Overall** | **63** | **55.6%** | **66.7%** | **0.624** | **6** |
 
+> **Update (2026-09-19) — config D, BM25F router.** `scripts/eval-routing.py` replaced the
+> cosine-TF scorer with a field-weighted BM25 (BM25F) that additionally indexes the FULL skill
+> body at weight 0.02, and ported the negative-trigger discount from the node runner
+> (`scripts/run-routing-evals.js:298`). Same 63 scenarios, no test-set change:
+>
+> | Config | rank-1 | top-N | MRR | must-not | adversarial |
+> |---|---|---|---|---|---|
+> | C. Cosine-TF (above) | 55.6% | 63.5% | 0.618 | 5 | 0.0% |
+> | D. **BM25F (current)** | **58.7%** | **71.4%** | **0.672** | **6** | **14.3%** |
+>
+> Read this honestly: on the **49-scenario core suite the node runner gates on, rank-1 is
+> unchanged at 71.4%** (top-N unchanged at 81.6%, MRR 0.773 → 0.782). The entire overall delta
+> is the adversarial suite moving 0/14 → 2/14. BM25F is a real but thin retrieval gain. Per-suite,
+> with config C's column for comparison:
+>
+> | Suite | n | C rank-1 | D rank-1 | D top-N | D MRR | D viol |
+> |---|---|---|---|---|---|---|
+> | routing-core-development | 8 | 100.0% | 100.0% | 100.0% | 1.000 | 0 |
+> | routing-design-ux | 6 | 83.3% | 100.0% | 100.0% | 1.000 | 0 |
+> | routing-devops-infra | 6 | 83.3% | 83.3% | 100.0% | 0.917 | 0 |
+> | routing-quality-security | 6 | 100.0% | 83.3% | 83.3% | 0.843 | 0 |
+> | routing-trading-finance | 6 | 83.3% | 83.3% | 83.3% | 0.867 | 4 |
+> | routing-negative-triggers | 4 | 50.0% | 75.0% | 75.0% | 0.773 | 0 |
+> | routing-meta-disambiguation | 6 | 16.7% | 33.3% | 66.7% | 0.481 | 0 |
+> | routing-semantic-adversarial | 14 | 0.0% | 14.3% | 35.7% | 0.290 | 1 |
+> | routing-product-strategy | 7 | 42.9% | 14.3% | 42.9% | 0.366 | 1 |
+> | **Overall** | **63** | **55.6%** | **58.7%** | **71.4%** | **0.672** | **6** |
+>
+> Two suites regress and are not hidden here: `routing-product-strategy` (42.9% → 14.3%) and
+> `routing-quality-security` (100% → 83.3%). The product-strategy loss is the BM25 IDF term
+> punishing common-but-needed vocabulary — `cto-advisor` loses *"build-vs-buy for our
+> authentication system"* partly to `home-buying` (the token `buy`), and `ceo-strategist` and
+> `business-strategist` lose to their narrower siblings when the query's rarer words dominate.
+> It was not fixable by any grid configuration measured: every BM25 variant scored 14.3% on that
+> suite except those using the old `log(1 + N/df)` IDF, which reach 42.9% but double must-not
+> violations to 10 (documented as an alternative in `scripts/eval-routing.py`).
+>
+> It also costs one new must-not violation vs config C: `route-release-planning` now returns
+> `release-manager` at rank 1. The other five violations are the pre-existing
+> futures/options adjacency in `routing-trading-finance`. Re-derive with
+> `python3 scripts/eval-routing.py --grid`; gate with `--check` (floor 55.0%).
+
 ### 1c. What changed, and why it is not cherry-picking
 
 Three independent, general changes, each measured separately on the same test sets:

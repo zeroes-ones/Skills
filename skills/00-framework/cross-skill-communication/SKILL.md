@@ -54,9 +54,21 @@ chain:
 
 The universal nervous system for the skill ecosystem. Every inter-skill interaction — whether a trading signal flowing from technical-signals-engineer to portfolio-signal-manager, a product requirement flowing from product-manager to system-architect, or a security finding flowing from security-reviewer to code-reviewer — should conform to one of the 6 communication patterns defined here.
 
-**NEVER guess how two skills communicate.** Always consult this protocol. Ad-hoc coordination without a declared pattern produces the 457 broken chains and 5 incompatible formats that plague this repository today. If a communication link doesn't fit one of the 6 patterns, the link doesn't exist.
+**NEVER guess how two skills communicate.** Always consult this protocol. Ad-hoc coordination without a declared pattern produces unenforced handoffs and incompatible coordination formats. If a communication link doesn't fit one of the 6 patterns, the link doesn't exist.
 
-Current state: 223 skills, 457 broken chains, 5+ incompatible coordination formats, zero shared message protocol. Skills were built in isolation. This protocol makes them interoperable.
+Current state: 327 skills, 0 broken chains (`python3 scripts/validate_chains.py` reports all chain references symmetric [VERIFIED 2026-09-19]), no shared message protocol implemented in this repository, and no skill declaring which of the 6 patterns it uses (`Request-Response` / `Publish-Subscribe` appear in zero Cross-Skill Coordination sections). Skills were built in isolation. This protocol makes them interoperable.
+
+**Implementation status.** This skill is a specification. Some mechanisms have tooling behind them in this repository; the rest are conventions you must implement yourself before relying on them.
+
+| Mechanism | Status | Evidence |
+|---|---|---|
+| Chain symmetry, frontmatter (Phase 4, rule 1) | Backed by tooling | `python3 scripts/validate_chains.py` checks bidirectional symmetry and dangling references. Wired into CI (`validate.yml`, non-blocking) and advisory gate [18] of `validate-skills.sh`. |
+| Handoff payload contract (the `transferred_state` half of Pattern 3) | Backed by tooling, in workflow manifests | `python3 scripts/validate-workflows.py` validates a payload registry: a manifest's `payloads:` block declares `name → required keys`, and every edge `payload:` name must resolve into it (`--selftest` passes 24 checks; `--all` passes 6/6 manifests). This enforces the *shape* of a handoff bundle — it does not emit, transport, or hash one, and no manifest payload is a message envelope. |
+| Phase 4 rules 2–6 (self-reference, dead ends, alternatives exist, section↔chain, pattern declared) | Convention only | No validator implements them; only the spec `references/chain-validator.md` describes them. |
+| Universal message envelope (Phase 3) and its JSON Schema | Convention only | No schema file, validator, or emitter exists in this repository, and no skill currently emits an envelope. Build it before assuming a receiver can parse one. |
+| Publish-subscribe registry and circuit breaker | Convention only | No event bus, subscription registry, or breaker implementation exists; no skill in the corpus declares `subscribes_to`. Own these in your orchestrator. |
+| Repair cadence | Convention only | There is no scheduled run. The symmetry check executes on pull request and push (CI) and locally via `scripts/run-ci-locally.sh`. |
+
 ## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
 
 **This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
@@ -145,8 +157,8 @@ What communication problem are you solving?
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
-| R1 | REFUSE to design a one-directional chain without verifying the downstream skill acknowledges it. A `feeds_into` without matching `consumes_from` is a broken promise — information flows into a void. 457 of these exist today. | Trigger: skill YAML has `feeds_into: [X]` but skill X's YAML does NOT have `consumes_from: [this_skill]` | STOP. "Chain integrity violation: {this_skill} feeds_into {X} but {X} does not consume_from {this_skill}. Either add consumes_from to {X} or remove feeds_into from this skill. Information cannot flow to a receiver that doesn't expect it." |
-| R2 | REFUSE to use ad-hoc coordination formats. Every inter-skill interaction MUST conform to one of the 6 patterns (Request-Response, Pub-Sub, Handoff, Feedback, Conflict Resolution, Orchestration). No "I'll just mention the other skill in a paragraph" — that's how 5 incompatible formats emerged. | Trigger: Cross-Skill Coordination section does not reference any of the 6 pattern names AND does not use the standard message envelope schema | STOP. "Ad-hoc coordination detected. Map interaction to one of 6 patterns (see Core Workflow Phase 1). Standardize to the message envelope format. Unpatterned coordination is untestable coordination." |
+| R1 | REFUSE to design a one-directional chain without verifying the downstream skill acknowledges it. A `feeds_into` without matching `consumes_from` is a broken promise — information flows into a void. Chain symmetry is currently clean (0 asymmetries across 327 skills [VERIFIED 2026-09-19]) only because every skill is checked bilaterally on each change; the failure mode returns the moment a skill is added or renamed without its counterpart being updated. | Trigger: skill YAML has `feeds_into: [X]` but skill X's YAML does NOT have `consumes_from: [this_skill]` | STOP. "Chain integrity violation: {this_skill} feeds_into {X} but {X} does not consume_from {this_skill}. Either add consumes_from to {X} or remove feeds_into from this skill. Information cannot flow to a receiver that doesn't expect it." |
+| R2 | REFUSE to use ad-hoc coordination formats. Every inter-skill interaction MUST conform to one of the 6 patterns (Request-Response, Pub-Sub, Handoff, Feedback, Conflict Resolution, Orchestration). No "I'll just mention the other skill in a paragraph" — that is how unversioned, untestable coordination formats multiply. | Trigger: Cross-Skill Coordination section does not reference any of the 6 pattern names AND does not use the standard message envelope schema | STOP. "Ad-hoc coordination detected. Map interaction to one of 6 patterns (see Core Workflow Phase 1). Standardize to the message envelope format. Unpatterned coordination is untestable coordination." |
 | R3 | REFUSE to send a message without a message_id, source_skill, target_skill, schema_version, and timestamp. Messages without these 5 fields are untraceable, unversioned, and undebuggable. | Trigger: inter-skill communication JSON missing any of: message_id, source_skill, target_skill, schema_version, timestamp | STOP. "Message envelope incomplete. Required fields: message_id (UUID), source_skill, target_skill, schema_version, timestamp (ISO8601). Without these, message routing, debugging, and compatibility checking are impossible." |
 | R4 | REFUSE to implement a handoff without defining what state transfers, what doesn't, and how the receiver validates state integrity. Handoffs without explicit state contracts are the #1 cause of lost context between skill invocations. | Trigger: handoff description references "passes to" or "hands off to" without explicit state_schema block | STOP. "Handoff without state contract. Define: transferred_state (exact data), excluded_state (what stays behind), validation (how receiver verifies integrity), resume_point (where execution continues). See Pattern 3: Handoff." |
 | R5 | REFUSE to resolve a conflict by defaulting to one skill over another without documented rationale. "The higher-confidence skill wins" is not rationale — confidence scores from different skills are not comparable without calibration. | Trigger: conflict resolution picks winner without conflict_resolution block containing calibration_method, weights, and rationale | STOP. "Uncalibrated conflict resolution. Document: calibration method (how scores were made comparable), source weights (why one source weighted higher), resolution rationale (domain-specific reasoning). See Pattern 5: Conflict Resolution." |
@@ -159,10 +171,10 @@ What communication problem are you solving?
 
 | Rationalization | Reality |
 |---|---|
-| "I listed the skill in my Cross-Skill Coordination section, so we're integrated." | Listing is not integration. Without a shared message format, versioned schema, timeout handling, and tested exchange, "integration" is a hope, not a fact. The 457 broken chains prove that listing alone doesn't work. **Cost: $0 in direct losses but incalculable in wasted context — every broken chain is a conversation where the agent manually bridges a gap that should have been automated. Multiply by hundreds of invocations per day.** |
+| "I listed the skill in my Cross-Skill Coordination section, so we're integrated." | Listing is not integration. Without a shared message format, versioned schema, timeout handling, and tested exchange, "integration" is a hope, not a fact. A chain can be perfectly symmetric — 0 asymmetries across 327 skills today [VERIFIED 2026-09-19] — while no skill declares a pattern and no message envelope is emitted anywhere. Symmetry proves the names agree; it proves nothing about the payloads. **Cost: $0 in direct losses but incalculable in wasted context — every unresolved link is a conversation where the agent manually bridges a gap that should have been automated. Multiply by hundreds of invocations per day.** |
 | "Skills don't need a message schema — the agent will figure out how to pass data between them." | The agent passes unstructured text between skill invocations. Skill A outputs "The stock is undervalued by 15%." Skill B reads that and must parse 15% from prose. What if Skill A changes its output format? What if the number is in a different paragraph? The agent "figuring it out" is pattern-matching on unstructured text — brittle, unversioned, and silently wrong. **Cost: $5K-$50K per misinterpreted inter-skill data transfer. Structured envelopes with schema_version prevent silent format drift.** |
 | "My skill's confidence score is 85, so it overrides the other skill's 65." | Confidence scores from different skills measure different things. A technical-signals-engineer's 85 measures indicator alignment purity. A fundamental-analyst's 65 measures valuation margin width. They are incommensurable without calibration. Assuming comparability is like comparing Celsius to Fahrenheit without conversion. **Cost: $10K-$200K in "high confidence wins" decisions where the less confident source was actually more accurate. Calibrate scores against a common accuracy baseline before comparing.** |
-| "If Skill A feeds_into Skill B, then Skill B obviously consumes_from Skill A. No need to check." | The 457 broken chains say otherwise. At repository scale, manual chain maintenance is impossible. Skills get added, renamed, split. Chains rot silently. The only defense is automated validation — every chain link verified bilaterally. **Cost: Every broken chain is a runtime failure waiting to happen. When the agent routes to Skill B expecting data from Skill A and Skill B has no idea what Skill A is, the pipeline breaks mid-execution.** |
+| "If Skill A feeds_into Skill B, then Skill B obviously consumes_from Skill A. No need to check." | Chain symmetry is exactly the assumption that rots first. At repository scale, manual chain maintenance is impossible. Skills get added, renamed, split. The current corpus happens to be symmetric (0 asymmetries across 327 skills [VERIFIED 2026-09-19]) because a validator enforces it on every change — remove that enforcement and asymmetry returns within one rename. **Cost: Every asymmetry is a runtime failure waiting to happen. When the agent routes to Skill B expecting data from Skill A and Skill B has no idea what Skill A is, the pipeline breaks mid-execution.** |
 | "Handoffs are simple — just tell the next skill what to do." | A handoff that says "continue the analysis" has lost: current state, intermediate results, ruled-out approaches, assumptions made, calibration parameters, data freshness timestamps. The receiving skill starts from zero because the sending skill assumed "context is shared." Context is NOT shared between skill invocations unless explicitly serialized. **Cost: $2K-$20K per lost-context handoff. The receiving skill re-does work, re-discovers ruled-out approaches, and may reach different conclusions from the same data — creating inconsistency that looks like a bug but is actually a communication failure.** |
 
 ## Core Workflow
@@ -461,7 +473,7 @@ When schema_version increments MAJOR:
 ```
 
 VALIDATE the entire skill chain graph. Fix broken links. This is how we
-eliminate the 457 broken chains.
+keep the chain graph symmetric.
 
 VALIDATION RULES:
 
@@ -505,8 +517,9 @@ VALIDATION RULES:
 
 AUTOMATED FIX WORKFLOW:
 
-1. Run chain-validator against entire repository
-2. For each broken chain: determine if it's a documentation error or a real dependency
+1. Run the chain validator against the entire repository
+   (`python3 scripts/validate_chains.py`; exits non-zero with a per-link message)
+2. For each asymmetry: determine if it's a documentation error or a real dependency
    ├── DOC ERROR: Downstream skill SHOULD consume from upstream but forgot to list it
    │   Fix: Add consumes_from entry to downstream skill. Both sides agree dependency exists.
    └── GHOST DEPENDENCY: Upstream skill claims to feed into downstream but downstream
@@ -517,9 +530,10 @@ AUTOMATED FIX WORKFLOW:
 4. For each terminal skill without documentation: add terminal designation
 5. Re-validate. All chains must be bilateral, patterned, and documented.
 
-[VERIFIED] chain-validator returns 0 broken chains. Every link bilateral. Every link has declared pattern.
-[VERIFIED] All 6 communication patterns documented and tested with at least one skill pair each.
-[VERIFIED] Message envelope schema validated against all pattern payload types.
+Exit state to assert (steps 1 and 5 are the only ones tooling can confirm today):
+[COMPUTED 2026-09-19] `python3 scripts/validate_chains.py` — 327 skills checked, 0 asymmetries, 0 dangling references.
+[UNKNOWN] Every link carries a declared pattern — rules 2–6 of Phase 4 have no validator, and none of the 325 Cross-Skill Coordination sections declares a pattern using the taxonomy's own terms (`Request-Response`, `Publish-Subscribe`) [COMPUTED 2026-09-19].
+[UNKNOWN] Message envelope schema validated against all pattern payload types — no envelope schema or validator exists in this repository.
 
 ```
 
@@ -635,7 +649,6 @@ Is formal inter-skill communication overkill?
 | `using-agent-skills` | Pattern-based routing logic: detect which communication pattern a workflow needs | Agent routing stays manual, guessing which skill to invoke next instead of following declared patterns |
 | `agent-persona-orchestrator` | Universal message envelope for persona-to-persona communication (currently personas share no structured data) | Personas remain isolated silos that can't exchange structured findings — merge step stays manual |
 | `agent-handoff-protocol` | State schema for handoff bundles — what state transfers and how it's validated | Handoffs lose context because state schema is undefined — receiving skill starts from zero |
-| `chain-validator` | Validation rules for bilateral chain integrity (the 6 rules from Phase 4) | Broken chains accumulate. Without validation rules, the validator has nothing to check |
 | `wayfinder` | Communication pattern detection — wayfinder can route "how do X and Y talk?" queries to this skill | Users can't discover the protocol when they encounter coordination problems |
 
 ## Production Checklist
@@ -644,8 +657,8 @@ Is formal inter-skill communication overkill?
 
 Before considering the cross-skill communication protocol production-ready:
 
-- [ ] **Every skill's Cross-Skill Coordination section conforms to the 6-pattern taxonomy.** No ad-hoc formats remain. 221 sections to audit.
-- [ ] **Chain integrity validator passes with 0 broken chains.** Currently 457 broken. Target: 0.
+- [ ] **Every skill's Cross-Skill Coordination section conforms to the 6-pattern taxonomy.** No ad-hoc formats remain. 325 sections to audit; none declares a pattern using the taxonomy's own terms today [COMPUTED 2026-09-19].
+- [ ] **Chain integrity validator passes with 0 broken chains.** Verified 2026-09-19: `python3 scripts/validate_chains.py` reports 327 skills checked, 0 asymmetries, 0 dangling references. The target is to keep it at 0 — the check covers bidirectional symmetry and dangling references only, so passing it is not evidence that a link is patterned or schema-compatible.
 - [ ] **Every inter-skill dependency has a timeout, degradation response, and circuit breaker threshold.** Dependencies without protection are future cascading failures.
 - [ ] **Every handoff has a state schema defining what transfers, what doesn't, and how it's validated.** Handoffs without state contracts lose context.
 - [ ] **Every conflict between skills has a documented resolution method with calibration, weights, and rationale.** Conflicts resolved by "higher confidence wins" are uncalibrated.
@@ -673,10 +686,10 @@ Before considering the cross-skill communication protocol production-ready:
 | Trigger | Action | Why |
 |---|---|---|
 | New skill added to the repository | Within 7 days: define its communication contract using Phase 2 template. Validate bilateral chain consistency with all listed upstream/downstream skills | New skills that don't declare their communication patterns immediately become broken chains. Fixing them later is 3x the work — downstream consumers have already built assumptions on ad-hoc formats |
-| Skill renamed or moved to a different directory | Within 24 hours: update ALL skills that list the renamed skill in consumes_from, feeds_into, or alternatives. Run chain-validator to catch stragglers | Renames silently break chains. The old name stays in YAML frontmatter of every dependent skill. 50+ skills may reference a renamed skill — miss one and you have a phantom dependency |
+| Skill renamed or moved to a different directory | Within 24 hours: update ALL skills that list the renamed skill in consumes_from, feeds_into, or alternatives. Run `python3 scripts/validate_chains.py` to catch stragglers | Renames silently break chains. The old name stays in YAML frontmatter of every dependent skill. Chain references are concentrated — `backend-developer` is named by 90 skills, `frontend-developer` by 70, `using-agent-skills` by 67 [COMPUTED 2026-09-19] — so miss one rename and you have a phantom dependency |
 | Schema version bumps MAJOR (1.x → 2.x) | Immediately: publish deprecation notice for old version. Begin 30-day dual-publish window. Notify all consumers. After 30 days: verify all consumers migrated, retire old version | Breaking changes without transition break every consumer simultaneously. The 30-day window is not bureaucracy — it's the difference between coordinated migration and cascading failure |
 | Circuit breaker opens for any skill | Within 5 minutes: notify human. Investigate root cause. Do NOT reset circuit breaker until: (a) heartbeat test passes, (b) root cause identified, (c) fix deployed or accepted as known limitation | Circuit breakers that auto-reset hide persistent failures. Manual reset forces investigation. A skill that times out 3x in a row has a real problem — don't paper over it |
-| chain-validator detects new broken chains (weekly automated run) | Within 48 hours: triage each broken chain. DOC ERROR → fix documentation. GHOST DEPENDENCY → remove feeds_into. REAL DEPENDENCY → add consumes_from to downstream skill | Broken chains accumulate silently. Weekly validation catches them before they become entrenched. Every broken chain is a runtime surprise waiting to happen |
+| `validate_chains.py` reports a new asymmetry | Within 48 hours: triage it. DOC ERROR → fix documentation. GHOST DEPENDENCY → remove feeds_into. REAL DEPENDENCY → add consumes_from to downstream skill | Asymmetries accumulate silently. The validator runs on every pull request and push, so a new one surfaces at the change that introduced it rather than after it is entrenched. Every asymmetry is a runtime surprise waiting to happen |
 | Two skills produce conflicting outputs for the same decision more than 3 times in a week | Escalate to human: the conflict resolution method is failing. Either calibration is wrong, weights need adjustment, or one skill's methodology is systematically biased | Recurring conflicts that the resolution framework "resolves" the same way every time are not resolved — they're suppressed. Pattern detection requires tracking resolution outcomes over time |
 | A skill's confidence scores are consistently >20% above its actual accuracy (detected via feedback loop) | Flag skill for recalibration. confidence_calibration_factor = actual_accuracy / average_confidence. Update skill's calibration metadata. Notify all downstream consumers of calibration change | Overconfident skills poison every downstream decision. A skill that claims 85% confidence but is 60% accurate makes every consumer 25% overconfident. Calibration drift is silent and cumulative |
 
@@ -714,7 +727,7 @@ Before considering the cross-skill communication protocol production-ready:
 |---|---|
 | "We'll add communication patterns later — right now we just need to ship the skill." | Skills without communication patterns ship with ad-hoc coordination. When 10 skills ship this way, you have 10 different coordination formats. When 50 ship, you have an unmaintainable tangle. The cost of retrofitting patterns onto 50 skills exceeds the cost of defining patterns for 1 skill by 100x. **Cost: $0 now, $50K-$200K in cumulative retrofitting across 50+ skills. Patterns are infrastructure — build them first, not last.** |
 | "My skill is simple — it doesn't need all 6 contract sections." | Every skill has at minimum: inputs it depends on (upstream), outputs it produces (downstream), and quality expectations. That's 3 contract sections minimum. A skill that "doesn't need coordination" is either truly isolated (document as terminal) or has hidden dependencies it's not acknowledging. **Cost: Every "simple" skill that omitted its coordination contract becomes a runtime discovery when downstream skills can't consume its output.** |
-| "The chain YAML is enough — I don't need a separate Cross-Skill Coordination section." | YAML lists names. The Cross-Skill Coordination section defines HOW: what pattern, what schema, what timeout, what degradation response. A name without a pattern is a directory entry, not an integration. The 457 broken chains exist BECAUSE YAML was treated as sufficient. **Cost: YAML-only coordination is a phonebook. You know who exists but not how to talk to them.** |
+| "The chain YAML is enough — I don't need a separate Cross-Skill Coordination section." | YAML lists names. The Cross-Skill Coordination section defines HOW: what pattern, what schema, what timeout, what degradation response. A name without a pattern is a directory entry, not an integration. Every skill in this corpus has symmetric YAML today, and none of the 325 Cross-Skill Coordination sections names a pattern or a message schema [COMPUTED 2026-09-19] — symmetry on names is the ceiling YAML can reach on its own. **Cost: YAML-only coordination is a phonebook. You know who exists but not how to talk to them.** |
 | "Confidence scores from different skills are fine to compare directly — they're both 0-100." | A technical-signals-engineer 85 means "85% of signals with this indicator alignment were profitable in backtest." A fundamental-analyst 65 means "the DCF range with these assumptions gives 65% probability of undervaluation." These are different statistical objects. Comparing them directly is like comparing batting average to on-base percentage — both are percentages, both measure performance, but they're not the same thing. **Cost: $15K-$150K per uncalibrated conflict resolution. Calibrate everything against a common accuracy baseline.** |
 | "The timeout should be the same for all dependencies — keep it simple." | A data query (fetch OHLCV) completes in <2 seconds. A fundamental analysis (DCF + comparables + quality scores) takes 30-120 seconds. A uniform 30-second timeout starves fast queries and kills slow analyses. Tailor timeouts to the operation: data queries 10s, signal generation 30s, analysis 120s, computation 300s. **Cost: Uniform timeouts either waste time waiting for fast operations or kill slow operations that would have succeeded. Calibrated timeouts respect the shape of the work.** |
 
@@ -725,7 +738,7 @@ Before considering the cross-skill communication protocol production-ready:
 A world-class cross-skill communication ecosystem:
 
 - **Every inter-skill message has a traceable envelope.** message_id → correlation_id → parent_message_id. You can trace any decision back through every skill that contributed to it. The audit trail is complete, machine-readable, and timestamped.
-- **Zero broken chains.** The chain-validator runs weekly and returns 0. Every `feeds_into` has a matching `consumes_from`. Every chain link has a declared communication pattern. Every pattern has a timeout and degradation response.
+- **Zero broken chains.** Every `feeds_into` has a matching `consumes_from` and the validator returns 0 on every change — the corpus is at 0 today [VERIFIED 2026-09-19]. Beyond symmetry, every chain link has a declared communication pattern, and every pattern has a timeout and degradation response.
 - **Skills degrade gracefully, never silently.** When a dependency times out, the consumer logs it, uses degraded mode, and the degradation is visible in monitoring. Silent degradation is treated as a production incident.
 - **Conflicts are resolved, not suppressed.** When two skills disagree, the conflict resolution framework produces a documented decision with calibration, weights, and rationale. Six months later, you can audit whether the resolution was correct. Recurring conflicts trigger recalibration, not repeated suppression.
 - **Feedback loops close.** When a consumer rates a producer's output quality, the producer has a deadline to act on the feedback. Resolution rates are tracked. Open loops are escalated. The ecosystem learns.
@@ -754,7 +767,7 @@ The following reference files are loaded on demand when deeper context is needed
 |---|---|---|
 | **Message Envelope Specification** | [message-envelope.md](references/message-envelope.md) | Complete JSON Schema for the universal message envelope. Field-by-field specification with validation rules, examples for all 6 patterns, and backward compatibility requirements |
 | **6 Communication Patterns** | [communication-patterns.md](references/communication-patterns.md) | Detailed specification for each pattern: sequence diagrams, state machines, error handling, implementation checklist. Includes anti-patterns and common implementation mistakes |
-| **Chain Integrity Validator** | [chain-validator.md](references/chain-validator.md) | Specification for the automated chain validator tool. 6 validation rules with SQL/pseudocode, false positive handling, auto-fix capabilities, and CI integration |
+| **Chain Integrity Validator** | [chain-validator.md](references/chain-validator.md) | Specification for the automated chain validator tool: 6 validation rules with SQL/pseudocode, false positive handling, auto-fix capabilities, and CI integration. Only rule 1 is implemented today (by `scripts/validate_chains.py`); rules 2–6 are a design target |
 | **Conflict Resolution Framework** | [conflict-resolution.md](references/conflict-resolution.md) | Generalized weighted decision matrix applicable to any domain. Calibration methods (historical accuracy, cross-validation, expert Bayesian), domain weight derivation, and escalation criteria |
 | **Schema Versioning Protocol** | [schema-versioning.md](references/schema-versioning.md) | MAJOR/MINOR/PATCH semantics for skill output schemas. Dual-publish transition protocol. Consumer migration tracking. Compatibility matrix maintenance |
 | **Circuit Breaker Design** | [circuit-breakers.md](references/circuit-breakers.md) | Circuit breaker state machine (Closed → Open → Half-Open → Closed). Threshold configuration per dependency type. Monitoring and alerting integration. Reset criteria |
@@ -770,9 +783,14 @@ The following reference files are loaded on demand when deeper context is needed
 | `agent-persona-orchestrator` | Implements Pattern 6 (Orchestration) for persona-based workflows with tool restrictions | When orchestration involves isolated personas with tool restrictions (not general skill-to-skill coordination) |
 | `agent-handoff-protocol` | Implements Pattern 3 (Handoff) mechanics — progress ledgers, decision gates, context pruning | When implementing a handoff between skills that need progress tracking and decision traceability |
 | `multi-agent-orchestration` | Implements Pattern 6 for multi-agent topologies (Supervisor, Peer-to-Peer, Swarm) | When skill communication spans multiple agent instances rather than single-agent skill chaining |
-| `chain-validator` | Automated tool that enforces bilateral chain consistency | Weekly or on every skill change — validates that no broken chains exist |
 | `wayfinder` | Routes "how do skills X and Y communicate?" queries to this protocol | When users or agents need to discover communication patterns between specific skills |
 | `skill-levels` | Calibrates output depth across L1-L5 competency levels | When defining quality expectations in feedback loops — what "good" means varies by level |
+
+### Tooling (not skills)
+
+| Tool | Relationship | When to Run |
+|---|---|---|
+| `scripts/validate_chains.py` | Enforces chain symmetry — Phase 4 rule 1 only (bidirectional consistency + dangling references) | On every change to a skill's `chain:` block, and in CI on pull request and push |
 
 ## Deliberate Practice
 
@@ -780,7 +798,7 @@ The following reference files are loaded on demand when deeper context is needed
 
 To build cross-skill communication instinct:
 
-1. **Audit a broken chain.** Pick one of the 457. Trace: Skill A claims to feed_into Skill B. Read Skill B's Cross-Skill Coordination section. Does Skill B know about Skill A? If not, is this a doc error (Skill B should consume from A) or a ghost dependency (Skill A is wrong)? Fix it. This builds intuition for chain integrity.
+1. **Audit a broken chain.** Break one deliberately, then repair it. Add a skill name to a `feeds_into` list whose counterpart does not list it back, run `python3 scripts/validate_chains.py`, and read the asymmetry it reports. Then undo the edit. This builds intuition for what the validator actually checks — and what it does not (rules 2–6 of Phase 4 have no implementation, so an "audited clean" chain can still be unpatterned and undocumented).
 2. **Design a handoff.** Take a real pipeline where work passes from one skill to another (e.g., brainstorming → idea-to-spec). Write the state bundle: what decisions were made, what constraints exist, what was ruled out. Have the receiving skill validate the bundle. This builds respect for context preservation.
 3. **Calibrate a conflict.** Take two skills that can disagree (e.g., code-reviewer and security-reviewer on the same PR). For each, find their historical accuracy on similar PRs. Derive calibration factors. Run a weighted resolution. Did the resolution pick the right answer? This builds understanding of why uncalibrated comparison fails.
 4. **Design a circuit breaker.** Pick a skill dependency. Define: what counts as a failure? How many failures before the circuit opens? What happens during open circuit? How do you test before closing? This builds instinct for protecting the ecosystem from cascading failures.

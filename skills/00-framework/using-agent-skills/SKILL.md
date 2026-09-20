@@ -109,7 +109,7 @@ portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
 
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor).
 
-The meta-router for the zeroes-ones/Skills library. When you have a task and don't know which skill to invoke, start here. Find the right skill in ~30 seconds, route to it, then stop. **Do not execute the task yourself.** Library: 210+ skills across 28 domains.
+The meta-router for the zeroes-ones/Skills library. When you have a task and don't know which skill to invoke, start here. Find the right skill in ~30 seconds, route to it, then stop. **Do not execute the task yourself.** Library: 327 skills across 37 domains.
 
 ---
 ## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
@@ -515,15 +515,17 @@ No match → DO NOT invent a skill
 
 ## <!-- STANDARD: 2min --> Cross-Skill Coordination
 
-| Upstream | What You Receive | When to Involve |
+| Upstream Skill | What You Receive | When to Involve |
 |---|---|---|
-| `wayfinder` | Cross-library routing, alternative skill maps | Multi-library tasks, unmappable tasks |
-| `writing-great-skills` | New skill definitions, chains, triggers | Decision tree needs new leaf |
+| `cross-skill-communication` | The message-pattern contract for skill-to-skill handoffs | A route hands a payload to another skill and the handoff shape (which of the 6 patterns) is unclear |
+| `parenting-strategist` | A parenting-domain request that surfaced work outside parenting scope | The request has left parenting's scope and still needs a leaf — route it rather than stretching the domain skill |
 
 | Downstream | What You Provide | Misroute Impact |
 |---|---|---|
 | ALL skills in `feeds_into` | Routing intent + original task description | Wrong skill → wasted session. Right skill, wrong level → suboptimal output |
 | `writing-great-skills` | Gap report: "No skill for [need]" | Without gaps, library stagnates |
+
+**Declared alternative (not a chain edge):** `wayfinder` — when a task carries more unknowns than any single leaf can absorb, send it to the investigation planner instead of forcing a leaf match. The router's job ends at the handoff.
 
 **Context & Token Discipline routing (applies to every skill):** When a routed task is really about *how much/what goes into the model's context* or *token/cost optimization* — not the domain itself — route to `context-engineering` (context structure, hierarchy, budgets), `context-optimizer` (minimizing the cost of an existing payload while holding quality), or `token-efficiency` (cost math, caching, compression, output caps) as supporting skills. Do not let the domain skill improvise context or cost strategy; these skills are the universal authorities, wired into the chain graph for every agent.
 
@@ -565,16 +567,11 @@ No match → DO NOT invent a skill
 Problem: Three skills instead of one. api-designer designs contracts, not implements. security-engineer is overkill. Keyword routing, not category routing.
 
 ---
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
+
 ## <!-- STANDARD: 2min --> Deliberate Practice
 
 1. **Walk blind:** Have someone describe 10 tasks. Route each. Compare expectations.
-2. **Find gaps:** Scan all 210+ skills. Verify each has a tree path. Missing paths = undiscoverable.
+2. **Find gaps:** Scan every skill in the corpus. Verify each has a tree path. Missing paths = undiscoverable.
 3. **Chain calibrate:** Design chains for 5 real multi-step workflows. Execute. Did handoffs work?
 4. **Misroute postmortem:** Find a wrong-skill session. Replay routing. What failed — keywords? category? missing skill?
 5. **Discovery test:** Ask someone unfamiliar: "You need to [task]. Which skill?" Compare intuition vs. tree.
@@ -592,25 +589,59 @@ Problem: Three skills instead of one. api-designer designs contracts, not implem
 
 ## Decision Trees
 
-### Decision Tree 1: In-scope or out?
-- In-scope: follow Core Workflow and verify.
-- Out-of-scope: route to the owning skill and stop.
+### Decision Tree 1: Is this the router's job, or another skill's?
 
-### Decision Tree 2: Verify locally or escalate?
-- Locally verifiable: run the check and record the result.
-- Blocked externally: escalate once with full context.
+```
+Request arrives
+├── Asks "which skill should I use?" / "what skills exist?"
+│   └── ROUTER'S JOB → walk the master tree → hand off → stop
+├── Names a domain and asks for the WORK (write the code, price the deal)
+│   └── NOT the router → route to the owning skill, do not begin work
+├── Too many unknowns to pick any leaf (scope itself is unclear)
+│   └── NOT the router → hand off to `wayfinder` (investigation planner)
+└── Requests a new capability no leaf covers
+    ├── One-off need → state the gap, route to `writing-great-skills`
+    └── Recurring need → same, plus log the gap for library growth
+```
 
-### Decision Tree 3: Ship or revise?
-- Meets What Good Looks Like: deliver with evidence.
-- Gaps found: revise before delivering.
+### Decision Tree 2: One skill or a chain?
+
+```
+How many domains does the task actually cross?
+├── One domain
+│   └── ONE skill → recommend it → STOP (the 80% case)
+├── Two domains, natural sequence (design→build, review→harden)
+│   ├── Downstream consumes the upstream artifact? → CHAIN (≤3, ordered)
+│   └── No artifact passes between them? → pick the primary by impact alone
+├── Three domains, phase boundaries exist
+│   └── CHAIN with a declared artifact per transition
+└── Four or more domains
+    ├── Genuinely independent → split into sessions; route Phase 1 only
+    └── Actually one domain in disguise → collapse to one skill
+```
+
+### Decision Tree 3: Deliver the route, or ask first?
+
+```
+Can the verb AND the noun both be read off the request?
+├── Yes — verb and noun unambiguous
+│   └── Route now. Zero questions asked.
+├── Noun clear, verb ambiguous ("API" = design / build / review)
+│   └── Ask exactly ONE question: "Designing, building, or reviewing?"
+│       └── Answer received → route → STOP (never a second question)
+├── Verb clear, noun vague ("fix this")
+│   └── Ask ONE question to recover the noun, then route
+└── Neither readable
+    └── Ask the user to restate as "[verb] [noun]" — do not guess a leaf
+```
 
 ## References
 
-- **Library root:** `skills/` — 210+ skills by domain
+- **Library root:** `skills/` — 327 skills across 37 domains
 - **Skill authoring:** `skills/00-framework/writing-great-skills/SKILL.md`
 - **Level calibration:** `skills/00-framework/skill-levels/SKILL.md`
 - **ROI gate:** `skills/01-strategy/roi-gate/SKILL.md`
-- **Wayfinder:** `skills/00-framework/wayfinder/SKILL.md` — cross-library routing
+- **Wayfinder:** `skills/12-operations/wayfinder/SKILL.md` — investigation planning for tasks whose unknowns exceed a single leaf
 
 ## Anti-Rationalization
 
@@ -645,13 +676,17 @@ Problem: Three skills instead of one. api-designer designs contracts, not implem
 
 ## Production Checklist
 
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |
+| ☐ | ID | Complete when… | Verified by |
+|---|---|---|---|
+| ☐ | CR01 | Complete when the task is parsed into an explicit verb + noun | Both words are written in the routing output, not inferred silently |
+| ☐ | CR02 | Complete when the category branch is named before any skill | Output states the category entered (e.g. DEVELOPMENT, QUALITY) |
+| ☐ | CR03 | Complete when the master tree was walked root→leaf | The path category → subcategory → skill is shown, not just the leaf |
+| ☐ | CR04 | Complete when every recommended skill resolves on disk | `ls skills/*/[name]/SKILL.md` returns the file for each named skill |
+| ☐ | CR05 | Complete when the single-skill test was applied before any chain | The "can one skill handle this?" question is answered, even if "no" |
+| ☐ | CR06 | Complete when any chain is ≤3 skills and ordered by artifact | Each transition names the artifact the downstream skill consumes |
+| ☐ | CR07 | Complete when ambiguity was resolved with at most one question | Clarifying questions asked is 0 or 1, never 2+ |
+| ☐ | CR08 | Complete when a no-match result is stated explicitly | Output says "no skill covers [need]" and routes to `writing-great-skills` |
+| ☐ | CR09 | Complete when a multi-domain task is collapsed to a primary domain | The primary is named and secondary concerns are marked as follow-ups |
+| ☐ | CR10 | Complete when the route is delivered without executing the task | No domain work (code, design, analysis) appears in the routing output |
+| ☐ | CR11 | Complete when no hallucinated skill names appear in the route | Every skill named resolves in the corpus |
+| ☐ | CR12 | Complete when a missing leaf is logged as a decision-tree gap | The uncovered need is recorded for library growth |

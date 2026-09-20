@@ -26,6 +26,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 from lib import safe_yaml  # noqa: E402
+from lib import guardrails  # noqa: E402
 
 SKILLS_DIR = os.path.join(ROOT, "skills")
 MANIFESTS_DIR = os.path.join(ROOT, "workflow", "manifests")
@@ -34,7 +35,7 @@ EXAMPLES_DIR = os.path.join(ROOT, "examples")
 NODE_TYPES = ("skill", "gate", "supervisor", "task")
 STATUS_WORDS = ("done", "blocked", "needs_review", "skipped", "pass", "fail", "changes_requested")
 CANONICAL_PAYLOAD_KEYS = {
-    "status", "summary", "artifacts", "decisions", "open_questions",
+    "status", "summary", "artifacts", "decisions", "open_questions", "constraints",
     "verification_evidence", "context", "budget", "next",
 }
 _SLUG = r"[a-z0-9][a-z0-9-]*"
@@ -122,9 +123,11 @@ class WorkflowValidator(object):
         nodes, groups, gates_raw = self._collect_ids(data, errors)
         self._check_edges(data, nodes, errors)
         self._check_loops(data, nodes, errors)
+        self._check_loop_overlap(data, errors)
         self._check_parallel(data, nodes, errors)
         self._check_gates(data, nodes, errors)
         self._check_supervisors(data, nodes, errors)
+        self._check_safety(data, errors)
         self._check_cycles(data, nodes, errors)
         self._check_reachability(data, nodes, errors)
         self._check_payloads(data, errors)
@@ -245,6 +248,25 @@ class WorkflowValidator(object):
                 if not isinstance(w, int) or w < 1:
                     errors.append(_err("loop %s: convergence.window must be an integer >= 1" % lid))
 
+    def _check_loop_overlap(self, data, errors):
+        """Schema rule: "A node may belong to at most one loop; loops must not nest or overlap."
+        The runner's `_loop_by_node` uses setdefault, so the first loop silently wins and the
+        ambiguity is invisible at runtime — reject it statically instead. Repeated membership
+        *within* one loop's nodes list is tolerated (the pass executes it twice, deterministically).
+        """
+        owner = {}
+        for lp in data.get("loops") or []:
+            if not isinstance(lp, dict):
+                continue
+            lid = lp.get("id")
+            for ref in lp.get("nodes") or []:
+                if ref in owner and owner[ref] != lid:
+                    errors.append(_err("node %s belongs to two loops: %s and %s "
+                                       "(loops must not nest or overlap)"
+                                       % (ref, owner[ref], lid)))
+                else:
+                    owner[ref] = lid
+
     def _check_parallel(self, data, nodes, errors):
         for pb in data.get("parallel") or []:
             if not isinstance(pb, dict):
@@ -327,6 +349,28 @@ class WorkflowValidator(object):
                 self._node_ref_ok(w, nodes, errors, "supervisor %s.workers" % nid)
             if n.get("escalate_to"):
                 self._node_ref_ok(n["escalate_to"], nodes, errors, "supervisor %s.escalate_to" % nid)
+
+    def _check_safety(self, data, errors):
+        """Schema: per-node `safety:` overrides the runner-global guardrail for that node.
+        A policy name the guardrail module does not define disables the guardrail at runtime
+        silently (guardrails.check_result returns "unknown safety policy" only when a result is
+        classified), so reject it statically against the module's own policy list.
+        """
+        legal = sorted(guardrails._POLICIES)  # noqa: SLF001 (same-repo single source of truth)
+        for n in data.get("nodes") or []:
+            if not isinstance(n, dict) or n.get("safety") is None:
+                continue
+            nid = n.get("id")
+            pols = n["safety"]
+            if isinstance(pols, str):
+                pols = [pols]
+            if not isinstance(pols, list):
+                errors.append(_err("node %s: safety must be a policy name or list of names" % nid))
+                continue
+            for p in pols:
+                if p not in legal:
+                    errors.append(_err("node %s: unknown safety policy %r (legal: %s)"
+                                       % (nid, p, ", ".join(legal))))
 
     def _loop_members(self, data):
         members = set()
@@ -517,6 +561,27 @@ def _coverage():
     return 1 if failures else 0
 
 
+def _schema_registry_keys():
+    """The payload registry as the manifest schema declares it (its V8 rule).
+
+    The schema is normative prose that the Safe YAML Subset cannot parse (it uses flow maps), so
+    the registry is read from V8's parenthesised key list — the one place the schema spells the
+    keys out. Returns None when the file or that list is missing.
+    """
+    path = os.path.join(ROOT, "workflow", "schema", "workflow-manifest.schema.yaml")
+    try:
+        text = open(path, encoding="utf-8").read()
+    except OSError:
+        return None
+    for body in re.findall(r"\(([^()]*)\)", text.replace("#", " "), re.S):
+        if "status" not in body:
+            continue
+        keys = [k.strip() for k in body.split(",") if k.strip()]
+        if keys:
+            return set(keys)
+    return None
+
+
 def _selftest():
     """Parser + validator self-tests incl. fixtures under workflow/tests/fixtures."""
     results = []
@@ -553,6 +618,39 @@ def _selftest():
             if not got_valid and not expect_valid:
                 # require at least one specific error on invalid fixtures
                 results.append(("fixture %s produced errors" % f, bool(report["errors"])))
+        # --- hardening: the two new invalid fixtures must fail for their *intended* reason,
+        # not merely fail; a generic error would let a regression slip through.
+        for fname, needle in (("invalid-bad-safety.yaml", "unknown safety policy 'typo-check'"),
+                              ("invalid-overlapping-loop.yaml", "belongs to two loops")):
+            fpath = os.path.join(fixtures, fname)
+            if not os.path.isfile(fpath):
+                results.append(("fixture %s present" % fname, False))
+                continue
+            report = validator.validate_file(fpath)
+            errs = "; ".join(e["error"] for e in report["errors"])
+            results.append(("fixture %s rejected for the expected reason" % fname,
+                            (not report["valid"]) and needle in errs))
+        # --- the overlap rule must NOT reject a node repeated inside one loop's own nodes list
+        repeat = {"name": "selftest-repeat-member", "version": "1.0.0", "start": "a",
+                  "nodes": [{"id": "a", "skill": "idea-to-spec"},
+                            {"id": "b", "skill": "idea-to-spec"}],
+                  "edges": [{"from": "a", "to": "b", "when": "a.status == done"}],
+                  "loops": [{"id": "single", "nodes": ["a", "b", "a"], "max_iterations": 2,
+                             "exit_when": "a.verdict == pass"}]}
+        rep = validator.validate_data(repeat, label="selftest-repeat-member")
+        results.append(("repeated membership within one loop stays valid", rep["valid"]))
+    # --- payload registry drift: the schema's V8 key list and CANONICAL_PAYLOAD_KEYS are two
+    # declarations of one registry, and they are hand-maintained in two files. A key added to one
+    # and not the other is either a manifest rejected that shouldn't be (validator ahead) or a key
+    # silently accepted that the schema never documented (schema ahead).
+    schema_keys = _schema_registry_keys()
+    results.append(("schema V8 registry list is readable", schema_keys is not None))
+    if schema_keys is not None:
+        results.append(("schema V8 registry == CANONICAL_PAYLOAD_KEYS",
+                        schema_keys == CANONICAL_PAYLOAD_KEYS))
+    # --- and the guard needs a subject: a non-empty registry, so an emptied constant cannot make
+    # the equality above vacuously pass against an emptied schema list.
+    results.append(("canonical payload registry is non-empty", len(CANONICAL_PAYLOAD_KEYS) >= 9))
     failed = [name for name, ok in results if not ok]
     for name, ok in results:
         print("%s %s" % ("PASS" if ok else "FAIL", name))

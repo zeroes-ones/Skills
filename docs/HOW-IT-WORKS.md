@@ -275,7 +275,9 @@ The engine refuses to mark a step done unless the step substantiates its own com
 3. Declared outputs that weren't produced are recorded as a **warning**, not a block.
 
 And the failure behaves sensibly rather than just stopping: inside a retry loop, the step is retried
-and the loop's own limit applies; outside a loop, the run escalates instead of quietly moving on.
+and the loop's own limit applies; outside a loop, `--contract-rework` grants the step the same
+treatment within its own bound (`0`, the default, escalates immediately), and the run escalates when
+that window is spent rather than quietly moving on.
 
 ### Watching it work
 
@@ -300,7 +302,7 @@ looking identical to a real one.
 cd /Users/sp.vm/Documents/Projects/Skills
 
 # 1. Check nothing is broken (fast, no AI calls)
-python3 scripts/workflow-runner.py --selftest          # expect: 20 checks, 0 failed
+python3 scripts/workflow-runner.py --selftest          # expect: 41 checks, 0 failed
 python3 scripts/validate-workflows.py --all            # expect: 21 OK
 bash scripts/validate-skills.sh                        # expect: 14 PASS, 0 FAIL
 
@@ -348,7 +350,7 @@ Honest status. This matters more than the list of successes.
 | **Enforcement is off by default** | Turning it on requires every executor to report per-criterion evidence, which only the human-driven path does today |
 | **Only 3 of 322 skills have executable golden regression suites** (most skills carry per-skill trigger/anti-pattern evals) | A change to a skill is checked for structure, not for whether it still produces good work |
 | **Reliance on one AI provider in testing** | The real run used one agent backend (`claude -p`). The design is provider-neutral but that is not yet exercised |
-| **Cost and latency are placeholders** | Runs record tokens/latency fields that a real executor does not yet fill in |
+| **Cost is still a placeholder; latency is now measured** | **Cost:** a real executor still does not report `usage`, so `cost.measured` is `false` and the figure is unknown, not free. **Latency:** the runner times each executor call (`duration_ms`, a `time.monotonic()` delta) and `export-traces.py` exports it as `latency_ms`; a state file predating the field exports `null`, never a fabricated 0 |
 | **`COORDINATION-MATRIX.md` is partly out of date** | Its per-domain narrative was written against a 106-skill / 25-domain corpus; the live figures are stated at the top of the file and there is still no script to regenerate the domain sections |
 | **Library counts are now synced** | `README.md`, `QUICKSTART.md`, and the graph section state the measured count (regenerated from live data). Dated build logs intentionally keep their original figures |
 

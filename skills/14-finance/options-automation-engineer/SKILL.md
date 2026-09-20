@@ -275,14 +275,14 @@ IBKR (ib_insync), tastytrade, Tradier, TDA/Schwab, Alpaca comparison. Code examp
 **Basic Automation (MINIMUM VIABLE):** Scanner runs on schedule. Signals sent to human for review. Human clicks approve. System executes native spread order. Human manages exits. Result: Reduced execution errors. Still human-dependent but execution is automated and safe.
 
 **Over-Engineered Disaster (BAD):** Scanner → filter → strategy → sizing → execution → monitoring all automated. No circuit breakers. Single broker, single API key. No heartbeat. No audit log. Result: System ran for 2 weeks, then API disconnected during FOMC. Positions were not managed. Losses unknown for 4 hours. Account down 35%.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+| ☐ | Complete when the pipeline stages are enumerated in execution order with the liquidity filter first, earnings blackout second, technical scan third (R9) | scanner config stage list; a log line per stage showing the surviving ticker count |
+| ☐ | Complete when every multi-leg entry routes through the broker-native complex-order path with order_type = spread asserted in code (R1) | code assertion on the order builder; order log shows one combo order id, never per-leg ids |
+| ☐ | Complete when auto-roll logic caps at 2 rolls per position and refuses a roll whose credit < $0.05 (R2) | roll tracker count per position; a skipped-roll entry recording the measured credit |
+| ☐ | Complete when all four breaker levels (position, strategy, account, market) exist and a simulated trigger is logged for each (R3) | breaker config returns 4 level keys; test log shows one fired event per level |
+| ☐ | Complete when no code path can override a CRITICAL breaker and breaker events land in a separate append-only audit log (R4) | override search returns no match; the audit log receives a breaker record that is not written to the trading log |
+| ☐ | Complete when VIX position scaling is hard-coded: VIX > 30 halves size, > 40 closes short-vol, > 50 closes all (R6) | size-multiplier function shows the three thresholds; the signal log shows the applied multiplier |
+| ☐ | Complete when the PMCC short strike > LEAPS strike assertion is present and directional entries are blocked within 5 days of earnings (R7, R8) | assertion string in the strategy code; the blackout check rejects a signal dated 3 days before earnings |
+| ☐ | Complete when deployment state shows ≥ 10 paper-trading days and ≥ 10 days at 25% size before live, with a heartbeat and stale-data monitor running (R10) | deployment record dates; heartbeat monitor emits a status line and a stale-feed alert fires when data age exceeds the threshold |
 ## Operating at Different Levels
 
 | Level | Scope | Key Capability |
@@ -432,20 +432,72 @@ Use this skill when the task matches the description's trigger conditions. When 
 
 ## Decision Trees
 
-1. Is the task in this skill's scope? If no, route to the owning skill.
-2. Is the required input available and verifiable? If no, request or escalate.
-3. Is the output verifiable against the request? If no, revise with evidence.
-### Decision Tree 1: In-scope or out?
-- In-scope: follow Core Workflow and verify.
-- Out-of-scope: route to the owning skill and stop.
+### Decision Tree 1: Automate or keep manual?
 
-### Decision Tree 2: Verify locally or escalate?
-- Locally verifiable: run the check and record the result.
-- Blocked externally: escalate once with full context.
+```
+Automation candidate identified
+│
+├─ Strategy validated in manual/paper trading?
+│  ├─ < 30 trades documented → KEEP MANUAL; automating an unvalidated edge multiplies a loss (Phase 1)
+│  └─ ≥ 30 trades, precise rules, failure modes known → eligible
+├─ Leg liquidity on the target instrument
+│  ├─ Any leg fails OI > 100 or spread < 5% → keep manual / do not scan it (R9)
+│  └─ Liquidity clears → complexity check
+├─ Structure complexity
+│  ├─ Multi-leg WITHOUT broker-native complex orders → DO NOT AUTOMATE (R1)
+│  │  └─ Switch brokers; never simulate the spread by legging single orders (E1)
+│  ├─ Multi-leg WITH native complex orders → automate the combo path (R1)
+│  └─ Single-leg → automate directly
+└─ Deployment state
+   ├─ Paper-trading days < 10 → stay in paper (R10)
+   ├─ Small-size days < 10 → stay at 25% (R10)
+   └─ Both cleared → ramp toward full size, one step at a time
+```
 
-### Decision Tree 3: Ship or revise?
-- Meets What Good Looks Like: deliver with evidence.
-- Gaps found: revise before delivering.
+### Decision Tree 2: Scanner-to-execution wiring — and when to refuse?
+
+```
+8-layer pipeline: Scanner → Filter Chain → Strategy Selector → Sizing Engine
+                  → Order Builder → Execution → Monitor → Journal (§1)
+│
+├─ Filter chain order
+│  ├─ First stage ≠ liquidity filter → REORDER; liquidity is the cheapest check (R9)
+│  │  └─ OI > 100 AND spread < 5% eliminates 60-80% of the universe in one call
+│  ├─ Earnings blackout second → directional entries within 5 days of earnings dropped (R8)
+│  └─ Technical patterns last → compute only on survivors (E5)
+├─ Data freshness at the scanner
+│  └─ data.timestamp age > 30s → SKIP the scan cycle, log alert; fresh → rate-limit to 1 entry/minute (E6)
+├─ Sizing engine
+│  ├─ New position correlation > 0 → size = full × (1 − avg_correlation) (R5)
+│  ├─ VIX > 30 → halve; > 40 → close short-vol; > 50 → close everything (R6)
+│  └─ PMCC → assert short_strike > LEAPS_strike at compile time (R7)
+└─ Order builder: conditions that force a REFUSE
+   ├─ No native complex order support for this spread → REFUSE; no leg-by-leg fallback (R1)
+   ├─ Multi-leg entry would submit legs sequentially → REFUSE; legging risk is unbounded (R1)
+   └─ All clear → submit one combo order id; assert order_type = spread in code
+```
+
+### Decision Tree 3: Auto-roll under a decaying position, and which circuit breaker to arm?
+
+```
+Open position → roll decision, then breaker arming
+│
+├─ Roll decision
+│  ├─ Credit spread ITM AND roll credit < $0.05 → DO NOT ROLL; close or take assignment (E2)
+│  ├─ roll_count ≥ 3 OR (roll_count ≥ 2 AND last_roll_credit < 0.05) → REFUSE (R2)
+│  │  └─ Positions rolled 3+ times underperform clean exits by 40% cumulative P&L
+│  ├─ roll_count ≤ 2 with acceptable credit → allow, log it in the roll tracker
+│  └─ PMCC roll → short strike must stay above the LEAPS strike (R7)
+├─ Stop construction on the rolled position
+│  ├─ Spread position → underlying-based stop, not an option-price stop (Best Practices 6)
+│  └─ VIX > 25 → widen the limit buffer to 10%+; a spike gaps option-price stops (E4)
+└─ Which breaker level to arm
+   ├─ Level 1 position → max loss per contract, max holding days, gamma zone (R3)
+   ├─ Level 2 strategy → 5 consecutive losses pause 24h, daily cap, max open positions (E3)
+   ├─ Level 3 account → daily/weekly/monthly caps, cascade -10% review / -20% reduce / -30% liquidate
+   ├─ Level 4 market → VIX thresholds, SPY vs 200SMA, market-wide halts
+   └─ Any level missing → REFUSE to go live; wire every breaker to `system.halt()` (R4)
+```
 
 ## Proactive Triggers
 

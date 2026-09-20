@@ -284,14 +284,19 @@ Every claim in this skill must be tagged from one of five confidence levels:
 **PMCC (GOOD):** SPY @ $500. Bought Jan 2027 400 Call (Δ=0.88, 540 DTE) for $115. Sold Feb 2026 520 Call (Δ=0.22, 30 DTE) for $2.20. Monthly ROC: 1.9%. Over 18 cycles: targeting 25-35% cumulative premium. Short_K ($520) > Long_K ($400) ✓. Ex-div check: SPY ex-div on [date] — short call expires before ex-div ✓. Exit: accumulated premium > LEAPS extrinsic cost + dividend gap. Net profit: remaining LEAPS value + total premium.
 
 **LEAPS Portfolio Hedge (GOOD):** Portfolio $500,000. IV rank: 22% (favorable). Bought 2 SPY Jan 2027 430 Puts (14% OTM, Δ=-0.22) for $1,500 each. Annual cost: $2,000 (0.4% of portfolio). Protection kicks in at SPY < $430 (-14%). During COVID-style 35% crash: puts worth ~$25,000 each → partial portfolio offset.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when the stock-replacement math is shown end to end: extrinsic %, annualized extrinsic cost, capital saved, and interest earned on that capital | `extrinsic = premium − intrinsic`; annualize over DTE; compare the net annual cost against shorting/owning shares — the replacement is only +EV if that net figure is below the alternative's carry |
+| ☐ | Complete when the LEAPS long leg is at Δ ≥ 0.80 for stock replacement and its extrinsic is under 4% of premium | Delta and extrinsic read off the chain at entry; a 0.60Δ substitute is rejected because 35-40% extrinsic needs an 8-12% move just to break even on decay |
+| ☐ | Complete when the PMCC strike hierarchy is asserted: short strike strictly above the long LEAPS strike | Compare long_K and short_K before every short-call sale; short_K ≤ long_K is a hard stop, not a warning (E1) |
+| ☐ | Complete when the PMCC's monthly ROC is computed and clears the cost of extrinsic plus the dividend gap | Monthly premium ÷ long-leg cost; target 1.0-1.5%; below 0.8%/month the structure is −EV after extrinsic and dividends (E5) |
+| ☐ | Complete when PMCC entry DTE leaves at least 4 short-call cycles of runway (≥ 365 DTE, 540+ preferred) | DTE at entry ÷ cycle length; a 240-DTE entry that strands unamortized extrinsic is rejected (E6) |
+| ☐ | Complete when a long-dated hedge is entered with IV rank below 30% and its annual cost is stated as a % of the protected portfolio value | IV rank read at entry; annual premium ÷ portfolio value compared against the drawdown it defends; buying protection at IV rank > 50% is rejected as overpayment (E4) |
+| ☐ | Complete when the dividend gap is quantified as yield × years × notional and compared against the capital-efficiency benefit before entry | Dividend calendar pulled; if yield > 4%, stock replacement is flagged as rarely +EV and selling LEAPS puts is offered as the alternative |
+| ☐ | Complete when every short call with an ex-div date inside its DTE and an ITM strike is scheduled for close or roll before the ex-div date | Ex-div dates intersected with short-leg DTE; forced early exercise of the long leg is the cost being prevented (E3) |
+| ☐ | Complete when rho exposure is computed as rho × expected rate change × position size across three rate scenarios | Rate path scenarios (bull/base/bear) stated; cutting-cycle positions favour puts or a rate hedge rather than DITM calls (E7) |
+| ☐ | Complete when liquidity is confirmed: open interest > 100 and bid-ask spread under 5% on long legs, under 10% on short legs | Read OI and spread off the chain per leg; a wide-spread long leg erodes an already thin extrinsic edge |
 ## Operating at Different Levels
 
 | Level | Scope | Key Capability |
@@ -442,20 +447,126 @@ Use this skill when the task matches the description's trigger conditions. When 
 
 ## Decision Trees
 
-1. Is the task in this skill's scope? If no, route to the owning skill.
-2. Is the required input available and verifiable? If no, request or escalate.
-3. Is the output verifiable against the request? If no, revise with evidence.
-### Decision Tree 1: In-scope or out?
-- In-scope: follow Core Workflow and verify.
-- Out-of-scope: route to the owning skill and stop.
+### Decision Tree 1: Replace the shares with LEAPS, or stay long stock?
 
-### Decision Tree 2: Verify locally or escalate?
-- Locally verifiable: run the check and record the result.
-- Blocked externally: escalate once with full context.
+```text
+Stock-replacement candidate (ticker, capital, multi-year view)
+│
+├─ Does the ticker list LEAPS? (~2,500 stocks/ETFs do)
+│  └─ NO → not a LEAPS candidate. Stay in shares (§1)
+│
+├─ Long leg Δ ≥ 0.80 with extrinsic < 4% of premium?
+│  ├─ NO (a 0.60Δ leg carries 35-40% extrinsic) → go deeper ITM; the stock
+│  │     must rise 8-12% just to break even on decay (R1, §3.1)
+│  └─ YES → next gate
+│
+├─ Dividend yield > 4%?
+│  ├─ YES → quantify gap = yield × years × notional (§7)
+│  │  ├─ Gap ≥ the capital-efficiency benefit → rarely +EV. Sell LEAPS puts
+│  │  │     instead, or pick a lower-yield ticker (R4)
+│  │  └─ Gap < benefit → proceed with the gap documented in the plan
+│  └─ NO → next gate
+│
+├─ Rate path over the LEAPS life is a cutting cycle?
+│  ├─ YES → rho headwind. Add a rate hedge or favour LEAPS puts (§8.3)
+│  └─ NO → next gate
+│
+├─ OI > 100 and spread < 5% on the target strike?
+│  ├─ NO → reject. A wide long-leg spread erodes an already thin extrinsic edge (RP5)
+│  └─ YES → EXECUTE: enter on limit at mid ± 2%
+│
+└─ Exit triggers recorded at entry
+   ├─ Δ > 0.95 → take profit or roll up to reset delta (§11.2)
+   ├─ DTE < 90 → roll-or-close decision (§11)
+   └─ Extrinsic exceeds the acceptable threshold → close (Phase 4)
+```
 
-### Decision Tree 3: Ship or revise?
-- Meets What Good Looks Like: deliver with evidence.
-- Gaps found: revise before delivering.
+### Decision Tree 2: Is a PMCC setup viable — long leg first, then short leg?
+
+```text
+PMCC candidate (DITM LEAPS call backing near-dated short calls)
+│
+├─ LEAPS DTE ≥ 365 at entry?
+│  ├─ NO (a 240-DTE entry strands unamortized extrinsic) → REJECT (R5)
+│  └─ YES (540+ DTE ideal) → next gate
+│
+├─ Short strike strictly above the LEAPS strike?
+│  ├─ NO → REJECT. Assignment cost is (short_K − LEAPS_K) × 100 plus lost
+│  │     time premium (R2)
+│  └─ YES → next gate
+│
+├─ Short call Δ inside the 0.20-0.30 band?
+│  ├─ NO (a 0.10Δ short yields ~0.4%/month, under the 0.8% floor) →
+│  │     structure is −EV after extrinsic and dividends (E5)
+│  └─ YES → next gate
+│
+├─ Ex-div date inside the short call's DTE with the short ITM or ATM?
+│  ├─ YES → close or roll the short before ex-div; forced exercise burns
+│  │     the long leg's remaining time premium (R8)
+│  └─ NO → next gate
+│
+├─ Projected monthly ROC ≥ 1.0% of LEAPS cost?
+│  ├─ NO → restructure strikes, or choose a different structure (E5)
+│  └─ YES → EXECUTE. Roll short at 50% profit OR 7 DTE, whichever comes first
+│
+└─ Already 2+ debit roll cycles with the position in the red?
+   └─ YES → close. "Death by a thousand rolls" erodes 40%+ of initial capital (R6)
+```
+
+### Decision Tree 3: Buy long-dated put protection, or stay unhedged?
+
+```text
+Hedging request for a portfolio of value V
+│
+├─ IV rank < 30% at entry?
+│  ├─ NO (IV rank > 50%) → DELAY. You would pay 40-60% above fair value for
+│  │     two years of insurance (R3)
+│  └─ YES → next gate
+│
+├─ Do index LEAPS correlate with the holdings being protected?
+│  ├─ NO → re-scope: single-stock hedges do not cover a broad-market crash (RP7)
+│  └─ YES → next gate
+│
+├─ Which objective?
+│  ├─ Tail risk → deep OTM puts, allocate 2-5% of portfolio per year (§5.4)
+│  ├─ Full protection → ATM puts; quantify premium vs. expected drawdown (§5.3)
+│  └─ Financing the puts → LEAPS collar: sell LEAPS calls, accept the upside cap (§5.5)
+│
+└─ Annual cost stated as % of V and compared to the drawdown defended?
+   ├─ NO → compute it first (illustrative good case: 0.4% of portfolio)
+   └─ YES → EXECUTE; ladder entries over 3 low-vol windows if sizing is large
+```
+
+### Decision Tree 4: Roll a decaying LEAPS, or hold it?
+
+```text
+Open LEAPS position — roll or hold?
+│
+├─ Thesis intact (the multi-year view that justified the extrinsic still holds)?
+│  ├─ NO → close. The extrinsic was paid for a thesis that no longer exists (Phase 4)
+│  └─ YES → next gate
+│
+├─ Δ > 0.95 (profit target reached)?
+│  ├─ YES → take profit, or roll up and out to reset delta (§11.2)
+│  └─ NO → next gate
+│
+├─ DTE < 90?
+│  ├─ NO → HOLD. Monthly review: delta drift, rho impact, IV change, dividend calendar §Phase 3
+│  └─ YES → next gate
+│
+├─ IV rank < 40% AND trend_score > 40?
+│  ├─ NO → delay the roll. Rolling at IV rank > 60% locks in expensive
+│  │     premium for another 18+ months (Best Practice 7)
+│  └─ YES → next gate
+│
+├─ Rho exposure > 10% of max profit, unhedged?
+│  ├─ YES → add a rate hedge or cut size; a 2% rate move costs ±$500 per
+│  │     10 contracts (R7)
+│  └─ NO → next gate
+│
+└─ ROLL up and out in IV rank < 40%, then re-document the new rho exposure
+   └─ Wash-sale check: sell the loss, buy a similar but not identical replacement (§9)
+```
 
 ## Proactive Triggers
 

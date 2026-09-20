@@ -57,8 +57,8 @@ folder's `README.md` for its diagram + real trace.
 - Every human gate: its `requires` list.
 - Every parallel block: members + `join` policy + merged `outputs`.
 - Every edge: its `when` condition and that it carries the `handoff-v1` payload
-  (`status, summary, artifacts, decisions, open_questions, verification_evidence, context,
-  budget, next`).
+  (`status, summary, artifacts, decisions, open_questions, constraints, verification_evidence,
+  context, budget, next`).
 
 Colors are informational only (Mermaid `classDef`); ASCII diagrams use the shapes above.
 

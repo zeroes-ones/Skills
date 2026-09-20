@@ -37,6 +37,22 @@ chain:
     - verification-independence-engineer
     - agent-memory-architect
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+workflow:
+  artifacts:
+    inputs: [dependency-map, skill-inventory]
+    outputs: [workflow-manifest]
+  completion:
+    criteria:
+      - Every node's skill reference resolves to a real skill and every node is reachable from the declared start
+      - Every loop declares exit_when, max_iterations and a resolving escalate_to, with a convergence window where passes can stagnate
+      - Human gates list requires artifacts; auto gates declare pass_when and a fallthrough; agent gates declare pool, max_reroutes and a terminal escalate_to
+      - Every artifact-carrying edge names a registered payload whose keys cover the downstream node's inputs
+      - The validator exits 0 on the manifest and the runner executes it end-to-end or dry-run once
+    evidence: required
+  iteration:
+    max: 3
+    on_exhaustion: escalate
+  escalate_to: [human-gate]
 
 ---
 
@@ -83,7 +99,7 @@ every structural change.
 |------|--------------|----------------------------|
 | **Loop 0: Draft** | Before first manifest output | Skills exist, chain edges plausible, payload registry understood |
 | **Loop 1: Per-edit** | After each structural change | References still resolve; no new cycles; write ownership intact |
-| **Loop 2: Pre-commit** | Before shipping the manifest | All V1-V9 checks pass; failure modes of each loop/gate named |
+| **Loop 2: Pre-commit** | Before shipping the manifest | All V1-V10 checks pass; failure modes of each loop/gate named |
 | **Loop 3: Post-run** | After a real run of the workflow | Did loop budgets fit reality? Did gates fire where expected? |
 
 ## Route the Request
@@ -212,7 +228,7 @@ Translate the dependency structure into manifest sections, minimal-first:
 
 ### Phase 4: Validate and Fail-Mode (~10 min)
 
-- Run `python3 scripts/validate-workflows.py --manifest workflow.yaml`; fix all errors (V1-V9).
+- Run `python3 scripts/validate-workflows.py --manifest workflow.yaml`; fix all errors (V1-V10).
 - For every loop: name its three failure modes (never exits, exits too early, burns budget on
   identical passes) and confirm the manifest handles each (exit condition, evidence discipline,
   convergence window).
@@ -264,7 +280,7 @@ Translate the dependency structure into manifest sections, minimal-first:
 
 ### Decision Tree 2: Who verifies — and what may they see?
 
-A mechanically checkable property → a **deterministic node** (schema, type, assertion); prefer it over any verdict, since it has no blind spots to share. A judgment-shaped property on a non-consequential artifact → a self-check is fine, labelled a draft. A judgment-shaped property on a **consequential** artifact → a distinct **verifier node** carrying four independence properties: role (≠ producer, G7), a fresh context, claim + evidence only (G8), and stated authority — and gate only on a target that is paired with a harm metric. Full design: `verification-independence-engineer`.
+A mechanically checkable property → a **deterministic node** (schema, type, assertion); prefer it over any verdict, since it has no blind spots to share. A judgment-shaped property on a non-consequential artifact → a self-check is fine, labelled a draft. A judgment-shaped property on a **consequential** artifact → a distinct **verifier node** carrying four independence properties: role (≠ producer, G7), a fresh context, claim + evidence only (G8), and a different model for judgment-shaped checks — and gate only on a target that is paired with a harm metric. Full design: `verification-independence-engineer`.
 
 ### Decision Tree 3: Edge Conditions
 
@@ -400,7 +416,7 @@ If a command or approach fails, follow this escalation path before giving up:
 
 | Symptom | First Action | If That Fails | Last Resort |
 |---------|-------------|---------------|-------------|
-| Validator rejects the manifest | Read the error; it names the rule (V1-V9) — fix that rule | Re-check id slugs and references by hand; skill names must match frontmatter `name` | Simplify the manifest until it validates; add constructs back one at a time |
+| Validator rejects the manifest | Read the error; it names the rule (V1-V10) — fix that rule | Re-check id slugs and references by hand; skill names must match frontmatter `name` | Simplify the manifest until it validates; add constructs back one at a time |
 | Undeclared cycle error | You added a back-edge — declare it as a `loops:` entry instead | Remove the back-edge; express rework through a loop | Restructure: split the rework cycle into its own sub-workflow |
 | Parallel write-ownership error | Two members share an output — rename outputs per member | Move merging to the join's declared `outputs` | Convert to sequential nodes with a merge node |
 | Skill reference does not resolve | The skill may not exist under that name — search the library | Check `using-agent-skills` / router for the closest real skill | Log a library coverage gap; use the closest skill or a generalist node |
@@ -418,7 +434,7 @@ gap worth surfacing, not a manifest hack).
 | `agent-handoff-protocol` | Payload/context conventions for edges | Phase 3 when wiring payloads |
 | `multi-agent-orchestration` | Topology + typed-state guidance | When adding supervisors or shared state |
 | `iterative-task-execution` | Loop protocol semantics your loops rely on | Designing exit conditions and budgets |
-| `verification-independence-engineer` | Producer/verifier independence properties (model, context, information, authority) | Whenever a manifest places a gate, a `verdict` read, or a verifier node — G7/G8 |
+| `verification-independence-engineer` | Producer/verifier independence properties (model, context, information, role) | Whenever a manifest places a gate, a `verdict` read, or a verifier node — G7/G8 |
 
 | Downstream Skill | What You Hand Off | When to Involve |
 |------------------|-------------------|-----------------|
@@ -444,6 +460,12 @@ A manifest reads like a precise spec: an expert can predict exactly how the work
 (which nodes, in what order, under what conditions, with what budgets) without executing it. Every
 construct earns its place; nothing is decorative. Validation is clean; failure modes of each loop
 and gate are nameable; the first real run's iteration counts match the budgets within one pass.
+
+### Short Form
+
+Manifests are precise, minimal, validated, and calibrated. Loops terminate, gates review real
+artifacts, parallel writers never collide, and every construct can justify its existence in one
+sentence. The first real run matches the design within one pass.
 
 ## Deliberate Practice
 
@@ -549,7 +571,7 @@ Before shipping a workflow manifest, verify:
 | CR2 | Shape is minimal | Every loop/parallel/gate/supervisor has a stated reason from the dependency map |
 | CR3 | Loops bounded | Every loop: exit_when + max_iterations + escalate_to; convergence where stagnation is possible |
 | CR4 | One gatekeeper per loop | Exit conditions reference a single verdict owner |
-| CR5 | Gates purposeful | Human gates list `requires`; auto gates have `pass_when` and a fallthrough |
+| CR5 | Gates purposeful | Human gates list `requires`; auto gates have `pass_when` and a fallthrough; agent gates declare `pool` + `max_reroutes` + a terminal `escalate_to` |
 | CR6 | Writers disjoint | No two live nodes share a write target; joins own the merge |
 | CR7 | Payloads registered | Artifact-carrying edges name payloads from the registry |
 | CR8 | Conditions in vocabulary | All `when`/`exit_when`/`pass_when` strings pass the vocabulary check |
@@ -570,7 +592,7 @@ Before shipping a workflow manifest, verify:
 | ☐ | Complete when every loop's exit value is real | Gatekeeper skill's verdict vocabulary matches the manifest |
 | ☐ | Complete when the parallel join policy matches intent | join: all for mandatory checks; majority only for redundant opinions |
 | ☐ | Complete when handoff payload keys cover downstream needs | Downstream node inputs ⊆ payload keys + upstream outputs |
-| ☐ | Complete when gates are purposeful | Human gates list `requires`; auto gates have `pass_when` + fallthrough |
+| ☐ | Complete when gates are purposeful | Human gates list `requires`; auto gates have `pass_when` + fallthrough; agent gates declare `pool` + `max_reroutes` and escalate to a terminal gate (validator V10) |
 | ☐ | Complete when the flow has been run or dry-run at least once | `scripts/workflow-runner.py` executes the flow end-to-end |
 
 ## Verification Guardrails
@@ -580,7 +602,7 @@ Run these before declaring the manifest complete. ALL must pass.
 
 | # | Guardrail | Check |
 |---|-----------|-------|
-| V1 | Structure matches schema | Validator V1-V9 clean |
+| V1 | Structure matches schema | Validator V1-V10 clean |
 | V2 | No invented nodes | Every skill reference resolves; gap list empty or surfaced |
 | V3 | No unbounded repetition | grep loops → every one has exit_when + max_iterations |
 | V4 | No shared writers | Parallel member outputs disjoint (validator V6) |
@@ -589,6 +611,7 @@ Run these before declaring the manifest complete. ALL must pass.
 | V7 | Payloads resolve | Payload names registered; keys from the canonical registry |
 | V8 | Fail modes handled | Per-loop: never-exits / exits-early / identical-passes |
 | V9 | Runs (or dry-runs) clean | `scripts/workflow-runner.py` executes the example end-to-end |
+| V10 | Agent gates are well-formed | Every `kind: agent` gate declares `pool` (node ids) + `max_reroutes` ≥ 1 + a terminal `escalate_to`, and each pool member belongs to a loop that escalates to that gate |
 
 ## Anti-Rationalization
 
@@ -618,7 +641,7 @@ This prevents the next author from re-deriving — or contradicting — graph de
 
 - WORKFLOW-SYSTEM.md (repo root) — canonical L0/L1/L2 semantics and payload registry
 - `workflow/schema/workflow-manifest.schema.yaml` — manifest contract
-- `scripts/validate-workflows.py` — V1-V9 validator with `--selftest`
+- `scripts/validate-workflows.py` — V1-V10 validator with `--selftest`
 - `examples/workflow-runtime/` — flagship manifest + run transcripts + LangGraph mapping
 
 ## Error Decoder
@@ -631,9 +654,3 @@ This prevents the next author from re-deriving — or contradicting — graph de
 | Human gate approved an empty diff for a week | Gate had no `requires`; nothing to review | Gate requires artifacts; auto-reject when missing | A gate without inputs is a rubber stamp with a schedule |
 | Manifest validated but the run crashed on a missing field | Payload keys and node inputs never reconciled | Payload registry + input/⊆-payload check in verification | Validation proves structure; data flow needs its own check |
 | Every run hit max_iterations=3 | Budget set from optimism (hoped 1) | Calibrate from history +1; recalibrate after runs | A budget that always fires is a prediction, not a limit |
-
-## What Good Looks Like (short form)
-
-Manifests are precise, minimal, validated, and calibrated. Loops terminate, gates review real
-artifacts, parallel writers never collide, and every construct can justify its existence in one
-sentence. The first real run matches the design within one pass.

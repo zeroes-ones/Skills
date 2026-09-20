@@ -1,6 +1,6 @@
 # Cost Calibration — Loaded Rates, Bug Costs, Maintenance Overhead
 
-> **NOTE:** For dynamic, invocation-time rate research, use `scripts/calculate-roi.sh --auto-research`.
+> **NOTE:** For dynamic, invocation-time rate research: if your project ships `scripts/calculate-roi.sh`, run it with `--auto-research`; otherwise research current rates yourself and state the source.
 > This file documents the baseline assumptions and methodology.
 
 ## Loaded Developer Cost by Region (2024 Baseline)

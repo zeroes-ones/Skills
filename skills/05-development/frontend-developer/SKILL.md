@@ -242,8 +242,8 @@ These rules are non-negotiable constraints that detect frontend mistakes before 
 | R4 | REFUSE performance optimization without measurement | Trigger: User proposes code splitting, virtualization, memoization, or caching optimizations without linking to a Lighthouse CI report or Core Web Vitals measurement (LCP/INP/CLS) showing the failing metric | STOP. Respond: "Optimize from measurements, not intuition. Run Lighthouse CI (target: LCP < 2.5s, INP < 200ms, CLS < 0.1) and identify the specific failing metric. Show me the bottleneck, and I'll address it surgically instead of guessing." |
 | R5 | REFUSE shipping without real-device verification plan | Trigger: User asks to finalize or ship UI work citing only Chrome DevTools device emulation as testing evidence | STOP. Respond: "Chrome DevTools device mode is not a real device — it does not replicate touch event behavior, Safari rendering quirks, iOS viewport resizing, or low-memory constraints. Testing must cover: (1) physical low-end Android, (2) physical Safari iOS, (3) keyboard-only navigation, (4) screen reader pass (VoiceOver + NVDA). Confirm your testing plan before we ship." |
 | R6 | DETECT security-sensitive logic placed client-side | Trigger: Generated code places authentication gate decisions, authorization role checks, input sanitization as sole defense, or secret keys/tokens in client-side JavaScript | STOP. Respond: "This logic is client-side but must execute server-side: [specific code location]. The client is attacker-controlled territory — any check there is a UX convenience, not a security boundary. Move auth decisions, validation authority, and secrets to the backend." |
-| R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate React/Next.js/Vue/Nuxt/Svelte API calls from training data alone — your training data may be stale and framework APIs change between major versions. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed framework versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {framework}@{version}. Anchoring all API calls to v{version}. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff. See `scripts/references/source-of-truth-anchoring.md` for the full anti-hallucination pattern." |
-| **R8** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| R7 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate React/Next.js/Vue/Nuxt/Svelte API calls from training data alone — your training data may be stale and framework APIs change between major versions. | Trigger: skill receives code-generation task involving framework-specific APIs → detect the installed framework versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {framework}@{version}. Anchoring all API calls to v{version}. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff. See `scripts/references/source-of-truth-anchoring.md` for the full anti-hallucination pattern." |
+| **R8** | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -732,7 +732,7 @@ Common chains:
 **Cost:** $5,000-$25,000 in performance sprints, reduced engagement, and eventual migration to zero-runtime CSS.
 **Fix:** Use zero-runtime CSS (Tailwind, vanilla-extract, CSS Modules) for animation-heavy components. Reserve runtime CSS-in-JS for static styles. Profile with React DevTools "Highlight updates."
 
-## Error Decoder — War Stories from the Trenches
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -806,23 +806,3 @@ Detailed reference material loaded on demand:
 - The request is a one-off convenience that bypasses the verified workflow.
 - A specialized peer skill owns the exact scenario — route there instead.
 - There is no way to verify the output against a source of truth.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
-| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
-| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
-
-
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

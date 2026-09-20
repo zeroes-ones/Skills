@@ -390,18 +390,20 @@ Finally, ALWAYS:
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| Screen reader announces "button" with no name for an icon-only control | The control has an icon but no accessible name (R1) | Give it a real accessible name; a decorative icon is hidden, a meaningful one is named. Remediation of an unlabelled-control class commonly costs **$18,000 cost** per release | A control without a name is a control the user cannot identify |
-| Dialog opens and the screen reader continues reading the page behind it | The dialog is not modal to assistive technology, and focus was not moved (Decision Tree 2) | Move focus into the dialog, contain it, mark the background inert, restore focus on close. A modal rework commonly costs **$24,000 cost** | A visual overlay is not a modal to a screen reader |
-| Keyboard user tabs through the page and disappears | Focus indicator removed or invisible (`outline: none`); focus lost (R3) | Provide a visible focus indicator that meets the appearance requirement. Remediation typically **$15,000 cost** | Focus is the keyboard user's pointer |
-| The status message is shown but never announced | The live region did not exist before the content changed, or is the wrong politeness (R4) | Ensure the region is present first, then update its content. A silent-status remediation commonly costs **$20,000 cost** | Live regions announce changes, not content |
-| Autocomplete list cannot be navigated | The combobox pattern is partial: no arrow-key model, or the listbox is not conveyed (R5) | Implement the established combobox pattern completely, or simplify the control. A partial-pattern rework typically **$22,000 cost** | A partial pattern is worse than a simple component |
-| Form errors are not announced to a screen reader | The message is visual only, not associated with the field or announced (Decision Tree 3) | Associate the message with the field, mark the field invalid, ensure announcement. Remediation commonly **$19,000 cost** | A message the user cannot receive is not communication |
-| Text is unreadable for low-vision users on some surfaces | The palette pairing fails the required ratio in one theme or state (R6) | Fix in the tokens: contrast-safe variants per surface. A palette rework commonly costs **$26,000 cost** | Contrast is a token property, not a component property |
-| A fixed defect reappears in a new component | The fix was applied to one instance, and nothing guarded the pattern | Move the fix into the shared component and add a guard proven to catch it. Recurrence remediation typically **$12,000 cost** per cycle | An unguarded fix is a scheduled regression |
-| Animations cause discomfort and cannot be disabled | The reduced-motion preference is not honoured | Substitute an instant or opacity change; keep necessary feedback. Remediation typically **$14,000 cost** | The preference is a requirement, not a suggestion |
-| Users cannot tell which tab is selected | The selected state is conveyed visually only | Convey selection semantically as well as visually. Remediation commonly **$10,000 cost** | Visual state must be semantic state |
+| Screen reader announces "button" with no name for an icon-only control | The control has an icon but no accessible name (R1) | Give it a real accessible name; a decorative icon is hidden, a meaningful one is named. Remediation of an unlabelled-control class commonly costs **$18,000 [ESTIMATED]** per release | A control without a name is a control the user cannot identify |
+| Dialog opens and the screen reader continues reading the page behind it | The dialog is not modal to assistive technology, and focus was not moved (Decision Tree 2) | Move focus into the dialog, contain it, mark the background inert, restore focus on close. A modal rework commonly costs **$24,000 [ESTIMATED]** | A visual overlay is not a modal to a screen reader |
+| Keyboard user tabs through the page and disappears | Focus indicator removed or invisible (`outline: none`); focus lost (R3) | Provide a visible focus indicator that meets the appearance requirement. Remediation typically **$15,000 [ESTIMATED]** | Focus is the keyboard user's pointer |
+| The status message is shown but never announced | The live region did not exist before the content changed, or is the wrong politeness (R4) | Ensure the region is present first, then update its content. A silent-status remediation commonly costs **$20,000 [ESTIMATED]** | Live regions announce changes, not content |
+| Autocomplete list cannot be navigated | The combobox pattern is partial: no arrow-key model, or the listbox is not conveyed (R5) | Implement the established combobox pattern completely, or simplify the control. A partial-pattern rework typically **$22,000 [ESTIMATED]** | A partial pattern is worse than a simple component |
+| Form errors are not announced to a screen reader | The message is visual only, not associated with the field or announced (Decision Tree 3) | Associate the message with the field, mark the field invalid, ensure announcement. Remediation commonly **$19,000 [ESTIMATED]** | A message the user cannot receive is not communication |
+| Text is unreadable for low-vision users on some surfaces | The palette pairing fails the required ratio in one theme or state (R6) | Fix in the tokens: contrast-safe variants per surface. A palette rework commonly costs **$26,000 [ESTIMATED]** | Contrast is a token property, not a component property |
+| A fixed defect reappears in a new component | The fix was applied to one instance, and nothing guarded the pattern | Move the fix into the shared component and add a guard proven to catch it. Recurrence remediation typically **$12,000 [ESTIMATED]** per cycle | An unguarded fix is a scheduled regression |
+| Animations cause discomfort and cannot be disabled | The reduced-motion preference is not honoured | Substitute an instant or opacity change; keep necessary feedback. Remediation typically **$14,000 [ESTIMATED]** | The preference is a requirement, not a suggestion |
+| Users cannot tell which tab is selected | The selected state is conveyed visually only | Convey selection semantically as well as visually. Remediation commonly **$10,000 [ESTIMATED]** | Visual state must be semantic state |
 
 ## Error Recovery **(QUICK)**
 
@@ -538,16 +540,18 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Icon-only control with no accessible name | The user cannot identify the control; remediation commonly **$18,000 cost** per release | A real accessible name (R1, Decision Tree 1) |
-| Dialog not modal to assistive technology | Screen-reader users read the page behind it; rework commonly **$24,000 cost** | Focus containment, inert background, focus restoration |
-| `outline: none` with no replacement | Keyboard users cannot see where they are; remediation typically **$15,000 cost** | A visible focus indicator meeting the appearance requirement (R3) |
-| Live region created with its content | Nothing is announced; remediation commonly **$20,000 cost** | Region present before the update (R4) |
-| Partial widget pattern | The widget is worse than a simple component; rework typically **$22,000 cost** | Implement the pattern fully, or simplify |
-| Error not associated with its field | Screen-reader users cannot correct the input; remediation commonly **$19,000 cost** | Associate, mark invalid, announce (Decision Tree 3) |
-| Contrast fixed per component | The failure returns with the next component; a palette rework commonly **$26,000 cost** | Fix in the tokens, per theme and state (R6) |
-| Per-instance fix | The defect reappears in the next screen using the component; typically **$12,000 cost** per cycle | Fix in the shared source (Phase 7) |
+| Icon-only control with no accessible name | The user cannot identify the control; remediation commonly **$18,000 [ESTIMATED]** per release | A real accessible name (R1, Decision Tree 1) |
+| Dialog not modal to assistive technology | Screen-reader users read the page behind it; rework commonly **$24,000 [ESTIMATED]** | Focus containment, inert background, focus restoration |
+| `outline: none` with no replacement | Keyboard users cannot see where they are; remediation typically **$15,000 [ESTIMATED]** | A visible focus indicator meeting the appearance requirement (R3) |
+| Live region created with its content | Nothing is announced; remediation commonly **$20,000 [ESTIMATED]** | Region present before the update (R4) |
+| Partial widget pattern | The widget is worse than a simple component; rework typically **$22,000 [ESTIMATED]** | Implement the pattern fully, or simplify |
+| Error not associated with its field | Screen-reader users cannot correct the input; remediation commonly **$19,000 [ESTIMATED]** | Associate, mark invalid, announce (Decision Tree 3) |
+| Contrast fixed per component | The failure returns with the next component; a palette rework commonly **$26,000 [ESTIMATED]** | Fix in the tokens, per theme and state (R6) |
+| Per-instance fix | The defect reappears in the next screen using the component; typically **$12,000 [ESTIMATED]** per cycle | Fix in the shared source (Phase 7) |
 | Unguarded fix | The defect returns after a refactor | A guard demonstrated to fail on the reverted fix |
 | Unverified fix reported complete | The same finding reappears next audit; trust in the process drops | Record the AT, platform, browser and outcome (R2) |
 

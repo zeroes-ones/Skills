@@ -89,7 +89,7 @@ cd <this repo>
 
 # 1. Do the engine's own tests
 python3 scripts/workflow-runner.py --selftest
-# expect: selftest: 20 checks, 0 failed
+# expect: selftest: 41 checks, 0 failed
 
 # 2. Run a real workflow, no AI involved
 python3 scripts/workflow-runner.py --manifest workflow/manifests/senior-dev-loop.yaml
@@ -114,7 +114,8 @@ and supply none — and still be marked done.
 
 **Now** (`--enforce-contracts`): a step is **not** marked done unless it substantiates itself —
 evidence supplied, and every declared criterion accounted for. If it can't, the run doesn't quietly
-move on: inside a loop it retries, outside a loop it escalates.
+move on: inside a loop it retries and the loop's own limit applies; outside a loop it retries within
+`--contract-rework` (default 0, i.e. escalate at once) and escalates when that window is spent.
 
 Same workflow, run two ways:
 

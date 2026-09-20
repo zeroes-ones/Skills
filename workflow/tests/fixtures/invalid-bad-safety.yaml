@@ -1,0 +1,15 @@
+name: invalid-bad-safety
+version: "1.0.0"
+start: fixer
+nodes:
+  - id: fixer
+    skill: backend-developer
+    outputs: [fix-report]
+    safety: [typo-check]
+  - id: qa
+    skill: qa-engineer
+    outputs: [qa-report]
+edges:
+  - from: fixer
+    to: qa
+    when: fixer.status == done

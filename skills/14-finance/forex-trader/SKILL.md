@@ -70,7 +70,7 @@ Trade spot foreign exchange with discipline specific to the decentralized, 24/5 
 | A2 | `file_contains("*.py", "6E|6J|6B|6A|currency_future|CME.*currency")` AND NOT `file_contains("*.py", "spot|carry|swap|pip")` | Invoke **futures-trader** for currency futures. Return here if spot FX overlay is needed. |
 | A3 | `file_contains("*.py", "bond|yield_curve|duration|treasury|sovereign_debt")` AND `file_contains("*.py", "currency|forex|fx")` | Invoke **fixed-income-analyst** for yield differential analysis. Return here for FX execution. |
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
 
 | # | Negative Constraint | Mechanical Trigger | Violation Response |
 |---|-------------------|-------------------|-------------------|
@@ -79,6 +79,13 @@ Trade spot foreign exchange with discipline specific to the decentralized, 24/5 
 | R3 | DETECT and CORRECT "standard lot" assumptions — a standard lot is 100K units on most pairs but 100K yen is NOT 100K dollars. EUR/USD lot = €100K = ~$110K notional. USD/JPY lot = $100K notional. These are fundamentally different exposures | Trigger: "1 standard lot of [pair]" without computing notional in account currency | STOP. "Standard lots have different notional values across pairs. Compute notional in account currency before sizing." |
 | R4 | REFUSE to ignore session liquidity when selecting entry/exit times | Trigger: order recommendation at time T where T falls in lowest-liquidity session for that pair | FLAG. "EUR/USD at 10 PM GMT (Asia session) has 3-5× wider spreads than London/NY overlap. Reschedule or widen stops." |
 | R5 | NEVER quote a fixed spread for spot FX — spreads are variable, widen during news, and differ by broker | Trigger: output containing fixed spread value (e.g., "EUR/USD spread is 0.8 pips") without timestamp and session qualifier | STOP. "FX spreads are variable. Quote: 'EUR/USD spread: 0.3-0.8 pips during London/NY overlap, 1.5-3.0 pips during Asia, 5-20 pips during news events [ESTIMATED].'" |
+
+### Baseline rules
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
 
 ## Verification
 <!-- STANDARD: 3min -->
@@ -533,10 +540,19 @@ Next events: No FOMC/ECB/NFP within 48 hours. ✓
 ```
 
 The position is session-aware (overlap order), carry-aware (intraday avoids swap), correlation-checked, and sized for <1% risk. Every number is tagged.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
+
+| # | Complete when... | Verify |
+|---|-----------------|--------|
+| ☐ | Complete when pip value is computed for the specific pair's quote convention at the current rate, not recalled from a table | For XXX/USD pairs `pip = lot × 0.0001`; for USD/XXX divide by price (`lot × 0.01 / price` for JPY, `0.0001` for others); for crosses take the pip value in the quote currency and convert it to USD — recompute on every trade because pip value moves with price |
+| ☐ | Complete when notional is converted into account currency before any leverage or exposure comparison | XXX/USD: `lot × price`; USD/XXX: `lot`; crosses: `lot × base-in-USD`; all positions expressed in one currency so concentration is measurable |
+| ☐ | Complete when carry is computed from current central-bank rates and the broker's live swap, not training-data rates | Long rate − short rate annualized; daily swap per lot = `notional × carry / 365`; state whether the position will actually cross the 5:00 PM ET rollover or close intraday |
+| ☐ | Complete when the carry break-even is expressed in days of adverse move: annualized carry ÷ daily volatility | AUD/JPY at +4.10% carry and 0.55% daily vol breaks even after ~7.5 days of 1σ adverse move; a carry-hostile pair must be labelled as short-carry compensation for crash risk |
+| ☐ | Complete when no carry position is held through a scheduled central-bank meeting of either currency unless the event itself is the trade | Central-bank calendar for both legs checked against the holding window; the trade is classified carry-favorable, carry-neutral or carry-hostile |
+| ☐ | Complete when the entry session is matched to the pair and the order type respects the session's liquidity | EUR/USD in the London/NY overlap; Asia session treated as avoid for majors; no market orders during the Asia lull or inside a news window — limit orders only where the session rule requires |
+| ☐ | Complete when spread and swap figures are tagged as broker-verified or explicitly marked unverified | Every quoted spread and swap rate carries [BROKER-VERIFIED] or a stated uncertainty; fabricated spreads or swap rates fail the check outright |
+| ☐ | Complete when a correlation matrix of all held pairs is computed before the position is added and net USD (and JPY) exposure is quantified | 20-day rolling correlation across open pairs; concentration alert when the new position duplicates existing directional exposure — a correlation-based "hedge" that creates an unintended cross is rejected |
+| ☐ | Complete when position size derives from the stop distance and per-trade account risk, with leverage inside the broker's cap | `size = risk_amount / (stop_pips × pip_value)`; max loss ≤ stated % of account; leverage checked against both the internal limit and the broker tier, with a margin buffer for news-time margin changes |
+| ☐ | Complete when the error path for news slippage, margin close-out and correlation break is stated before going live | Exit plan documented for each: guaranteed stop or pre-event size reduction for news gaps, margin-buffer rule, and an explicit response if correlations converge to +1 |
 ## Verification Guardrails
 
 - [ ] **All rates from live broker feed:** No training-data FX rates. Every rate tagged [VERIFIED] or [BROKER-VERIFIED]
@@ -626,12 +642,6 @@ You plan to hold 0.5 lots long GBP/JPY for 30 days. GBP rate 5.00%, JPY rate 0.2
 - [exotic-pairs-risk.md](references/exotic-pairs-risk.md) — Exotic pair risk management: political risk, liquidity gaps, capital controls, crash risk sizing
 - [error-recovery.md](references/error-recovery.md) — FX-specific error patterns: news slippage, swap miscalculation, correlation breaks, margin close-out
 
-## Ground Rules — Read Before Anything Else
-
-| # | Negative Constraint | Mechanical Trigger | Violation Response |
-|---|---------------------|--------------------|--------------------|
-| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
-| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
 - In-scope: proceed through Core Workflow.
 - Out-of-scope: route to the owning skill and stop.
 

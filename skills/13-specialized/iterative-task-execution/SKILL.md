@@ -35,6 +35,26 @@ chain:
     - agent-eval-pipeline
     - agent-memory-architect
 portability: works with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI
+workflow:
+  artifacts:
+    inputs: [task-request, run-state]
+    outputs: [verified-deliverable, handoff-payload]
+  completion:
+    criteria:
+      - Done is claimed only with a concrete artifact, test output, or log line for every criterion
+      - Every unmet completion criterion is recorded as an open item, not a checkbox
+      - Each revision pass names the one lever it changed and differs from the pass before
+      - Every parameter change is preceded by a named failure mechanism, not an error cascade
+      - The loop stops at the declared iteration budget instead of looping past it
+      - Stagnation is detected and escalated rather than looped through
+      - External blockers are escalated with the unblock path instead of retried
+      - The handoff payload carries artifacts, decisions, open questions, and verification evidence
+      - Run-state hashes verify at every boundary, and a mismatch aborts and replays from the last checkpoint
+    evidence: required
+  iteration:
+    max: 3
+    on_exhaustion: escalate
+  escalate_to: [human-gate]
 
 ---
 
@@ -124,7 +144,7 @@ Task received
 | G2 | **Never repeat an identical action.** A revision that changes nothing is not a revision; it is budget burning. | Your REVISE plan is the same approach that just failed | STOP. Change the approach, the inputs, or the scope — or escalate |
 | G3 | **Never loop past budget.** `max_iterations` (or the run's step budget) is a hard stop, not a suggestion. | iteration count == max_iterations and criteria still fail | STOP. Follow the exhaustion path (escalate \| next \| fail) with full context |
 | G4 | **Never loop on an external blocker.** Missing credentials, missing upstream artifact, ambiguous requirement = blocked, not "try again". | Root cause of failure is outside your control | Escalate with context (escalate template). Retrying is not a strategy |
-| G5 | **Never hand off without a payload.** Every boundary crossing writes the handoff payload: status, summary, artifacts, decisions, open_questions, verification_evidence, context, budget. | You are about to finish and no handoff payload exists | STOP. Write payload per handoff-out template + payload registry (WORKFLOW-SYSTEM.md Section 5) |
+| G5 | **Never hand off without a payload.** Every boundary crossing writes the handoff payload: status, summary, artifacts, decisions, open_questions, constraints, verification_evidence, context, budget. | You are about to finish and no handoff payload exists | STOP. Write payload per handoff-out template + payload registry (WORKFLOW-SYSTEM.md Section 5) |
 | G6 | **Never let state drift silently.** Every write updates run-state `updated`, appends to `log`, and re-hashes records; a hash mismatch aborts, never propagates. | You detect a state hash mismatch or a field written by a non-owner | STOP. Replay from the last verified checkpoint; report the corruption |
 | G7 | **Never vary without diagnosing.** Varying parameters after an error without naming *why* the error occurred is not a revision — it is an error cascade, and it burns the most budget for the least information. | A REVISE whose justification is a different value/flag/order but no stated root cause, or three passes where the *error* is unchanged though the *parameters* differ | STOP. Name the actual failure mechanism before the next attempt. If you cannot, one diagnostic pass is allowed; if that does not produce the mechanism, ESCALATE. Different parameters over the same unfixed cause is thrashing, not progress |
 
@@ -206,6 +226,8 @@ Run the `verify-node` template: map every completion criterion to concrete evide
 | No | Yes | **REVISE** → write diagnostics (what failed, root cause, what changes next pass), increment iteration, return to Phase 1 with a *changed* approach |
 | No | No (max_iterations reached) | **ESCALATE** → follow `on_exhaustion`/`escalate_to`; write the escalation report (`escalate` template) |
 | Blocked (external root cause) | any | **ESCALATE/BLOCKED** → never loop on an external blocker |
+
+The `iteration.max` in this skill's `workflow:` block declares a default revision budget; the engine currently reads loop bounds from the manifest, which may override it.
 
 Output markers: `[DECIDE: DONE — evidence <refs>]` / `[DECIDE: REVISE #n — root cause: ..., approach change: ...]` / `[DECIDE: ESCALATE — budget exhausted after n passes]`.
 
@@ -378,10 +400,16 @@ do not silently mark the node done.
 ## What Good Looks Like
 
 A node that completes leaves: every criterion mapped to concrete evidence; a handoff payload with
-all nine registry keys populated; run-state records with hashes; a decision ledger with rationale;
+all ten registry keys populated; run-state records with hashes; a decision ledger with rationale;
 open questions that are genuinely open (not forgotten). A node that cannot complete leaves an
 escalation report with what was tried per pass, evidence of each attempt, the blocker, and the
 recommended next action — and it did so at the budget boundary, not three passes past it.
+
+### Short Form
+
+Runs terminate. Done means evidence. Failures escalate with context. Handoffs carry payloads.
+Revisions change things. Every loop you enter has an exit, a budget, and an escalation path — and
+you know all three before you start.
 
 ## Deliberate Practice
 
@@ -478,7 +506,7 @@ Before delivering or declaring a node complete, verify:
 | CR5 | Budget respected | iterations ≤ max_iterations; steps_used ≤ max_steps |
 | CR6 | Exhaustion handled | If budget hit with criteria unmet: escalation report exists (tried/evidence/blocker/next) |
 | CR7 | Blocker classified | External blockers escalated, never looped |
-| CR8 | Handoff payload complete | All nine registry keys populated (status/summary/artifacts/decisions/open_questions/verification_evidence/context/budget[/next]) |
+| CR8 | Handoff payload complete | All ten registry keys populated (status/summary/artifacts/decisions/open_questions/constraints/verification_evidence/context/budget[/next]) |
 | CR9 | State integrity | run-state records hashed; no field written by a non-owner; handoff hash verified on receipt |
 | CR10 | Context compacted | Passed-forward context is structured state + payloads, not raw transcripts |
 | CR11 | Decision ledger updated | Every material decision has an entry with rationale |
@@ -555,9 +583,3 @@ recorded so subsequent agents recover context without replaying the conversation
 | Missing credentials → 9 retries → timeout | External blocker looped instead of escalated | G4: classify root cause once; external ⇒ escalate immediately | A blocker is not a flaky test; retrying an external blocker is theater |
 | Downstream agent rebuilds the whole analysis because upstream "finished" with no payload | Done without handoff payload; context died at the boundary | G5: payload registry; no payload = not handed off | Your last act on any node is making the next agent fast — or you pay twice |
 | State hash mismatch ignored; corrupt findings propagated to prod | Silent state drift across writers | G6: verify hashes at every boundary; abort on mismatch | A handoff you cannot verify is a handoff you should not trust |
-
-## What Good Looks Like (short form)
-
-Runs terminate. Done means evidence. Failures escalate with context. Handoffs carry payloads.
-Revisions change things. Every loop you enter has an exit, a budget, and an escalation path — and
-you know all three before you start.

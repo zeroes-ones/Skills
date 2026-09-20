@@ -6,10 +6,21 @@
 > canonical level; optional mappings to LangGraph/CrewAI are documented and demonstrated in
 > `examples/workflow-runtime/`.
 
+> **Implementation status.** This document separates **intent** from **what the engine enforces**.
+> A claim is a guarantee only if the runner implements it. Where the two differ, a *Runtime caveat
+> (verified)* block or the *Declared but not yet implemented* table (Section 4.5) says so explicitly,
+> with a reproduction. Section 4.5 is the single table to read before depending on any field.
+>
+> Citations inside `scripts/workflow-runner.py` name the function or method rather than a line
+> number where practical: that file carries a large in-flight change set in this checkout, so line
+> numbers move. Line-number citations elsewhere were checked against the working tree when this
+> revision was written and reproduced with the commands in each block.
+
 ## Why This Exists
 
-The library already has a **static graph** (the symmetric `chain:` dependency DAG, 1,130+ edges,
-exported by `scripts/skill-router.py`) and **prose workflows** (each skill's Core Workflow +
+The library already has a **static graph** (the symmetric `chain:` dependency DAG, **2,213** distinct
+directed edges over 327 nodes, exported by `scripts/emit-skill-graph.py` to
+`docs/graph-explorer/skill-graph.json`) and **prose workflows** (each skill's Core Workflow +
 Verification sections, and narrative flows like `examples/orchestra-platform/`). What has been
 missing is the **execution layer**: a machine-checkable way to say
 
@@ -80,14 +91,16 @@ Rules:
 |------|---------|
 | Additive | Absent `workflow:` block = default mode. Existing skills are untouched and valid. |
 | Shallow | The block may contain only scalars and one level of lists/maps (safe YAML subset, Section 3). |
-| Completion drives loops | `completion.criteria` are the *verifiable* claims; `iteration.max` bounds revision; `on_exhaustion` decides the exhausted outcome. |
-| Escalation is a target, not a feeling | `escalate_to` names a gate node id in the manifest or a skill name. If neither exists, exhaustion = report with full context, no further looping. |
-| Verification section is the fallback | No `criteria` → the node's Verification / Production Checklist tables are treated as the criteria source at execution time. |
+| Completion is asserted only under `--enforce-contracts` | With enforcement on, `completion.evidence: required` must be satisfied and every `completion.criteria` entry must be covered by the node's `criteria_met` report (`workflow-runner.py`, `Runner._contract_violations`; short-circuited by `enforce_contracts` at the top of that method). With enforcement off (the default), the block is parsed but not asserted. |
+| `artifacts.inputs` is declarative, `artifacts.outputs` is a warning | `artifacts.inputs` is linted (`scripts/lib/lint-workflow.py`) but never read at runtime. Declared `artifacts.outputs` that were not produced is recorded as `action: contract-warning` and is **never** blocking (`workflow-runner.py`, `Runner._contract_violations` → `Runner._apply_contract`). |
+| `iteration.max` / `on_exhaustion` / `escalate_to` are declarative | These keys are parsed into the contract but not read by the runner. Revision bounds and exhaustion routing come from the manifest's `loops[].max_iterations` and `loops[].escalate_to`, not from the node block. See Section 4.5. |
+| Verification section is the fallback (executor-side) | With no `criteria`, the node's Verification / Production Checklist tables are the criteria source by convention, applied by the executing agent. The runner itself never reads a skill's body. |
 
 Why criteria-with-evidence? A node that cannot say what "done" means cannot be looped safely. The
 single most expensive failure in agent workflows is **premature completion** — declaring done with
 zero evidence. The second is **infinite refinement** — polishing past the point of return. The node
-contract exists to make both detectable by construction.
+contract exists to make both *detectable* — asserted when `--enforce-contracts` is on, and declared
+for the executor to honour when it is off.
 
 ## 2. L1 — Workflow Manifest
 
@@ -139,6 +152,13 @@ end: [arch-review]
 | `supervisor` | no | Routing node. Delegates to `workers` by capability; performs no content work itself. |
 | `task` | no | Reserved for non-skill work (script, stub executor in examples). `executor:` names the handler. |
 
+**Runtime caveat (verified):** the runner never dispatches on `type`. `Runner.__init__` builds
+`self.nodes` as a flat id → entry map (`workflow-runner.py`) and every node — `skill`, `gate`,
+`supervisor`, `task` — is handled by the one traversal path (`Runner.run`; `Runner._run_loop_pass`
+inside a loop). `type` is validated statically (`scripts/validate-workflows.py:159-171`) and is
+meaningful for gates, whose `kind` **is** read; `supervisor` and `task` semantics are declared and
+validated but not yet executed. See Section 4.5.
+
 ### 2.4 Edges, loops, parallel, gates
 
 **Edges** — directed transitions, validated for endpoint existence:
@@ -168,13 +188,13 @@ loops:
 
 Loop invariants (enforced by the validator and the runner):
 
-| Invariant | Why |
-|-----------|-----|
-| Every loop has `exit_when` + `max_iterations` | No unbounded repetition by construction. |
-| `max_iterations >= 1` | A loop is a loop. |
-| Exhaustion target exists | `escalate_to` must resolve to a node id in the same manifest. |
-| No node appears in two active loops | Nested/overlapping loops are ambiguous; flatten instead. |
-| Stagnation detector optional, default on | Identical consecutive passes produce no new information; keep looping = burning budget. |
+| Invariant | Why | Enforced by |
+|-----------|-----|-------------|
+| Every loop has `exit_when` + `max_iterations` | No unbounded repetition by construction. | Validator (`scripts/validate-workflows.py:224-237`); runner reads both (`Runner._run_loop_pass`) |
+| `max_iterations >= 1` | A loop is a loop. | Validator (`scripts/validate-workflows.py:236`) |
+| Exhaustion target exists | `escalate_to` must resolve to a node id in the same manifest. | Validator (`scripts/validate-workflows.py:240-241`); runner routes to it (`Runner.run`) |
+| No node appears in two loops | Nested/overlapping loops are ambiguous; flatten instead. | **Validator does not check this** — a node listed in two loops validates clean (verified). Treat as an authoring rule, not a gate. |
+| Stagnation detector optional, default on | Identical consecutive passes produce no new information; keep looping = burning budget. | Runner (`Runner._run_loop_pass` → `Runner._stagnant`) |
 
 **Parallel blocks** — fan-out with an explicit join:
 
@@ -188,6 +208,16 @@ parallel:
 
 Parallel nodes must not write the same run-state field (no shared-mutable writes; merge happens at
 the join, Section 5.3).
+
+**Runtime caveat (verified):** the runner's join is always `all`. `Runner._advance_from` holds at the
+join until every member has reached a *terminal status* — `_STATUS_WORDS = {done, blocked,
+needs_review, skipped}` — and `Runner.__init__` reads `pb.get("join", "all")` only to store it; the
+value never branches. So the hold is "all members stopped", not "all members succeeded": a `blocked`
+member releases the join exactly like a `done` one. A manifest declaring `join: any` or
+`join: majority` behaves identically to `join: all` (verified with one `blocked` and one `done`
+member: `sink` fires for all three values). The docstring on `_advance_from` claims `any/majority`
+"degrades to 'any'"; the code proves `all`, and this document now states `all`. `parallel[].outputs`
+is likewise stored in `Runner.__init__` and never merged.
 
 **Gates** — deliberate pauses in the graph:
 
@@ -256,6 +286,13 @@ Canonical semantics: a supervisor's pass is done when all `workers` (parallel), 
 worker follows the manifest's `on_exhaustion` path. This maps 1:1 to LangGraph supervisor
 patterns — see `examples/workflow-runtime/references/langgraph-mapping.md`.
 
+**Runtime caveat (verified):** these supervisor semantics are declared, not executed. The runner does
+not branch on `type` (see Section 2.3), so a `type: supervisor` node is executed as an ordinary
+single-skill node through the one traversal path; `workers`, `routing`, and `select` are validated
+(`scripts/validate-workflows.py:314-329`) and never read by the runner. The `on_exhaustion` path named
+above does not exist at runtime — see Section 4.5. The mapping to LangGraph remains the *intended*
+translation, not a description of the stdlib engine's behaviour.
+
 ### 2.6 Condition vocabulary (edges and loops)
 
 Conditions are deliberately small. Executors and the runner interpret exactly this vocabulary; the
@@ -266,7 +303,7 @@ validator checks syntax only:
 | `always` | Unconditional. |
 | `NODE.status == done` / `!= done` | Node terminal status (done, blocked, needs_review, skipped). |
 | `NODE.status in (a, b)` | Membership on terminal status. |
-| `NODE.verdict == VALUE` | Verdict equality (strings only). |
+| `NODE.verdict == VALUE` / `!= VALUE` | Verdict equality (strings only). The runner implements `!=` for verdict as well as `==` (`workflow-runner.py`, `eval_condition`). |
 | `loop.iterations < N` | Loop budget remaining (loop context only). |
 
 Anything else is a validation error. This keeps manifests readable by humans and executable by the
@@ -286,7 +323,15 @@ has exactly one writer role at a time.** Parallel fan-out writes disjoint fields
 them. No two live nodes write the same field. The validator flags conflicting `outputs` within a
 parallel block.
 
-## 3. Safe YAML Subset
+**Runtime caveat (verified):** the `state:` block is not read by the runner. `merge` is stored by
+nothing and applied by nothing (`scripts/workflow-runner.py` has zero `merge` references outside
+comments; `scripts/validate-workflows.py` likewise). The write-ownership rule above is enforced only
+as the static `outputs`-disjointness check inside `parallel` blocks
+(`scripts/validate-workflows.py:262-271`) — it is not enforced at merge time, because there is no
+merge step. Run-state `fields` are initialised empty by `fresh_state` (`scripts/workflow-runner.py`)
+and written by executors directly; the runner performs no field-merge of its own.
+
+### 3. Safe YAML Subset
 
 Manifests and `workflow:` frontmatter blocks are YAML — but a **documented subset** that a
 dependency-free validator and runner can parse safely:
@@ -298,10 +343,10 @@ dependency-free validator and runner can parse safely:
 - Comments (`#`) allowed on their own lines or trailing a value.
 - No anchors/aliases, no flow maps, no block scalars (`|`, `>`), no multi-document files.
 
-The normative parser is `scripts/lib/safe_yaml.py` (stdlib-only, ~90 lines) — one file shared by
-`scripts/validate-workflows.py`, the frontmatter lint, and `scripts/workflow-runner.py`. The schema
-files in `workflow/schema/` document fields; validation logic lives in the scripts and is exercised
-by their fixture suites.
+The normative parser is `scripts/lib/safe_yaml.py` (stdlib-only, 259 lines) — one file shared by
+`scripts/validate-workflows.py`, the frontmatter lint (`scripts/lib/lint-workflow.py`), and
+`scripts/workflow-runner.py`. The schema files in `workflow/schema/` document fields; validation
+logic lives in the scripts and is exercised by their fixture suites.
 
 ## 4. L2 — Execution Semantics (canonical, portable)
 
@@ -317,6 +362,7 @@ repo). Schema in `workflow/schema/run-state.schema.yaml`. Canonical shape:
   "created": "2026-09-08T10:00:00Z",
   "updated": "2026-09-08T10:04:12Z",
   "node": "code-reviewer",
+  "phase": "execute",
   "iteration": 1,
   "budget": { "max_steps": 40, "steps_used": 7, "iterations": { "review-fix-loop": 1 } },
   "nodes": {
@@ -325,20 +371,60 @@ repo). Schema in `workflow/schema/run-state.schema.yaml`. Canonical shape:
   },
   "fields": {
     "findings": { "value": [{"severity": "high", "file": "src/auth.py", "note": "…"}],
-                  "writer": "reviewers", "sha": "…" }
+                  "writer": "reviewers" }
   },
   "artifacts": { "review.md": { "path": "artifacts/review.md", "sha": "…", "type": "doc" } },
   "decisions": [ { "at": "code-reviewer", "what": "auth refactor required", "by": "code-reviewer" } ],
   "open_questions": [],
-  "handoff": { "from": "fixer", "to": "reviewers", "payload": "handoff-v1", "sha": "…" },
-  "log": [ { "step": 7, "node": "code-reviewer", "action": "verify", "verdict": "changes_requested" } ]
+  "handoff": { "from": "fixer", "to": "reviewers", "payload": "handoff-v1", "sha": "…",
+               "integrity": { "frozen": { "status": "done", "…": "…" }, "digest": "…" } },
+  "log": [ { "step": 7, "node": "code-reviewer", "action": "done", "detail": "verdict=changes_requested" } ]
 }
 ```
 
-Every write by a node updates `updated`, appends to `log`, and re-hashes `nodes`, `fields`,
-`artifacts` (short `sha`). The runner compares hashes across a handoff — a mismatch aborts with a
-state-corruption error instead of propagating bad state (agent-handoff-protocol rule: no handoff
-without state-hash verification).
+**Vocabulary caveat (verified).** The runner writes, and only writes:
+
+| Field | Values the runner actually writes | Where |
+|-------|-----------------------------------|-------|
+| `phase` | `idle` (fresh state), `execute`, `escalated`, `complete`, `error` | `workflow-runner.py`: `fresh_state`, `Runner.run`, `Runner._apply_guardrail`, `Runner._run_loop_pass`, `Runner._crash_checkpoint` |
+| `log[].action` | `done`, `guardrail`, `contract`, `contract-warning`, `contract-rework`, `contract-rework-ok`, `escalate`, `error`, `agent-gate` | `workflow-runner.py`: `Runner._mark_done`, `_apply_guardrail`, `_apply_contract`, `_run_contract_rework`, `_crash_checkpoint`, `_agent_gate_visit`, and `Runner.run` |
+
+The `phase` enum in `workflow/schema/run-state.schema.yaml` also lists `intake`, `verify`, `decide`,
+`done`, and `blocked`, and its `log.action` enum lists `intake`, `execute`, `verify`, `revise`,
+`handoff-out`, `handoff-in`, `checkpoint` — **none of which the runner writes**. Those values describe
+the protocol an *executor* follows (Section 4.2), not state the engine produces. A consumer parsing
+run-state should therefore treat the engine-written values above as the reliable set and the schema
+enums as the wider, executor-level vocabulary.
+
+**Fresh-state keys (verified):** `fresh_state` (`scripts/workflow-runner.py`) creates `workflow,
+manifest_sha, created, updated, node, phase, iteration, budget, nodes, fields, artifacts, decisions,
+open_questions, handoff, reroutes, log`. `reroutes` is engine-owned bookkeeping for `kind: agent`
+gates and is not in the schema document.
+
+Every write by a node updates `updated` and appends to `log`. The runner hashes exactly one thing:
+the **node record** — `rec["sha"] = _sha(rec)` in `Runner._mark_done`. It does not hash `fields` or
+`artifacts`; the `sha` on an artifact record is passed through from whatever the executor reported
+(`Runner._mark_done`), and `fields` is initialised empty by `fresh_state` with no runner-applied hash.
+
+**Handoff integrity — `sha` recorded (not verifiable), `integrity` verified (implemented).** The
+runner writes a `handoff {from, to, payload, sha, budget, integrity}` record when it selects the next
+node (`Runner._handoff_record`, called from `Runner._advance_from` and `Runner.run`). `sha` is
+`_sha(state["nodes"][src])` — the **sender's node record**, not the payload content — and it is still
+written and never compared, because it *cannot* be: the sender's record is legitimately rewritten
+after the hop (loop re-entry resets members to `pending`, `Runner._mark_done` re-hashes, contract
+rework resets again), so re-reading it later would report corruption on a healthy run.
+
+The verifiable object is `integrity = {frozen, digest}`: `frozen` is a JSON snapshot of
+`nodes[src]` taken at send time, and `digest` is `_sha({from, to, payload, frozen, budget})`. It is
+checked twice — at send time in `_handoff_record`, and on every `--state` resume
+(`resume_state` → `_verify_handoff`), where a mismatch raises `StateCorruption` naming the hop. A
+state file written before this existed has no `integrity` block: it loads and runs, and the run
+records `last_handoff_verified: false` rather than implying the digest was checked.
+
+| | Detects | Does not detect |
+|---|---|---|
+| `handoff.integrity` digest | An edited/corrupted `handoff` record: its frozen snapshot, or hop metadata (`from`/`to`/`payload`/`budget`) | Edits to `nodes[...]` themselves — the frozen record is a copy, not a hash of the live record, so it cannot attest it. A checkpoint-wide (Merkle) digest over the whole state file would be the change that closes this. |
+| `handoff.sha` | Nothing | — (written for downstream executors; the `handoff-in` template asks the receiving agent to check hashes, which is a prompt-level obligation, not a runner guardrail) |
 
 ### 4.2 Node lifecycle
 
@@ -359,6 +445,14 @@ INTAKE  →  EXECUTE  →  VERIFY  →  DECIDE
 The four steps are prompted, not assumed — templates in `workflow/templates/` (Section 7) encode
 them so the executing agent performs VERIFY before ever claiming done.
 
+**Scope of the engine (verified).** INTAKE/EXECUTE/VERIFY/DECIDE is the executor's protocol, not the
+runner's control flow. The runner offers the executor a context dict and reads back a result dict
+(`status`, `verdict`, `summary`, `evidence`, `artifacts`, `decisions`, `open_questions`,
+`diagnostics`, `criteria_met`, `usage` — the runner's module docstring, "Executor contract"); it never
+prompts, never reads a SKILL.md body, and never inspects an artifact's contents. Where this document
+says a step is "enforced", the enforcement is either a prompt obligation the executor carries, or the
+narrower result-shape check named in Section 4.4.
+
 ### 4.3 Loop protocol (the heart of "iterate until done")
 
 1. **Pass N runs**: execute the loop's nodes in order against current run-state.
@@ -367,32 +461,78 @@ them so the executing agent performs VERIFY before ever claiming done.
 3. **Delta check** (stagnation): compare diagnostics with the previous pass. No delta for
    `convergence.window` passes → treat as exhaustion (looping identical work is budget burning).
 4. **Budget check**: `iteration >= max_iterations` → exhaustion.
-5. **Exhaustion**: follow `on_exhaustion`/`escalate_to` (default `escalate`). Escalation carries the
-   full context: what was tried (per pass), evidence, remaining blockers, recommended next action.
-6. Never stop silently mid-loop; never continue past budget; never repeat an identical pass
-   (REVISE must change approach or inputs — the revise template enforces this).
+5. **Exhaustion**: route to the **loop's** `escalate_to` when set, else end the run with the exit
+   reason. There is no node-level `on_exhaustion` at runtime — that key is declarative only
+   (Section 4.5). Escalation carries the exit reason and the per-pass end-state signature.
+6. Never continue past budget; never repeat an identical pass (the stagnation detector
+   `Runner._stagnant`, called from `Runner._run_loop_pass`, fires on identical diagnostics; an agent
+   gate additionally escalates on `no delta across reroutes`, `Runner._agent_gate_visit`).
+
+The loop's exit reason — `exit-condition`, `max-iterations`, `stagnation`, `step-budget`, or
+`cost-budget` — is what the run summary's `outcome` is built from (`Runner.run`, which sets
+`self._loop_exit_reason`, and `Runner._summary`). A consumer should read `outcome`, not infer the
+reason from the absence of a handoff.
 
 ### 4.4 Deterministic guardrails (runner-enforced, not prompt-requested)
 
-| Guardrail | Mechanism |
-|-----------|-----------|
-| Cycle rejection | A node may not be its own ancestor except through a declared loop. Validator rejects undeclared cycles; runner tracks the active node stack. |
-| Step budget | Global `budget.max_steps` hard cap; runner halts and reports when exceeded. |
-| Iteration budget | Per-loop `max_iterations`; enforced in code. |
-| Stagnation | Delta over `convergence.window`; enforced in code when diagnostics are structured. |
-| Write ownership | Parallel writers must write disjoint `fields`; validated statically (manifest) and at merge time (runner). |
-| Handoff hash | Every handoff payload hash is verified on receipt. Mismatch aborts, never propagates. |
-| Idempotency | Re-running a `done` node is a no-op unless `force: true`; checkpoints make runs resumable. |
+| Guardrail | Mechanism | Actually enforced? |
+|-----------|-----------|--------------------|
+| Cycle rejection | A node may not be its own ancestor except through a declared loop. | **Validator only.** `_check_cycles` performs a DFS and rejects undeclared cycles (`scripts/validate-workflows.py:338-368`). The runner has **no node stack**: it keeps a `seen` set (`workflow-runner.py`, `Runner.run`) and silently prunes a back-edge rather than aborting. Run the runner on an unvalidated cyclic manifest and it completes rather than reporting a cycle. |
+| Step budget | Global `budget.max_steps` hard cap; runner halts and reports when exceeded. | Yes — `Runner.run` checks before each step and `_run_loop_pass` checks per member; the run ends with outcome `step-budget`. The budget comes from `--max-steps`, else manifest `budget.max_steps`, else `10 × node count` (`workflow-runner.py`, `main`). |
+| Cost budget | Optional manifest `budget.max_cost_usd`; halts when reached. | Yes, when the executor reported usage (`cost_exceeded`, `workflow-runner.py`). An unmeasured run records `cost.measured: false` and is flagged, never treated as free. |
+| Iteration budget | Per-loop `max_iterations`; enforced in code. | Yes (`_run_loop_pass`, `workflow-runner.py`). |
+| Stagnation | Delta over `convergence.window`; enforced in code when diagnostics are structured. | Yes (`_run_loop_pass` → `_stagnant`). "When structured" is the real limit: the signature is each member's `evidence` or else its `verdict`, JSON-encoded (`_stagnant`), so a node reporting neither is treated as having an empty, constant signature. |
+| Write ownership | Parallel writers must write disjoint `fields`. | **Static check only.** `_check_parallel` flags duplicate `outputs` across members (`scripts/validate-workflows.py:262-271`). There is no merge-time check because there is no merge step (Section 2.7). |
+| Handoff integrity | A corrupted or tampered handoff is detected, not propagated. | **Partly enforced.** `handoff.sha` is *written* and never *compared*, and cannot be (it covers the sender's live node record, which is rewritten after the hop). `handoff.integrity` — a frozen snapshot + digest — **is** verified at send time and on every `--state` resume; a mismatch aborts with `StateCorruption` naming the hop. It does not cover edits to `nodes[...]`. See Section 4.1 for the detects/does-not-detect split. |
+| Idempotency | Re-running a `done` node is a no-op; checkpoints make runs resumable. | Resumability, yes: state is checkpointed via `save_state` after every node, and a resumed run seeds `done` from the state file (`Runner.run`). The `force: true` opt-out **does not exist** — the runner has no `force` key; re-running a completed node is unconditionally a no-op. |
 
 Guardrails are code because prompts are advisory. Multi-agent-orchestration lists these as
-*guidance*; here they are *mechanisms*.
+*guidance*; the rows marked "enforced" here are *mechanisms*. The rows marked validator-only or not
+enforced are neither — they are stated intent, and a consumer planning around them should not.
+
+### 4.5 Declared but not yet implemented
+
+This is the table a consumer should read before trusting any field above. Each row is a key that the
+validator accepts (and in most cases checks) but the runner never reads, verified by grepping
+`scripts/workflow-runner.py` for the key name: **a zero count means the runner cannot act on it.**
+
+| Declared contract | Where declared | Runner reads it? | Effect today |
+|-------------------|----------------|------------------|--------------|
+| `nodes[].inputs` | schema `nodes.item_fields.inputs` | No | None. Inputs are never checked against `fields`/`artifacts` before a node runs. |
+| `nodes[].outputs` | same | No (validator only) | A node's declared `outputs` are never written to run-state by the runner; the executor writes artifacts directly. `_check_parallel` uses them for the disjointness check. |
+| `nodes[].max_iterations` | schema `nodes.item_fields.max_iterations` | No (as a node field) | Node-level revision bounds do not exist. `_contract_rework_budget` reads the key only to compute a *floor* for `--contract-rework`; loop revision is governed by `loops[].max_iterations`. |
+| `nodes[].on_exhaustion` | schema `nodes.item_fields.on_exhaustion` | No | Zero occurrences in the runner. Exhaustion routing is `loops[].escalate_to` only. |
+| `nodes[].escalate_to` | schema `nodes.item_fields.escalate_to` | No | Zero occurrences as a node-level read. Only `loops[].escalate_to` and `gates[].escalate_to` are honoured. |
+| `nodes[].executor` | schema `nodes.item_fields.executor` | No | The executor is chosen by the `--executor` CLI flag for the whole run; there is no per-node handler dispatch. |
+| `type: supervisor` (+ `workers`, `routing`, `select`) | schema `nodes.item_fields` | No | Validated (`_check_supervisors`, `scripts/validate-workflows.py:314-329`) then executed as an ordinary single-skill node. Section 2.5. |
+| `type: task` | schema `nodes.item_fields.type` enum | No | Accepted as a node type; executed like any other node. |
+| `gate.gate.pass_when` / `gate.gate.else_go` (auto gate) | schema `nodes.item_fields.gate` | No | Zero `else_go` occurrences; `pass_when` appears only in the runner's own self-test fixtures. An `auto` gate does not evaluate a condition or branch — verified: a gate with `pass_when: a.status == blocked` and `else_go: c` still passes through to its `always` edge and leaves `c` pending. |
+| `gates[].pass_when` | schema `gates.item_fields.pass_when` | No | Syntax-checked by the validator (`_check_gates`); not evaluated at runtime. |
+| `gates[].requires` | schema `gates.item_fields.requires` | No | A gate does not assert the named artifacts/fields exist before firing. |
+| `parallel[].join: any \| majority` | schema `parallel.item_fields.join` | Stored, never branched on | Always behaves as `all`. Section 2.4. |
+| `parallel[].outputs` merge | schema `parallel.item_fields.outputs` | Stored, never used | No merge happens; nothing is written to run-state at the join. |
+| `control.state.merge` (flat: `state.merge`) | schema `control.state.fields.merge` | No | Zero `merge` references in either script. §2.7. |
+| `meta.name` / `meta.version` / `control.*` (nested form) | schema top-level `meta:` / `control:` | No | The schema's nested names are **stale** — see the note at the head of `workflow-manifest.schema.yaml`. Both the validator (`data.get("name")`) and the runner read the **flat** top-level form. |
+
+Conversely, these *are* live runner behaviours, and a consumer can rely on them: node `when`
+conditions, `loops[].exit_when`, `loops[].max_iterations`, `loops[].escalate_to`,
+`loops[].convergence`, `parallel` membership (as an `all`-join hold), `gates[].kind == "agent"` with
+`pool`/`max_reroutes`/`escalate_to`, `budget.max_steps`, `budget.max_cost_usd`, per-node
+checkpointing and resume, and the `--enforce-contracts` completion assertion.
 
 ## 5. Handoff Payload Registry
 
 A handoff payload is the only thing that crosses a node boundary. It is produced by the upstream
-node (EXIT template), verified by the runner, and consumed by the downstream node (INTAKE template).
-It composes the five context elements required by agent-handoff-protocol with the library's
-verification discipline.
+node (EXIT template) and consumed by the downstream node (INTAKE template). It composes the five
+context elements required by agent-handoff-protocol with the library's verification discipline.
+
+**What the runner does with a payload (verified).** It selects the edge's `payload` name into the
+`handoff` record and nothing more (`scripts/workflow-runner.py`, `_advance_from`). It does not read,
+validate, hash, or compare payload *content*. Payload-name resolution is a static check: when a
+manifest declares a `payloads:` block, every edge `payload` must be one of its keys
+(`scripts/validate-workflows.py:468-485`). If a manifest declares **no** `payloads:` block, an
+arbitrary payload name validates clean — so "unregistered payload names are a validation error" is
+true only once a registry exists.
 
 | Key | Required | Contents |
 |-----|----------|----------|
@@ -401,17 +541,22 @@ verification discipline.
 | `artifacts` | yes | `[{name, path, sha, type}]` produced by the node |
 | `decisions` | yes | Decisions made, with rationale (`[]` allowed) |
 | `open_questions` | yes | What the next node must resolve/decide (`[]` allowed) |
+| `constraints` | yes | `[{type, value, source, non_negotiable}]` — limits the receiver must not lose (`[]` allowed). A dropped `non_negotiable: true` entry is a handoff defect; see `agent-handoff-protocol` R2 and `references/state-schema-spec.md`. |
 | `verification_evidence` | yes | Criterion → evidence mapping; empty = not done |
 | `context` | yes | Files/lines read, assumptions, things tried and failed (error paths) |
 | `budget` | yes | Tokens/steps/iterations used by this node |
 | `next` | optional | Suggested downstream skill / action |
 
 Named payload variants (e.g. `handoff-v1`) may be registered in a manifest under `payloads:` to fix
-field requirements per edge. Unregistered payload names are a validation error.
+field requirements per edge. The `payloads` map is validated against the canonical key list above
+(`scripts/validate-workflows.py:468-485`); the keys are not enforced against what an executor actually
+emits. The list above and the validator's `CANONICAL_PAYLOAD_KEYS` (`validate-workflows.py:37-40`)
+are asserted identical by `validate-workflows.py --selftest`.
 
 **Intake contract** — the downstream node must, before doing anything else, answer: What did I
 receive? What do I owe? What did upstream leave open? The `handoff-in` template asks exactly these
 three questions and refuses to start work until `artifacts` and `open_questions` are acknowledged.
+This is an executor obligation: the runner does not block intake on it.
 
 ## 6. Multi-Agent Mapping (hybrid model)
 
@@ -461,25 +606,28 @@ Two anti-patterns the templates exist to kill:
 | Level | What you get | What it costs |
 |-------|--------------|---------------|
 | **Default** (no changes) | Existing skills keep working exactly as today. | No loop/graph guarantees. |
-| **Manifest only** | Graphs + loops + handoffs over existing skills; skills run in default mode (Verification section = criteria). | You author manifests; validator enforces shape. |
-| **Manifest + node contracts** | Strongest guarantees: typed artifacts, explicit criteria/iteration, named escalation. | You add `workflow:` blocks to the high-value nodes. |
+| **Manifest only** | Graphs + loops + handoffs over existing skills; skills run in default mode (Verification section = criteria as an executor convention). | You author manifests; validator enforces shape. |
+| **Manifest + node contracts** | Criteria become *assertable* rather than declarative: run with `--enforce-contracts` and `completion.evidence`/`completion.criteria` are checked. Artifact names, `iteration`, and `escalate_to` remain declarations the executor honours (Section 4.5). | You add `workflow:` blocks to the high-value nodes. |
 
 Adoption is deliberately bottom-up: author a manifest for one real flow, add node contracts only to
-the skills that flow uses, run the validators, measure readiness with the audit dimension
-(`scripts/audit-library.py --workflow-readiness`).
+the skills that flow uses, run the validators, and read the readiness split from
+`python3 scripts/audit-library.py` (the "Workflow Readiness" row reports *declared / eligible* — 64
+declared of 324 eligible as of this checkout). The flag `--workflow-readiness` is **not** a real
+option on `audit-library.py`; its only flags are `--brief` and `--json`.
 
 ## 9. Verification Checklist
 
 | # | Check | How to verify |
 |---|-------|---------------|
 | ☐ | Manifest schema honored | `python3 scripts/validate-workflows.py --manifest <file>` passes |
-| ☐ | No undeclared cycles | Validator rejects; runner never executes one |
-| ☐ | Every loop bounded | Validator requires `exit_when` + `max_iterations` |
-| ☐ | Handoff payloads resolve | Registry names exist; runner verifies hashes |
-| ☐ | Parallel writers disjoint | Static check on `outputs` inside `parallel` blocks |
-| ☐ | Exhaustion targets exist | `escalate_to` resolves to a node id |
+| ☐ | No undeclared cycles | Validator rejects (`_check_cycles`). The runner does **not** — run the runner only on validated manifests, or cycles are silently pruned rather than reported. |
+| ☐ | Every loop bounded | Validator requires `exit_when` + `max_iterations`; runner enforces `max_iterations` |
+| ☐ | Handoff payload names resolve | Registry names exist **when a `payloads:` block is present** (`_check_payloads`). The runner does not verify payload content or hashes — see Sections 4.1 and 5. |
+| ☐ | Parallel writers disjoint | Static check on `outputs` inside `parallel` blocks (validator only; the runner has no merge step) |
+| ☐ | Exhaustion targets exist | `escalate_to` resolves to a node id — loops and `kind: agent` gates only, not node-level `escalate_to` |
 | ☐ | Templates applied at boundaries | Transcript walkthrough shows verify/revise/handoff/escalate markers |
-| ☐ | Stagnation + budget enforced in code | Runner fixture suite proves both paths |
+| ☐ | Stagnation + step budget enforced in code | Runner fixture suite proves both paths (`python3 scripts/workflow-runner.py --selftest`) |
+| ☐ | Completion contract asserted | Re-run with `--enforce-contracts`; an unsubstantiated completion must not be marked done |
 
 ## 10. Relationship to Existing Material
 

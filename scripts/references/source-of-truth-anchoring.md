@@ -12,16 +12,19 @@ Every AI model has a training cutoff. If the model was trained in January 2024 b
 
 Instead of generating code from memory, skills must:
 
-1. **Detect** which frameworks and versions are actually installed using `scripts/runtime-version-detect.sh`
+1. **Detect** which frameworks and versions are actually installed, by any means the project supports — read the lockfile or manifest (`package-lock.json`, `requirements.txt`, `go.mod`, `pubspec.yaml`), or the runtime's own `--version` command, and record the observed version
 2. **Anchor** all API usage to those detected versions
 3. **Verify** that proposed API calls exist in the detected version's documentation
 4. **Calibrate** — when the detected version is newer than training data, explicitly state lower confidence and request user verification
 
-## How to Use `runtime-version-detect.sh`
+## How to Use the Version Probe
+
+If your project ships `scripts/runtime-version-detect.sh` (this library's root ships one, but
+no installer deploys it), it is a convenience wrapper over step 1:
 
 ### Step 1: Run Detection on the Target Project
 ```bash
-# Run against the user's project, not the skill repository
+# Only if present in the target project — otherwise read the lockfile directly
 ./scripts/runtime-version-detect.sh /path/to/user/project --skill-context
 ```
 
@@ -82,13 +85,13 @@ Loading the full version detection output into every skill invocation would wast
 
 ### 1. Ground Rule
 ```
-| Rn | **ANCHOR to runtime versions before generating code.** Never generate framework-specific API calls from training data alone. Run runtime-version-detect.sh on the target project, compare detected versions against training cutoff, calibrate confidence. | Trigger: skill receives code-generation task involving framework-specific APIs | Respond: "Detected {framework}@{version}. Anchoring all API calls to v{version}. I will flag uncertain APIs with // VERIFY: comments." |
+| Rn | **ANCHOR to runtime versions before generating code.** Never generate framework-specific API calls from training data alone. Detect the installed versions on the target project (lockfile or manifest; if your project ships runtime-version-detect.sh, run it), compare detected versions against training cutoff, calibrate confidence. | Trigger: skill receives code-generation task involving framework-specific APIs | Respond: "Detected {framework}@{version}. Anchoring all API calls to v{version}. I will flag uncertain APIs with // VERIFY: comments." |
 ```
 
 ### 2. Pre-Flight Verification (add to Core Workflow Phase 1)
 ```
 Before generating any code:
-1. Run runtime-version-detect.sh on the target project
+1. Detect the installed versions on the target project (lockfile or manifest; if your project ships runtime-version-detect.sh, run it)
 2. If detection succeeds:
    a. List detected frameworks and versions
    b. Compare against training cutoff

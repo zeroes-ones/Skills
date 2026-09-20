@@ -8,6 +8,7 @@ payloads:
     - artifacts
     - decisions
     - open_questions
+    - constraints
     - verification_evidence
     - context
     - budget
@@ -21,16 +22,16 @@ nodes:
     outputs: [skill-plan]
   - id: craft
     skill: llm-engineer
-    inputs: [skill-plan]
+    inputs: [task-brief, context]
     outputs: [prompt-design]
   - id: compact
     skill: context-compaction-strategies
-    inputs: [prompt-design]
-    outputs: [compacted-context]
+    inputs: [context-window]
+    outputs: [compaction-plan]
   - id: budget-tune
     skill: token-efficiency
-    inputs: [compacted-context]
-    outputs: [token-budget-plan]
+    inputs: [traffic-signal]
+    outputs: [token-budget]
 edges:
   - from: plan
     to: craft

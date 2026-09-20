@@ -362,18 +362,20 @@ Finally, ALWAYS:
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| A refactor breaks external consumers who used an "internal" helper | The helper was public by default and a consumer built on it (R2) | Publish the surface list; narrow the helper; deprecate with a window. A public-surface leak commonly costs **$40,000 cost** in compatibility work per release | The surface you did not define gets defined by its consumers |
-| A sensitive value is readable at runtime despite `private` | TypeScript's `private` is erased; a JS consumer reads the field (R4) | Use `#field` for genuine privacy. A data-exposure incident commonly costs **$250,000 cost** plus regulatory exposure | A modifier that does not enforce is not a boundary |
-| A Java caller reaches a Kotlin `internal` API | `internal` is a Kotlin-module concept, not a JVM one (R4) | Restrict at the JVM boundary; document the permeability. An unintended coupling commonly costs **$25,000 cost** | Interop boundaries are wider than language boundaries |
-| Changing a field breaks callers | A public mutable field exposed the representation (R3) | Replace with a private field and an accessor. A representation-coupling refactor commonly costs **$30,000 cost** | Public fields publish your internals |
-| Every class is `public` in an app with one module | The default modifier was never questioned (R1) | Default to internal; there is no public surface to define. Over-exposure remediation commonly costs **$20,000 cost** | A wider surface is a larger accidental contract |
-| A subclass in another module breaks on an upgrade | Subclassability was granted without an extension contract (R6) | Document the contract, or make it `public` without `open`. A broken third-party subclass commonly costs **$50,000 cost** | Extension contracts are the strongest promise a class makes |
-| Test-only widening leaks to consumers | `public` was used where a test mechanism exists (R5) | Use `@testable` / `InternalsVisibleTo` / the test source set. Remediation commonly costs **$15,000 cost** | Tests are a consumer with a dedicated mechanism |
-| A public function returns a type that is less visible | The transitive-exposure rule, enforced by every language | Widen the type or narrow the function. A compile-driven redesign commonly costs **$10,000 cost** | Visibility propagates through signatures |
-| `protected` was assumed to mean "subclasses only" in Java | It also exposes to the whole package | Understand the real scope before relying on it. A mis-scoped assumption commonly costs **$18,000 cost** | Read the language's definition, not the keyword's English meaning |
-| Removing a public declaration breaks a consumer nobody knew about | No consumer registry existed (R2) | Deprecate first, with a window and a warning. An unplanned breaking change commonly costs **$60,000 cost** | You cannot narrow safely without knowing who depends on you |
+| A refactor breaks external consumers who used an "internal" helper | The helper was public by default and a consumer built on it (R2) | Publish the surface list; narrow the helper; deprecate with a window. A public-surface leak commonly costs **$40,000 [ESTIMATED]** in compatibility work per release | The surface you did not define gets defined by its consumers |
+| A sensitive value is readable at runtime despite `private` | TypeScript's `private` is erased; a JS consumer reads the field (R4) | Use `#field` for genuine privacy. A data-exposure incident commonly costs **$250,000 [ESTIMATED]** plus regulatory exposure | A modifier that does not enforce is not a boundary |
+| A Java caller reaches a Kotlin `internal` API | `internal` is a Kotlin-module concept, not a JVM one (R4) | Restrict at the JVM boundary; document the permeability. An unintended coupling commonly costs **$25,000 [ESTIMATED]** | Interop boundaries are wider than language boundaries |
+| Changing a field breaks callers | A public mutable field exposed the representation (R3) | Replace with a private field and an accessor. A representation-coupling refactor commonly costs **$30,000 [ESTIMATED]** | Public fields publish your internals |
+| Every class is `public` in an app with one module | The default modifier was never questioned (R1) | Default to internal; there is no public surface to define. Over-exposure remediation commonly costs **$20,000 [ESTIMATED]** | A wider surface is a larger accidental contract |
+| A subclass in another module breaks on an upgrade | Subclassability was granted without an extension contract (R6) | Document the contract, or make it `public` without `open`. A broken third-party subclass commonly costs **$50,000 [ESTIMATED]** | Extension contracts are the strongest promise a class makes |
+| Test-only widening leaks to consumers | `public` was used where a test mechanism exists (R5) | Use `@testable` / `InternalsVisibleTo` / the test source set. Remediation commonly costs **$15,000 [ESTIMATED]** | Tests are a consumer with a dedicated mechanism |
+| A public function returns a type that is less visible | The transitive-exposure rule, enforced by every language | Widen the type or narrow the function. A compile-driven redesign commonly costs **$10,000 [ESTIMATED]** | Visibility propagates through signatures |
+| `protected` was assumed to mean "subclasses only" in Java | It also exposes to the whole package | Understand the real scope before relying on it. A mis-scoped assumption commonly costs **$18,000 [ESTIMATED]** | Read the language's definition, not the keyword's English meaning |
+| Removing a public declaration breaks a consumer nobody knew about | No consumer registry existed (R2) | Deprecate first, with a window and a warning. An unplanned breaking change commonly costs **$60,000 [ESTIMATED]** | You cannot narrow safely without knowing who depends on you |
 
 ## Error Recovery **(QUICK)**
 
@@ -507,18 +509,20 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| A helper becomes public by default and a consumer builds on it | Compatibility work commonly **$40,000 cost** per release | Publish an explicit surface; narrow the helper (R2) |
-| TypeScript `private` guards a secret that a JS caller reads | A data-exposure incident commonly **$250,000 cost** plus regulatory exposure | Use `#field` (R4) |
-| A Java caller reaches a Kotlin `internal` API | Unintended coupling commonly **$25,000 cost** | Restrict at the JVM boundary (R4) |
-| A public mutable field is changed | Representation-coupling refactor commonly **$30,000 cost** | Private field plus accessor (R3) |
-| Everything is `public` in a single-module app | Over-exposure remediation commonly **$20,000 cost** | Default to internal (R1) |
-| Subclassability granted without a contract | A broken third-party subclass commonly **$50,000 cost** | Document the extension contract, or keep it closed (R6) |
-| Test-only widening leaks | Remediation commonly **$15,000 cost** | Use the test-visibility mechanism (R5) |
-| A public signature returns a less-visible type | Compile-driven redesign commonly **$10,000 cost** | Fix the root, not the leak (Decision Tree 1) |
-| `protected` assumed to mean "subclasses only" in Java | Mis-scoped assumption commonly **$18,000 cost** | It also includes the package — verify the real scope |
-| Removing a public declaration blind | Unplanned breaking change commonly **$60,000 cost** | Deprecate with a window; keep a consumer registry (R2) |
+| A helper becomes public by default and a consumer builds on it | Compatibility work commonly **$40,000 [ESTIMATED]** per release | Publish an explicit surface; narrow the helper (R2) |
+| TypeScript `private` guards a secret that a JS caller reads | A data-exposure incident commonly **$250,000 [ESTIMATED]** plus regulatory exposure | Use `#field` (R4) |
+| A Java caller reaches a Kotlin `internal` API | Unintended coupling commonly **$25,000 [ESTIMATED]** | Restrict at the JVM boundary (R4) |
+| A public mutable field is changed | Representation-coupling refactor commonly **$30,000 [ESTIMATED]** | Private field plus accessor (R3) |
+| Everything is `public` in a single-module app | Over-exposure remediation commonly **$20,000 [ESTIMATED]** | Default to internal (R1) |
+| Subclassability granted without a contract | A broken third-party subclass commonly **$50,000 [ESTIMATED]** | Document the extension contract, or keep it closed (R6) |
+| Test-only widening leaks | Remediation commonly **$15,000 [ESTIMATED]** | Use the test-visibility mechanism (R5) |
+| A public signature returns a less-visible type | Compile-driven redesign commonly **$10,000 [ESTIMATED]** | Fix the root, not the leak (Decision Tree 1) |
+| `protected` assumed to mean "subclasses only" in Java | Mis-scoped assumption commonly **$18,000 [ESTIMATED]** | It also includes the package — verify the real scope |
+| Removing a public declaration blind | Unplanned breaking change commonly **$60,000 [ESTIMATED]** | Deprecate with a window; keep a consumer registry (R2) |
 
 ## State Log **(QUICK)**
 

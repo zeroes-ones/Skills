@@ -4,6 +4,20 @@
 # Written by whichever agent/executor performs node work; read at every boundary.
 # Normative validation is implemented in scripts/workflow-runner.py and exercised by its
 # fixture suite. Semantics: WORKFLOW-SYSTEM.md Section 4.
+#
+# IMPORTANT — read this before trusting an enum below. The runner writes only a subset of the
+# values listed here; the remainder describe the executor's protocol, which the engine does not
+# itself produce. Verified by grepping scripts/workflow-runner.py for each literal. Per-field the
+# `engine_written:` note states which case applies. The engine-written sets are:
+#
+#   phase           idle | execute | escalated | complete | error
+#   log[].action    done | guardrail | contract | contract-warning | contract-rework
+#                   | contract-rework-ok | escalate | error | agent-gate
+#   nodes[].status  taken from whatever the executor returns; the runner defaults to "done"
+#
+# Everything else in these enums (intake, verify, decide, blocked, revise, handoff-in,
+# handoff-out, checkpoint) is the protocol vocabulary an executor MAY record when it writes state
+# itself — not a value this engine emits.
 
 top_level:
   workflow:
@@ -25,6 +39,9 @@ top_level:
     type: string                              # current lifecycle phase of the active node
     required: true
     enum: [intake, execute, verify, decide, done, escalated, blocked, complete]
+    engine_written: [idle, execute, escalated, complete, error]
+    note: "The runner writes only the engine_written subset. It also writes 'idle' (fresh state)
+           and 'error' (a crashed node), which are not in the enum above."
   iteration:
     type: integer                             # pass counter of the active loop (1-based)
     required: true
@@ -44,6 +61,19 @@ top_level:
       iterations:
         type: map[string, integer]            # loop id -> pass count
         required: false
+      max_cost_usd:
+        type: number                          # optional manifest cost cap; present (may be null)
+        required: false
+      cost:                                   # engine-owned; not in the original schema
+        type: map
+        required: false
+        fields:
+          tokens_in: { type: integer }
+          tokens_out: { type: integer }
+          cost_usd: { type: number }
+          measured: { type: boolean }         # false = the executor reported no usage
+          unreported_nodes:
+            type: list[string]
   nodes:
     type: map[string, map]                    # node id -> record
     required: true
@@ -62,6 +92,10 @@ top_level:
       evidence:
         type: list[string]                    # artifact/check names backing the verdict
         required: false
+      verification_evidence:
+        type: map[string, any]                # criterion -> evidence (see the table below);
+        required: false                       #   ABSENT when the node claimed no criteria coverage
+        engine_written: true                  # built by Runner._verification_evidence
       summary:
         type: string
         max_length: 400
@@ -69,9 +103,11 @@ top_level:
       sha:
         type: string                          # hash of this node record (state-integrity)
         required: false
+        engine_written: true                  # rec["sha"] = _sha(rec) — the runner's only hash
   fields:
     type: map[string, map]                    # shared typed state
     required: true
+    written_by: executor                      # the runner never writes a field itself
     item_fields:
       value:
         type: any                             # scalar | list | map (JSON-serializable)
@@ -82,6 +118,7 @@ top_level:
       sha:
         type: string
         required: false
+        engine_written: false                 # the runner does NOT hash field values
   artifacts:
     type: map[string, map]                    # name -> record
     required: true
@@ -92,9 +129,11 @@ top_level:
       sha:
         type: string
         required: true                        # sha256 of file contents, first 12 hex chars
+        engine_written: false                 # passed through from the executor's result, unverified
       type:
         type: string                          # doc | code | test-report | config | other
         required: true
+        default: doc
   decisions:
     type: list[map]                           # append-only decision ledger
     required: true
@@ -108,6 +147,18 @@ top_level:
       by:
         type: string                          # node id (writer)
         required: true
+      rationale:
+        type: string                          # why this option won; absent when not supplied
+        required: false
+        engine_written: true                  # only when the executor supplied it
+      rejected:
+        type: list[string]                    # alternatives considered and dropped
+        required: false
+        engine_written: true                  # only when the executor supplied it
+      confidence:
+        type: any                             # executor-reported 0..1 or label; passed through
+        required: false
+        engine_written: true                  # only when the executor supplied it
   open_questions:
     type: list[string]
     required: true
@@ -126,7 +177,52 @@ top_level:
         required: false
       sha:
         type: string
-        required: true                        # hash covering payload content
+        required: true                        # hash of the SENDER'S NODE RECORD (_sha(nodes[from]))
+                                              # — NOT of payload content, despite the field name.
+                                              # Written by the runner; never compared by it, and it
+                                              # cannot be: the sender's record is legitimately
+                                              # rewritten after the hop (loop re-entry resets
+                                              # members to pending, Runner._mark_done re-hashes,
+                                              # contract rework resets again), so re-reading it
+                                              # would report corruption on a healthy run.
+                                              # Integrity is carried by `integrity` instead.
+        engine_written: true
+        verified: false
+      integrity:                              # R3: the verifiable half. Added by
+                                              # Runner._handoff_record; verified at send time and
+                                              # on every --state resume (resume_state ->
+                                              # _verify_handoff), where a mismatch aborts with
+                                              # StateCorruption naming the hop. ABSENT in a state
+                                              # file written before this existed, which still
+                                              # loads and runs (the run records
+                                              # last_handoff_verified: false).
+                                              # DETECTS: an edited/corrupted handoff record —
+                                              # frozen snapshot or hop metadata.
+                                              # DOES NOT DETECT: edits to nodes[...] themselves.
+                                              # The frozen record is a copy, not a hash of the
+                                              # live record, so it cannot attest it.
+        type: map
+        required: false
+        engine_written: true
+        fields:
+          frozen:                             # JSON snapshot of nodes[from] at send time
+            type: any
+            required: true
+          digest:                             # _sha({from, to, payload, frozen, budget})
+            type: string
+            required: true
+      budget:                                 # run spend through the SENDER (not the run total)
+        type: map
+        required: false
+        engine_written: true                  # added by Runner._handoff_record on every hop
+        fields:
+          tokens_in: { type: integer }
+          tokens_out: { type: integer }
+          cost_usd: { type: number }
+          measured: { type: boolean }         # false = nothing was reported; never read as free
+          steps_used: { type: integer }
+          iterations:
+            type: map[string, integer]
   log:
     type: list[map]                           # append-only, chronological
     required: true
@@ -141,16 +237,137 @@ top_level:
         type: string
         required: true
         enum: [intake, execute, verify, revise, handoff-out, handoff-in, escalate, agent-gate, checkpoint, done]
+        engine_written: [done, guardrail, contract, contract-warning, contract-rework, contract-rework-ok, escalate, error, agent-gate]
+        note: "The runner writes the engine_written set only. 'contract', 'contract-warning',
+               'contract-rework', 'contract-rework-ok', 'error' and 'guardrail' are absent from the
+               enum above; 'intake/execute/verify/revise/handoff-*/checkpoint' are never written by it."
       detail:
         type: string
         required: false
 
 # ---------------------------------------------------------------- integrity rules (summary)
-# R1  Every state write updates 'updated' and appends to 'log'.
-# R2  'nodes.<id>.sha' covers the node record; 'fields.<name>.sha' covers the field value.
-# R3  On handoff: sender's state hash is compared with receiver's observed hash; mismatch aborts
-#     the run (never propagates possibly-corrupt state).
+# R1  Every state write updates 'updated' and appends to 'log'.             [enforced: save_state]
+# R2  'nodes.<id>.sha' covers the node record. 'fields.<name>.sha' is NOT written by the runner —
+#     a field value is hashed only if the executor hashed it.                [partly enforced]
+# R3  Handoff integrity IS now verified, over a verifiable object. `handoff.sha` (the sender's
+#     LIVE node-record hash) is still written and never compared, and must stay that way: the
+#     sender's record is legitimately rewritten after the hop (loop re-entry resets members to
+#     `pending`, Runner._mark_done re-hashes, contract rework resets again), so comparing it later
+#     reports corruption on a healthy run. `handoff.integrity = {frozen, digest}` carries a FROZEN
+#     copy of nodes[from] plus a digest over {from, to, payload, frozen, budget}; it is verified at
+#     send time (`Runner._handoff_record`) and on every `--state` resume
+#     (`resume_state` -> `_verify_handoff`), where a mismatch aborts as `StateCorruption` naming the
+#     hop. A pre-`integrity` state file loads and runs; the run records
+#     `last_handoff_verified: false` rather than implying it was checked.
+#     DETECTS: an edited/corrupted handoff record, incl. its frozen snapshot and hop metadata.
+#     DOES NOT DETECT: edits to `nodes[...]` themselves — the frozen record is a copy, not a hash
+#     of the live record, so it cannot attest it.                      [partly enforced]
 # R4  'steps_used' never exceeds 'budget.max_steps'; the runner halts and reports when it would.
-# R5  'open_questions' is consumed (emptied or explicitly resolved) only by the owning node;
-#     unresolved items are carried into the handoff payload.
-# R6  Re-running a node with status 'done' is a no-op unless force is set by the executor.
+#                                                                             [enforced]
+# R5  NOT enforced. 'open_questions' is an opaque list the runner appends to and truncates on
+#     contract rework; it has no owning-node rule and no resolution state.
+# R6  PARTLY enforced. Re-running a node with status 'done' is a no-op (there is no `force` key at
+#     all); the runner has no 'force' escape hatch despite the wording above.
+
+# ---------- Declared but not yet transported: the handoff-v1 registry vs the engine ----------
+# Declared but not yet transported — the `handoff-v1` registry vs what the engine materialises
+# ---------- (each key: what declares it, and what is actually enforced) -----------------------
+#
+# The canonical registry (workflow-manifest.schema.yaml V8; CANONICAL_PAYLOAD_KEYS in
+# scripts/validate-workflows.py:37-40; every manifest's `payloads:` block) declares TEN keys. The
+# engine does NOT build a `handoff-v1` object with those keys. What crosses a boundary is the
+# `handoff` record above — {from, to, payload, sha, budget} — where `payload` is a NAME reference
+# into the registry, plus the sender's node record (covered by `sha`) and the run-level ledgers
+# (`artifacts`, `decisions`, `open_questions`). A key is therefore "transported" only if some field
+# the receiver can read carries its content.
+#
+# This table is the honesty gate on that gap: it names each declared key, what declares it, and what
+# is actually enforced. A key listed as declared-only is SILENTLY IGNORED if an executor emits it —
+# that is the fact this table exists to stop the registry from implying otherwise.
+#
+#   key                     declared by                     enforced by the engine
+#   ----------------------  ------------------------------  --------------------------------------
+#   status                  registry; runner docstring     YES  node.status (handoff-v1 key set does
+#                                                          not add a field; the record is not
+#                                                          emitted as an object)
+#   summary                 registry; runner docstring     YES  node.summary, truncated to 400 chars
+#   artifacts               registry; runner docstring     PASSTHROUGH  state.artifacts[name] =
+#                                                          {path, sha, type}. `sha` is whatever the
+#                                                          executor supplied. NO file is opened or
+#                                                          hashed by the runner (the only hashlib
+#                                                          call is `_sha`, over JSON records).
+#                                                          "Hashes are computed,
+#                                                          not remembered" (handoff-out.md) is a
+#                                                          template instruction, NOT an engine check.
+#   decisions               registry; runner docstring     YES  state.decisions, {at, what, by} plus
+#                                                          optional {rationale, rejected,
+#                                                          confidence} when the executor supplies
+#                                                          them (`_decision_record`). A bare string
+#                                                          or a {what} map still works.
+#   open_questions          registry; runner docstring     FLAT  state.open_questions is a list of
+#                                                          opaque items (strings or maps). No owner
+#                                                          field, no closure/resolution state, and
+#                                                          no rule consumes or resolves one; only
+#                                                          `_withdraw_questions` (rework) truncates
+#                                                          the list. R5 below is aspirational.
+#   constraints             registry (V8)                 NO   Declared-only IN THIS ENGINE. The
+#                                                          runner has zero `constraints`
+#                                                          references: nothing reads the key, writes
+#                                                          it, or compares it across a hop. It is a
+#                                                          registry key because the concept is
+#                                                          universal and the handoff template must
+#                                                          carry constraints (agent-handoff-protocol
+#                                                          R2), but a library run of
+#                                                          scripts/workflow-runner.py does NOT
+#                                                          enforce constraint carry-forward. An
+#                                                          executor that emits the key is responsible
+#                                                          for its own R2 check.
+#   verification_evidence   registry; runner docstring     YES  node.verification_evidence, a
+#                                                          criterion -> evidence map
+#                                                          (`_verification_evidence`). Built from
+#                                                          `criteria_met` + `evidence` (the data the
+#                                                          contract check already read) or from an
+#                                                          explicit executor mapping. ABSENT when
+#                                                          the node claimed no criteria coverage,
+#                                                          so an empty map keeps its "not done"
+#                                                          meaning. Attribution is node-level
+#                                                          unless the executor supplies per-key
+#                                                          evidence.
+#   context                 registry; runner docstring     NO   Declared-only. Nothing reads or
+#                                                          writes a `context` payload key. The
+#                                                          runner never prunes or transports files
+#                                                          read / assumptions / tried-and-failed.
+#                                                          (state.memory_context is unrelated: it is
+#                                                          prior-RUN memory, not node context.)
+#   budget                  registry; runner docstring     YES  handoff.budget — the run's
+#                                                          accumulated spend through the sender
+#                                                          (tokens_in, tokens_out, cost_usd,
+#                                                          measured, steps_used, iterations). It is
+#                                                          NOT the run total, which is only known at
+#                                                          the end.
+#   next                    registry (optional)             PARTIAL  Read ONLY on the `kind: agent`
+#                                                          identify-gate path
+#                                                          (`res.get("next") in candidates`). On
+#                                                          every other node a reported `next` is
+#                                                          ignored.
+#
+# Also declared by this file but not enforced — stated here rather than left to be discovered:
+#
+#   R3  "sender's state hash is compared with receiver's observed hash; mismatch aborts" — the
+#       *comparison* now happens, over a different object than the wording implies. `handoff.sha`
+#       is still written and never re-read (it covers the sender's LIVE record, which is rewritten
+#       after the hop, so re-reading it would false-positive); `handoff.integrity` carries a frozen
+#       snapshot + digest, verified at send time and on every resume, and a mismatch aborts with
+#       `StateCorruption`. See the R3 note above and `scripts/workflow-runner.py`,
+#       `_verify_handoff` / `resume_state`. Corruption of the handoff record is detected at the
+#       boundary now; corruption of `nodes[...]` is not.
+#   R6  "unless force is set by the executor" — there is no `force` flag anywhere in the runner.
+#       Re-running a `done` node is skipped by traversal, not by an explicit override.
+#
+# Receipt / reject: `scripts/agent-handshake.sh` implements propose/accept/reject/verify with real
+# sha256 over a handoff directory, but NOTHING invokes it (no hook, CI job, script, or manifest
+# calls it). There is no receipt/reject mechanism inside the engine.
+#
+# Changing a key from declared-only to transported is a registry change: implement it in
+# scripts/workflow-runner.py, update this table and the schema block above, and keep the
+# validator's CANONICAL_PAYLOAD_KEYS in step. Do not silently widen a payload.

@@ -427,14 +427,14 @@ This skill operates in a domain where fabricated numbers lose real money. A hall
 ## What Good Looks Like
 
 Output is scoped to the request, grounded in evidence, states its assumptions and limitations, and is ready for downstream consumption without re-derivation.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+| ☐ | Complete when the chosen strategy is a direct expression of the stated outlook — direction, magnitude, and time horizon each map to a leg or a strike choice | Outlook-to-structure table shows bullish/bearish/neutral/volatile mapping to the selected structure, with no unexplained mismatch |
+| ☐ | Complete when the IV environment and the premium direction agree, or an explicit override is recorded | Compare IV rank against the strategy class (debit vs. credit); a credit strategy below IV rank 20 needs `IV_RISK_OVERRIDE:` with reasoning |
+| ☐ | Complete when max loss, max profit, and every breakeven are stated in dollars per contract before the strategy is recommended | Risk profile block lists all three with the strike arithmetic that produces them |
+| ☐ | Complete when max loss times contract count sits within the account's per-trade risk cap | Multiply max loss per spread by contract count and divide by account value; flag any figure over the stated cap |
+| ☐ | Complete when every short leg is covered by a long leg at a defined strike, or the undefined-risk warning and margin confirmation are both present | Leg table shows a protector for each short strike; naked structures require the written warning and portfolio-margin confirmation |
+| ☐ | Complete when the exit plan names a profit target, a stop-loss, and a time stop, each as an exact price or day count | Exit block shows all three triggers as numbers; a rule that says "at 50%" without the dollar figure fails this row |
+| ☐ | Complete when the earnings calendar has been checked against the strategy's DTE and any overlap is flagged as an event trade | Trade record shows the earnings date relative to expiration, or an explicit "no earnings in window" note |
+| ☐ | Complete when the selection rationale names the runner-up strategy and the concrete reason it was rejected | Strategy journal entry contains chosen structure, runner-up, and rejection reason |
 ## Deliberate Practice
 
 - Run the workflow on a real task and compare output against the request.

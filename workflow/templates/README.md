@@ -10,7 +10,7 @@ rules, and the output markers the runner/log expect.
 | `handoff-in.md` | INTAKE | Received / owed / open acknowledgment; refuse on missing artifacts or hash mismatch |
 | `verify-node.md` | EXECUTE → VERIFY | Criterion ↔ evidence mapping; no evidence = not done |
 | `revise-iteration.md` | VERIFY → REVISE | Root cause + ONE change + what stays same; change-or-escalate |
-| `handoff-out.md` | DONE | Payload registry block (status/summary/artifacts/decisions/open_questions/verification_evidence/context/budget[/next]) |
+| `handoff-out.md` | DONE | Payload registry block (status/summary/artifacts/decisions/open_questions/constraints/verification_evidence/context/budget[/next]) |
 | `escalate.md` | exhaustion / blocked | tried / evidence / blocker / recommended next |
 | `loop-reflect.md` | loop complete / run end | expected vs. actual + calibration learning |
 

@@ -307,6 +307,11 @@ index scheme. On violation the result is rewritten to `status: needs_review` /
 normal machinery takes over: **inside a loop** the node is retried and exhaustion escalates to the
 loop's `escalate_to`; **outside a loop** the run escalates rather than advancing the graph.
 
+> **Update (later):** the "outside a loop" half changed. `--contract-rework N` (default 0 = off)
+> now retries the node up to N times before escalating, carrying the fired rule back into the
+> node's prompt. 0 is exactly the behaviour described above, so this log's account still holds for
+> a run that does not opt in.
+
 Enforcement is **off by default** deliberately: `repo_checks.py` and the test stub report no
 `criteria_met`, so enforcing unconditionally would break every existing run.
 

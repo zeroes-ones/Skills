@@ -22,6 +22,11 @@ decisions:            # may be [] ONLY if truly none
     what: <decision>
     by: <node id>
 open_questions: []    # may be [] ONLY if truly none — a resolved question is a decision, log it
+constraints:          # may be [] ONLY if truly none; carry upstream entries forward unchanged
+  - type: <technology | architecture | security | compliance | budget>
+    value: <the limit>
+    source: <where it came from>
+    non_negotiable: true | false
 verification_evidence:
   <criterion>: <evidence ref>     # empty map = NOT done
 context:
@@ -39,6 +44,8 @@ next: <suggested downstream skill / action>   # optional
 
 - `verification_evidence` with zero entries means you are describing a claim, not a completion.
   Go back to verify-node.md.
+- A `constraints` entry with `non_negotiable: true` that you received is carried forward unchanged;
+  dropping one is a handoff defect, not a simplification (agent-handoff-protocol rule R2).
 - `artifacts` entries must resolve to files that exist; hashes are computed, not remembered.
 - The payload IS the handoff. No separate prose handoff paragraph — prose drifts, the registry
   doesn't. If you feel the need to write prose, the payload schema is missing a field; that is a

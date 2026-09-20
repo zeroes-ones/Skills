@@ -373,18 +373,20 @@ Do you have a reliable, repeatable measurement?
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| "Cold start is 4 s on some devices, fine on mine" | Measured on the fastest device class, warm, or both (R1) | Measure cold on a named median device class, ≥10 runs, report median and p90. A launch investigation that starts from the wrong device commonly wastes **$30,000 cost** in effort aimed at the wrong target | The median device is the only device that matters |
-| First frame is fast, but the app is unusable for seconds | TTID and TTFD conflated; deferred work still on the main thread (R2) | Report both metrics; move post-frame work off the main thread or sequence it later. Remediation of an unmeasured interactive state commonly costs **$45,000 cost** | A fast first frame can hide a slow app |
-| A 600 ms regression appeared after adding one dependency | A static initializer or a linker-added constructor on the critical path (R3) | Attribute per phase; make the initializer explicit and lazy. An unattributed regression commonly costs **$25,000 cost** in investigation | Cost is initialisation, not line count |
-| Android cold start exceeds the published excessive threshold | Third-party SDKs self-initialising via providers before `onCreate`; no profile-guided compilation | Consolidate initializers through the platform's startup mechanism, and ship a Baseline Profile. Per the Android documentation, App Startup exists so components share one provider, and its guidance requires removing the providers it replaces. Remediation commonly costs **$60,000 cost** | Third-party init lands on your critical path invisibly |
-| The splash screen got longer each release | The splash is absorbing growing init cost rather than covering a fixed wait (R4) | Reduce init work, then size the splash to the residual. A splash-as-fix pattern commonly costs **$40,000 cost** per release in perceived sluggishness | A splash screen is a cover, not a cure |
+| "Cold start is 4 s on some devices, fine on mine" | Measured on the fastest device class, warm, or both (R1) | Measure cold on a named median device class, ≥10 runs, report median and p90. A launch investigation that starts from the wrong device commonly wastes **$30,000 [ESTIMATED]** in effort aimed at the wrong target | The median device is the only device that matters |
+| First frame is fast, but the app is unusable for seconds | TTID and TTFD conflated; deferred work still on the main thread (R2) | Report both metrics; move post-frame work off the main thread or sequence it later. Remediation of an unmeasured interactive state commonly costs **$45,000 [ESTIMATED]** | A fast first frame can hide a slow app |
+| A 600 ms regression appeared after adding one dependency | A static initializer or a linker-added constructor on the critical path (R3) | Attribute per phase; make the initializer explicit and lazy. An unattributed regression commonly costs **$25,000 [ESTIMATED]** in investigation | Cost is initialisation, not line count |
+| Android cold start exceeds the published excessive threshold | Third-party SDKs self-initialising via providers before `onCreate`; no profile-guided compilation | Consolidate initializers through the platform's startup mechanism, and ship a Baseline Profile. Per the Android documentation, App Startup exists so components share one provider, and its guidance requires removing the providers it replaces. Remediation commonly costs **$60,000 [ESTIMATED]** | Third-party init lands on your critical path invisibly |
+| The splash screen got longer each release | The splash is absorbing growing init cost rather than covering a fixed wait (R4) | Reduce init work, then size the splash to the residual. A splash-as-fix pattern commonly costs **$40,000 [ESTIMATED]** per release in perceived sluggishness | A splash screen is a cover, not a cure |
 | A measured improvement disappears in the next build | Before/after used different devices, cache states or tools (R5) | Re-measure both sides with one method; record it with the number | A comparison across conditions is not a comparison |
-| Serverless cold start is seconds with a trivial handler | The module graph is the cost, not the handler (Decision Tree 3) | Reduce module-scope imports; bundle the entry; measure the import graph. Serverless cold-start remediation commonly costs **$35,000 cost** | In interpreted runtimes, startup is the import graph |
-| A Python CLI takes 500 ms before doing anything | Framework imports executed in package init | Lazy imports; measure with `-X importtime`, which reports cumulative and self time per module. CLI latency remediation typically **$20,000 cost** | Import cost is paid per process |
+| Serverless cold start is seconds with a trivial handler | The module graph is the cost, not the handler (Decision Tree 3) | Reduce module-scope imports; bundle the entry; measure the import graph. Serverless cold-start remediation commonly costs **$35,000 [ESTIMATED]** | In interpreted runtimes, startup is the import graph |
+| A Python CLI takes 500 ms before doing anything | Framework imports executed in package init | Lazy imports; measure with `-X importtime`, which reports cumulative and self time per module. CLI latency remediation typically **$20,000 [ESTIMATED]** | Import cost is paid per process |
 | Optimisation effort produced no change | The work targeted a mode nobody hits (R6) | Re-check the complaint's mode; target that one | Aiming at the wrong mode is indistinguishable from doing nothing |
-| The budget held for two releases then drifted | A number with no gate; each release added a little init | Wire a failing benchmark and a production alert; require a recorded budget increase to exceed it. Budget drift remediation commonly costs **$30,000 cost** | A budget without a gate is a wish |
+| The budget held for two releases then drifted | A number with no gate; each release added a little init | Wire a failing benchmark and a production alert; require a recorded budget increase to exceed it. Budget drift remediation commonly costs **$30,000 [ESTIMATED]** | A budget without a gate is a wish |
 
 ## Error Recovery **(QUICK)**
 
@@ -516,16 +518,18 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Measured on the fastest device, warm | Effort aimed at the wrong target; investigations commonly waste **$30,000 cost** | Cold, median device class, ≥10 runs (R1) |
-| TTID and TTFD conflated | A fast first frame hides an unusable app; remediation commonly **$45,000 cost** | Report both metrics separately (R2) |
-| Third-party SDK self-initialising before the app's own start | Android cold start exceeds the excessive threshold; remediation commonly **$60,000 cost** | Consolidate initializers; remove replaced providers |
-| Splash screen treated as the fix | Perceived sluggishness grows each release; commonly **$40,000 cost** per release | Reduce work first, then size the splash (R4) |
-| Before/after measured with different methods | The claimed improvement is an artefact; re-work commonly **$25,000 cost** | Hold the method constant (R5) |
-| Serverless cold start blamed on the handler | The module graph is the cost; remediation commonly **$35,000 cost** | Measure the import graph; reduce module-scope work |
+| Measured on the fastest device, warm | Effort aimed at the wrong target; investigations commonly waste **$30,000 [ESTIMATED]** | Cold, median device class, ≥10 runs (R1) |
+| TTID and TTFD conflated | A fast first frame hides an unusable app; remediation commonly **$45,000 [ESTIMATED]** | Report both metrics separately (R2) |
+| Third-party SDK self-initialising before the app's own start | Android cold start exceeds the excessive threshold; remediation commonly **$60,000 [ESTIMATED]** | Consolidate initializers; remove replaced providers |
+| Splash screen treated as the fix | Perceived sluggishness grows each release; commonly **$40,000 [ESTIMATED]** per release | Reduce work first, then size the splash (R4) |
+| Before/after measured with different methods | The claimed improvement is an artefact; re-work commonly **$25,000 [ESTIMATED]** | Hold the method constant (R5) |
+| Serverless cold start blamed on the handler | The module graph is the cost; remediation commonly **$35,000 [ESTIMATED]** | Measure the import graph; reduce module-scope work |
 | No compilation profile shipped | First-run verification and JIT land in the user's first interaction | Ship a profile where the runtime supports it |
-| Budget with no gate | Launch drifts upward every release; drift remediation commonly **$30,000 cost** | Wire a failing benchmark and an alert (R4) |
+| Budget with no gate | Launch drifts upward every release; drift remediation commonly **$30,000 [ESTIMATED]** | Wire a failing benchmark and an alert (R4) |
 | Optimising hot launch for a cold-launch complaint | No measured improvement, weeks spent | Name the mode from the complaint first (R6) |
 | A static initializer added without review | Rare, environment-dependent launch failures that resist reproduction | Flag it in review; make init explicit |
 

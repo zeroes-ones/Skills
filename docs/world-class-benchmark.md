@@ -190,7 +190,7 @@ This is the honest section peers' docs don't have. The following are *not* prove
 3. Chain-edge symmetry (the validator needs PyYAML, which the default `python3` on this box lacks; `continue-on-error` in CI). It *is* verifiable under an interpreter that has PyYAML — see Open Question 2.
 4. Behavioral quality — only 3/320 skills have executable golden suites.
 5. Routing — the gate exists and is **currently red**.
-6. Cost/latency — placeholders; not reported by real executors.
+6. Cost — a placeholder; a real executor reports no `usage`, so `cost.measured` is `false`. Latency is now measured per node by the runner (`duration_ms`) and exported (`latency_ms`).
 
 ---
 

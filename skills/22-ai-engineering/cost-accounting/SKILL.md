@@ -358,18 +358,20 @@ Finally, ALWAYS:
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| A dashboard shows near-zero spend while the invoice is substantial | Usage was never reported, so the accounting recorded silence as zero (R1) | Make the executor report `usage`; add the `measured` flag; reconcile against the invoice. A month of unmeasured spend on one workload can be **$30,000 cost** before anyone notices | A zero counter and a silent counter are different facts |
-| Runs are 40% cheaper and retries doubled | Cost reduced per call while the failure rate rose (R3) | Compute cost per successful outcome on both sides. The "saving" reversing into a **$45,000 cost** annual increase is common at fleet scale | Cost per call is a trap on any workload with retries |
-| The bill jumped with no code change | A model swap or a price change re-priced the same tokens | Re-price the baseline; separate the price delta from the usage delta. An unattributed bill jump commonly costs **$25,000 cost** in investigation | Prices are contract facts and they move |
-| One workflow consumes most of the budget | An iteration loop with a high cap, or an expensive model on a high-volume node (R5) | Attribute per node; reduce `max_iterations` or route the node to a cheaper model. Runaway-loop remediation commonly saves **$60,000 cost** a year | The loop compounds; a single call does not |
-| Cost tracking exists but nobody acts on it | The number is not paired with an outcome or a gate | Gate on cost-per-success delta. Unactioned dashboards commonly waste **$20,000 cost** a year in reporting effort | A metric with no gate is reporting, not governance |
-| Spend is untraceable across teams | One shared account with no attribution | Showback per team from tagged runs, then chargeback once trusted. Untraceable shared spend commonly costs **$50,000 cost** a year in over-provisioning | Attribution precedes accountability |
-| The forecast was wrong by an order of magnitude | Extrapolated from a demo total rather than a measured unit (R6) | Forecast from measured cost per unit × realistic volume, with assumptions stated. A mis-sized forecast commonly costs **$100,000 cost** in over-commitment | Scale multiplies; it does not amortise |
-| A budget was raised mid-quarter with no record | No increase path, so the cap was edited silently (R4) | Require a recorded reason and a review date on every increase. Silent raises commonly hide **$40,000 cost** of scope creep | An unrecorded increase is a drift, not a decision |
-| Two runs differ 3× in cost for the same task | Model or context variance, or one run retried | Compare the phase splits; normalise the comparison. Unexplained variance commonly costs **$15,000 cost** in mis-tuned limits | Attributing variance needs per-node data |
-| Cost per request looks excellent, the quarterly bill does not | Retries, cache misses and escalation gates are outside the per-request metric | Track cost per successful outcome end to end. The gap commonly reaches **$70,000 cost** a quarter | Per-request metrics stop at the request boundary; the run is the unit |
+| A dashboard shows near-zero spend while the invoice is substantial | Usage was never reported, so the accounting recorded silence as zero (R1) | Make the executor report `usage`; add the `measured` flag; reconcile against the invoice. A month of unmeasured spend on one workload can be **$30,000 [ESTIMATED]** before anyone notices | A zero counter and a silent counter are different facts |
+| Runs are 40% cheaper and retries doubled | Cost reduced per call while the failure rate rose (R3) | Compute cost per successful outcome on both sides. The "saving" reversing into a **$45,000 [ESTIMATED]** annual increase is common at fleet scale | Cost per call is a trap on any workload with retries |
+| The bill jumped with no code change | A model swap or a price change re-priced the same tokens | Re-price the baseline; separate the price delta from the usage delta. An unattributed bill jump commonly costs **$25,000 [ESTIMATED]** in investigation | Prices are contract facts and they move |
+| One workflow consumes most of the budget | An iteration loop with a high cap, or an expensive model on a high-volume node (R5) | Attribute per node; reduce `max_iterations` or route the node to a cheaper model. Runaway-loop remediation commonly saves **$60,000 [ESTIMATED]** a year | The loop compounds; a single call does not |
+| Cost tracking exists but nobody acts on it | The number is not paired with an outcome or a gate | Gate on cost-per-success delta. Unactioned dashboards commonly waste **$20,000 [ESTIMATED]** a year in reporting effort | A metric with no gate is reporting, not governance |
+| Spend is untraceable across teams | One shared account with no attribution | Showback per team from tagged runs, then chargeback once trusted. Untraceable shared spend commonly costs **$50,000 [ESTIMATED]** a year in over-provisioning | Attribution precedes accountability |
+| The forecast was wrong by an order of magnitude | Extrapolated from a demo total rather than a measured unit (R6) | Forecast from measured cost per unit × realistic volume, with assumptions stated. A mis-sized forecast commonly costs **$100,000 [ESTIMATED]** in over-commitment | Scale multiplies; it does not amortise |
+| A budget was raised mid-quarter with no record | No increase path, so the cap was edited silently (R4) | Require a recorded reason and a review date on every increase. Silent raises commonly hide **$40,000 [ESTIMATED]** of scope creep | An unrecorded increase is a drift, not a decision |
+| Two runs differ 3× in cost for the same task | Model or context variance, or one run retried | Compare the phase splits; normalise the comparison. Unexplained variance commonly costs **$15,000 [ESTIMATED]** in mis-tuned limits | Attributing variance needs per-node data |
+| Cost per request looks excellent, the quarterly bill does not | Retries, cache misses and escalation gates are outside the per-request metric | Track cost per successful outcome end to end. The gap commonly reaches **$70,000 [ESTIMATED]** a quarter | Per-request metrics stop at the request boundary; the run is the unit |
 
 ## Error Recovery **(QUICK)**
 
@@ -496,18 +498,20 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Usage never reported; zero read as free | A month of unmeasured spend on one workload commonly reaches **$30,000 cost** | Report usage; add the `measured` flag; reconcile monthly (R1) |
-| Cheaper per call, retries doubled | The "saving" can reverse into a **$45,000 cost** annual increase at fleet scale | Cost per successful outcome (R3) |
-| A model swap re-priced the same tokens | An unattributed bill jump commonly costs **$25,000 cost** to investigate | Re-price the baseline; separate price from usage drift |
-| An iteration loop left at a high cap | Runaway-loop remediation commonly saves **$60,000 cost** a year | Attribute per node; lower `max_iterations`; route the node's model |
-| Unactioned dashboards | Reporting effort commonly wastes **$20,000 cost** a year | Gate on cost-per-success delta (R4) |
-| Shared spend with no attribution | Over-provisioning commonly costs **$50,000 cost** a year | Showback per team from tagged runs |
-| A forecast from a demo total | Mis-sizing commonly costs **$100,000 cost** in over-commitment | Forecast from measured unit cost (R6) |
-| A budget raised silently | Scope creep commonly hides **$40,000 cost** | Record the reason and a review date (R4) |
-| Unexplained 3× variance between similar runs | Mis-tuned limits commonly cost **$15,000 cost** | Compare phase splits; normalise the comparison |
-| Per-request metrics only | The gap to the real bill commonly reaches **$70,000 cost** per quarter | Measure to the end of the run |
+| Usage never reported; zero read as free | A month of unmeasured spend on one workload commonly reaches **$30,000 [ESTIMATED]** | Report usage; add the `measured` flag; reconcile monthly (R1) |
+| Cheaper per call, retries doubled | The "saving" can reverse into a **$45,000 [ESTIMATED]** annual increase at fleet scale | Cost per successful outcome (R3) |
+| A model swap re-priced the same tokens | An unattributed bill jump commonly costs **$25,000 [ESTIMATED]** to investigate | Re-price the baseline; separate price from usage drift |
+| An iteration loop left at a high cap | Runaway-loop remediation commonly saves **$60,000 [ESTIMATED]** a year | Attribute per node; lower `max_iterations`; route the node's model |
+| Unactioned dashboards | Reporting effort commonly wastes **$20,000 [ESTIMATED]** a year | Gate on cost-per-success delta (R4) |
+| Shared spend with no attribution | Over-provisioning commonly costs **$50,000 [ESTIMATED]** a year | Showback per team from tagged runs |
+| A forecast from a demo total | Mis-sizing commonly costs **$100,000 [ESTIMATED]** in over-commitment | Forecast from measured unit cost (R6) |
+| A budget raised silently | Scope creep commonly hides **$40,000 [ESTIMATED]** | Record the reason and a review date (R4) |
+| Unexplained 3× variance between similar runs | Mis-tuned limits commonly cost **$15,000 [ESTIMATED]** | Compare phase splits; normalise the comparison |
+| Per-request metrics only | The gap to the real bill commonly reaches **$70,000 [ESTIMATED]** per quarter | Measure to the end of the run |
 
 ## State Log **(QUICK)**
 

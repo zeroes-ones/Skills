@@ -94,7 +94,7 @@ Before delivering any fixed income analysis, the agent MUST:
 2. **Flag your knowledge cutoff** — bond prices and yields are path-dependent and intraday. Stale data produces wrong hedge ratios and curve mispricing
 3. **Never guess security** — CUSIPs, ISINs, and bond identifiers are exact. An incorrect CUSIP routes to the wrong security, potentially the wrong issuer and seniority
 
-## Anti-Rationalization — No Excuses
+## Anti-Rationalization
 
 | Rationalization | Reality |
 |----------------|---------|
@@ -103,6 +103,14 @@ Before delivering any fixed income analysis, the agent MUST:
 | "Credit spread is credit spread — IG is IG" | IG spreads range from 80bp (tight) to 250bp (wide) over a cycle. Buying at 80bp = maximum downside when spreads widen. Buying at 250bp = recession-priced. The entry spread IS the expected return |
 | "I'll use the generic futures contract for hedging" | Treasury futures have a CTD (cheapest-to-deliver) option. The futures price tracks the CTD bond, not the on-the-run. Hedging a 30-year off-the-run with UB futures without conversion factor adjustment = 5-15% hedge error |
 | "Convexity is second-order, I can ignore it for small moves" | For a 30-year zero-coupon bond, convexity adds ~4.5% price gain per 100bp rally beyond what duration predicts. A $10M position: duration predicts +$670K, actual is +$715K. Ignoring convexity leaves $45K unaccounted |
+
+### General Rationalizations
+
+- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
+- ❌ "It works because it must" — assert only what you can demonstrate.
+- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
+- ❌ "The output looks plausible" — plausible is not verified; run the check.
+- ✅ State the risk of being wrong and what would change your mind.
 
 ## The Expert's Mindset
 
@@ -567,8 +575,21 @@ Scenario P&L (per $1M face):
 ```
 
 Every metric tagged. P&L decomposed into rate and spread components. Convexity quantified. CDS basis investigated, not just quoted.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+
+### Completion Criteria
+
+| ☐ | # | Complete when | Check that proves it |
+|---|---|---|---|
+| ☐ | CR01 | Complete when the duration in use is named by type — Macaulay, modified, or effective — and the type matches the instrument (effective for callables and MBS, modified for plain fixed-rate) | The metrics block names the duration type; a bare "duration: 7" fails this row, and callables/MBS show effective duration |
+| ☐ | CR02 | Complete when DV01 is computed from the same duration and yield in use, per a stated notional, and shown as a unit figure rather than a percentage | DV01 arithmetic is reproducible from modified duration × dirty price × notional × 1bp; the notional is stated |
+| ☐ | CR03 | Complete when convexity is computed and the price error from ignoring it is quantified at the stress move being discussed | Convexity value is present, and the duration-only versus duration-plus-convexity price difference is stated at the relevant basis-point shift |
+| ☐ | CR04 | Complete when a curve trade's legs are weighted duration-neutral, so the position expresses curve shape rather than a parallel rate bet | Leg weights are computed from each leg's DV01; the residual net DV01 is shown and is small relative to the gross |
+| ☐ | CR05 | Complete when curve positioning follows from the stated curve view (steepener, flattener, butterfly) rather than from a directional rate call in disguise | The trade rationale names the curve view and the expected change in slope/curvature, not just "rates will fall" |
+| ☐ | CR06 | Complete when credit spread is quoted against a named benchmark and decomposed, with any CDS-bond basis explained rather than left as a residual | Spread is stated versus the specific benchmark (on-the-run or zero curve); the basis is decomposed into liquidity, financing, and credit components |
+| ☐ | CR07 | Complete when carry and roll-down are computed separately and netted for the stated holding period, with the break-even yield move derived from them | Carry (coupon plus financing) and roll-down (curve slide) appear as separate terms; the break-even bp move follows arithmetically from their sum |
+| ☐ | CR08 | Complete when the instrument's financing reality is checked — general collateral versus special repo — and no generic financing rate is assumed silently | The repo assumption is stated and, for a special or on-the-run issue, the special rate is acknowledged |
+| ☐ | CR09 | Complete when rate and spread P&L are decomposed in scenario analysis, so a recession-style rally-with-widening is not reported as a single number | Scenario table separates rate P&L from spread P&L and totals them; at least one scenario shows them opposing |
+| ☐ | CR10 | Complete when any hedge uses the current cheapest-to-deliver and conversion factor rather than a stale or notional duration hedge | Hedge ratio derivation names the CTD and the conversion factor, both sourced from the current delivery basket |
 ## Verification Guardrails
 
 - [ ] **All yields and prices from live source** — tagged [VERIFIED] with timestamp
@@ -658,11 +679,3 @@ Portfolio DV01 = $45,000. CTD of ZN futures (10yr): DV01 = $78 per $100K, conver
 - [carry-rolldown-strategies.md](references/carry-rolldown-strategies.md) — Carry decomposition, roll-down computation, break-even, horizon returns
 - [global-rates-linkages.md](references/global-rates-linkages.md) — Cross-currency basis, hedged yield computation, global FI allocation, central bank divergence
 - [error-recovery.md](references/error-recovery.md) — Error recovery: duration type confusion, CTD switch, special repo, basis investigation, key rate attribution
-
-## Anti-Rationalization
-
-- ❌ "This edge case won't happen" — every claimed edge case gets a concrete check.
-- ❌ "It works because it must" — assert only what you can demonstrate.
-- ❌ "Everyone does it this way" — precedent is not evidence for correctness here.
-- ❌ "The output looks plausible" — plausible is not verified; run the check.
-- ✅ State the risk of being wrong and what would change your mind.

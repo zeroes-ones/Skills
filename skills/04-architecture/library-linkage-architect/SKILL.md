@@ -380,18 +380,20 @@ A security fix must reach users of this unit. What is the path?
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| A CVE in a vendored dependency requires an emergency rebuild of every consumer | Static linkage bound the fix to the product's release cycle (R2) | Convert to a shared dependency where the platform or a package can patch it, or pin an explicit remediation cadence. An emergency-rebuild cycle commonly costs **$120,000 cost** in engineering and release churn | The update model is the decision, not the linkage |
-| Two libraries load and one calls the wrong function | Flat namespace plus a generic exported symbol; the loader bound the first match (R5) | Set hidden visibility, export only the declared surface, and test for collisions against the co-load set. Diagnosis and fix typically **$60,000 cost** | An undeclared boundary gets bound silently |
-| A caller crashes after a "compatible" library upgrade | Adding a struct field or a virtual method broke the layout silently — it compiles cleanly (Decision Tree 2) | Introduce an opaque type with accessors, or reserve space; add an ABI diff to the pipeline. A layout-corruption incident commonly costs **$90,000 cost** | Compiling is not compatibility |
-| The application will not start after a dependency update | A changed soname or a search-path change moved the resolved library | Version the soname deliberately and control the search path; add a load test to the pipeline. A launch-blocking dependency change commonly costs **$75,000 cost** per release | The loader resolves by name, not by intent |
-| A plugin cannot be replaced without restarting the host | Unload was assumed but cannot be relied upon (R4) | Load a versioned unit under a new path; accept bounded resident versions. A redesign commonly costs **$85,000 cost** | Unload is not a mechanism you can depend on |
+| A CVE in a vendored dependency requires an emergency rebuild of every consumer | Static linkage bound the fix to the product's release cycle (R2) | Convert to a shared dependency where the platform or a package can patch it, or pin an explicit remediation cadence. An emergency-rebuild cycle commonly costs **$120,000 [ESTIMATED]** in engineering and release churn | The update model is the decision, not the linkage |
+| Two libraries load and one calls the wrong function | Flat namespace plus a generic exported symbol; the loader bound the first match (R5) | Set hidden visibility, export only the declared surface, and test for collisions against the co-load set. Diagnosis and fix typically **$60,000 [ESTIMATED]** | An undeclared boundary gets bound silently |
+| A caller crashes after a "compatible" library upgrade | Adding a struct field or a virtual method broke the layout silently — it compiles cleanly (Decision Tree 2) | Introduce an opaque type with accessors, or reserve space; add an ABI diff to the pipeline. A layout-corruption incident commonly costs **$90,000 [ESTIMATED]** | Compiling is not compatibility |
+| The application will not start after a dependency update | A changed soname or a search-path change moved the resolved library | Version the soname deliberately and control the search path; add a load test to the pipeline. A launch-blocking dependency change commonly costs **$75,000 [ESTIMATED]** per release | The loader resolves by name, not by intent |
+| A plugin cannot be replaced without restarting the host | Unload was assumed but cannot be relied upon (R4) | Load a versioned unit under a new path; accept bounded resident versions. A redesign commonly costs **$85,000 [ESTIMATED]** | Unload is not a mechanism you can depend on |
 | The executable grows to hundreds of megabytes and starts slowly | Everything statically linked; large executables "suffer from slow launch times and large memory footprints" | Move optional and non-launch-critical units to dynamic linkage, load on demand | Size is a launch cost |
-| A statically linked tool cannot run in a minimal container | The image lacked the dynamic loader the tool needed | Either static (correct for the target) or bundle the runtime and state the constraint. Container debugging commonly costs **$20,000 cost** | The target's runtime availability bounds the choice |
-| First-use latency spikes with no load-time cost | Lazy binding spread symbol resolution into first call | Choose eager binding for launch-critical paths, keep lazy where startup dominates. A jitter investigation typically **$25,000 cost** | Lazy defers cost; it does not remove it |
+| A statically linked tool cannot run in a minimal container | The image lacked the dynamic loader the tool needed | Either static (correct for the target) or bundle the runtime and state the constraint. Container debugging commonly costs **$20,000 [ESTIMATED]** | The target's runtime availability bounds the choice |
+| First-use latency spikes with no load-time cost | Lazy binding spread symbol resolution into first call | Choose eager binding for launch-critical paths, keep lazy where startup dominates. A jitter investigation typically **$25,000 [ESTIMATED]** | Lazy defers cost; it does not remove it |
 | A forked child hangs intermittently | A lock held across `fork()`; only async-signal-safe calls are permitted in the child | Do no work before `fork()`; use `pthread_atfork` handlers where unavoidable | Fork copies lock state, including held locks |
-| A second consumer cannot use the library without recompiling | No ABI policy, so every change is a source change | Declare the ABI, version it, and keep symbols stable within a major version. A consumer-migration project commonly costs **$70,000 cost** | A library with one consumer is a component; with two, it is a contract |
+| A second consumer cannot use the library without recompiling | No ABI policy, so every change is a source change | Declare the ABI, version it, and keep symbols stable within a major version. A consumer-migration project commonly costs **$70,000 [ESTIMATED]** | A library with one consumer is a component; with two, it is a contract |
 
 ## Error Recovery **(QUICK)**
 
@@ -526,17 +528,19 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Static linkage binds a future CVE to your release cycle | An emergency rebuild across consumers commonly costs **$120,000 cost** | Name the update model before choosing (R2) |
-| Undeclared boundary with broad exports | A wrong-function call in production; diagnosis and fix typically **$60,000 cost** | Hidden by default, explicit exports, collision test (R5) |
-| A struct field or virtual method added to a published type | Silent layout corruption; an incident commonly costs **$90,000 cost** | Opaque types, reserved space, ABI diff (R3) |
-| Depends on unloading a plugin | Host restart required; a redesign commonly costs **$85,000 cost** | Load a versioned path instead; state the risk (R4) |
-| Changed soname or search path after an update | The app will not start; a release-blocking change commonly costs **$75,000 cost** | Version deliberately; test a load in the pipeline |
+| Static linkage binds a future CVE to your release cycle | An emergency rebuild across consumers commonly costs **$120,000 [ESTIMATED]** | Name the update model before choosing (R2) |
+| Undeclared boundary with broad exports | A wrong-function call in production; diagnosis and fix typically **$60,000 [ESTIMATED]** | Hidden by default, explicit exports, collision test (R5) |
+| A struct field or virtual method added to a published type | Silent layout corruption; an incident commonly costs **$90,000 [ESTIMATED]** | Opaque types, reserved space, ABI diff (R3) |
+| Depends on unloading a plugin | Host restart required; a redesign commonly costs **$85,000 [ESTIMATED]** | Load a versioned path instead; state the risk (R4) |
+| Changed soname or search path after an update | The app will not start; a release-blocking change commonly costs **$75,000 [ESTIMATED]** | Version deliberately; test a load in the pipeline |
 | Everything statically linked | Large executable, slow launch, large memory footprint | Move optional units to dynamic, load on demand |
-| Lazy binding on a launch-critical path | First-use jitter; an investigation typically **$25,000 cost** | Choose eager binding where predictability matters |
+| Lazy binding on a launch-critical path | First-use jitter; an investigation typically **$25,000 [ESTIMATED]** | Choose eager binding where predictability matters |
 | A lock held across `fork()` | Intermittent child hang or deadlock | Do no work before `fork()`; only async-signal-safe calls after |
-| No ABI policy, two consumers | Every change is a source change; migration commonly costs **$70,000 cost** | Declare, version and keep symbols stable (R3) |
+| No ABI policy, two consumers | Every change is a source change; migration commonly costs **$70,000 [ESTIMATED]** | Declare, version and keep symbols stable (R3) |
 | A second linkage form offered but untested | It breaks the first time it is needed | Test both forms or drop the second |
 
 ## State Log **(QUICK)**

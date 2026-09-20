@@ -44,7 +44,7 @@ workflow:
     criteria:
       - Every slice ships behind a feature flag defaulting to false
       - Tests pass with the flag both ON and OFF
-      - No destructive schema changes (ADD only, no DROP or ALTER)
+      - Migration diff contains only ADD COLUMN statements; no DROP COLUMN, DROP TABLE, or column type/constraint change
     evidence: required
   escalate_to: [human-gate]
 ---

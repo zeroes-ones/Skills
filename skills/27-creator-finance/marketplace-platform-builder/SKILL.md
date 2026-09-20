@@ -86,6 +86,11 @@ End-to-end marketplace platform building — from supply/demand dynamics and col
 | Using synchronous payment capture for all transactions — 3-second checkout kills conversion | $50K-$300K in lost GMV; every 100ms of checkout latency reduces conversion 1-2%. Synchronous capture = buyer waits for bank authorization | Async capture: accept order immediately, capture payment in background queue. Show "processing" with optimistic confirmation. Only surface payment failure if capture fails (shows as "payment issue" in order history, not during checkout) |
 | Geographic expansion without local payment methods — launching in Germany with credit-card-only | $50K-$200K in zero-traction launch; 80% of German online payments are non-card (SOFORT, Giropay, SEPA). Brazil: 60% use Boleto, not credit cards | Integrate local payment methods per market before launch. Use Adyen/dLocal for unified API across 100+ methods. Minimum: top 3 payment methods per country covering 80% of local transaction volume |
 | Ignoring marketplace regulations (EU Digital Services Act, INFORM Consumers Act, platform liability) | $500K-$5M in fines; DSA fines up to 6% of global revenue. INFORM Act requires seller identity verification for US marketplaces >$20K/year per seller | Implement: seller KYC (identity + bank account verification), transaction reporting (DAC7 in EU), content moderation reporting, buyer protection disclosures. Budget $50K-$150K/year for regulatory compliance from Series A onward |
+
+### Dollar-Quantified Marketplace Footguns
+
+<!-- STANDARD: 3min -->
+
 ## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
 
 **This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
@@ -159,8 +164,8 @@ These rules are non-negotiable constraints that prevent marketplace failures tha
 | R5 | **Never optimize for one side at the expense of the other** — marketplace fairness is structural, not aspirational. | Trigger: feature, fee change, or policy benefits one side disproportionately with no compensating value to the other side | "Let's increase seller commission from 15% to 25% — revenue will jump 66%!" — sellers leave for competitors, supply drops, buyers follow supply out | STOP. Respond: "Marketplace equilibrium requires both sides perceive net-positive value. Before any change affecting one side: (a) Model the cross-side network effect — will supply loss cascade to demand loss?, (b) Add compensating value: higher commission requires better tools, more buyer traffic, or reduced listing fees, (c) Phase changes: grandfather existing users at old rates for 90 days. A 1% supply-side churn from fee changes typically causes 0.3-0.7% demand-side churn via network effects." |
 | R6 | **REFUSE to implement a review system without verified-purchase-only and anti-gaming controls** — unverified reviews are indistinguishable from fraud. | Trigger: review/rating system described AND no verified-transaction requirement AND no gaming detection | "Anyone can leave a review — more reviews = more trust!" — competitor leaves 50 fake 1-star reviews on top sellers, sleeper accounts leave fake 5-star reviews on scam listings | STOP. Respond: "Review integrity requirements: (a) Reviews only from verified transactions (buyer must have purchased from that seller), (b) Review window: 14-30 days post-transaction, (c) Rate limiting: max 5 reviews/day per account, (d) Anomaly detection: flag review velocity spikes, review-text similarity clusters, reviewer-seller IP overlap, (e) Weighted scoring: verified-buyer reviews 1.0x, platform-mediated resolution reviews 0.5x, flagged-but-not-removed reviews 0.3x. False reviews are a marketplace cancer — they compound and eventually render your trust system worthless." |
 | R7 | **Never allow off-platform communication in the initial message exchange** — every message that moves to WhatsApp/email is a bypassed transaction fee. | Trigger: messaging system described AND no "take it off platform" detection for first N messages between parties | "Buyers and sellers can chat freely — it's good for community." — first message: "Here's my phone number, call me to avoid the 15% fee." Platform becomes a lead-gen service earning $0 per transaction | STOP. Respond: "Prevent platform leakage: (a) Block phone numbers, email addresses, social handles, and external URLs in first 5 messages between parties using regex + ML classifier, (b) Warn users: 'Keeping communication on [Platform] protects your purchase with our Buyer Guarantee,' (c) Monitor message-to-transaction conversion — if ratio drops below threshold, investigate leakage, (d) Educate sellers: off-platform transactions have zero dispute protection and risk account suspension." |
-| R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate payment, search, or messaging API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving payment APIs (Stripe Connect), search infrastructure (Elasticsearch/Algolia), or messaging (Firebase/Ably/Pusher) \u2192 run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions \u2192 if detection succeeds, anchor all API calls to detected versions \u2192 if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| R9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident \u2192 estimate implementation cost in engineer-hours \u2192 compare against annual value of the change \u2192 if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| R8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate payment, search, or messaging API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving payment APIs (Stripe Connect), search infrastructure (Elasticsearch/Algolia), or messaging (Firebase/Ably/Pusher) \u2192 detect the installed versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest \u2192 if detection succeeds, anchor all API calls to detected versions \u2192 if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| R9 | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident \u2192 estimate implementation effort \u2192 compare against annual value of the change \u2192 if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 * **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 * **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: payment APIs, search infrastructure, messaging SDKs, and marketplace regulations — all change quarterly or faster.
@@ -804,10 +809,6 @@ Message templates for service providers:
 | Classifieds           | Freemium          | $0 basic / $9.99 featured| Free listings, paid promotion + visibility      |
 ```
 
-## Gotchas - Dollar-Quantified Marketplace Footguns
-<!-- STANDARD: 3min -->
-
-
 ## Cold Start Gotchas
 <!-- STANDARD: 3min -->
 
@@ -981,6 +982,52 @@ This table is specific to `marketplace-platform-builder`: each row names a failu
 * [ ] **CR13: Dispute SLA is instrumented, not aspirational** — Verification: open three disputes (not received, not as described, damaged) and confirm the seller's 48-hour response window, mediation proposal within 72h, arbitration path, and that funds stay in escrow throughout.
 * [ ] **CR14: Liquidity dashboard is live before demand spend begins** — Verification: fill rate, time-to-match, and supply/demand churn are visible daily, and a hard gate stops demand acquisition when fill rate sits below 10% for 7 consecutive days.
 * [ ] **CR15: Launch-zone supply density is verified, not assumed** — Verification: count verified active listings per launch zone — a delivery marketplace needs 10+ providers per zone, a curated product launch needs 50+ listings in one city.
+
+### Pre-Launch Verification
+
+<!-- STANDARD: 3min -->
+
+Before launching a marketplace to the public, every item in this checklist must be verified:
+
+### Payments & Money Movement
+* [ ] Stripe Connect integration tested end-to-end with live test mode accounts (buyer, seller, platform).
+* [ ] Application fees calculate correctly: verify for $10, $100, $1,000, $10,000 transactions - at every tier if using tiered commissions.
+* [ ] Escrow holds release correctly: on buyer confirmation, on auto-release timeout, on dispute resolution.
+* [ ] Refunds return correct amounts: buyer refund = full payment, platform fee refund if refund is platform-initiated.
+* [ ] Payout schedule is documented: when does a seller get paid after transaction completion? Same for service providers, rental hosts.
+* [ ] Failed payout handling: what happens when a seller's bank account is invalid? Retry logic, notifications, support workflow.
+* [ ] Sales tax collection active in all marketplace facilitator states where you have nexus.
+* [ ] 1099-K reporting pipeline tested: can you generate a report of all sellers above the reporting threshold?
+* [ ] Chargeback response workflow: 7-day response window, pre-built evidence templates (tracking number, delivery confirmation, listing description).
+* [ ] Multi-currency: if supported, tested GBP, EUR, CAD, AUD transactions, verified exchange rates applied, verified seller receives correct amount in their currency.
+
+### Trust & Safety
+* [ ] Identity verification at appropriate tiers: Tier 1 for all, Tier 2 for threshold-triggered, Tier 3 for high-value.
+* [ ] Review system: verified purchase gating, double-blind enforced, weight-by-transaction-value tested.
+* [ ] Review manipulation detection: 10+ reviews from same IP, 10+ reviews to same seller in 24h, sentiment-text mismatch.
+* [ ] Listing fraud detection: reverse image search for stock photos, price anomaly detection (3 sigma below category median).
+* [ ] Payment fraud rules active: billing/shipping country mismatch, rapid small transactions (card testing), high-value first purchase.
+* [ ] Dispute resolution workflow: Level 1 (automated) -> Level 2 (mediation) -> Level 3 (arbitration) -> Appeal path defined and tested.
+* [ ] Terms of Service for both buyer and seller sides, with platform policies on prohibited items, acceptable use, and liability limits.
+
+### Marketplace Operations
+* [ ] Search returns results for top 100 expected queries (test manually with a checklist).
+* [ ] Search performance: <200ms p95 with 2x current listing volume, faceted filtering functional.
+* [ ] Category taxonomy functional: browse path works (Category > Subcategory > Item Type), filtering by category returns correct results.
+* [ ] Booking: concurrent booking test (10 simultaneous), timezone test (buyer and seller in different zones), buffer time enforcement.
+* [ ] Messaging: contact info blocked, URL allowlist enforced, attachments scanned.
+* [ ] Notification system: transactional emails (booking confirmed, payment received, payout sent) working, push notifications for real-time events.
+* [ ] Seller onboarding completion rate >60% (or documented reasons for drop-off with improvement plan).
+* [ ] First-time buyer experience: can a new user find and complete a transaction in under 5 minutes?
+* [ ] Admin dashboard: can you view all active transactions, disputes, flagged accounts, and platform metrics at a glance?
+
+### Infrastructure
+* [ ] Database backups: daily automated backups with point-in-time recovery, verified restore process.
+* [ ] CDN for listing images: images served through CDN with proper caching headers, responsive image sizes.
+* [ ] Monitoring and alerting: transaction failure rate, search latency, booking error rate, payout failure rate all monitored with alerts.
+* [ ] Rate limiting on API endpoints: especially payment initiation, booking creation, message sending.
+* [ ] DDoS protection: Cloudflare/AWS Shield or equivalent on all public endpoints.
+* [ ] Logging: every state change in a transaction lifecycle is logged (created -> paid -> fulfilled -> confirmed -> paid_out), searchable within 60 seconds of occurrence.
 
 ## Cross-Skill Coordination
 <!-- STANDARD: 3min -->
@@ -1189,51 +1236,6 @@ A marketplace build is considered **production-ready** when:
 | Stripe Connect onboarding fails for 40% of sellers. | Wrong Connect account type for the seller demographic. Custom accounts require more fields than Express. Some sellers are in unsupported countries. | Filter failures by: country, account type requested, failure reason code from Stripe. | Switch to Express accounts (simpler onboarding) if sellers are primarily individuals. Pre-filter supported countries before starting onboarding. Provide clear error messages with next steps. |
 | "Take rate" in analytics shows 15% but bank account shows 8% of GMV. | Gross take rate conflated with net take rate. Payment processing, refunds, chargebacks, FX fees, and Connect fees are consuming 7% of GMV. | Build a take rate waterfall: GMV -> gross commission -> minus payment processing -> minus refunds -> minus chargebacks -> minus FX fees -> minus Connect account fees = net take rate. Track each step. | Fix the largest leakage points first. Typically: refunds (tighten return policy, improve listing accuracy) and payment processing (negotiate rates at >$1M/month processing volume). |
 | Mobile users have 3x lower conversion than desktop. | Non-responsive listing pages, slow image loading on mobile, no mobile-optimized booking/purchase flow, no push notifications for follow-up. | Check mobile page speed (Lighthouse score), image sizes, form UX on 375px wide viewport. | Implement responsive images with srcset, lazy loading, mobile-optimized booking UX (large tap targets, minimal typing), PWA with push notifications for booking confirmations and messages. |
-
-## Production Checklist - Pre-Launch Verification
-<!-- STANDARD: 3min -->
-
-Before launching a marketplace to the public, every item in this checklist must be verified:
-
-### Payments & Money Movement
-* [ ] Stripe Connect integration tested end-to-end with live test mode accounts (buyer, seller, platform).
-* [ ] Application fees calculate correctly: verify for $10, $100, $1,000, $10,000 transactions - at every tier if using tiered commissions.
-* [ ] Escrow holds release correctly: on buyer confirmation, on auto-release timeout, on dispute resolution.
-* [ ] Refunds return correct amounts: buyer refund = full payment, platform fee refund if refund is platform-initiated.
-* [ ] Payout schedule is documented: when does a seller get paid after transaction completion? Same for service providers, rental hosts.
-* [ ] Failed payout handling: what happens when a seller's bank account is invalid? Retry logic, notifications, support workflow.
-* [ ] Sales tax collection active in all marketplace facilitator states where you have nexus.
-* [ ] 1099-K reporting pipeline tested: can you generate a report of all sellers above the reporting threshold?
-* [ ] Chargeback response workflow: 7-day response window, pre-built evidence templates (tracking number, delivery confirmation, listing description).
-* [ ] Multi-currency: if supported, tested GBP, EUR, CAD, AUD transactions, verified exchange rates applied, verified seller receives correct amount in their currency.
-
-### Trust & Safety
-* [ ] Identity verification at appropriate tiers: Tier 1 for all, Tier 2 for threshold-triggered, Tier 3 for high-value.
-* [ ] Review system: verified purchase gating, double-blind enforced, weight-by-transaction-value tested.
-* [ ] Review manipulation detection: 10+ reviews from same IP, 10+ reviews to same seller in 24h, sentiment-text mismatch.
-* [ ] Listing fraud detection: reverse image search for stock photos, price anomaly detection (3 sigma below category median).
-* [ ] Payment fraud rules active: billing/shipping country mismatch, rapid small transactions (card testing), high-value first purchase.
-* [ ] Dispute resolution workflow: Level 1 (automated) -> Level 2 (mediation) -> Level 3 (arbitration) -> Appeal path defined and tested.
-* [ ] Terms of Service for both buyer and seller sides, with platform policies on prohibited items, acceptable use, and liability limits.
-
-### Marketplace Operations
-* [ ] Search returns results for top 100 expected queries (test manually with a checklist).
-* [ ] Search performance: <200ms p95 with 2x current listing volume, faceted filtering functional.
-* [ ] Category taxonomy functional: browse path works (Category > Subcategory > Item Type), filtering by category returns correct results.
-* [ ] Booking: concurrent booking test (10 simultaneous), timezone test (buyer and seller in different zones), buffer time enforcement.
-* [ ] Messaging: contact info blocked, URL allowlist enforced, attachments scanned.
-* [ ] Notification system: transactional emails (booking confirmed, payment received, payout sent) working, push notifications for real-time events.
-* [ ] Seller onboarding completion rate >60% (or documented reasons for drop-off with improvement plan).
-* [ ] First-time buyer experience: can a new user find and complete a transaction in under 5 minutes?
-* [ ] Admin dashboard: can you view all active transactions, disputes, flagged accounts, and platform metrics at a glance?
-
-### Infrastructure
-* [ ] Database backups: daily automated backups with point-in-time recovery, verified restore process.
-* [ ] CDN for listing images: images served through CDN with proper caching headers, responsive image sizes.
-* [ ] Monitoring and alerting: transaction failure rate, search latency, booking error rate, payout failure rate all monitored with alerts.
-* [ ] Rate limiting on API endpoints: especially payment initiation, booking creation, message sending.
-* [ ] DDoS protection: Cloudflare/AWS Shield or equivalent on all public endpoints.
-* [ ] Logging: every state change in a transaction lifecycle is logged (created -> paid -> fulfilled -> confirmed -> paid_out), searchable within 60 seconds of occurrence.
 
 ## Deliberate Practice
 <!-- STANDARD: 3min -->

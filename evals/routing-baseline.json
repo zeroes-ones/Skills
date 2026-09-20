@@ -1,0 +1,24 @@
+{
+  "description": "Recorded regression floor for the Tier-2 TF-IDF routing harness (scripts/run-routing-evals.js --ratchet). Not a target — a floor. rank1_rate and mrr must not fall below these values, and must_not_violations must not rise above its ceiling. Raise these when the router improves; lowering one is a deliberate act that shows up in the diff.",
+  "harness": "scripts/run-routing-evals.js",
+  "suite": "all (tier2-routing-evals.json, core 49 cases)",
+  "corpus_skills": 327,
+  "cases": 49,
+  "rank1_rate": 0.72,
+  "mrr": 0.79,
+  "must_not_violations": 4,
+  "measured": {
+    "date": "2026-09-19",
+    "command": "node scripts/run-routing-evals.js --json",
+    "rank1_rate": 0.728,
+    "rank1_hits": 34,
+    "mrr": 0.799,
+    "must_not_violations": 4,
+    "description_collisions": 565
+  },
+  "targets": {
+    "rank1_rate": 0.8,
+    "mrr": 0.9,
+    "note": "Aspirational. Reported as a gap by --ratchet; gated only in the harness default mode."
+  }
+}

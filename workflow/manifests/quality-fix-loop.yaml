@@ -8,6 +8,7 @@ payloads:
     - artifacts
     - decisions
     - open_questions
+    - constraints
     - verification_evidence
     - context
     - budget
@@ -18,6 +19,7 @@ start: developer
 nodes:
   - id: developer
     skill: backend-developer
+    inputs: [findings]
     outputs: [change]
   - id: qa
     skill: qa-engineer

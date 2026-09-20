@@ -368,17 +368,19 @@ Finally, ALWAYS:
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| Users abandon a multi-step flow mid-way | A step demands information the user does not have, or hides progress | Show progress and total steps; move hard steps later; allow save-and-resume. A mid-flow abandonment class typically costs **$45,000** per product per year in unrealised conversion | Progress and information order decide completion |
-| A screen renders blank for seconds, then pops in | No loading state, so the screen shows nothing while fetching (R2) | Skeleton matching the final layout; keep the chrome. Perceived-performance remediation commonly costs **$30,000** per surface | A blank screen reads as broken, not as loading |
-| Error messages are reported as "unhelpful" in support tickets | The message names the system's problem, not the user's situation, and offers no remedy | Rewrite in user terms with a next action; log the technical detail invisibly. Support-driven remediation typically costs **$25,000** per release | An error without a remedy is an abandonment |
-| An action appears instant to the designer and slow to users | Verified on a fast device with a warm cache; the median device is slower | Measure on a representative device and network; apply Decision Tree 4. Perceived-slowness remediation commonly costs **$35,000** | Perception is measured on the median device |
-| Users repeatedly trigger an irreversible action by accident | Prevention skipped; the action is adjacent to a frequent one | Separate spatially, require confirmation, or make it undoable. A data-loss incident commonly costs **$60,000** and a trust loss | Foreseeable errors are prevented, not handled |
+| Users abandon a multi-step flow mid-way | A step demands information the user does not have, or hides progress | Show progress and total steps; move hard steps later; allow save-and-resume. A mid-flow abandonment class typically costs **$45,000 [ESTIMATED]** per product per year in unrealised conversion | Progress and information order decide completion |
+| A screen renders blank for seconds, then pops in | No loading state, so the screen shows nothing while fetching (R2) | Skeleton matching the final layout; keep the chrome. Perceived-performance remediation commonly costs **$30,000 [ESTIMATED]** per surface | A blank screen reads as broken, not as loading |
+| Error messages are reported as "unhelpful" in support tickets | The message names the system's problem, not the user's situation, and offers no remedy | Rewrite in user terms with a next action; log the technical detail invisibly. Support-driven remediation typically costs **$25,000 [ESTIMATED]** per release | An error without a remedy is an abandonment |
+| An action appears instant to the designer and slow to users | Verified on a fast device with a warm cache; the median device is slower | Measure on a representative device and network; apply Decision Tree 4. Perceived-slowness remediation commonly costs **$35,000 [ESTIMATED]** | Perception is measured on the median device |
+| Users repeatedly trigger an irreversible action by accident | Prevention skipped; the action is adjacent to a frequent one | Separate spatially, require confirmation, or make it undoable. A data-loss incident commonly costs **$60,000 [ESTIMATED]** and a trust loss | Foreseeable errors are prevented, not handled |
 | The interface is described as "cluttered" but nobody can say why | Aesthetic finding with no evidence, so nothing changes (R1) | Convert to a decision count: how many equally-weighted options compete at the task step? Reduce, then re-measure | Counts are fixable; adjectives are not |
-| Animations feel sluggish and users tap twice | Transition duration exceeds the interaction's own duration (R3) | Shorten to below the interaction; keep compositor-friendly properties only. Remediation typically costs **$20,000** | Motion must not outlast the action it depicts |
-| Quality regresses after a redesign | No baseline and no metric, so the redesign optimised differently (R5) | Capture the baseline before, and a metric after, with an owner. A re-litigation cycle commonly costs **$40,000** | Unmeasured improvement is indistinguishable from churn |
-| First-run users see a dead screen | The empty state was not designed as onboarding (R2) | Teach what the surface is for, with one primary action. Activation remediation commonly costs **$50,000** | The empty state is the first impression |
+| Animations feel sluggish and users tap twice | Transition duration exceeds the interaction's own duration (R3) | Shorten to below the interaction; keep compositor-friendly properties only. Remediation typically costs **$20,000 [ESTIMATED]** | Motion must not outlast the action it depicts |
+| Quality regresses after a redesign | No baseline and no metric, so the redesign optimised differently (R5) | Capture the baseline before, and a metric after, with an owner. A re-litigation cycle commonly costs **$40,000 [ESTIMATED]** | Unmeasured improvement is indistinguishable from churn |
+| First-run users see a dead screen | The empty state was not designed as onboarding (R2) | Teach what the surface is for, with one primary action. Activation remediation commonly costs **$50,000 [ESTIMATED]** | The empty state is the first impression |
 
 ## Error Recovery **(QUICK)**
 
@@ -511,17 +513,19 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Screens with no loading state | Blank screens read as broken; remediation commonly **$30,000 cost** per surface | Skeleton matching the final layout (R2) |
-| Errors with no remedy | Abandonment at the moment of highest trust sensitivity; remediation typically **$25,000 cost** per release | Name the problem in user terms, offer a next action |
-| No baseline before a redesign | Improvement cannot be attributed; a re-litigation cycle commonly **$40,000 cost** | Capture a baseline first (R5) |
-| Undesigned empty state on first run | Activation suffers; remediation commonly **$50,000 cost** | Treat the empty state as onboarding (R2) |
-| Irreversible action adjacent to a frequent one | Accidental data loss; an incident commonly **$60,000 cost** plus trust | Separate, confirm, or make undoable (Decision Tree 1) |
-| Transitions longer than the interaction | Users tap twice and perceive lag; remediation typically **$20,000 cost** | Shorten below the interaction's duration (R3) |
+| Screens with no loading state | Blank screens read as broken; remediation commonly **$30,000 [ESTIMATED]** per surface | Skeleton matching the final layout (R2) |
+| Errors with no remedy | Abandonment at the moment of highest trust sensitivity; remediation typically **$25,000 [ESTIMATED]** per release | Name the problem in user terms, offer a next action |
+| No baseline before a redesign | Improvement cannot be attributed; a re-litigation cycle commonly **$40,000 [ESTIMATED]** | Capture a baseline first (R5) |
+| Undesigned empty state on first run | Activation suffers; remediation commonly **$50,000 [ESTIMATED]** | Treat the empty state as onboarding (R2) |
+| Irreversible action adjacent to a frequent one | Accidental data loss; an incident commonly **$60,000 [ESTIMATED]** plus trust | Separate, confirm, or make undoable (Decision Tree 1) |
+| Transitions longer than the interaction | Users tap twice and perceive lag; remediation typically **$20,000 [ESTIMATED]** | Shorten below the interaction's duration (R3) |
 | Aesthetic-only review findings | Nothing changes; the same findings recur with new adjectives | Convert to evidence and counts (R1) |
-| Verified only on a fast device | Perceived slowness on the median device; remediation commonly **$35,000 cost** | Measure on a representative device (R4) |
-| Mid-flow abandonment from hidden progress | Lost conversion in an otherwise sound flow; typically **$45,000 cost** per product per year | Show progress and total steps; allow resume |
+| Verified only on a fast device | Perceived slowness on the median device; remediation commonly **$35,000 [ESTIMATED]** | Measure on a representative device (R4) |
+| Mid-flow abandonment from hidden progress | Lost conversion in an otherwise sound flow; typically **$45,000 [ESTIMATED]** per product per year | Show progress and total steps; allow resume |
 | Marking every finding 'major' so nothing is prioritised | The audit loses its ranking power: a cosmetic spacing issue and an unreadable contrast failure compete for the same attention | Track the **delta** between passes ('severity 2, was 3') and rank actions by severity x frequency. Tag each finding with its evidence class — `[VERIFIED: file]` when grounded in code, `[verify-in-browser]` when the claim depends on rendering — so a code read is never passed off as an observed UI problem |
 
 

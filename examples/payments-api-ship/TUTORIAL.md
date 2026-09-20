@@ -217,7 +217,7 @@ Open `examples/payments-api-ship/payments-api-ship.yaml`. Top to bottom:
 name: payments-api-ship          # slug; must match the filename
 description: "..."               # single line — the Safe-YAML subset forbids block scalars
 payloads:                        # registry of handoff payload shapes (what travels between nodes)
-  handoff-v1: [status, summary, artifacts, decisions, open_questions,
+  handoff-v1: [status, summary, artifacts, decisions, open_questions, constraints,
                verification_evidence, context, budget, next]
 budget:
   max_steps: 80                  # global backstop: the whole run may take at most 80 steps

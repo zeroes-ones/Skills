@@ -166,8 +166,8 @@ Incoming request
 | R6 | Must NOT hand off with >3 unresolved open questions | `open_questions.length > 3` at serialization time | Pause pipeline; escalate to human or supervisor agent |
 | R7 | Must NOT hand off without verifying all downstream contracts accepted | Handoff contract in `PROPOSED` state (not `ACCEPTED`) | Block delivery; wait for downstream `ACCEPTED` or `REJECTED` |
 | R8 | Must NOT override prior agent's decision without marking it SUPERSEDED | Ledger shows same gate with different choice, no SUPERSEDED marker | Reject override; require explicit SUPERSEDED entry with rationale |
-| R9 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| R10 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| R9 | **Must NOT hand off framework- or runtime-specific claims without recording the version that produced them.** A payload asserting "uses Prisma" or "the API returns X" is unusable if the receiver cannot tell which version produced it — the receiver falls back on its own training data and re-derives a stale call. Version provenance belongs to the handoff, not to the producer's memory. | Trigger: the payload's `constraints` or a decision `rationale` names a runtime, framework, or library API → probe the producing environment for the observed version (read the lockfile or manifest directly; if your project ships `scripts/runtime-version-detect.sh`, run it as `<project-root> --skill-context` instead) → attach it to the existing `constraints` array as `{"type": "technology", "value": "node@20.11", "source": "runtime-probe", "non_negotiable": false}` — no new schema field | STOP. Respond: "Payload would carry version-less framework claims. Observed: {runtime}@{version}, {frameworks}@{versions}. Recording them as technology constraints so the receiver does not re-derive API calls from training data." If the version cannot be determined, mark the claim `[UNKNOWN]` in the rationale — never assert a version you did not observe. |
+| R10 | **Must NOT hand off when consuming the payload costs more than redoing the work.** A state bundle the receiver must read, verify, and reconcile can cost more tokens and latency than producing the artifact directly at the target role — the handoff then pays the cost without buying continuity. | Trigger: about to serialize a handoff whose payload is large relative to the artifact it wraps → estimate (a) consumer cost = tokens to ingest + checksum and constraint verification + reconciliation of `open_questions`, and (b) redo cost = producing the artifact at the target role → if consumer cost > redo cost, do not hand off the full state; pass the artifact paths plus a one-line summary and archive the rest | STOP. Respond: "Handoff is not worth consuming: ~{N} tokens to ingest and {M} open questions to reconcile, versus redoing the work directly. Passing artifact paths plus a summary; full state archived at {path} if the receiver asks for it." If your project ships a cost model (e.g. `scripts/calculate-roi.sh`), use its formula rather than guessing; otherwise estimate the effort and the annual value by hand. |
 
 ---
 
@@ -303,6 +303,7 @@ Every architectural or strategic choice goes into the decision gate ledger. See 
 - Formatting preferences
 - Temporary workarounds with clear sunset dates
   Complete when: Every architecture pattern, technology choice, API contract, security boundary, and data ownership decision is recorded in the decision gate ledger.
+  Complete when: No gate appears twice with different choices without the earlier entry carrying a SUPERSEDED marker and the rationale for the override.
 
 ### Phase 4: Sign Contract
 
@@ -328,6 +329,8 @@ If deliverable fails acceptance → BREACHED
 
 Write handoff state to `~/.agents/state/handoffs/{pipeline_id}/NNN-{origin}→{target}.json`.
 
+**This path is a naming CONVENTION, not tooling.** No tool in this library creates, watches, or verifies `~/.agents/state/handoffs/` — nothing is registered in `scripts/`, `hooks/`, or `workflow/` that touches it, and no command in this skill runs on your behalf. The convention is what makes handoffs addressable across agents and auditable across time. Creating the directory, writing the file atomically (write to a temp path, then rename), and enforcing append-only history are the **consumer's** responsibility. If your environment does not have a shared `~/.agents/` home — two agents on different machines, or agents that never share a filesystem — pick an equivalent shared location (an object store, a repo path, a message topic) and apply the same naming and immutability rules. The file shape matters; the directory does not.
+
 Downstream agent:
 1. Loads Tier 1 (pipeline identity, constraints)
 2. Requests Tier 2 if needed (role-specific artifacts)
@@ -335,10 +338,9 @@ Downstream agent:
 4. Audits constraint inheritance (all `non_negotiable` from prior handoffs present?)
 5. Accepts or rejects contract
 6. Begins work
-  Complete when: State file written to ~/.agents/state/handoffs/, downstream agent loads Tier 1-2, verifies checksums, audits constraint inheritance, and begins work.
-  Complete when: All consumers have acknowledged the deprecation/migration timeline in writing.
-  Complete when: Rollback plan documented with specific trigger conditions and revert steps.
-  Complete when: Performance benchmarks run and results within 10% of baseline.
+  Complete when: The handoff file exists at the pipeline's convention path, its name encodes sequence and both endpoints, and it was written without mutating any earlier handoff in that directory.
+  Complete when: The downstream agent has re-verified the received checksum against the recorded one and reconciled every `open_questions` entry it was handed (resolved, reassigned, or escalated) before starting work.
+  Complete when: Receipt is acknowledged back to the upstream agent with an explicit accept/reject and, on reject, a structured reason naming the failed field — silence is never delivery.
 
 ---
 
@@ -507,7 +509,28 @@ If a command or approach fails, follow this escalation path before giving up:
 
 ### Upstream (Consumes From)
 
-This skill has no upstream dependencies — it is a foundational framework that sits at the start of the pipeline chain.
+This skill lists **nine skills in its frontmatter `chain.consumes_from`**. All nine are genuine upstream links, but only three are prerequisites: the other six are on-demand inputs that matter only when the pipeline actually has that concern, and a handoff can be produced correctly without them. Chain symmetry (`python3 scripts/validate_chains.py`) verifies that each link is declared in both directions; it does not tell you which are load-bearing.
+
+**Real prerequisites — a handoff cannot be built or audited without these:**
+
+| Upstream Skill | What You Receive | When to Involve |
+|----------------|------------------|-----------------|
+| `multi-agent-orchestration` | The topology decision (supervisor / hierarchical / peer / debate / swarm) that fixes handoff count, ordering, and which contracts exist | Before designing any transition — the topology decides how many handoffs there are and who signs which contract |
+| `agentic-complexity-ladder` | The rung decision establishing that a multi-agent boundary is warranted at all | Before serializing anything — a handoff protocol applied to work a single call could do is pure overhead |
+| `verification-independence-engineer` | The visibility rule for what the verifier may see | While shaping the payload — reasoning must be excluded from the handoff by construction, which constrains the field set before it is written |
+
+**Related, not prerequisites — consume them when the pipeline actually has that concern:**
+
+| Related skill | What it contributes | Consume it when |
+|---------------|--------------------|-----------------|
+| `cross-skill-communication` | The 6 named communication patterns; a handoff is Pattern 3 | More than one inter-skill link exists and they need a shared vocabulary. The link is mutual — this skill supplies that pattern's state mechanics |
+| `iterative-task-execution` | Bounded loop discipline; a handoff is often the DONE boundary of a loop pass | The pipeline retries, verifies against criteria, or has a step budget. Mutual link |
+| `agent-eval-pipeline` | Scores whether the downstream agent did the job the payload asked for | Handoff quality itself is being measured, not just the artifact |
+| `context-engineering` | Context assembly and budget reasoning | The payload is being shaped to fit a context window |
+| `token-efficiency` | Cost model and measured baseline per request | Payload size or per-handoff cost is a live constraint |
+| `senior-engineer-mode-router` | Names the multi-agent mode and sequences the owning skills | The work arrived as a generic "senior engineer" prompt rather than a handoff request |
+
+The distinction matters mechanically: skipping a real prerequisite produces a payload with the wrong shape or no reason to exist, while skipping a related skill costs only the depth that concern would have added.
 
 ### Downstream (Feeds Into)
 
@@ -530,10 +553,6 @@ This skill has no upstream dependencies — it is a foundational framework that 
 | Debate → Supervisor | High-stakes decision gates | Arbiter records final decision, supervisor routes it to implementers |
 
 ---
-
-| Upstream Skill | What You Receive | When to Involve |
-|---|---|---|
-| `system-architect` | System context, integration points, architectural constraints | Before specialized implementation — understand the system it fits into |
 
 ## Proactive Triggers
 <!-- STANDARD: 3min -->
@@ -688,7 +707,7 @@ This skill is supported by detailed reference specifications. Load these when de
 | 6 | [Cross-Agent Directory Conventions](references/cross-agent-directory-conventions.md) | `~/.agents/` directory structure, environment variables, naming conventions | When setting up a new agent workspace |
 | 7 | [Context Rotation Defense](references/context-rotation-defense.md) | 12 patterns to detect and prevent context degradation across handoffs | When pipeline exceeds 3 handoffs or corruption suspected |
 | 8 | [Progressive Disclosure Pipeline](references/progressive-disclosure-pipeline.md) | Tier 1/2/3 loading strategy with role-based filters | When optimizing token usage in multi-agent pipelines |
-| 9 | [Workflow Payload Registry](references/workflow-payload-registry.md) | Canonical nine-key handoff payload + enforcement in workflow manifests (WORKFLOW-SYSTEM.md §5) | When wiring manifest edges, writing handoff-out blocks, or linting payload keys |
+| 9 | [Workflow Payload Registry](references/workflow-payload-registry.md) | Canonical ten-key handoff payload + enforcement in workflow manifests (WORKFLOW-SYSTEM.md §5) | When wiring manifest edges, writing handoff-out blocks, or linting payload keys |
 
 ### External References
 
@@ -697,7 +716,7 @@ This skill is supported by detailed reference specifications. Load these when de
 - **AutoGen Handoff Patterns:** [microsoft.github.io/autogen](https://microsoft.github.io/autogen) — Debate topology and swarm coordination patterns
 - **OpenAI Swarm:** [github.com/openai/swarm](https://github.com/openai/swarm) — Lightweight multi-agent orchestration with handoff primitives
 
-## Error Decoder — War Stories from the Trenches
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -742,14 +761,6 @@ This section documents every irreversible decision made during the session. It i
 - The request is a one-off convenience that bypasses the verified workflow.
 - A specialized peer skill owns the exact scenario — route there instead.
 - There is no way to verify the output against a source of truth.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
-| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
-| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
 
 ## Anti-Patterns
 

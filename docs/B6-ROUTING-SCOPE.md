@@ -14,12 +14,14 @@ Source: Frontier B6 of `BEYOND-LOOPS-GRAPHS.md`.
 ## 1. Why
 
 - Canonical routing baseline (63 scenarios, `scripts/eval-routing.py`, committed):
-  **rank-1 55.6%** (core-49: 71.4%), top-N 66.7%, MRR 0.624, 6 must-not violations.
+  **rank-1 58.7%** (core-49: 71.4%), top-N 71.4%, MRR 0.672, 6 must-not violations.
   Raised from 42.9% / 60.3% / 0.531 / 7 by the 2026 routing pass (index profile upgrade
-  + YAML parser fix); full attribution and reproduction in
+  + YAML parser fix), then from 55.6% / 63.5% / 0.618 / 5 by the 2026-09-19 BM25F pass
+  (full-body field + negative-trigger discount); full attribution and reproduction in
   `docs/benchmarks-vs-agent-skills.md`.
-- Semantic-adversarial suite (keyword-poor prompts): **rank-1 0.0%** — lexical matching
-  fails on meaning. Any retrieval upgrade must be gated on beating these numbers, not on
+- Semantic-adversarial suite (keyword-poor prompts): **rank-1 14.3%** (2 of 14) — raised
+  from 0.0% by the body field, but lexical matching still fails on meaning. Any retrieval
+  upgrade must be gated on beating these numbers, not on
   vibes.
 - Static routers stop scaling: 322 skills today, thousands tomorrow.
 
@@ -53,9 +55,9 @@ baseline stays the floor; a real embedder is an environment-provided model API
 
 | Metric | Current (lexical) | Target |
 |---|---|---|
-| Rank-1 (63 scenarios) | 55.6% | ≥ 75% (and strictly > lexical) |
-| Rank-1 (adversarial) | 0.0% | ≥ 50% |
-| MRR | 0.624 | ≥ 0.80 |
+| Rank-1 (63 scenarios) | 58.7% | ≥ 75% (and strictly > lexical) |
+| Rank-1 (adversarial) | 14.3% | ≥ 50% |
+| MRR | 0.672 | ≥ 0.80 |
 | Must-not violations | 6 | ≤ 2% of scenarios |
 | Tokens/task vs full load | n/a (router unmeasured) | ≤ 25% of full-load tokens at ≥ baseline quality |
 

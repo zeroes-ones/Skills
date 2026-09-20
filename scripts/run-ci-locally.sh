@@ -182,6 +182,39 @@ print(f'    {total} skills checked, {over_budget} over 5000-word budget')
             --dir "$REPO_ROOT/examples/workflow-runtime/state" 2>&1 | head -6
     fi
     step_pass "Run telemetry (informational)"
+
+    # 1h. Routing regression ratchet (must not fall below evals/routing-baseline.json)
+    echo ""
+    echo "  [1h] Routing regression ratchet..."
+    if command -v node &>/dev/null; then
+        ratchet_out=$(node "$REPO_ROOT/scripts/run-routing-evals.js" --ratchet 2>&1) && ratchet_rc=0 || ratchet_rc=$?
+        echo "$ratchet_out" | tail -12
+        if [ "$ratchet_rc" -eq 0 ]; then
+            step_pass "Routing ratchet (no regression below floor)"
+        else
+            step_fail "Routing regression — a metric fell below evals/routing-baseline.json"
+        fi
+    else
+        step_skip "Routing ratchet (node not available)"
+    fi
+
+    # 1i. Behavioral evals: an all-skipped corpus proves nothing and must report honestly.
+    # ADVISORY, not blocking, and deliberately so: 0 of 38 scenarios have a recorded_output,
+    # so this is a known gap that no commit can close — recording real agent sessions can.
+    # Reporting it loudly keeps the signal (the old exit-0-on-all-skip was the false green we
+    # removed); failing the build on it would block every push until someone records sessions.
+    # Same convention as the pre-existing chain-symmetry advisory above.
+    echo ""
+    echo "  [1i] Behavioral evals (Tier 3)..."
+    if command -v node &>/dev/null; then
+        if node "$REPO_ROOT/scripts/run-behavioral-evals.js" >/dev/null 2>&1; then
+            step_pass "Behavioral evals executed and passed"
+        else
+            step_warn "Behavioral evals prove nothing yet — no recorded_output in evals/tier3-behavioral/ (0 of 38 scenarios executed)"
+        fi
+    else
+        step_skip "Behavioral evals (node not available)"
+    fi
 }
 
 # ── Job 2: Hooks ────────────────────────────────────────────────────────

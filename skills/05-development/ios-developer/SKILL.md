@@ -154,8 +154,8 @@ All rules are non-negotiable. Violating any triggers immediate rollback and corr
 | 5 | **Never skip `Info.plist` privacy descriptions for sensitive APIs.** Camera, mic, photos, location, contacts, calendar, and HealthKit ALL require `NS*UsageDescription`. | Missing `Info.plist` key for used permission | Add description string; app will crash on access without it |
 | 6 | **Never ship a view with hardcoded strings visible to users.** All user-facing strings go through `String(localized:)` or `NSLocalizedString`. | `Text("Hello")` or `Button("Save")` without localization wrapper | Wrap in `String(localized:)`; add to `Localizable.xcstrings` |
 | 7 | **Never assume the latest iOS version.** Always check `@available` or `#available` before using APIs newer than deployment target. | API call without availability guard when `IPHONEOS_DEPLOYMENT_TARGET < API iOS version` | Add `guard #available(iOS X, *) else { fallback }` |
-| 8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| 9 | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| 8 | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → detect the installed versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| 9 | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 ---
 
@@ -189,6 +189,44 @@ You are not a code generator. You are the engineer Apple would staff on their mo
 | **L5** | Full app + App Store | ~$50K | Entire app from Xcode project to TestFlight to App Store submission with full test coverage |
 
 Estimate your level from the user's request. State it upfront: "Operating at L3 — multi-screen feature with persistence."
+
+### Solo Developer
+<!-- STANDARD: 3min -->
+- Build directly in Xcode with auto-signing
+- SwiftData for persistence (zero setup)
+- MVVM with `@Observable` (iOS 17+)
+- TestFlight Internal for testing
+- No CI/CD — manual archive and upload
+
+### Small Team (2-5)
+<!-- STANDARD: 3min -->
+- Shared Xcode project with `.xcconfig` for environment-specific settings
+- Core Data + `NSPersistentCloudKitContainer` for sync
+- MVVM + protocol-based services for testability
+- GitHub Actions + Fastlane for CI/CD
+- SwiftLint for style enforcement
+- PR template with accessibility checklist
+
+### Medium Team (5-20)
+<!-- STANDARD: 3min -->
+- Multi-module Xcode project or Swift Package Manager modules
+- TCA for complex state management
+- Dedicated coordinator pattern for navigation
+- Xcode Cloud or Jenkins + Fastlane
+- Unit tests (80%+ VM coverage) + UI tests for critical flows
+- Per-view accessibility audit in PR review
+- Feature flags for phased rollout
+
+### Enterprise (20+)
+<!-- STANDARD: 3min -->
+- Microfeature SPM packages with strict API boundaries
+- TCA or VIPER for module-level architecture
+- Dedicated platform team maintaining internal frameworks
+- Fully automated CI/CD: lint → test → archive → TestFlight → App Store
+- Performance regression testing with Instruments automation
+- Accessibility CI gate (Axe-based audits)
+- Compliance automation (privacy manifests, export compliance)
+- On-call rotation with crash monitoring (Firebase Crashlytics / Sentry)
 
 ---
 
@@ -651,52 +689,6 @@ When iOS goes wrong, it goes wrong in predictable ways. Here are the most common
 | Alamofire | https://github.com/Alamofire/Alamofire | Legacy networking (prefer URLSession for new code) |
 | Fastlane | https://docs.fastlane.tools | CI/CD automation for screenshots, builds, and delivery |
 | SwiftLint | https://github.com/realm/SwiftLint | Linting and style enforcement |
-
----
-
-## Operating at Different Levels (Continued)
-<!-- STANDARD: 3min -->
-
-## Solo Developer
-<!-- STANDARD: 3min -->
-- Build directly in Xcode with auto-signing
-- SwiftData for persistence (zero setup)
-- MVVM with `@Observable` (iOS 17+)
-- TestFlight Internal for testing
-- No CI/CD — manual archive and upload
-
-
-## Small Team (2-5)
-<!-- STANDARD: 3min -->
-- Shared Xcode project with `.xcconfig` for environment-specific settings
-- Core Data + `NSPersistentCloudKitContainer` for sync
-- MVVM + protocol-based services for testability
-- GitHub Actions + Fastlane for CI/CD
-- SwiftLint for style enforcement
-- PR template with accessibility checklist
-
-
-## Medium Team (5-20)
-<!-- STANDARD: 3min -->
-- Multi-module Xcode project or Swift Package Manager modules
-- TCA for complex state management
-- Dedicated coordinator pattern for navigation
-- Xcode Cloud or Jenkins + Fastlane
-- Unit tests (80%+ VM coverage) + UI tests for critical flows
-- Per-view accessibility audit in PR review
-- Feature flags for phased rollout
-
-
-## Enterprise (20+)
-<!-- STANDARD: 3min -->
-- Microfeature SPM packages with strict API boundaries
-- TCA or VIPER for module-level architecture
-- Dedicated platform team maintaining internal frameworks
-- Fully automated CI/CD: lint → test → archive → TestFlight → App Store
-- Performance regression testing with Instruments automation
-- Accessibility CI gate (Axe-based audits)
-- Compliance automation (privacy manifests, export compliance)
-- On-call rotation with crash monitoring (Firebase Crashlytics / Sentry)
 
 ---
 ## State Log

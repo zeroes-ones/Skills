@@ -261,14 +261,14 @@ Half-Kelly sizing with volatility + regime adjustments. 4-exit system. Weekend g
 **Earnings PEAD (GOOD):** Stock beat EPS by 8%, gapped up 4%, held gap for 3 days, above-average volume. Entry: Buy ATM $105/$110 call spread, 40 DTE, $2.50 debit. Target: $5.00 (100%). Stop: $1.25 (50% loss). Time stop: 14 DTE. Result: Target hit in 15 days as drift continued. P&L: +$250/contract.
 
 **Sector Pair Trade (GOOD):** XLK RS rising 6 weeks. XLE RS falling 6 weeks. Entry: Sell XLK $210/$205 bull put + sell XLE $95/$100 bear call. Net credit: $1.80. Combined delta: ~0.02 (market-neutral). Target: 50% ($0.90). Stop: 2× credit ($3.60). Result: Both expired OTM. Full credit collected. P&L: +$180/contract pair.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+| ☐ | Complete when the entry DTE is ≥ 2× the expected hold period and the exact DTE is stated in the plan (R1) | plan carries expected_hold_days and entry_DTE; the ratio computes to at least 2:1 |
+| ☐ | Complete when the trend/pullback entry is evidenced by the price vs 20SMA and 50SMA relationship and the named pullback level | entry note quotes both MA relationships and the support or MA the pullback reached |
+| ☐ | Complete when the earnings date is checked against the holding window and any directional position overlapping it is closed before or cut to ≤ 25% (R3) | earnings date in the plan; position-size field shows ≤ 25% when the window overlaps |
+| ☐ | Complete when credit spreads are closed at 50% max profit and the plan states profit target, stop, time stop and an exit ratio ≥ 2:1 (R2, R5) | exit rule set has all four fields; max_profit / max_loss computes to at least 2 |
+| ☐ | Complete when a sector-rotation pair names the relative-strength ranking of the strong and weak sector over a stated lookback and the combined delta is near zero | RS ranking shown for both sectors over the stated lookback; net delta of the pair inside the stated band |
+| ☐ | Complete when any position with DTE ≤ 7 held over a weekend is sized down and its stop buffer widened by ≥ 10% (R7) | DTE and holding_over_weekend flags set; stop_buffer_pct is at least 10 |
+| ☐ | Complete when portfolio correlation vs existing positions is computed and size cut 25% when portfolio corr > 0.60, and the SPY vs 50SMA / RSI gate is checked before a long (R6, R8) | correlation number in the plan; regime check log shows the SPY vs 50SMA state and RSI-14 value |
+| ☐ | Complete when option liquidity is verified (OI ≥ 100 and spread ≤ 5% for single-name) and the drawdown state (−10% review / −20% reduce / −30% close) is checked (R9, R10) | liquidity columns for the chosen strike; drawdown-from-high value paired with its matching action |
 ## Operating at Different Levels
 
 | Level | Scope | Key Capability |
@@ -418,20 +418,137 @@ Use this skill when the task matches the description's trigger conditions. When 
 
 ## Decision Trees
 
-1. Is the task in this skill's scope? If no, route to the owning skill.
-2. Is the required input available and verifiable? If no, request or escalate.
-3. Is the output verifiable against the request? If no, revise with evidence.
-### Decision Tree 1: In-scope or out?
-- In-scope: follow Core Workflow and verify.
-- Out-of-scope: route to the owning skill and stop.
+### Decision Tree 1: Take the swing trade, or stand down?
 
-### Decision Tree 2: Verify locally or escalate?
-- Locally verifiable: run the check and record the result.
-- Blocked externally: escalate once with full context.
+```text
+Swing setup candidate (ticker, direction, expected hold)
+│
+├─ Entry DTE ≥ 2× expected hold?
+│  ├─ NO (a 10-day swing needs ≥ 21 DTE) → REJECT. Theta accelerates in the
+│  │     final 21 DTE and destroys the swing edge (R1)
+│  └─ YES → next gate
+│
+├─ Broad market regime supports the direction?
+│  ├─ Long while SPY < 50SMA AND RSI-14 < 35 → REJECT. Longs underperform
+│  │     in bearish regimes across all tickers (R8)
+│  └─ YES → next gate
+│
+├─ Trend quality: ADX in the 20-30 band with a valid structure?
+│  ├─ NO → next gate anyway, but do not size on the score (see below)
+│  └─ YES → next gate
+│
+├─ IV environment matches the structure?
+│  ├─ IV > HV → credit structures (bull put / bear call)
+│  ├─ IV < HV → debit structures (call / put spread)
+│  └─ Either way, confirm OI > 100 and spread < 5% on single names (R10)
+│
+├─ Weekend inside the hold?
+│  ├─ YES → cut size 25-50% and add 10% to the stop buffer (R7)
+│  └─ NO → next gate
+│
+├─ swing_entry_score > 85?
+│  ├─ YES → REDUCE size 25%. High scores predict mean reversion on 9/11
+│  │     test tickers — calibration is inverted (R4)
+│  └─ NO → next gate
+│
+├─ max_profit / max_loss ≥ 2:1 on the defined exits?
+│  ├─ NO → REJECT. 1:1 at a 50% win rate is −5% expectancy after spreads (R5)
+│  └─ YES → EXECUTE with all four exits written down (profit, stop, time stop,
+│        thesis invalidation)
+│
+└─ Drawdown from portfolio high
+   ├─ −10% → review all positions before any new entry
+   ├─ −20% → close 50% and pause new entries for a week
+   └─ −30% → close all (R9)
+```
 
-### Decision Tree 3: Ship or revise?
-- Meets What Good Looks Like: deliver with evidence.
-- Gaps found: revise before delivering.
+### Decision Tree 2: Which entry style — pullback, breakout, or reversal?
+
+```text
+Direction is set — how do I enter?
+│
+├─ Is the trend mature and still intact (weekly price > 20SMA, 20SMA > 50SMA)?
+│  ├─ YES and price has pulled back to the 20SMA with RSI reset → PULLBACK
+│  │  ├─ Has support been tested AND a bounce candle printed?
+│  │  │  ├─ NO → wait. The false-stop failure: entering the drop before
+│  │  │  │     support confirms gets you stopped, then reversed (E2)
+│  │  │  └─ YES → sell the bull put spread (0.25-0.30Δ) at support
+│  │  └─ Volume on the pullback below average? → confirms, not distributes
+│  └─ NO → next gate
+│
+├─ Is this an early trend with strong momentum?
+│  ├─ YES → BREAKOUT. Use an ATM debit spread, not a credit structure (§4.1)
+│  └─ NO → next gate
+│
+├─ Is this a counter-trend idea against an established trend?
+│  ├─ YES → REVERSAL. Demand the reversal confirmation first (§5)
+│  │  ├─ Fibonacci entry zone reached AND structure broken?
+│  │  │  ├─ YES → bear call spread at resistance (§4)
+│  │  │  └─ NO → no trade. A "reversal" without confirmation is a fade into the trend
+│  └─ NO → next gate
+│
+├─ Is the setup a gap?
+│  ├─ Common gap → fade it toward the 60-70% fill rate band (§5.3)
+│  └─ Gap on earnings → do NOT enter on the day. Route to Tree 4
+│
+└─ Range-bound / neutral view?
+   └─ Iron condor at 0.15-0.20Δ wings; close at 25% of wing width (§4.1)
+```
+
+### Decision Tree 3: Choose the DTE for the intended hold period
+
+```text
+expected_hold_days is stated — select entry DTE
+│
+├─ Hold 2-5 days?
+│  └─ ENTER 21-30 DTE. Tight spreads; weekly options acceptable (§3.1)
+│
+├─ Hold 5-10 days?
+│  └─ ENTER 30-45 DTE. Theta sweet spot (§3.1)
+│
+├─ Hold 10-20 days?
+│  └─ ENTER 45-60 DTE. Room for the thesis to develop (§3.1)
+│
+├─ Hold 20-30 days?
+│  └─ ENTER 60-90 DTE. Upper edge of the swing envelope (§3.1)
+│
+└─ Hold > 30 days?
+   ├─ YES → out of scope for swing. Route to options-strategist (position
+   │     trade) or leaps-strategist if the view is multi-year
+   └─ Then verify the chosen DTE ≥ 2× the hold — a 21-day swing needs ≥ 45 DTE (R1)
+      └─ And set the time stop at the DTE that matches the plan, not
+            at the strategy's default
+```
+
+### Decision Tree 4: Hold through earnings, or exit before?
+
+```text
+An earnings date falls inside the holding window
+│
+├─ Is the position directional?
+│  ├─ YES → do NOT hold full size. Close before earnings, or cut to ≤ 25% (R3)
+│  │  └─ A post-earnings gap of 5-15% wipes 2-3 months of swing P&L in one event
+│  └─ NO (neutral / non-directional) → confirm the blackout gate is satisfied
+│        before sizing (see Route the Request)
+│
+├─ Prefer to keep exposure to the event?
+│  ├─ Long vega view → pre-earnings IV run-up via a calendar (§7)
+│  ├─ Post-event IV crush → iron condor after the print (§7)
+│  └─ Otherwise flat into the print
+│
+├─ Post-earnings drift (PEAD) is the actual thesis?
+│  ├─ YES → wait 1-3 days AFTER earnings (§7.2)
+│  │  ├─ Price continued in the surprise direction?
+│  │  │  ├─ YES → buy the debit spread in that direction
+│  │  │  └─ NO → no trade. Surprise direction ≠ drift direction (E7)
+│  │  └─ Gap held for 3 days on above-average volume?
+│  │     └─ NO → stand down. A fading gap means no drift to capture
+│  └─ NO → next gate
+│
+└─ Credit spread still inside the DTE after the event?
+   └─ Close it at 50% max profit — do not carry it to expiration for the last
+      few dollars of gamma and pin risk (R2)
+```
 
 ## Proactive Triggers
 

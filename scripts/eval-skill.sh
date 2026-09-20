@@ -8,6 +8,8 @@
 #   bash scripts/eval-skill.sh qa-engineer transcript.txt   # score live output
 #
 # Exit 0 iff every executable case passes. Wiring point for the CI eval gate (G3).
+# An --all run that finds zero golden cases proves nothing and exits 1 (a gate that
+# cannot fail is worse than no gate — mirrors the behavioral-evals all-skipped rule).
 # =============================================================================
 set -euo pipefail
 
@@ -39,7 +41,9 @@ run_one() {
     fi
 }
 
+ALL_MODE=false
 if [ "${1:-}" = "--all" ]; then
+    ALL_MODE=true
     for cases in "$GOLDEN_DIR"/*/cases.json; do
         [ -e "$cases" ] || continue
         skill="$(basename "$(dirname "$cases")")"
@@ -50,6 +54,13 @@ elif [ -n "${1:-}" ]; then
 else
     echo "usage: bash scripts/eval-skill.sh <skill> | --all"
     exit 2
+fi
+
+# An --all run that executed zero cases is a false green: the golden corpus is
+# absent or unreadable, so nothing was actually checked. Fail loudly.
+if [ "$ALL_MODE" = true ] && [ "$RAN" -eq 0 ]; then
+    echo "eval-skill: 0 golden cases found under $GOLDEN_DIR — nothing was verified."
+    exit 1
 fi
 
 if [ "$FAILURES" -eq 0 ]; then

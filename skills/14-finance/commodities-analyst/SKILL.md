@@ -433,8 +433,20 @@ Trade Implications:
 ```
 
 Every data point tagged. Supply-demand balanced. Inventories in context. Curve structure consistent with inventory signal. Trade expression accounts for curve costs.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
+
+### Completion Criteria
+
+| ☐ | Complete when... | Check that proves it |
+|---|---|---|
+| ☐ | Complete when supply-demand is balanced as a stock change, not asserted: global production, global demand, and the implied build/draw are shown with source and report date | The balance-sheet block carries production, demand, and production − demand figures; each is tagged with its source and revision (EIA weekly, IEA monthly, WASDE) |
+| ☐ | Complete when curve structure is labeled contango or backwardation from the actual settlement strip, and the annualized roll yield is computed for the holding period | Front-month versus deferred settlements are quoted; roll yield is computed and stated per year, not described qualitatively |
+| ☐ | Complete when inventory cycle position is stated as building or drawing, with days of forward cover compared against the five-year average | Days-of-cover figure is present alongside the 5-year average; the direction (tightening/easing) follows from the comparison, not from the headline number |
+| ☐ | Complete when any processing spread used in the trade is computed from contemporaneous futures prices and benchmarked against its own seasonal norm | Crack/crush/spark arithmetic shows each leg's price and the resulting margin; the margin is compared to the same-period historical average |
+| ☐ | Complete when spread margin and execution structure are checked against the exchange-recognized combo before legs are constructed | Broker or exchange margin for the recognized spread is quoted; if no recognized combo exists, the separate-leg margin is stated explicitly |
+| ☐ | Complete when, for a globally traded commodity, the balance is global — a domestic shock is not treated as a supply event until non-domestic supply is checked | The producing regions that could offset the shock are named and their output is included in the net stock change |
+| ☐ | Complete when seasonality is accounted for: the current position in the heating/cooling, crop, or refinery-turnaround calendar is named, and any weather premium is identified as priced or not | The relevant calendar phase is stated, and weather-driven moves are attributed to forecast surprise rather than the published forecast itself |
+| ☐ | Complete when every quantitative claim carries a provenance tag, with [COMPUTED] shown reproducible and [ESTIMATED]/[UNKNOWN] used where a figure could not be sourced | Each price, inventory, and spread figure carries a tag; any untagged number is rejected before delivery |
+
 ## Verification Guardrails
 
 - [ ] **All commodity prices from live source** — EIA, CME, ICE, LME, broker terminal. [VERIFIED] timestamp

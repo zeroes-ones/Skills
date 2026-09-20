@@ -11,7 +11,7 @@
 
 This repository is **two things at once**:
 
-1. **A skill library** — 322 written playbooks (`SKILL.md` files) that tell an AI agent how to do
+1. **A skill library** — 327 written playbooks (`SKILL.md` files) that tell an AI agent how to do
    one professional job (review code, design a database, price a consulting engagement, audit
    accessibility, etc.). Each skill is a markdown file with YAML frontmatter, plus optional
    supporting `scripts/`, `references/`, `examples/`, and `evals/` directories.
@@ -32,14 +32,15 @@ open `SKILL.md` format. It is distributed via shell installer, npm
 
 | Fact | Value | How to re-check |
 |---|---|---|
-| Skills | **322** in **37** domain directories | `find skills -name SKILL.md \| wc -l` |
-| Flat discovery entries | 322 symlinks, no collisions | `python3 scripts/check-flat-index.py` |
-| Library audit score | **9.8/10** (domain-calibrated) | `python3 scripts/audit-library.py` |
+| Skills | **327** in **37** domain directories | `find skills -name SKILL.md \| wc -l` |
+| Flat discovery entries | 327 symlinks, no collisions | `python3 scripts/check-flat-index.py` |
+| Library audit score | **9.8/10** — a report, not a gate; exits 0 | `python3 scripts/audit-library.py` |
 | Governance gate | `PASS: 14  FAIL: 0` | `bash scripts/validate-skills.sh` |
-| Engine self-test | `selftest: 20 checks, 0 failed` | `python3 scripts/workflow-runner.py --selftest` |
+| Engine self-test | `selftest: 41 checks, 0 failed` | `python3 scripts/workflow-runner.py --selftest` |
+| Manifest validator self-test | `selftest: 34 checks, 0 failed` | `python3 scripts/validate-workflows.py --selftest` |
 | Workflow manifests | 6 in `workflow/manifests/` (+ examples) | `ls workflow/manifests/*.yaml` |
-| Declared workflow contracts | 59 skills carry a `workflow:` block | `grep -rl '^workflow:' skills --include=SKILL.md \| wc -l` |
-| Compiled corpus | 322/322 skills, **77.9%** measured token reduction | `python3 scripts/check-token-budget.py` |
+| Declared workflow contracts | 64 skills carry a `workflow:` block | `grep -rl '^workflow:' skills --include=SKILL.md \| wc -l` |
+| Compile coverage / token budget | 327/327 compiled; budget comparison UNMEASURED without tiktoken (exit 2) | `python3 scripts/check-token-budget.py` |
 
 > **Token-measurement caveat:** `scripts/_compile_skill.py:136` falls back to `len(text.split())`
 > when `tiktoken` is absent (it is absent here), so the toolchain's "token" figures are **word
@@ -47,8 +48,9 @@ open `SKILL.md` format. It is distributed via shell installer, npm
 > (`cl100k_base`): reduction is **77.9%**, not 86%; mean raw 13,895 / compiled 3,066 tokens per
 > skill. Full benchmark: [`docs/token-context-benchmark.md`](docs/token-context-benchmark.md).
 
-> **Count caveat:** the docs were swept on 2026-09-14 and now state counts consistent with the
-> corpus. The single source of truth is always the filesystem: **322 today**. When you touch a
+> **Count caveat:** the docs were swept on 2026-09-14 and refreshed on 2026-09-19 after the
+> authenticity remediation (see `docs/authenticity-remediation-2026-09-19.md`). The single source of
+> truth is always the filesystem: **327 today**. When you touch a
 > count, prefer computing it (or phrasing it count-free) over hardcoding; where a number is part of
 > a historical narrative or a dated build log, leave it and add a dated note rather than rewriting.
 
@@ -59,7 +61,7 @@ open `SKILL.md` format. It is distributed via shell installer, npm
 ```
 Skills/
 ├── skills/<domain>/<name>/SKILL.md      # CANONICAL skill store — two levels deep, 37 domains
-├── skills-flat/<name> -> ../skills/...  # committed flat discovery layer (322 symlinks)
+├── skills-flat/<name> -> ../skills/...  # committed flat discovery layer (327 symlinks)
 ├── .skills-compiled/<name>/             # compiled XML + metadata.json (gitignored build output)
 ├── workflow/
 │   ├── manifests/*.yaml                 # 6 executable workflow manifests
@@ -142,7 +144,7 @@ python3 scripts/check-flat-index.py       # invariant check: count, collisions, 
 # Compile human-readable SKILL.md -> minified XML for LLMs
 bash scripts/compile-skills.sh --all      # -> .skills-compiled/**/skill.xml (gitignored)
 bash scripts/compile-skills.sh --verify
-python3 scripts/check-token-budget.py     # compile coverage + declared budget gate
+python3 scripts/check-token-budget.py     # compile coverage gate; budget UNMEASURED w/o tiktoken (--allow-unmeasured)
 
 # Regenerate committed generated artifacts
 python3 scripts/emit-skill-graph.py       # -> docs/graph-explorer/{index.html,skill-graph.json}
@@ -256,7 +258,7 @@ governance suite and master linter. `prepublishOnly` runs lint + validate.
 **The engine's own tests are the fastest confidence check** (no agent, no cost):
 
 ```bash
-python3 scripts/workflow-runner.py --selftest     # expect: selftest: 20 checks, 0 failed
+python3 scripts/workflow-runner.py --selftest     # expect: selftest: 41 checks, 0 failed
 python3 scripts/validate-workflows.py --selftest
 python3 scripts/validate-workflows.py --all
 python3 scripts/workflow-runner.py --manifest workflow/manifests/senior-dev-loop.yaml
@@ -274,10 +276,10 @@ This is the most important section if you are adding or editing a skill.
 <name>/
 ├── SKILL.md           # required — instructions, workflow, checklist
 ├── scripts/           # per-skill deterministic tools (verify-skill.sh lives here)
-├── references/        # deep knowledge loaded on demand (317/322 skills have this)
-├── examples/          # worked scenarios (128/322)
-├── evals/             # per-skill eval data (224/322)
-└── assets/            # templates/samples (7/322)
+├── references/        # deep knowledge loaded on demand (326/327 skills have this)
+├── examples/          # worked scenarios (133/327)
+├── evals/             # per-skill eval data (224/327)
+└── assets/            # templates/samples (7/327)
 ```
 
 ### Frontmatter

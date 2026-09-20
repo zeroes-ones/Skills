@@ -42,7 +42,7 @@ BUILD_SKILL = {
 BUDGET = {"xs": 30, "s": 40, "m": 60, "l": 90, "xl": 120, "xxl": 160}
 KINDS = set(BUILD_SKILL) | {"support"}
 
-HANDOFF = ("status, summary, artifacts, decisions, open_questions, "
+HANDOFF = ("status, summary, artifacts, decisions, open_questions, constraints, "
            "verification_evidence, context, budget, next")
 
 

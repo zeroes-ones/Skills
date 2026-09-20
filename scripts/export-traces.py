@@ -13,9 +13,14 @@ Attributes are stable keys: status, verdict, evidence, iterations, and (where pr
 Cost/tokens are executor-reported: the runner accumulates `usage` from each node into run-state and
 this exporter surfaces it per span and rolled up on the session span. `usage_reported` /
 `cost_measured` distinguish "spent nothing" from "not measured" — an unmeasured run must never be
-read as a free one. Latency remains a placeholder (0) until a real executor reports it. Sampling
-policy is 100% for escalations/guardrail trips (the state log's 'escalate'/'guardrail' actions),
-default otherwise.
+read as a free one.
+
+Latency is `attributes.latency_ms`, read from the node record's `duration_ms` (measured by the
+runner around each executor call with a `time.monotonic()` delta; see
+`scripts/workflow-runner.py`, `Runner._mark_done`). A run-state written before that field existed
+has no `duration_ms`, and the span then carries `latency_ms: null` — NOT `0`, which would report an
+instantaneous node — with `latency_measured: false` saying so. Sampling policy is 100% for
+escalations/guardrail trips (the state log's 'escalate'/'guardrail' actions), default otherwise.
 
 Usage:
     python3 scripts/export-traces.py --state examples/workflow-runtime/state/happy-run-state.json
@@ -81,7 +86,11 @@ def export(state):
                 "verdict": rec.get("verdict"),
                 "evidence": rec.get("evidence") or [],
                 "iterations": rec.get("iterations", 0),
-                "latency_ms": 0,   # reported by the executor in real deployments
+                # Measured by the runner around each executor call. `null` (not 0) when the
+                # run-state predates the field: an unmeasured latency must not read as an
+                # instantaneous node, the same way an unmeasured cost must not read as free.
+                "latency_ms": rec.get("duration_ms"),
+                "latency_measured": rec.get("duration_ms") is not None,
                 # executor-reported usage (None when the executor reported nothing, so an
                 # unreported span is distinguishable from a genuinely free one)
                 "tokens_in": (rec.get("cost") or {}).get("tokens_in"),

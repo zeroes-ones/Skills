@@ -263,14 +263,14 @@ Implied vs realized correlation. Pair correlation. Sector correlation norms. Cor
 **Dispersion Trade (GOOD):** SPX IV = 19%, weighted top-20 IV = 16.5%. Implied correlation = 0.55 vs realized = 0.35. Signal: z-score > 2.0. Short SPX straddle, long 20 single-stock straddles, vega-neutral. Sizing: 5% of account. Correlation stop at 0.50 realized. Result: Held 3 weeks. Correlation mean-reverted. +3.2% on capital. Annualized: similar trades produce +8-12% gross.
 
 **Regime Shift Avoided (GOOD):** VIX term structure flattened then inverted over 3 days. VIX rose 18 → 23 → 28. Automated regime detection flagged. All short-vol positions closed within 2 hours of backwardation signal. Result: Sat in cash for 8 days while VIX spiked to 35, then normalized. Re-entered at VIX 20 with term structure in contango. Avoided -22% drawdown that competitors experienced.
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+| ☐ | Complete when regime (Low / Normal / High) is classified from VIX level, VIX percentile, term-structure slope and VVIX before any strategy is chosen | regime report lists all four inputs with values and the resulting sizing multiplier |
+| ☐ | Complete when no short-vol position is proposed while the VIX futures front month > second month (backwardation) (R1) | term-structure table states front and second months in vol points and the slope sign |
+| ☐ | Complete when the fitted surface residual is reported per expiry and skew segment (RMSE in vol points) and segments outside the fit tolerance are excluded from signals | fit report per segment with RMSE; an excluded-segment list |
+| ☐ | Complete when 25Δ put IV, 25Δ call IV and the risk-reversal skew are quoted per underlying with a skew z-score against a stated lookback | skew table per name; z-score shown with the lookback window named |
+| ☐ | Complete when a dispersion signal states implied vs realized correlation with a z-score gap > 2.0 and a basket of ≥ 20 names with no name > 8% of vega (R8) | correlation pair written into the signal record; per-name vega shares each ≤ 8% |
+| ☐ | Complete when vega and dollar-gamma at inception are both computed for every new position (vega-neutral alone is not sufficient) (R3) | inception risk sheet carries both numbers for each position |
+| ☐ | Complete when any VIX futures or options leg has a kill-switch level (VIX > 28 close 50%, > 35 close 100%) and long VIX futures carry a ≤ 3-day max hold (R5, R6) | kill-switch constants in the strategy config; holding-days field capped at 3 |
+| ☐ | Complete when short-vol allocation is ≤ 20% of account, sizing follows the regime multiplier, and a correlation check timestamped within 24h is logged (R7, R10) | allocation percentage against account value; correlation log entry with a timestamp age under 24h |
 ## Operating at Different Levels
 
 | Level | Scope | Key Capability |
@@ -419,20 +419,73 @@ Use this skill when the task matches the description's trigger conditions. When 
 
 ## Decision Trees
 
-1. Is the task in this skill's scope? If no, route to the owning skill.
-2. Is the required input available and verifiable? If no, request or escalate.
-3. Is the output verifiable against the request? If no, revise with evidence.
-### Decision Tree 1: In-scope or out?
-- In-scope: follow Core Workflow and verify.
-- Out-of-scope: route to the owning skill and stop.
+### Decision Tree 1: Which vol trade fits the surface?
 
-### Decision Tree 2: Verify locally or escalate?
-- Locally verifiable: run the check and record the result.
-- Blocked externally: escalate once with full context.
+```
+Vol arb request → Regime Assessment FIRST (§7)
+│
+├─ Regime Low (VIX < 15, steep contango) → full allocation, harvest VRP
+├─ Regime Normal (VIX 15-22, mild contango) → standard allocation, all strategies viable
+└─ Regime High (VIX > 25, backwardation) → close short vol, buy premium only, small
+   └─ strongest surface signal
+      ├─ Index IV vs weighted constituent IV gap, z-score > 2.0 → Dispersion (§3)
+      │  └─ Gate: account > $250K, ≥ 20 names, no name > 8% of vega (R8)
+      ├─ 25Δ put IV vs 25Δ call IV, skew z-score > 2.0 → Skew arb via risk reversal (§5)
+      │  └─ Gate: never net short puts when VIX > 25 or market < 200SMA
+      ├─ VIX futures curve anomaly > 2σ → Term structure arb (§5)
+      │  └─ Contango for the short leg; backwardation for the long leg
+      ├─ VVIX extreme → VIX options/futures (§6)
+      │  ├─ VVIX > 130 → do NOT sell VIX options premium (R9)
+      │  ├─ VVIX > 120 before buying VIX calls → the move is partly priced (E4)
+      │  └─ VVIX < 110 with signal intact → premium sale viable
+      └─ IV spread divergence on correlated pairs → Correlation trading (§8)
+         └─ Gate: realized correlation < 0.60
+```
 
-### Decision Tree 3: Ship or revise?
-- Meets What Good Looks Like: deliver with evidence.
-- Gaps found: revise before delivering.
+### Decision Tree 2: Is the dislocation real, or a data artefact?
+
+```
+Signal fires at > 2.0σ → validate BEFORE sizing
+│
+├─ Fitted surface residual per expiry and skew segment
+│  └─ RMSE outside the fit tolerance → EXCLUDE that segment from signals
+├─ Liquidity on both legs
+│  └─ Exit impossible during a vol event → reject; §13 requires all instruments tradeable
+├─ Is the "mispricing" the market pricing a risk the model misses?
+│  ├─ VIX > 25, market < 200SMA, FOMC day, or geopolitical event → legitimate fear, do not fade (E6)
+│  ├─ Skew rich with a known catalyst pending → the 3σ is information, not a dislocation
+│  └─ No identifiable catalyst and residual survives re-fit → dislocation is real
+└─ Dispersion signal specifically
+   ├─ implied_correlation − realized_correlation > 0.15 → thesis invalid, do not enter (R4)
+   └─ Implied 0.55 vs realized 0.35 at z-score > 2.0 → genuine gap
+```
+
+### Decision Tree 3: Sizing under correlation risk, and exit when the edge closes?
+
+```
+Validated signal → size it, then pre-commit the exit
+│
+├─ Correlation risk
+│  ├─ Average pairwise correlation > 0.60 → PAUSE all new entries (R10)
+│  ├─ Correlation check age > 24h → run it now; never size on a stale matrix (R10)
+│  └─ Realized correlation rising fast → reduce before adding
+├─ Sizing
+│  ├─ Regime multiplier: 1.0 Low / 0.8 Normal / 0.4 High (Phase 1)
+│  ├─ Short-vol allocation > 20% of account → cut (R7); full VIX < 15, half 20-25, zero > 25
+│  ├─ Dispersion → 5% per trade, 15% total correlation book (§6)
+│  └─ Signal stronger/extreme → size DOWN; half-Kelly is the ceiling regardless of streak
+└─ Risk computed at inception (never skip — R3)
+   ├─ vega AND dollar-gamma both computed → proceed; vega-neutral alone is not risk-neutral
+   └─ Either missing → STOP; vega-neutral dispersion can still lose 10%+ in a day
+      └─ Exits when the edge closes
+         ├─ implied correlation > realized + 0.15 → close dispersion (R4)
+         ├─ Term structure inverts (front > second month) → close all short vol within 24h (R1)
+         ├─ VIX > 30 for 3+ consecutive days → halt, close short vol (R2)
+         ├─ Long VIX futures > 3 days → exit on the catalyst date, win or lose (R5)
+         ├─ Short VIX futures → hard kill switch: VIX > 28 close 50%, > 35 close 100% (R6)
+         ├─ Vega drift > 10% → rebalance (Phase 4)
+         └─ Book drawdown -10% → review; -20% → close the vol arb book
+```
 
 ## Proactive Triggers
 

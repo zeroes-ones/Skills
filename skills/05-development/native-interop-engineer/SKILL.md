@@ -379,17 +379,19 @@ Finally, ALWAYS:
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| A leak that appears only in long-running processes | A pointer allocated on one side, never freed on the other (R1) | Name the allocator and freer per pointer; free on the allocating side or hand over the deallocator. A leak investigation commonly costs **$40,000 cost** | An unowned pointer is a leak with a delay |
-| Heap corruption that "works in testing" | Allocation on one side, free on the other with a different allocator | Route both through one allocator, or transfer ownership explicitly. Corruption diagnosis commonly costs **$80,000 cost** | Mismatched allocators agree in some builds and not others |
-| The process aborts with no message after a foreign call | A panic or exception unwound across a foreign frame (R3) | Catch at the boundary; convert to a result code. An abort investigation commonly costs **$35,000 cost** | Unwinding into a frame that does not expect it is undefined behaviour |
-| A call fails and the caller sees success | A sentinel error value that was also a legitimate return | Use an explicit out-parameter or result type. Silent-success remediation commonly costs **$60,000 cost** for data corruption | A failure must be distinguishable from success on every path |
-| Deadlock under load, never in single-threaded tests | A callback re-entered while the runtime's guard was held (R4) | Never call back while holding the guard; queue and return. A deadlock investigation commonly costs **$70,000 cost** | Re-entrancy rules are not optional |
-| An intermittent crash on a native-created thread | The thread was never attached to the runtime | Attach before touching managed state. Remediation commonly costs **$45,000 cost** | Thread affinity is a contract, not a detail |
-| The FFI call is slower than the pure-language version | Per-crossing cost dominates; the boundary was chosen for unmeasured speed (R2, R6) | Measure per crossing; batch or reduce crossings, or reconsider the boundary. Rework commonly costs **$90,000 cost** | An unmeasured performance justification is a guess |
-| A use-after-free during shutdown | A callback outlived its registration and arrived during teardown (R4) | Bound the callback lifetime; cancel and drain before teardown. Remediation commonly costs **$50,000 cost** | Callback lifetime is the caller's responsibility |
-| The build breaks on one platform only | The second toolchain was never wired into CI for that target | Add the boundary build to every platform's pipeline. A late discovery typically **$30,000 cost** in delayed release | A second toolchain is a second maintenance surface |
+| A leak that appears only in long-running processes | A pointer allocated on one side, never freed on the other (R1) | Name the allocator and freer per pointer; free on the allocating side or hand over the deallocator. A leak investigation commonly costs **$40,000 [ESTIMATED]** | An unowned pointer is a leak with a delay |
+| Heap corruption that "works in testing" | Allocation on one side, free on the other with a different allocator | Route both through one allocator, or transfer ownership explicitly. Corruption diagnosis commonly costs **$80,000 [ESTIMATED]** | Mismatched allocators agree in some builds and not others |
+| The process aborts with no message after a foreign call | A panic or exception unwound across a foreign frame (R3) | Catch at the boundary; convert to a result code. An abort investigation commonly costs **$35,000 [ESTIMATED]** | Unwinding into a frame that does not expect it is undefined behaviour |
+| A call fails and the caller sees success | A sentinel error value that was also a legitimate return | Use an explicit out-parameter or result type. Silent-success remediation commonly costs **$60,000 [ESTIMATED]** for data corruption | A failure must be distinguishable from success on every path |
+| Deadlock under load, never in single-threaded tests | A callback re-entered while the runtime's guard was held (R4) | Never call back while holding the guard; queue and return. A deadlock investigation commonly costs **$70,000 [ESTIMATED]** | Re-entrancy rules are not optional |
+| An intermittent crash on a native-created thread | The thread was never attached to the runtime | Attach before touching managed state. Remediation commonly costs **$45,000 [ESTIMATED]** | Thread affinity is a contract, not a detail |
+| The FFI call is slower than the pure-language version | Per-crossing cost dominates; the boundary was chosen for unmeasured speed (R2, R6) | Measure per crossing; batch or reduce crossings, or reconsider the boundary. Rework commonly costs **$90,000 [ESTIMATED]** | An unmeasured performance justification is a guess |
+| A use-after-free during shutdown | A callback outlived its registration and arrived during teardown (R4) | Bound the callback lifetime; cancel and drain before teardown. Remediation commonly costs **$50,000 [ESTIMATED]** | Callback lifetime is the caller's responsibility |
+| The build breaks on one platform only | The second toolchain was never wired into CI for that target | Add the boundary build to every platform's pipeline. A late discovery typically **$30,000 [ESTIMATED]** in delayed release | A second toolchain is a second maintenance surface |
 | An `unsafe` region has an out-of-bounds write | The invariant was assumed rather than checked (Anti-Hallucination) | Review the region, add bounds checks or a safe wrapper. A memory-safety defect is potentially a security issue | `unsafe` is a promise kept by review |
 
 ## Error Recovery **(QUICK)**
@@ -528,16 +530,18 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| Pointer crossing with no named owner | Heap corruption or a leak; investigation commonly **$80,000 cost** | Allocator and freer per pointer (R1) |
-| Exceptions crossing a foreign frame | A process abort with no message; commonly **$35,000 cost** | Catch at the boundary, convert to a result (R3) |
-| Sentinel error colliding with a valid value | Silent data corruption; commonly **$60,000 cost** | Explicit out-parameter or result type (R3) |
-| Callback re-entering while the guard is held | Deadlock under load; commonly **$70,000 cost** | Never call back holding the guard (R4) |
-| Native thread not attached to the runtime | Intermittent crash; commonly **$45,000 cost** | Attach the thread first (R4) |
-| Unbounded callback lifetime | Use-after-free at teardown; commonly **$50,000 cost** | Bound the lifetime; cancel and drain |
-| FFI chosen on an unmeasured performance claim | Slower than the pure-language path; rework commonly **$90,000 cost** | Measure the crossing before committing (R2, R6) |
-| Second toolchain not in every platform's CI | A late build break before release; typically **$30,000 cost** | Add the boundary build to every target |
+| Pointer crossing with no named owner | Heap corruption or a leak; investigation commonly **$80,000 [ESTIMATED]** | Allocator and freer per pointer (R1) |
+| Exceptions crossing a foreign frame | A process abort with no message; commonly **$35,000 [ESTIMATED]** | Catch at the boundary, convert to a result (R3) |
+| Sentinel error colliding with a valid value | Silent data corruption; commonly **$60,000 [ESTIMATED]** | Explicit out-parameter or result type (R3) |
+| Callback re-entering while the guard is held | Deadlock under load; commonly **$70,000 [ESTIMATED]** | Never call back holding the guard (R4) |
+| Native thread not attached to the runtime | Intermittent crash; commonly **$45,000 [ESTIMATED]** | Attach the thread first (R4) |
+| Unbounded callback lifetime | Use-after-free at teardown; commonly **$50,000 [ESTIMATED]** | Bound the lifetime; cancel and drain |
+| FFI chosen on an unmeasured performance claim | Slower than the pure-language path; rework commonly **$90,000 [ESTIMATED]** | Measure the crossing before committing (R2, R6) |
+| Second toolchain not in every platform's CI | A late build break before release; typically **$30,000 [ESTIMATED]** | Add the boundary build to every target |
 | Unreviewed `unsafe` region | A memory-safety defect that may be a security issue | Review the invariants (Anti-Hallucination) |
 | Binding library assumed to be a full contract | Unexpected ownership or thread behaviour (R5) | State what it guarantees and what you own |
 

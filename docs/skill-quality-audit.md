@@ -2,6 +2,12 @@
 
 **Measured:** 2026-09-14 · **Method:** per-skill structural analysis of all 320 `SKILL.md` files against the repo's own two section standards, plus a peer-convergence gap scan against four cloned best-in-class libraries.
 
+> **Staleness caveat (2026-09-20).** Measured at **320 skills**; the corpus is now **327**. The
+> structural findings (§2–§4), the "why the gates cannot see it" argument (§3) and the
+> missing-capability ranking (§4) are the durable part. Per-skill rows and totals are a dated
+> snapshot. Two later passes supersede parts of it: `docs/handoff-and-routing-assessment-2026-09-19.md`
+> and `docs/agnosticism-and-agi-readiness-2026-09-19.md`.
+
 ## 1. Headline
 
 The library reports **9.8/10** and a green governance gate. Both are true **and** both are misleading:

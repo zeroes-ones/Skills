@@ -8,6 +8,7 @@ payloads:
     - artifacts
     - decisions
     - open_questions
+    - constraints
     - verification_evidence
     - context
     - budget
@@ -24,15 +25,17 @@ nodes:
     outputs: [validation-report]
   - id: skill-lints
     skill: writing-great-skills
-    outputs: [lint-report]
+    inputs: [skill-draft]
+    outputs: [skill-review]
   - id: golden-evals
     skill: agent-eval-pipeline
+    inputs: [agent-candidate]
     outputs: [eval-report]
 gates:
   - id: release-gate
     type: gate
     kind: human
-    requires: [validation-report, lint-report, eval-report]
+    requires: [validation-report, skill-review, eval-report]
     description: Human merges after all three quality gates are green.
 parallel:
   - id: quality-gates

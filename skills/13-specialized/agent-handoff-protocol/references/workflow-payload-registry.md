@@ -4,7 +4,7 @@ Canonical handoff payload for workflow manifests (WORKFLOW-SYSTEM.md Section 5).
 agent-handoff-protocol lens on the registry: where each key maps to this skill's existing contract
 concepts, and how manifests enforce it.
 
-## The nine keys
+## The ten keys
 
 | Key | Required | Contents | agent-handoff-protocol anchor |
 |-----|----------|----------|-------------------------------|
@@ -13,6 +13,7 @@ concepts, and how manifests enforce it.
 | `artifacts` | yes | `[{name, path, sha, type}]` | State serialization: artifact manifest |
 | `decisions` | yes | Decisions with rationale (`[]` allowed) | Decision Gate Ledger entries |
 | `open_questions` | yes | What the next node must resolve (`[]` allowed) | Open questions accumulation (proactive trigger 5) |
+| `constraints` | yes | `[{type, value, source, non_negotiable}]` (`[]` allowed when truly none) | Constraint carry-forward — rule R2 |
 | `verification_evidence` | yes | Criterion → evidence map; empty = not done | Completion claims must be checkable |
 | `context` | yes | Files read, assumptions, things tried and failed | Context pass-through protocol elements |
 | `budget` | yes | Tokens / steps / iterations used by this node | Token-usage accounting across handoffs |
@@ -50,6 +51,11 @@ they live in `summary` + `context`, with file paths under `artifacts`.
 
 ## Registry drift
 
-If a flow needs a key beyond these nine, that is a registry change, not a one-off payload extension.
+If a flow needs a key beyond these ten, that is a registry change, not a one-off payload extension.
 Propose the key, update `workflow/schema/` + this reference + the validator's canonical set, then
 adopt. Ad-hoc keys are how handoffs stop being contracts.
+
+`constraints` was added this way: the skill taught it and the consuming engine populated and
+enforced it (R2), but the registry did not carry it — so a manifest declaring it was rejected and
+the field looked like a private extension rather than a universal one. The schema's V8 key list and
+`CANONICAL_PAYLOAD_KEYS` are now asserted identical by `scripts/validate-workflows.py --selftest`.

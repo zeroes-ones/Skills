@@ -136,8 +136,8 @@ Never let agents share mutable state without a typed schema. Never delegate with
 
 | # | Negative Constraint | Mechanical Trigger (detect before executing) | Violation Response |
 |---|-------------------|---------------------------------------------|-------------------|
-| **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect installed versions → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
-| **R2** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| **R1** | **ANCHOR to runtime versions before generating framework-specific code.** Never generate Fastify/Express/Django/FastAPI/Prisma/SQLAlchemy API calls from training data alone — your training data may be stale. | Trigger: skill receives code-generation task involving framework-specific APIs → detect the installed versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from the lockfile or manifest → if detection succeeds, anchor all API calls to detected versions → if detection fails, request version info from user | STOP. Respond: "Detected: {runtime}@{version}, {frameworks}@{versions}. Anchoring all API calls to these versions. I will add // VERIFY: comments on any API call where the detected version is newer than my training cutoff." |
+| **R2** | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 ## The Expert's Mindset
 <!-- STANDARD: 3min -->
@@ -371,7 +371,7 @@ Run these checks before declaring work complete. ALL must pass.
 - "the verifier approves everything" → Audit evaluator independence: role, context, information, model (7.3)
 - "a metric is green but the outcome got worse" → Find the metric's intent and pair it with a harm metric (7.4)
 
-## Error Decoder — War Stories from the Trenches
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -440,8 +440,21 @@ This skill provides the architecture, protocols, and failure mode prevention to 
 ```
                   ┌──────────────┐
                   │  SUPERVISOR  │
-...
+                  │  (Router +   │
+                  │   Arbiter)   │
+                  └──┬──┬──┬──┬──┘
+                     │  │  │  │
+              ┌──────┘  │  │  └──────┐
+              ▼         ▼  ▼         ▼
+         ┌────────┐ ┌────────┐ ┌────────┐
+         │ Agent A│ │ Agent B│ │ Agent C│
+         │(Code)  │ │(Review)│ │(Test)  │
+         └────────┘ └────────┘ └────────┘
 ```
+
+**Use when:** Task routing needs clear ownership; latency < 200ms per delegation; 3-12 agents.
+
+**Anti-pattern:** Supervisor becomes bottleneck — delegate only routing, never computation.
 
 > 📎 **Full content (166 lines):** [references/3-five-agent-topology-patterns.md](references/3-five-agent-topology-patterns.md)
 
@@ -455,8 +468,21 @@ This skill provides the architecture, protocols, and failure mode prevention to 
 
 from typing import TypedDict, Annotated, Sequence
 from langgraph.checkpoint.memory import MemorySaver
-...
+import operator
+
+class AgentState(TypedDict):
+    messages: Annotated[Sequence[str], operator.add]  # Append-only
+    current_task: str
+    agent_outputs: dict[str, str]  # Agent -> output mapping
+    decision_log: list[dict]       # Audit trail
+    delegation_depth: int          # Max-depth counter
+    handoff_hash: str              # Cryptographic hash of last handoff
+
+checkpointer = MemorySaver()
+graph.compile(checkpointer=checkpointer)
 ```
+
+**Checkpoint rule:** Checkpoint after every agent handoff — never let 3+ sequential mutations accumulate without persistent snapshot.
 
 > 📎 **Full content (57 lines):** [references/4-typed-shared-state-architecture.md](references/4-typed-shared-state-architecture.md)
 
@@ -470,7 +496,14 @@ from langgraph.checkpoint.memory import MemorySaver
 
 Input Task
     │
-...
+    ├── Complexity < threshold? ──yes──▶ Single agent
+    │
+    └── Complexity >= threshold?
+            │
+            ├── Domain = frontend? ──▶ Frontend specialist
+            ├── Domain = backend?  ──▶ Backend specialist
+            ├── Domain = data?     ──▶ Data specialist
+            └── Cross-cutting?     ──▶ Orchestrator decomposes
 ```
 
 > 📎 **Full content (81 lines):** [references/5-agent-delegation-protocol.md](references/5-agent-delegation-protocol.md)
@@ -491,7 +524,10 @@ Input Task
 def sync_after_handoff(from_agent: str, to_agent: str, state: AgentState):
     state["handoff_hash"] = sha256(json.dumps(state).encode()).hexdigest()[:16]
     state["delegation_depth"] += 1
-    if state["delegation_depth"] > state.get("max_depth", 5):
+    # max_depth = 3: see Ground Rules and Decision Tree 3. Each extra hop compounds
+    # hallucination probability 15-20% (Best Practice 3), so the depth budget is
+    # deliberately tighter than typical framework defaults.
+    if state["delegation_depth"] > state.get("max_depth", 3):
         raise DelegationDepthExceeded(state["delegation_depth"])
     checkpointer.put(state["handoff_hash"], deepcopy(state))
     return state
@@ -602,7 +638,7 @@ is a topology that has stopped verifying.
 | Metric | Instrument | Threshold |
 |--------|-----------|-----------|
 | Inter-agent latency | handoff_start → handoff_end | < 500ms P95 |
-| Delegation depth | depth counter per chain | ≤ 5 |
+| Delegation depth | depth counter per chain | ≤ 3 |
 | State hash drift | compare hashes pre/post handoff | Must match |
 | Hallucination score | cross-agent consistency check | < 0.3 divergence |
 | Token consumption / agent | per-agent token counter | Budget per task |
@@ -637,7 +673,21 @@ for handoff in handoff_chain:
 **Pattern:** Agent A hallucinates → Agent B uses hallucinated output → Agent C amplifies → cascading wrong decisions.
 
 **Detection:**
-...
+
+```python
+def detect_cascade(outputs: list[dict], threshold: float = 0.3) -> bool:
+    for i in range(1, len(outputs)):
+        consistency = cosine_similarity(
+            embed(outputs[i-1]["claim"]),
+            embed(outputs[i]["claim"])
+        )
+        if consistency < threshold:
+            return True  # Cascade detected — halt and verify
+    return False
+```
+
+**Prevention:** Inter-agent consistency check after every handoff. If consistency < 0.7, inject verification step before continuing.
+
 > 📎 **Full content (69 lines):** [references/9-failure-modes-prevention.md](references/9-failure-modes-prevention.md)
 
 ## 10. Cost Optimization
@@ -826,7 +876,7 @@ Task batch received: [T1, T2, T3, T4]
 
 2. **Checkpoint state drift ($100K+ in inconsistent decisions):** 3+ sequential agents mutate shared TypedDict without checkpoint between mutations. Mitigation: Checkpoint after every handoff; verify handoff hash on receipt.
 
-3. **Infinite delegation loop ($50K+ compute waste):** Agent A → B → C → A cycle with no detection. Mitigation: `visited` edge set + `delegation_depth` counter; halt at depth 5 or cycle.
+3. **Infinite delegation loop ($50K+ compute waste):** Agent A → B → C → A cycle with no detection. Mitigation: `visited` edge set + `delegation_depth` counter; halt at depth 3 or cycle. (Depth budget is 3, not the framework-typical 5: each extra hop compounds hallucination probability by 15-20%, so cap the chain short and make the failing agent answer instead of delegating.)
 
 4. **Debate indefinite refinement ($30K+ token costs):** Two agents iteratively "improving" past optimal. Mitigation: `max_rounds=5`, `improvement_threshold=0.05`, stagnation detection at 2 rounds.
 
@@ -896,14 +946,6 @@ Detailed patterns in **references/**:
 - The request is a one-off convenience that bypasses the verified workflow.
 - A specialized peer skill owns the exact scenario — route there instead.
 - There is no way to verify the output against a source of truth.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
-| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
-| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
 
 ## Anti-Patterns
 

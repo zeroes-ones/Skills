@@ -225,8 +225,8 @@ These rules are non-negotiable constraints that detect mobile development mistak
 | R5 | DETECT full-resolution image loaded without downsampling | Trigger: Image loading call (`Glide.load()`, `Picasso.load()`, `AsyncImage`, `Image(uiImage:)`) with source > 2MB and no `override()`, `resize()`, or `downsampling` option — full bitmap decoded into memory | STOP. Respond: "Unsampled image at [file:line]. A 12MP photo decoded at full resolution consumes ~36MB of RAM — enough to OOM-crash a device with 4GB RAM. Add downsampling: `Glide.with(context).load(url).override(targetWidth, targetHeight).centerCrop()` or `Image(uiImage: downsampledImage)`. Never decode more pixels than the viewport displays." |
 | R6 | REFUSE permission request without rationale or purpose string | Trigger: `requestPermission()` / `requestAuthorization()` called without a preceding rationale UI (Android `shouldShowRequestPermissionRationale` flow) or without a `NSCameraUsageDescription` / Info.plist purpose string (iOS) | STOP. Respond: "Permission requested without rationale at [file:line]. Apple rejects apps missing purpose strings in Info.plist (binary reject, 3-day review reset). Android users deny unexplained requests at 2x the rate. Show a rationale dialog BEFORE the system prompt explaining why the permission is needed and what value it delivers to the user." |
 | R7 | DETECT platform API call without version guard | Trigger: API symbol requires iOS 17+ or Android 14+ (API 34) but is called with no `@available(iOS 17, *)` check (Swift) or `if (Build.VERSION.SDK_INT >= 34)` guard (Kotlin), AND `deploymentTarget`/`minSdkVersion` is set lower — will crash on older devices | STOP. Respond: "Unguarded API at [file:line]. `[symbol]` requires [platform] [version]+ but your deployment target is lower. Wrap with: `if #available(iOS 17, *) { ... } else { /* graceful fallback */ }` or `if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)`. Crash on older devices = 1-star review + uninstall."
-| R8 | **ANCHOR to runtime versions before generating platform-specific code.** Never generate SwiftUI/UIKit/Jetpack Compose/React Native/Flutter API calls from training data alone — platform SDKs change with every OS release and Expo/Flutter versions introduce breaking API changes. | Trigger: skill receives code-generation task involving platform-specific APIs → run `scripts/runtime-version-detect.sh [project-root] --skill-context` to detect React Native/Expo/Flutter versions → for native iOS/Android, check `ios/Podfile.lock` and `android/build.gradle` for SDK versions → anchor all API calls to detected versions | STOP. Respond: "Detected: {platform} SDK {version}. Anchoring all API calls to this version. I will flag any APIs that may have changed in more recent OS releases with // VERIFY: comments. See `scripts/references/source-of-truth-anchoring.md`." |
-| **R9** | **RUN the ROI Gate before any non-emergency code change.** Every code change that is not (a) a security fix, (b) a compliance requirement, or (c) an active production incident must pass `scripts/roi-gate.sh`. If the gate returns negative, refuse to write the code. | Trigger: skill receives a code-generation or refactoring task that is NOT a security fix, compliance requirement, or production incident → estimate implementation cost in engineer-hours → compare against annual value of the change → if cost > value, gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. See `scripts/roi-gate.sh` for the full formula." |
+| R8 | **ANCHOR to runtime versions before generating platform-specific code.** Never generate SwiftUI/UIKit/Jetpack Compose/React Native/Flutter API calls from training data alone — platform SDKs change with every OS release and Expo/Flutter versions introduce breaking API changes. | Trigger: skill receives code-generation task involving platform-specific APIs → detect the React Native/Expo/Flutter versions by any means your project supports — if your project ships `scripts/runtime-version-detect.sh`, run it with `[project-root] --skill-context`; otherwise read them from `package.json`/`pubspec.yaml` → for native iOS/Android, check `ios/Podfile.lock` and `android/build.gradle` for SDK versions → anchor all API calls to detected versions | STOP. Respond: "Detected: {platform} SDK {version}. Anchoring all API calls to this version. I will flag any APIs that may have changed in more recent OS releases with // VERIFY: comments. See `scripts/references/source-of-truth-anchoring.md`." |
+| **R9** | **RUN the ROI Gate before any non-emergency change.** Every change that is not (a) a safety or compliance fix, (b) a regulatory requirement, or (c) an active incident must be evaluated with a cost-versus-value calculation (a payback period). If the computed payback period exceeds 2 years, refuse to do the work. | Trigger: a change is proposed that is NOT a safety/compliance fix, a regulatory requirement, or an active incident → estimate implementation effort → compare against the annual value of the change → if cost > value, the gate fails | STOP. Respond: "ROI Gate analysis: This change costs approximately $[X] to implement but saves $[Y]/year. Payback period: [N] years. If payback > 2 years, I recommend declining this work. If your project ships `scripts/calculate-roi.sh`, run it to compute this from the files affected; otherwise apply the same cost-vs-value judgement by hand." |
 
 - **Admit uncertainty — never fabricate.** If you're not certain about an API method, package version, configuration syntax, or command flag, say so explicitly: "I'm not certain this API exists in the latest version. Check the official docs at [URL]." Never invent a function signature or configuration key because it "seems right." Hallucinated code costs hours of debugging.
 - **Flag your knowledge cutoff.** If your training data predates the latest SDK release, framework version, or platform change, state your cutoff date and recommend verifying against current documentation. This is especially critical for rapidly evolving domains: cloud IAM policies, JS framework APIs, mobile OS capabilities, and SaaS pricing — all change quarterly or faster.
@@ -713,7 +713,7 @@ Common chains:
 **What it looks like:** `AppState.currentState` on iOS reports `"inactive"` when user pulls down Control Center or Notification Center. Pausing video on `"background"` only means video keeps playing during Control Center interaction.
 **Fix:** Listen for `"inactive"` state and handle it explicitly. Pause playback on both `"inactive"` and `"background"`, or check `"active"` explicitly and pause on anything else.
 
-## Error Decoder — War Stories from the Trenches
+## Error Decoder
 <!-- STANDARD: 3min -->
 
 **(STANDARD)**
@@ -786,23 +786,3 @@ Detailed reference material loaded on demand:
 - The request is a one-off convenience that bypasses the verified workflow.
 - A specialized peer skill owns the exact scenario — route there instead.
 - There is no way to verify the output against a source of truth.
-
-## Error Decoder
-
-| Symptom | Root Cause | Fix | Lesson |
-|---------|-----------|-----|--------|
-| Output contradicts the verified baseline | Stale or wrong input was used | Re-run with the confirmed input set | Always pin the input revision |
-| Same failure repeats after a change | The change was cosmetic, not causal | Change exactly one variable and re-verify | One lever per attempt |
-| Blocker owned by another party | Scope/ownership not confirmed | Escalate with the unblock path | Escalate once with context, not repeatedly |
-
-
-| ☐ | CR01 | Check: inputs pinned and sourced | Evidence: record result |
-| ☐ | CR02 | Check: assumptions listed | Evidence: record result |
-| ☐ | CR03 | Check: scope confirmed with requester | Evidence: record result |
-| ☐ | CR04 | Check: verification run and logged | Evidence: record result |
-| ☐ | CR05 | Check: state log updated | Evidence: record result |
-| ☐ | CR06 | Check: cross-skill handoffs complete | Evidence: record result |
-| ☐ | CR07 | Check: anti-hallucination phrases honored | Evidence: record result |
-| ☐ | CR08 | Check: output checked against What Good Looks Like | Evidence: record result |
-| ☐ | CR09 | Check: references resolved | Evidence: record result |
-| ☐ | CR10 | Check: no fabricated capabilities or numbers | Evidence: record result |

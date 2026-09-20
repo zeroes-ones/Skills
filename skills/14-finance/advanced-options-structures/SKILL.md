@@ -95,7 +95,7 @@ chain:
 
 <!-- STANDARD: 3min -->
 
-## Ground Rules
+## Ground Rules — Read Before Anything Else
 
 These are **negative constraints** — they tell you what NOT to do. Violating any of these will lose money.
 
@@ -111,6 +111,13 @@ These are **negative constraints** — they tell you what NOT to do. Violating a
 | R8 | REFUSE to exceed 25% of buying power on one advanced structure. These structures have non-linear risk that can gap beyond models | Trigger: `position_BPR > 0.25 × total_BP` in portfolio_allocation | STOP. "Position exceeds 25% buying power. Advanced structures gap beyond models during vol events. Single-position failure = portfolio-level damage." |
 | R9 | REFUSE structures you can't explain in one sentence. Complexity without clarity is a liability, not an edge | Trigger: `leg_count > 4 AND user_cant_explain_pnl_diagram` → no simplification offered | STOP. "Complexity without clarity. If the P&L diagram can't be explained in one sentence, route to a simpler structure. The edge is in understanding, not complexity." |
 | R10 | REFUSE to roll positions more than 2 times. Rolling losers repeatedly compounds losses — if thesis breaks, close it | Trigger: `roll_count ≥ 2 AND position_P&L < 0` in roll_tracker | STOP. "Max 2 rolls exceeded on losing position. Death by a thousand rolls: P&L = -40% on positions rolled 3+ times. Close the position." |
+
+### Baseline rules
+
+| # | Negative Constraint | Mechanical Trigger | Violation Response |
+|---|---------------------|--------------------|--------------------|
+| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
+| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
 
 ---
 
@@ -440,14 +447,14 @@ A successful advanced options structure recommendation:
 10. **Documentation is tagged** — all claims are `[VERIFIED]`, `[COMPUTED]`, `[ESTIMATED]`, or `[COMMON-PRACTICE]`
 
 ---
-| ☐ | Complete when output is scoped to the request and grounded in evidence 1 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 2 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 3 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 4 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 5 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 6 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 7 | the check in the criterion passes and is recorded |
-| ☐ | Complete when output is scoped to the request and grounded in evidence 8 | the check in the criterion passes and is recorded |
+| ☐ | Complete when the structure is named from the catalog and the Decision Tree branch that selects it is cited | the trade plan names exactly one structure (zebra, double diagonal, flyagonal, seagull, Christmas tree, box) and the branch reason |
+| ☐ | Complete when every leg lists strike, expiry, delta and extrinsic in dollars, and each long leg's extrinsic is ≤ 2% of the underlying price | leg table has all four columns filled; extrinsic ratio computed for every long leg |
+| ☐ | Complete when the leg construction matches the named recipe (zebra = 2× 0.75Δ DITM calls + 1 short ATM call; flyagonal = butterfly plus diagonal) | leg count and delta band per leg checked against the reference recipe for the named structure |
+| ☐ | Complete when the order is one exchange-native spread order with order_type = spread and no sequential leg submission (R1) | order ticket shows a single combo/spread order; leg fill timestamps are identical |
+| ☐ | Complete when net Δ, Γ, Θ and V at entry are computed and a Greeks-based exit threshold is named | Greeks table present; the exit rule states a specific Δ or Θ trigger value |
+| ☐ | Complete when max profit, max loss and both breakevens are in dollars, plus gap loss beyond the modeled range for any uncovered short | P&L table in dollar terms; a worst-case line item present whenever short_count > long_count |
+| ☐ | Complete when assignment risk is cleared: European-style underlying for any short box, no ITM short call spanning an ex-dividend date, far-OTM wing on any ratio > 1:1 short:long (R2, R3, R7) | account-type and option-style check, dividend-calendar check per short call, wing leg present in the leg table |
+| ☐ | Complete when margin for the stated account type is ≤ 3× max loss, every leg passes OI > 500 and volume > 50, and P&L is modeled at bid/ask not mid (R4, R5, R6) | margin estimate per account type; liquidity columns per leg; fill-price source recorded as bid/ask |
 ## Operating at Different Levels
 
 | Level | Capability | Scope | What Changes |
@@ -591,13 +598,6 @@ All material decisions, regime/calibration changes, and escalations are appended
 |---------|------|---------|
 | 1.0.0 | 2026-07-31 | Initial release. 6 advanced structures + custom composition framework + margin guide. 10 ground rules, 7 error patterns, 15-point production checklist |
 
-## Ground Rules — Read Before Anything Else
-
-| # | Negative Constraint | Mechanical Trigger | Violation Response |
-|---|---------------------|--------------------|--------------------|
-| G1 | Do not assert unverified claims | You are about to state a number or fact without a source | Verify or mark [BEST-KNOWN] and say so |
-| G2 | Do not act without confirming the task intent | Task scope is ambiguous | Restate the task and confirm before producing output |
-
 ## The Expert's Mindset
 
 Treat every claim as needing evidence, every recommendation as carrying declared assumptions, and every limitation as something to name rather than hide.
@@ -608,20 +608,57 @@ Use this skill when the task matches the description's trigger conditions. When 
 
 ## Decision Trees
 
-1. Is the task in this skill's scope? If no, route to the owning skill.
-2. Is the required input available and verifiable? If no, request or escalate.
-3. Is the output verifiable against the request? If no, revise with evidence.
-### Decision Tree 1: In-scope or out?
-- In-scope: follow Core Workflow and verify.
-- Out-of-scope: route to the owning skill and stop.
+### Decision Tree 1: Which advanced structure fits the outlook and IV?
 
-### Decision Tree 2: Verify locally or escalate?
-- Locally verifiable: run the check and record the result.
-- Blocked externally: escalate once with full context.
+```
+Gap identified that options-strategist cannot fill
+│
+├─ Directional, 30-60 DTE, stock too capital-intensive → Zebra, 2× 0.75Δ DITM calls + 1 short ATM call
+│  └─ verify extrinsic ≤ 2% of premium (§2.1)
+├─ Sideways market
+│  ├─ Low-moderate IV, want dual theta + vega-positive → Double Diagonal (§2.2)
+│  ├─ Trending toward a specific target → Flyagonal, body strike pins (§2.2)
+│  └─ Range-bound, no target, sell front vol / own back vol → Double Calendar (§2.2)
+├─ Directional with embedded risk management
+│  ├─ Bullish with a target ceiling → Christmas Tree call (§2.3)
+│  └─ Own stock, want zero-cost downside floor → Seagull (§2.3)
+├─ Synthetic borrow / lend / arbitrage
+│  ├─ Borrow below margin rates → short Box, SPX + PM only (§2.4)
+│  └─ Repair an underwater position → Conversion/Reversal (§2.4)
+└─ Named Δ/Γ/Θ/V targets, PM account → Custom Structure (§2.5)
+   └─ Cannot name the target profile → reject, route to options-strategist
+```
 
-### Decision Tree 3: Ship or revise?
-- Meets What Good Looks Like: deliver with evidence.
-- Gaps found: revise before delivering.
+### Decision Tree 2: Do extrinsic and assignment risk allow the structure?
+
+```
+Structure proposed → run every gate before sizing
+│
+├─ Long leg extrinsic > 2% of premium → roll deeper ITM or reject (E2)
+├─ Short box on American-style options in a non-PM account?
+│  ├─ Yes → REFUSE (R2); use SPX/NDX European cash-settled, or upgrade to PM
+│  └─ No → parity math holds only if all legs survive to expiration
+├─ Ratio > 1:1 short:long in the leg table → add far-OTM wing (R3) or reject
+├─ ITM short call with an ex-div date inside the DTE range → close or roll before ex-date (R7)
+├─ Any leg with OI < 500 or volume < 50 → pick different strikes (R4), else the structure is unexitable
+└─ Margin required > 3× max loss → capital-inefficient (R5), route to the simpler structure
+```
+
+### Decision Tree 3: Single-ticket or legging execution?
+
+```
+Order ready → leg_count ≥ 2?
+│
+├─ Broker supports a native complex/spread order → submit ONE exchange-native spread order (R1)
+│  └─ No native support → switch broker or route to options-automation-engineer; never leg in manually
+│     └─ The "better fill" on one leg is offset 10× when the market moves mid-execution (E4)
+├─ Already partially legged (one leg filled)
+│  ├─ Fill survived → cancel unfilled legs, close the filled leg at market (E4)
+│  └─ Market moved against the naked remainder → close immediately, accept the loss
+└─ Can the P&L diagram be explained in one sentence?
+   ├─ Yes → place the single order, then set the GTC profit-taking order
+   └─ No  → simplify first (R9); complexity without clarity is a liability, not an edge
+```
 
 ## Proactive Triggers
 

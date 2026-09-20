@@ -12,7 +12,7 @@ stable format.
 | `handoff-in.md` | Phase 0 Intake | Incoming payload, run-state | Received / owed / open acknowledgment; refusal reason if artifacts missing |
 | `verify-node.md` | Phase 2 Verify | Completion criteria + artifacts | Criterion → evidence map; list of unmet criteria |
 | `revise-iteration.md` | Phase 3 REVISE | Diagnostics from last pass | Root cause, ONE approach change, what stays the same |
-| `handoff-out.md` | Phase 3 DONE | Node results + registry | Payload with all nine registry keys populated |
+| `handoff-out.md` | Phase 3 DONE | Node results + registry | Payload with all ten registry keys populated |
 | `escalate.md` | Exhaustion / blocked | Attempt history | tried / evidence / blocker / recommended next |
 | `loop-reflect.md` | Phase 4 / run end | Expected vs. actual | Efficiency note + ledgered learning |
 

@@ -58,6 +58,7 @@ def main():
     args = ap.parse_args()
 
     results = []
+    recorded_used = 0
     for cases_path in sorted(glob.glob(os.path.join(GOLDEN, "*", "cases.json"))):
         skill = os.path.basename(os.path.dirname(cases_path))
         data = json.load(open(cases_path, encoding="utf-8"))
@@ -67,25 +68,38 @@ def main():
                 cand = os.path.join(args.output_dir, skill, case["id"] + ".txt")
                 if os.path.exists(cand):
                     recorded = open(cand, encoding="utf-8").read()
+                    recorded_used += 1
             if recorded is None:
                 recorded = "" if args.red else case.get("reference_output", "")
             results.append(grade_case(skill, case, recorded))
 
     passed = [r for r in results if r["ok"]]
     failed = [r for r in results if not r["ok"]]
+    # In --output-dir mode a missing recording silently falls back to
+    # reference_output. If NO recording was found, the run graded nothing real —
+    # labelling it "recorded outputs" would be a false green.
+    output_dir_empty = bool(args.output_dir) and recorded_used == 0
 
     if args.json:
         print(json.dumps({
-            "mode": "red_demo" if args.red else ("recorded" if args.output_dir else "green_reference"),
+            "mode": "red_demo" if args.red else (
+                "recorded" if args.output_dir and recorded_used else
+                ("output_dir_empty" if args.output_dir else "green_reference")),
             "graded": len(results),
+            "recorded_used": recorded_used,
+            "passed_from_recordings": recorded_used,
             "pass": len(passed),
             "fail": len(failed),
             "results": results,
         }, indent=2))
     else:
         mode = "RED demo (empty output)" if args.red else (
-            "recorded outputs" if args.output_dir else "GREEN (reference_output)")
+            "recorded outputs" if args.output_dir and recorded_used else
+            ("output_dir has no recordings" if args.output_dir else "GREEN (reference_output)"))
         print(f"golden grader — {mode}")
+        if output_dir_empty:
+            print(f"  WARNING: no recording found under {args.output_dir} "
+                  f"for any of {len(results)} case(s) — graded reference_output instead.")
         for r in results:
             status = "PASS" if r["ok"] else "FAIL"
             print(f"  [{status}] {r['skill']}/{r['case']}")
@@ -95,8 +109,14 @@ def main():
                         print(f"      unmet check '{c['label']}' (patterns: {c['patterns']})")
         print(f"graded: {len(results)}  pass: {len(passed)}  fail: {len(failed)}")
 
-    if args.red or args.output_dir:
-        return 0  # demo / recorded modes are informational
+    if args.red:
+        return 0  # demo mode is informational
+    if args.output_dir:
+        # Grading real recordings is a gate ONLY when recordings actually exist;
+        # an empty dir graded nothing and must not report success as if it had.
+        if output_dir_empty:
+            return 1
+        return 0 if not failed else 1
     return 0 if not failed else 1  # GREEN-reference mode is the gate
 
 

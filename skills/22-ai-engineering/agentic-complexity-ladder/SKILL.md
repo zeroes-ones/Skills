@@ -377,18 +377,20 @@ Does every node/rung in the system map to a measured failure of a simpler design
 
 ## Error Decoder **(STANDARD)**
 
+> **Provenance of the dollar figures.** Every figure in this table and in the Gotchas table is tagged `[ESTIMATED]` — an order-of-magnitude illustration of what the failure typically costs a mid-size engineering team, not a measured cost. Deliberately rounded, to signal that it marks scale rather than precision. Substitute rates you can measure from your own incident and payroll data; the failure mode is the durable part, the figure is only a cue to its size.
+
 | Symptom | Root Cause | Fix | Lesson |
 |---------|-----------|-----|--------|
-| A six-node graph whose single-call version performs identically | Complexity added without a measured baseline (R1) | Build the bottom rung, measure both, remove the unjustified nodes. An over-built graph commonly costs **$40,000 cost** a year in run cost and maintenance | Measure the baseline before climbing |
-| Quality is worse than the single-call version | Each rung added failure modes that were never tested | Assert the new failure mode per rung; fix the mislinking or misrouting. Debugging an unattributed regression commonly costs **$25,000 cost** | Complexity adds defects, not only capability |
-| Cost doubled and nobody can say which change did it | Two rungs added at once (R3) | Revert to one rung, re-measure, then decide. An unattributable regression commonly costs **$30,000 cost** in investigation | Climb one rung at a time |
-| An agent loops without converging | Agency used where the steps were knowable (R2) | Replace with a deterministic chain. Runaway-loop remediation commonly saves **$60,000 cost** a year | Predictability decides workflow vs agent |
-| The system cannot be simplified because nobody knows why a node exists | No exit criteria and no recorded justification (R4) | Audit by removal: take the node out, run the eval. A system nobody can simplify commonly accrues **$35,000 cost** a year in maintenance | Write the exit condition when climbing |
-| A router misroutes and the wrong specialist handles the input | The classification is unreliable and unmeasured | Measure routing accuracy; merge paths if it is not reliably separable. A misroute diagnosis commonly costs **$20,000 cost** | Every rung needs its own eval |
-| Latency tripled with no quality gain | A chain or fan-out added for quality that a single call already achieved | Measure the single call; remove the rung. Latency-driven rework commonly costs **$15,000 cost** | Latency is a real cost of every rung |
-| An unbounded agent took an action nobody authorised | Agency granted over the action space, not just the routing (Anti-Hallucination) | Bound the action space to an allow-list. A security incident from agent autonomy commonly costs **$250,000 cost** plus legal exposure | Autonomy must live inside a fence |
-| The design was rebuilt for a volume that never arrived | Complexity built for unmeasured scale (R5) | Derive the volume; show where the simpler design breaks; remove the rest. Premature scale work commonly costs **$50,000 cost** | Build for the arithmetic you have |
-| A new team cannot modify the system | Nothing names which rung exists for which reason | Record the rung, its failure and its exit condition. Comprehensibility debt commonly costs **$30,000 cost** a year | A recorded rationale is a maintenance asset |
+| A six-node graph whose single-call version performs identically | Complexity added without a measured baseline (R1) | Build the bottom rung, measure both, remove the unjustified nodes. An over-built graph commonly costs **$40,000 [ESTIMATED]** a year in run cost and maintenance | Measure the baseline before climbing |
+| Quality is worse than the single-call version | Each rung added failure modes that were never tested | Assert the new failure mode per rung; fix the mislinking or misrouting. Debugging an unattributed regression commonly costs **$25,000 [ESTIMATED]** | Complexity adds defects, not only capability |
+| Cost doubled and nobody can say which change did it | Two rungs added at once (R3) | Revert to one rung, re-measure, then decide. An unattributable regression commonly costs **$30,000 [ESTIMATED]** in investigation | Climb one rung at a time |
+| An agent loops without converging | Agency used where the steps were knowable (R2) | Replace with a deterministic chain. Runaway-loop remediation commonly saves **$60,000 [ESTIMATED]** a year | Predictability decides workflow vs agent |
+| The system cannot be simplified because nobody knows why a node exists | No exit criteria and no recorded justification (R4) | Audit by removal: take the node out, run the eval. A system nobody can simplify commonly accrues **$35,000 [ESTIMATED]** a year in maintenance | Write the exit condition when climbing |
+| A router misroutes and the wrong specialist handles the input | The classification is unreliable and unmeasured | Measure routing accuracy; merge paths if it is not reliably separable. A misroute diagnosis commonly costs **$20,000 [ESTIMATED]** | Every rung needs its own eval |
+| Latency tripled with no quality gain | A chain or fan-out added for quality that a single call already achieved | Measure the single call; remove the rung. Latency-driven rework commonly costs **$15,000 [ESTIMATED]** | Latency is a real cost of every rung |
+| An unbounded agent took an action nobody authorised | Agency granted over the action space, not just the routing (Anti-Hallucination) | Bound the action space to an allow-list. A security incident from agent autonomy commonly costs **$250,000 [ESTIMATED]** plus legal exposure | Autonomy must live inside a fence |
+| The design was rebuilt for a volume that never arrived | Complexity built for unmeasured scale (R5) | Derive the volume; show where the simpler design breaks; remove the rest. Premature scale work commonly costs **$50,000 [ESTIMATED]** | Build for the arithmetic you have |
+| A new team cannot modify the system | Nothing names which rung exists for which reason | Record the rung, its failure and its exit condition. Comprehensibility debt commonly costs **$30,000 [ESTIMATED]** a year | A recorded rationale is a maintenance asset |
 
 ## Error Recovery **(QUICK)**
 
@@ -517,18 +519,20 @@ Run this sequence. Do not proceed past a failure.
 
 ## Gotchas **(STANDARD)**
 
+> The dollar figures below are `[ESTIMATED]` order-of-magnitude illustrations, not measured costs — see the provenance note under **Error Decoder**. Replace them with figures derived from your own incident, rework and payroll data.
+
 | Gotcha | Cost if missed | Fix |
 |--------|----------------|-----|
-| No measured single-call baseline | An over-built graph commonly costs **$40,000 cost** a year | Build and measure the bottom rung (R1) |
-| Rungs added without testing their new failure modes | An unattributed regression commonly costs **$25,000 cost** | Assert each rung's own failure mode |
-| Two rungs climbed at once | An unattributable change commonly costs **$30,000 cost** | One rung at a time (R3) |
-| Agency where the steps were knowable | Runaway loops; remediation commonly saves **$60,000 cost** a year | Predictability decides (R2) |
-| No exit criteria recorded | Maintenance accrues commonly **$35,000 cost** a year | Write the exit condition when climbing (R4) |
-| An unmeasured router | A misroute diagnosis commonly costs **$20,000 cost** | Measure routing accuracy; merge if unreliable |
-| A chain added for quality a call already achieved | Latency-driven rework commonly costs **$15,000 cost** | Measure the simpler rung first |
-| An open action space with agency | A security incident commonly costs **$250,000 cost** plus exposure | Allow-list the action space |
-| Built for unmeasured scale | Premature scale work commonly costs **$50,000 cost** | Derive the volume; show where the simple design breaks (R5) |
-| No recorded rationale per rung | Comprehensibility debt commonly costs **$30,000 cost** a year | Record the rung, its failure and its exit condition |
+| No measured single-call baseline | An over-built graph commonly costs **$40,000 [ESTIMATED]** a year | Build and measure the bottom rung (R1) |
+| Rungs added without testing their new failure modes | An unattributed regression commonly costs **$25,000 [ESTIMATED]** | Assert each rung's own failure mode |
+| Two rungs climbed at once | An unattributable change commonly costs **$30,000 [ESTIMATED]** | One rung at a time (R3) |
+| Agency where the steps were knowable | Runaway loops; remediation commonly saves **$60,000 [ESTIMATED]** a year | Predictability decides (R2) |
+| No exit criteria recorded | Maintenance accrues commonly **$35,000 [ESTIMATED]** a year | Write the exit condition when climbing (R4) |
+| An unmeasured router | A misroute diagnosis commonly costs **$20,000 [ESTIMATED]** | Measure routing accuracy; merge if unreliable |
+| A chain added for quality a call already achieved | Latency-driven rework commonly costs **$15,000 [ESTIMATED]** | Measure the simpler rung first |
+| An open action space with agency | A security incident commonly costs **$250,000 [ESTIMATED]** plus exposure | Allow-list the action space |
+| Built for unmeasured scale | Premature scale work commonly costs **$50,000 [ESTIMATED]** | Derive the volume; show where the simple design breaks (R5) |
+| No recorded rationale per rung | Comprehensibility debt commonly costs **$30,000 [ESTIMATED]** a year | Record the rung, its failure and its exit condition |
 
 ## State Log **(QUICK)**
 

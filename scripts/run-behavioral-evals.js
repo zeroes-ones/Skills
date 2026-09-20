@@ -6,7 +6,12 @@
  * token budgets. Designed to run against pre-recorded agent sessions or freshly
  * generated outputs.
  *
- * Usage: node scripts/run-behavioral-evals.js [--suite id] [--json] [--output-dir path]
+ * Usage: node scripts/run-behavioral-evals.js [--suite id] [--json] [--output-dir path] [--allow-empty]
+ *
+ * Exit: 1 when a scored scenario fails, and also when ZERO scenarios could be
+ * scored (no recorded outputs) — an all-skipped run proves nothing and must not
+ * report success. 2 is reserved for "nothing was loaded at all". --allow-empty
+ * downgrades the all-skipped case to exit 0 for deliberate smoke checks.
  *
  * Inspired by addyosmani/agent-skills tier-3 behavioral evals.
  */
@@ -25,6 +30,11 @@ const SKILLS_DIR = path.join(__dirname, '..', 'skills');
 const args = process.argv.slice(2);
 const targetSuite = (() => { const i = args.indexOf('--suite'); return i >= 0 ? args[i + 1] : null; })();
 const jsonOutput = args.includes('--json');
+
+// Opt-in escape hatch for a run that is EXPECTED to prove nothing (a corpus
+// smoke check before outputs are recorded). Without it, an all-skipped run is a
+// failure — see the three-state verdict at the bottom of this file.
+const allowEmpty = args.includes('--allow-empty');
 
 // Output directory for fresh eval runs (pre-recorded sessions avoid this)
 const outputDirIdx = args.indexOf('--output-dir');
@@ -328,11 +338,29 @@ const results = scenarios.map(runScenario);
 const passed = results.filter(r => r.status === 'pass');
 const failed = results.filter(r => r.status === 'fail');
 const skipped = results.filter(r => r.status === 'skipped');
+// "Not executed" is broader than "skipped": an unknown scenario type also never ran.
+// Counting it here keeps a typo in a scenario's `type` from bypassing the all-skipped
+// check below.
+const scored = results.filter(r => r.status === 'pass' || r.status === 'fail');
+const notExecuted = results.filter(r => r.status !== 'pass' && r.status !== 'fail');
+
+// Three states, not two. An all-skipped corpus proves nothing and must not exit 0;
+// a partial corpus may pass, but its pass rate is only meaningful over what ran, so
+// it is reported WITH its coverage rather than as a bare "PASS".
+const state = results.length === 0 ? 'empty'
+  : scored.length === 0 ? 'all-skipped'
+  : notExecuted.length > 0 ? 'partial'
+  : 'executed';
 
 const totalWeight = results.reduce((s, r) => s + (r.weight || 1), 0);
 const passRate = totalWeight > 0
   ? results.reduce((s, r) => s + (r.score || 0) * (r.weight || 1), 0) / totalWeight
   : 0;
+const scoredWeight = scored.reduce((s, r) => s + (r.weight || 1), 0);
+const scoredPassRate = scoredWeight > 0
+  ? scored.reduce((s, r) => s + (r.score || 0) * (r.weight || 1), 0) / scoredWeight
+  : 0;
+const executionRate = results.length > 0 ? scored.length / results.length : 0;
 
 if (jsonOutput) {
   console.log(JSON.stringify({
@@ -341,7 +369,11 @@ if (jsonOutput) {
       passed: passed.length,
       failed: failed.length,
       skipped: skipped.length,
+      unscored: notExecuted.length,
+      scored: scored.length,
+      state,
       pass_rate: Math.round(passRate * 1000) / 1000,
+      pass_rate_scored: Math.round(scoredPassRate * 1000) / 1000,
       coverage,
     },
     results: results.map(r => ({
@@ -357,7 +389,7 @@ if (jsonOutput) {
 } else {
   console.log('--- Behavioral Test Results ---');
   for (const r of results) {
-    const icon = r.status === 'pass' ? '✅' : r.status === 'skip' ? '⬜' : '❌';
+    const icon = r.status === 'pass' ? '✅' : r.status === 'fail' ? '❌' : '⬜';
     console.log(`${icon} [${r.suiteId}/${r.scenarioId}] ${r.type} — ${r.skill || 'multi'}`);
     if (r.reason) console.log(`   ${r.reason}`);
   }
@@ -368,12 +400,38 @@ if (jsonOutput) {
 
   console.log('\n--- Summary ---');
   console.log(`Total: ${results.length} | Passed: ${passed.length} | Failed: ${failed.length} | Skipped: ${skipped.length}`);
-  console.log(`Pass rate: ${(passRate * 100).toFixed(1)}%`);
-  console.log(`Result: ${passRate >= 0.80 ? 'PASS' : 'FAIL'}`);
+  if (state === 'all-skipped') {
+    console.log(`Pass rate: n/a — 0 of ${results.length} scenarios executed, so there is nothing to score`);
+    console.log('Result: NO EVIDENCE');
+  } else {
+    console.log(`Pass rate: ${(passRate * 100).toFixed(1)}% (over ${scored.length}/${results.length} executed scenarios)`);
+    console.log(`Result: ${scoredPassRate >= 0.80 && failed.length === 0 ? 'PASS' : 'FAIL'}`);
+  }
 }
 
-if (skipped.length > 0 && !jsonOutput) {
+if (state === 'all-skipped' && !jsonOutput) {
+  console.log('\n❌ NO SCENARIO EXECUTED — this run proves nothing.');
+  console.log(`   All ${results.length} scenarios in ${BEHAVIORAL_DIR} lack a recorded_output,`);
+  console.log('   so the validator had no agent output to score. Exiting non-zero: a tier-3');
+  console.log('   eval that validated zero outputs is not a passing eval.');
+  console.log('   To make this honest, record real agent sessions into');
+  console.log('   evals/tier3-behavioral/*.json as each scenario\'s `recorded_output` (never');
+  console.log('   hand-written output), then re-run. --allow-empty only silences it for a');
+  console.log('   deliberate corpus smoke check.');
+} else if (state === 'partial' && !jsonOutput) {
+  console.log(`\n⚠️  PARTIAL COVERAGE — ${notExecuted.length} of ${results.length} scenarios did`);
+  console.log(`   not execute (${(executionRate * 100).toFixed(0)}% executed). The pass rate above`);
+  console.log('   covers only the scenarios that ran and does not speak for the rest.');
+} else if (skipped.length > 0 && !jsonOutput) {
   console.log(`\n⚠️  ${skipped.length} scenarios skipped — run agent with these scenarios and record output into tier3-behavioral/*.json`);
 }
 
-process.exit(failed.length === 0 ? 0 : 1);
+// Exit code by state, not by failure count alone: an all-skipped corpus is the
+// dangerous case — `failed === 0` there is the absence of evidence, not evidence of
+// correctness. Exit 2 stays reserved for "no scenarios were loaded at all".
+let exitCode = 1;
+if (state === 'empty') exitCode = 2;
+else if (state === 'all-skipped') exitCode = allowEmpty ? 0 : 1;
+else if (state === 'executed') exitCode = failed.length === 0 ? 0 : 1;
+else exitCode = failed.length === 0 ? 0 : 1; // partial: honest coverage reported above
+process.exit(exitCode);

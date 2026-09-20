@@ -5,7 +5,7 @@
 
 A collection of agent-agnostic skills covering the **full company lifecycle** — from CEO vision through architecture, development, security, compliance, and operations. Each skill includes decision trees, scale depth guidance, cross-skill coordination, reference documents, templates, and production checklists.
 
-**322 skills across 37 domains. 9.8/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — 2,164 chain edges, all symmetric).
+**327 skills across 37 domains. 9.8/10 quality (live domain-calibrated audit, 2026). Chain symmetry: 0 asymmetries** (verified via `python3 scripts/validate_chains.py` — 2,213 directed chain edges, all symmetric).
 
 ### 🚀 Quick Links
 
@@ -101,7 +101,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 
 ## Quality Status
 
-**Library rating: 9.8/10** (live domain-calibrated audit over 322 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
+**Library rating: 9.8/10** (live domain-calibrated audit over 327 skills, 2026). Run `python3 scripts/audit-library.py` to verify.
 
 > The "Quality Status" numbers below are from an earlier generation of the audit (214-skill baseline). The authoritative current numbers come from `python3 scripts/audit-library.py` (live) and `skills-audit-report.txt`; see [GAP-ANALYSIS.md](GAP-ANALYSIS.md) for the 2026 delta analysis.
 
@@ -126,7 +126,7 @@ This keeps `SKILL.md` focused (~250-550 lines, ~3000-4000 token budget) while ma
 - **Verification Guardrails** — Self-check checklist the agent runs before delivering work
 - **Anti-Hungination** — "NOT VERIFIED" + "Flag your knowledge cutoff" guardrails
 
-**Chain symmetry:** 1,576 edges with **0 asymmetries** — verified programmatically via `python3 scripts/audit-library.py`.
+**Chain symmetry:** 2,213 directed edges with **0 asymmetries** — verified programmatically via `python3 scripts/validate_chains.py` (edge count from `docs/graph-explorer/skill-graph.json`).
 
 ## Personas — The "Who" Layer
 
@@ -443,6 +443,12 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/benchmarks-vs-agent-skills.md`](docs/benchmarks-vs-agent-skills.md) | Reproducible routing benchmark — methodology, before/after results, reproduction commands, and how to score any peer corpus with the same harness |
 | [`docs/client-request-playbook.md`](docs/client-request-playbook.md) | Client-request playbook: "build an app / change UI / change API / create or migrate a DB / add features / support & maintain" → skills, example manifest, estimate→price→support path, and your human-gate points by practitioner level |
 | [`docs/service-size-fitting.md`](docs/service-size-fitting.md) | Right-size any services job XS→XL (SaaS, any product/development, services, freelancing): effort band → engagement model, skills, example to copy, money path, human gates |
+| [`docs/model-compatibility.md`](docs/model-compatibility.md) | Model compatibility matrix — per-model context-window use, syntax-adherence and pattern-failure patterns, token-budget metadata. **Dated 2026-07-24 and measured on a 166-skill corpus** (now 327): read the method and per-model patterns, re-measure the counts before relying on them |
+| [`docs/skill-quality-audit.md`](docs/skill-quality-audit.md) | Per-skill structural audit plus a peer-convergence gap scan against four best-in-class libraries. **Dated 2026-09-14 at 320 skills** (now 327): the structural findings and the missing-capability ranking are the durable part |
+| [`docs/foundations-remediation-2026-09-20.md`](docs/foundations-remediation-2026-09-20.md) | Latest remediation record — 9 defect classes audited, every fix with measured before/after, the raw verification sweep (including red results), and the candid "what remains open" list |
+| [`docs/agnosticism-and-agi-readiness-2026-09-19.md`](docs/agnosticism-and-agi-readiness-2026-09-19.md) | How domain-agnostic the corpus is in fact (6.5/10 vs a claimed 10/10), how independent of any one product, and the AGI-readiness COVERED/PARTIAL/ABSENT matrix |
+| [`docs/handoff-and-routing-assessment-2026-09-19.md`](docs/handoff-and-routing-assessment-2026-09-19.md) | Loop/graph/handoff/routing superiority assessment — what is genuinely sound, what is broken, ranked remediation, and the retraction of the earlier chain-edge finding |
+| [`docs/authenticity-remediation-2026-09-19.md`](docs/authenticity-remediation-2026-09-19.md) | Authenticity remediation — fabricated citations, injected boilerplate, self-contradicting claims: what was wrong, what changed, and the deliberate non-changes |
 | [`docs/self-running-skills.md`](docs/self-running-skills.md) | Handoff-and-continue in every direction (back/front/up/down/diagonal): make any skill loop to its Verification and hand off to a human gate — with the `skill-self-run.py` generator |
 | [`docs/using-the-services-stack.md`](docs/using-the-services-stack.md) | Quick guide: how to actually use the estimate → price → SOW → support skills (install, 4 usage modes, worked freelancer flow, prompt table) |
 | [`scripts/goal-to-graph.py`](scripts/goal-to-graph.py) | Describe a goal → generates a validated spec-to-ship workflow manifest + executor (loop → agent gate → human release); see `examples/goal-to-ship/` |
