@@ -1,7 +1,7 @@
 # SHA256 Script Integrity Manifest
-# Generated: 2026-09-20T13:34:37Z
+# Generated: 2026-09-28T02:50:22Z
 # Repository: https://github.com/zeroes-ones/Skills
-# Commit:    8fbfda61016b850c0b3a2eb77ad5d9d3177f6de2
+# Commit:    f37c22e8e99595aa2aa58fb728e7132a55a511b1
 #
 # Format: SHA256  *relative/path
 # Verify:  ./scripts/verify-script-integrity.sh
@@ -37,10 +37,10 @@ ef2cde818224a53c1bf267b8d46cba0b26d29049543a397b4f7155e669f7a438  scripts/eval-r
 db9831baf389f3e3eae94f324b21006b7df5fd937364720ace4ee1a88678175b  scripts/export-traces.py
 db762be19a4a108f335ffedb03a9387259e75012fc43e77b2e9bfe5b0a6beb0a  scripts/goal-to-graph.py
 77f809ff768d56b42e7222b55013e4150bca5ba39f7077f1050033a3b6a917a3  scripts/grade-golden.py
-076d89f6d46e78b34df2d57fdac26a833eaa7f40859c9fc86b4d9c7174935400  scripts/init-project.sh
+f0281ec41aa7ae9e0bb9ea64473d5b444b1baf99be7b29cc2abdbcfa79095fc1  scripts/init-project.sh
 a6fab1d707cf5d3edf5f1c1a92b7b835c6e72eccd2eed0bb3da8cb26e692a64b  scripts/inject-anti-hallucination.py
 129cab96cfa4784974cc0d539b44d7ee24897cb6fe659e4aca88ab214fef2f94  scripts/install-hooks.sh
-6dbba5615125167154d246c75efc9f05c63f5e80837f53a777c461ae743e1eab  scripts/install.sh
+6de8629174b02b929ef2d46c3b2195a070f1fa6a65590db2d3ae2f3bd837a32e  scripts/install.sh
 a60361886a6e36365d9290a4ff85e2731236de01cdaddf7cd62a186d186a9183  scripts/lib/deep-research-gate.sh
 4401693116769e6c5fece0929968d1902112619fe3d0633789e4bcc7ed82cb47  scripts/lib/eval-golden.py
 1487e3b07dd4f47596b3c7d4ecfd6139ac23524b56779f5d4d658344c023c36c  scripts/lib/guardrails.py

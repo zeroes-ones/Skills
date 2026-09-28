@@ -14,7 +14,7 @@ and measurement (tooling).
 
 ```bash
 # 1) One-time machine install: clone to ~/.zeroes-ones/skills + symlink into
-#    ~/.claude/skills, ~/.cursor/skills, ~/.copilot/skills, ... (10 agents)
+#    ~/.claude/skills, ~/.cursor/skills, ~/.copilot/skills, ... (12 agents)
 curl -sSL https://raw.githubusercontent.com/zeroes-ones/Skills/main/scripts/install.sh | bash
 
 # 2) Per project: activate skills inside that project

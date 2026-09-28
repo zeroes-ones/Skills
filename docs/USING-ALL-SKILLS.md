@@ -144,6 +144,8 @@ check); adding an explicit `workflow:` frontmatter contract makes it first-class
 | Codex CLI | `.codex/skills` | auto-discovery |
 | Gemini CLI | `.gemini/skills` | auto-discovery |
 | Windsurf / Cline / OpenCode | `.windsurf/skills` `.cline/skills` `.opencode/skills` | same one-level convention |
+| Kimi Code CLI | `.kimi-code/skills` | user `~/.kimi-code/skills`; also scans `.agents/skills` |
+| OpenClaw | `skills/` | user `~/.openclaw/skills` |
 
 If your agent supports hooks, the SessionStart hook (installed with the
 `zeroes-ones-all` plugin) injects the always-on principles; otherwise

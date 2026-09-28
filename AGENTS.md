@@ -20,8 +20,8 @@ This repository is **two things at once**:
    evidence as it goes. The engine owns control flow; skills own content.
 
 The library is meant to be **agent-agnostic**: it works with Claude Code, GitHub Copilot CLI,
-Cursor, OpenClaw, Gemini CLI, Codex, Windsurf, Cline, OpenCode, Zed, and any agent that reads the
-open `SKILL.md` format. It is distributed via shell installer, npm
+Cursor, OpenClaw, Gemini CLI, Codex, Windsurf, Cline, OpenCode, Kimi Code CLI, Zed, and any agent
+that reads the open `SKILL.md` format. It is distributed via shell installer, npm
 (`@zeroes-ones/skills`), the skills.sh registry, and the Claude plugin marketplace.
 
 - **Owner / author:** Sandeep Kumar Penchala
@@ -404,9 +404,10 @@ skills-init --status       # report current tier
 skills-update              # pull latest library
 ```
 
-Activation links 10 agent directories: `.agents/skills`, `.claude/skills`, `.copilot/skills`,
+Activation links 12 agent directories: `.agents/skills`, `.claude/skills`, `.copilot/skills`,
 `.github/skills`, `.cursor/skills`, `.codex/skills`, `.gemini/skills`, `.windsurf/skills`,
-`.cline/skills`, `.opencode/skills`. Full mode symlinks the whole `skills-flat`; tier modes symlink
+`.cline/skills`, `.opencode/skills`, `.kimi-code/skills`, and OpenClaw's project `skills/`. Full mode
+symlinks the whole `skills-flat`; tier modes symlink
 individual skill dirs by name. Existing non-symlink directories with content are **never deleted** —
 the installer skips them with a notice. Mode switching replaces only the installer's own links.
 `npm` bin entries (`package.json`): `skills`, `skills-init`, `skills-update`, `skills-validate`,

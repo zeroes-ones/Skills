@@ -42,7 +42,7 @@ We focus on what actually matters when building software:
 - **Industry-agnostic** — Frameworks apply to healthcare, fintech, gaming, e-commerce, government, open source, and more. Industry specifics live in `references/`.
 - **Scales with you** — Every skill covers Solo → Small → Medium → Enterprise. What's overkill today might be essential tomorrow.
 - **Knows its neighbors** — Every skill maps which other skills it coordinates with, when to escalate, and what to communicate.
-- **Works anywhere** — Compatible with Claude Code, Copilot CLI, Cursor, OpenClaw, Gemini CLI, and any agent that reads SKILL.md files.
+- **Works anywhere** — Compatible with Claude Code, Copilot CLI, Cursor, OpenClaw, Kimi Code CLI, Gemini CLI, and any agent that reads SKILL.md files.
 
 See [`SKILL-QUALITY-STANDARDS.md`](SKILL-QUALITY-STANDARDS.md) for our quality bar and review process.
 
@@ -403,6 +403,7 @@ Then in your agent:
 | **Cursor** | `.cursor/skills/` | `@skill-{name}` |
 | **OpenClaw** | `.openclaw/workspace/skills/` | `/{name}` |
 | **Gemini CLI** | `.gemini/skills/` | Paste content or custom injection |
+| **Kimi Code CLI** | `.kimi-code/skills/` | Auto-discovery from the project skills dir |
 
 ### Keeping Skills Updated
 
@@ -439,7 +440,7 @@ skills-update   # Pulls latest from GitHub — all symlinked projects see change
 | [`docs/small-context-100-runbook.md`](docs/small-context-100-runbook.md) | Small-context runbook: one-skill-at-a-time budget math, memory without loss, 100%-effective protocol + commands |
 | [`docs/distribution-best-in-class.md`](docs/distribution-best-in-class.md) | Research: how we compare to superpowers / anthropics/skills / skills.sh and what to incorporate (registry publishing, marketplace, methodology plugin) |
 | [`docs/plugin-marketplace-publishing.md`](docs/plugin-marketplace-publishing.md) | Plugin & marketplace playbook — plugin.json/marketplace.json mechanics, monetization reality, packaging steps |
-| [`docs/agent-support-matrix.md`](docs/agent-support-matrix.md) | Cross-agent support: flat discovery layer (skills-flat/) for every agent's skill scanner — Claude, Cursor, Copilot, Codex, Gemini, Windsurf, Cline, OpenCode, Zed + universal `.agents/skills` |
+| [`docs/agent-support-matrix.md`](docs/agent-support-matrix.md) | Cross-agent support: flat discovery layer (skills-flat/) for every agent's skill scanner — Claude, Cursor, Copilot, Codex, Gemini, Windsurf, Cline, OpenCode, Kimi Code CLI, Zed + universal `.agents/skills` |
 | [`docs/benchmarks-vs-agent-skills.md`](docs/benchmarks-vs-agent-skills.md) | Reproducible routing benchmark — methodology, before/after results, reproduction commands, and how to score any peer corpus with the same harness |
 | [`docs/client-request-playbook.md`](docs/client-request-playbook.md) | Client-request playbook: "build an app / change UI / change API / create or migrate a DB / add features / support & maintain" → skills, example manifest, estimate→price→support path, and your human-gate points by practitioner level |
 | [`docs/service-size-fitting.md`](docs/service-size-fitting.md) | Right-size any services job XS→XL (SaaS, any product/development, services, freelancing): effort band → engagement model, skills, example to copy, money path, human gates |

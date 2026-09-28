@@ -32,8 +32,10 @@ SOLO_SKILLS="ceo-strategist product-manager fullstack-developer code-reviewer qa
 GROW_SKILLS="$SOLO_SKILLS business-strategist ux-researcher ui-ux-designer accessibility-auditor system-architect api-designer database-designer backend-developer devops-engineer security-engineer"
 
 # Format: agent_name:target_dir — project scope uses the same flat discovery
-# layer and agent set as scripts/install.sh (global install).
-AGENT_LIST="agents:.agents/skills claude:.claude/skills copilot:.copilot/skills github:.github/skills cursor:.cursor/skills codex:.codex/skills gemini:.gemini/skills windsurf:.windsurf/skills cline:.cline/skills opencode:.opencode/skills"
+# layer as scripts/install.sh (global install), with each agent's project-scope
+# directory. Kimi Code CLI reads .kimi-code/skills/ (Kim-specific) and the
+# generic .agents/skills/ above; OpenClaw reads skills/ at the project root.
+AGENT_LIST="agents:.agents/skills claude:.claude/skills copilot:.copilot/skills github:.github/skills cursor:.cursor/skills codex:.codex/skills gemini:.gemini/skills windsurf:.windsurf/skills cline:.cline/skills opencode:.opencode/skills kimi:.kimi-code/skills openclaw:skills"
 
 # Full-mode count is COMPUTED from the flat discovery layer, never hardcoded —
 # a hardcoded number silently drifts every time a skill is added (it said 298

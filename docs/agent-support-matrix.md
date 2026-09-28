@@ -34,6 +34,8 @@ names, no broken links (see "Verify" below).
 | Cline | `.agents/skills/`, `.cline/skills/` | `~/.cline/skills/` | hooks support (with Claude Code) |
 | OpenCode | `.agents/skills/`, `.opencode/skills/` | `~/.config/opencode/skills/` | universal |
 | Zed | `.agents/skills/` | `~/.agents/skills/` | rules live in `.rules/`, skills per standard |
+| Kimi Code CLI | `.kimi-code/skills/`, `.agents/skills/` | `$KIMI_CODE_HOME/skills/` (default `~/.kimi-code/skills/`), `~/.agents/skills/` | scans four tiers — Project > User > Extra > Built-in; `extra_skill_dirs` in `config.toml` adds extra roots |
+| OpenClaw | `skills/` | `~/.openclaw/skills/` | per the vercel-labs/skills supported-agents table |
 
 Sources: vercel-labs/skills "Supported Agents" + agent-config reference; Adobe Agent Skills
 ecosystem overview; community skill-installer registries (j-skills, skillex, magpie). Treat the
@@ -46,12 +48,15 @@ conservative union (universal + agent-specific relays).
 agents     -> <home or project>/.agents/skills
 claude     -> <home or project>/.claude/skills
 copilot    -> <home or project>/.copilot/skills   (global) / .github/skills (project)
+github     -> <home or project>/.github/skills
 cursor     -> <home or project>/.cursor/skills
 codex      -> <home or project>/.codex/skills
 gemini     -> <home or project>/.gemini/skills
 windsurf   -> <home or project>/.windsurf/skills
 cline      -> <home or project>/.cline/skills
 opencode   -> <home or project>/.opencode/skills
+kimi       -> <home or project>/.kimi-code/skills   (global honors $KIMI_CODE_HOME)
+openclaw   -> ~/.openclaw/skills (global) / skills/ (project)
 ```
 
 All point at `…/skills-flat`. Installer never clobbers an existing non-symlink skills dir that

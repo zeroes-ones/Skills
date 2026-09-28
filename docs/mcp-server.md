@@ -72,6 +72,27 @@ Create `.cursor/mcp.json` with the same `mcpServers` block, using an **absolute*
 }
 ```
 
+### Kimi Code CLI
+
+Kimi Code CLI reads MCP servers from `mcp.json` — user level at `~/.kimi-code/mcp.json` (or
+`$KIMI_CODE_HOME/mcp.json` when that variable is set), project level at `.kimi-code/mcp.json`.
+Entries use the standard stdio shape (`{"command": ..., "args": [...]}`), so an **absolute** path is
+required, exactly as for Cursor:
+
+```json
+{
+  "mcpServers": {
+    "zeroes-ones-skills": {
+      "command": "python3",
+      "args": ["/absolute/path/to/Skills/scripts/mcp-skill-server.py"]
+    }
+  }
+}
+```
+
+`/mcp-config` adds servers interactively; `/mcp` shows connection status. A newly added server
+registers after `/reload` or in a new session.
+
 ### Any other client
 
 Point it at `python3 <repo>/scripts/mcp-skill-server.py` over stdio. No environment variables, no

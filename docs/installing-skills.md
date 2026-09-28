@@ -62,9 +62,10 @@ Every subcommand also exists as a named bin after a global install:
 
 ## 3. All vs individual — how activation works
 
-`skills-init` links into **10 agent directories** (`.agents/skills`, `.claude/skills`,
+`skills-init` links into **12 agent directories** (`.agents/skills`, `.claude/skills`,
 `.copilot/skills`, `.github/skills`, `.cursor/skills`, `.codex/skills`, `.gemini/skills`,
-`.windsurf/skills`, `.cline/skills`, `.opencode/skills`). What goes in them depends on the mode:
+`.windsurf/skills`, `.cline/skills`, `.opencode/skills`, `.kimi-code/skills`, plus OpenClaw's project
+`skills/`). What goes in them depends on the mode:
 
 | Mode | Command | What is linked | Result |
 |---|---|---|---|

@@ -41,7 +41,9 @@ echo -e "${YELLOW}[2/4]${NC} Creating global agent symlinks..."
 # Format: agent_name:target_dir (colon-separated).
 # `skills-flat` is linked (one-level <name>/SKILL.md discovery view of every skill),
 # never the nested skills/<domain>/<name> store — native scanners only look one level deep.
-AGENT_LIST="agents:$HOME/.agents/skills claude:$HOME/.claude/skills copilot:$HOME/.copilot/skills github:$HOME/.github/skills cursor:$HOME/.cursor/skills codex:$HOME/.codex/skills gemini:$HOME/.gemini/skills windsurf:$HOME/.windsurf/skills cline:$HOME/.cline/skills opencode:$HOME/.opencode/skills"
+# kimi follows $KIMI_CODE_HOME (Kimi Code CLI moves its user skill dir with the data root);
+# `agents` above already covers the generic ~/.agents/skills tier Kimi also scans.
+AGENT_LIST="agents:$HOME/.agents/skills claude:$HOME/.claude/skills copilot:$HOME/.copilot/skills github:$HOME/.github/skills cursor:$HOME/.cursor/skills codex:$HOME/.codex/skills gemini:$HOME/.gemini/skills windsurf:$HOME/.windsurf/skills cline:$HOME/.cline/skills opencode:$HOME/.opencode/skills kimi:${KIMI_CODE_HOME:-$HOME/.kimi-code}/skills openclaw:$HOME/.openclaw/skills"
 
 agents_configured=""
 for entry in $AGENT_LIST; do

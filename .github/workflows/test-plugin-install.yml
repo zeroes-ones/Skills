@@ -62,7 +62,12 @@ jobs:
           bash "$GITHUB_WORKSPACE/scripts/init-project.sh" > /dev/null
           test -L .agents/skills
           test "$(find -L .agents/skills -name SKILL.md | wc -l | tr -d ' ')" = "$EXPECTED"
-          echo "✓ dual-mode skills-init: $EXPECTED default / 8 solo / 18 grow / 2 selected / mode switching OK"
+          # Kimi Code CLI (.kimi-code/skills) and OpenClaw (skills/) project dirs
+          test -L .kimi-code/skills
+          test "$(find -L .kimi-code/skills -name SKILL.md | wc -l | tr -d ' ')" = "$EXPECTED"
+          test -L skills
+          test "$(find -L skills -name SKILL.md | wc -l | tr -d ' ')" = "$EXPECTED"
+          echo "✓ dual-mode skills-init: $EXPECTED default / 8 solo / 18 grow / 2 selected / mode switching OK (+ kimi, openclaw)"
       - name: E2E — fresh shell install from GitHub (push to main only)
         if: github.event_name == 'push'
         run: |
@@ -76,6 +81,8 @@ jobs:
           test "$N" -gt 0
           test "$(find "$HOME/.zeroes-ones/skills/skills-flat" -maxdepth 1 -mindepth 1 | wc -l | tr -d ' ')" = "$N"
           test -L "$HOME/.claude/skills"
+          test -L "$HOME/.kimi-code/skills"
+          test -L "$HOME/.openclaw/skills"
           test -x "$HOME/.local/bin/skills-init"
           PROJ="$RUNNER_TEMP/e2e-remote-proj"
           rm -rf "$PROJ"; mkdir -p "$PROJ"; cd "$PROJ"
@@ -83,6 +90,8 @@ jobs:
           test "$(find -L .agents/skills -name SKILL.md | wc -l | tr -d ' ')" = "8"
           "$HOME/.local/bin/skills-init" > /dev/null
           test "$(find -L .claude/skills -name SKILL.md | wc -l | tr -d ' ')" = "$N"
+          test "$(find -L .kimi-code/skills -name SKILL.md | wc -l | tr -d ' ')" = "$N"
+          test "$(find -L skills -name SKILL.md | wc -l | tr -d ' ')" = "$N"
           echo "✓ fresh install from GitHub: $N skills, agent symlinks, dual-mode skills-init"
 
   # Exit criteria EC-4…EC-5 — see docs/install-exit-criteria.md
