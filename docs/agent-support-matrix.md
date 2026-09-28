@@ -78,6 +78,14 @@ Then confirm per agent, e.g. Claude Code: `/plugin` or skill list shows entries;
 - **Claude Code ignores `.agents/skills/`** — the `.claude/skills` relay is mandatory.
 - **Cursor historically ignores symlinks** — use copy mode there (`skills.sh` CLI `--copy`, or
   `skills-init --copy` once added).
+- **OpenClaw rejects skill roots that escape the workspace** — workspace, project-agent, and
+  extra-dir discovery require the resolved realpath to stay inside the configured root, so a
+  project `skills/` symlink needs `skills.load.allowSymlinkTargets` (or a copy). Its user-scope
+  `~/.openclaw/skills` accepts symlinked skill folders.
+- **Kimi Code CLI plugins are not published by this repo** — a `kimi.plugin.json` manifest requires
+  component paths to stay inside the plugin root *after symlink resolution*, and every plugin dir
+  here exposes `skills/` as a symlink to `../../skills/…`. Kimi consumes this library through skill
+  directories (and MCP via `mcp.json`, see `docs/mcp-server.md`) instead.
 - Advanced fields are not universal: `context: fork` (Claude-only), hooks (Claude Code, Cline),
   `allowed-tools` (unsupported by Kiro/Zencoder).
 - Windows: symlinks need Developer Mode/admin — fall back to junctions/copies.
