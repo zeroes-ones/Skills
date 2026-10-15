@@ -1,0 +1,166 @@
+==============================================================================
+HANDCHECK -- independent re-derivation for the leg-count test
+==============================================================================
+This file does NOT import study.py.  Every number below is produced
+by code written a second time from the same pre-registration.
+
+window: 6436 sessions, 2001-03-13 .. 2026-10-14
+
+------------------------------------------------------------------------------
+A. BY HAND: ONE BLACK-SCHOLES PRICE, EVERY INTERMEDIATE SHOWN
+------------------------------------------------------------------------------
+  inputs   : S=100.0000  K=95.0000  T=0.08219178  r=0.0400  sigma=0.2000  PUT
+  sigma*sqrt(T)    = 0.05733821790809959
+  ln(S/K)          = 0.05129329438755048
+  d1               = 0.9805815961525242
+  d2               = 0.9232433782444246
+  N(-d1)           = 0.16339955678520623
+  N(-d2)           = 0.17794019389203058
+  exp(-rT)         = 0.9967177272404354
+  K*exp(-rT)*N(-d2) = 16.84883383587478
+  S*N(-d1)          = 16.339955678520624
+  PUT = difference  = 0.5088781573541539
+
+  A reader with a calculator should get 0.5088781574.
+
+------------------------------------------------------------------------------
+B. BY HAND: ONE LEG OF EACH STRUCTURE, RE-PRICED AND COMPARED WITH
+   THE LEDGER'S OWN credit COLUMN (first SPY trade of each)
+------------------------------------------------------------------------------
+  id   entry      iv        legs built by hand                      hand credit$       ledger$        gap
+  A1   2001-04-02 0.27040   P109.0@-1 P104.0@+1                        60.612811     60.612811  -2.89e-08
+  A2   2001-04-02 0.27040   P109.0@-1 P104.0@+1 C126.5@-1 C131.5@+1    103.973953    103.973953   1.06e-07
+  A3   2001-04-02 0.27040   P116.7@-1 C116.7@-1 P111.7@+1 C121.7@+1    387.652862    387.652862   2.95e-07
+  A4   2001-04-02 0.27040   P109.0@-1 C126.5@-1                       147.741155    147.741155   3.36e-07
+  B1   2001-04-02 0.27040   C122.1@+1                                -148.639238   -148.639238   2.23e-07
+  B2   2001-04-02 0.27040   C117.4@+1 C123.5@-1                      -197.618296   -197.618296  -1.35e-07
+  B3   2001-04-02 0.27040   C122.1@+1 P112.9@-1                        36.519798     36.519798   2.54e-07
+  B4   2001-04-02 0.27040   C123.5@+2 C117.4@-1                        81.477461     81.477461  -2.56e-07
+  C1   2001-04-02 0.27040   P109.0@-1                                  82.611700     82.611700   3.77e-07
+  C2   2001-04-02 0.27040   S116.3@+1 C122.1@-1                       148.639238    148.639238  -2.23e-07
+  C3   2001-04-02 0.27040   P109.0@-1 P104.0@+1                        60.612811     60.612811  -2.89e-08
+  C4   2001-04-02 0.27040   P116.7@-1                                 347.968533    347.968533   4.43e-07
+  worst |gap| across the 12 structures = 4.428e-07
+
+  WORKED EXAMPLE, one leg: structure A1, first SPY trade
+    the strike is solved from the SIGNAL close on the base vol:
+      S_sig (signal close) = 116.690000
+      iv  = VIX(t-3)/100 * kappa = 0.270400
+      T   = calendar days / 365   = 0.07671233
+      r   = US03M(t-3)/100, floored at 0 = 0.042400
+      K   = 108.973017   (solved to the pre-registered delta target)
+      delta of that leg   = -0.1711179313065757
+    priced at the ENTRY open S = 116.300000:
+      sigma*sqrt(T)    = 0.07489266255187879
+      d1               = 0.9497567579015372
+      d2               = 0.8748640953496585
+      N(d1)            = 0.8288820686934243
+      N(d2)            = 0.8091760714097045
+      N(-d1)           = 0.1711179313065757
+      N(-d2)           = 0.1908239285902955
+      exp(-rT)         = 0.9967526812421148
+      PER SHARE      = 0.8261170037725165
+      LEG CASH FLOW  = qty x 100 x price = +82.6117003773  (qty -1)
+
+------------------------------------------------------------------------------
+C. BY HAND: c_R FOR ONE STRUCTURE AT ONE COST SETTING
+------------------------------------------------------------------------------
+  structure A2 (iron condor) on SPY, first trade 2001-04-02 -> 2001-04-30:
+    credit per share        = 1.03973953
+    contracts (sum |qty|)   = 4
+    fee per contract / side = $0.6500
+    half-spread / share     = $0.0250  -> $2.50 per contract
+    all-in per contract     = $3.1500  (ONE side each)
+    cost = 3.1500 x 4        = $12.600000
+    R = (wing - credit) x 100 = $396.026047
+    HAND c_R = cost / R       = 0.03181609
+    LEDGER cost               = $12.600000
+    LEDGER R                  = $396.026047
+    LEDGER c_R                = 0.03181609
+    gap cost = 0.000e+00    gap c_R = 1.318e-16
+    same trade at HIGH prices : per contract $5.6500, cost $22.6000,
+      c_R = 0.05706695
+    same trade at the skill's ROUND-TRIP convention (2 tickets/leg):
+      cost $25.2000, c_R = 0.06363218
+
+------------------------------------------------------------------------------
+D. BY HAND: SETTLE ONE 4-LEG IRON CONDOR AGAINST THE REAL PATH
+------------------------------------------------------------------------------
+  SPY 2001-04-02 (entry) -> 2001-04-30 (expiry close)
+  signal close S_sig = 116.690000   entry open S = 116.300000
+  expiry REAL close S = 124.910000
+  T at entry = 0.07671233   r = 0.042400   iv = 0.270400
+  kind           K   qty  entry px/share     intrinsic      leg P&L $
+  P       108.9730    -1      0.82611700    0.00000000        82.6117
+  P       103.9730     1      0.21998889    0.00000000       -21.9989
+  C       126.4764    -1      0.65129455    0.00000000        65.1295
+  C       131.4764     1      0.21768313    0.00000000       -21.7683
+  credit received at entry  = $103.973953
+  terminal intrinsic net    = $0.000000
+  credit + intrinsic net    = $103.973953
+  BY-HAND GROSS trade P&L   = $103.973953
+  ledger GROSS P&L (FREE)   = $103.973953
+  gap                       = 0.000e+00
+  ledger cost (LOW)         = $12.600000
+  BY-HAND NET = gross - cost = $91.373953
+  ledger NET P&L (LOW)       = $91.373953
+  gap                       = 0.000e+00
+  BY-HAND R                 = $396.026047
+  ledger  R                 = $396.026047
+  gap                       = -1.592e-12
+  worst gap across all four = 1.592e-12
+  (The by-hand P&L is GROSS; the LOW ledger row is NET of cost, so the
+   two differ by exactly the $12.6000 cost -- both comparisons are shown.)
+
+------------------------------------------------------------------------------
+E. INDEPENDENT RE-DERIVATION OF THE HEADLINE TABLE
+   (pooled SPY/QQQ/IWM, LOW cost) vs out/structures.csv
+------------------------------------------------------------------------------
+  id    legs        p       b       E_R       c_R     E_net     R$med    gap_p    gap_E   gap_cR
+  A1       2 0.897603  0.1808  0.032107  0.014006  0.018101    454.35  0.0e+00  0.0e+00  0.0e+00
+  A2       4 0.857298  0.3526  0.091498  0.031272  0.060225    407.25  0.0e+00  0.0e+00  0.0e+00
+  A3       4 0.419390  1.4510  0.027098  0.138736 -0.111639    139.38  0.0e+00  0.0e+00  0.0e+00
+  A4       2 0.876906  0.4703  0.230292  0.025764  0.204528    287.44  0.0e+00  0.0e+00  0.0e+00
+  B1       1 0.229847  1.4642 -0.427104  0.027459 -0.454563    134.59  0.0e+00  0.0e+00  0.0e+00
+  B2       2 0.450980  1.4479  0.095266  0.042795  0.052471    171.95  0.0e+00  0.0e+00  0.0e+00
+  B3       2 0.494553  0.9633 -0.000511  0.000693 -0.001204  12063.68  0.0e+00  0.0e+00  0.0e+00
+  B4       2 0.480392  0.2617 -0.212072  0.026285 -0.238357    409.74  0.0e+00  0.0e+00  0.0e+00
+  C1       1 0.903050  0.2205  0.002652  0.000361  0.002291  11754.07  0.0e+00  0.0e+00  0.0e+00
+  C2       2 0.684096  0.8795  0.011774  0.000845  0.010929  12271.05  0.0e+00  0.0e+00  0.0e+00
+  C3       2 0.897603  0.1808  0.032107  0.014006  0.018101    454.35  0.0e+00  0.0e+00  0.0e+00
+  C4       1 0.762527  0.6019  0.008461  0.000344  0.008116  12134.48  0.0e+00  0.0e+00  0.0e+00
+
+  trades pooled per structure = 918
+  worst absolute gap across p, b, E_R, c_R, R$med = 0.000e+00
+  p is a ratio of two integers; the compared CSV columns are
+  6-decimal rounded, so 1e-10 is float noise and 1e-7 is rounding.
+
+------------------------------------------------------------------------------
+F. INDEPENDENT CHECK: EVERY TRADE IN out/trades.csv, ALL 12
+   STRUCTURES x 3 INDEXES, LOW COST, 13 FIELDS PER TRADE
+------------------------------------------------------------------------------
+  trades matched  : 11016
+  rows missing    : 0
+  worst field gap : 5.000e-05  (C1/SPY/2005-01-03 theta)
+
+------------------------------------------------------------------------------
+G. INDEPENDENT CHECK: DAILY CURVE AND LEDGER ARE THE SAME MONEY,
+   AND THE POSITIVITY SIGNS ARE UNAMBIGUOUS
+------------------------------------------------------------------------------
+  worst |sum(daily) - sum(trade pnl)| over 36 sleeves = 4.366e-11
+  worst single daily return over 36 sleeves             = -0.6929
+  No daily return reaches -1, so a period's SUM sign is also its
+  compounded sign and the positivity column is unambiguous.
+
+==============================================================================
+HANDCHECK PASSED
+==============================================================================
+What was verified: the Black-Scholes engine, the delta solver, the
+lagged-VIX context, the structure builders, the R convention, the
+cost arithmetic, the expiry settlement, the daily mark loop, and the
+headline p / b / E_R / c_R / E_net, all re-derived from data/*.csv by
+code that does not import study.py.
+
+What was NOT verified, and cannot be with these sources: that any
+modelled option price resembles any price that ever existed.  These
+are constructions from VIX, not quotations.

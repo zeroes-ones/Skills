@@ -31,6 +31,7 @@ chain:
     - data-engineer
     - database-reliability-engineer
     - backend-developer
+    - trading-decision-data-catalogue
   feeds_into:
     - technical-signals-engineer
     - portfolio-signal-manager
@@ -363,7 +364,7 @@ All material decisions, regime/calibration changes, and escalations are appended
 |----------------|------------------|-----------------|
 | `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
 | `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
-| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+| `options-risk-engineer` for the options book, `equity-risk-and-capital-engineer` for the equity book | Limits and exposure context | When sizing positions or setting guards |
 
 ## Failure Modes & Exit Rules
 

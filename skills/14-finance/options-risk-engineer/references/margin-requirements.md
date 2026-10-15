@@ -7,7 +7,8 @@ Reg T is the Federal Reserve baseline for retail margin accounts. It applies to 
 ### Stock Margin
 - **Initial margin**: 50% of purchase price
 - **Maintenance margin**: 25% of current market value
-- **Pattern day trader (PDT)**: $25,000 minimum equity. 4+ day trades in 5 business days triggers PDT designation. Below $25K = account restricted to closing only [VERIFIED]
+- **Day-trading / intraday margin — the framework that replaced "pattern day trader":** the day-trading margin requirements were **replaced in their entirety by FINRA Regulatory Notice 26-10**, effective **2026-06-04** (SEC approval 2026-04-14/15; phase-in to 2027-10-20). The current framework is **FINRA Rule 4210(d)(2)** (intraday margin), and in the current rule text **(f)(8) is "Special Initial and Maintenance Margin Requirements"** — it is not PDT. **Verify with your broker — this changed in 2026**, and the schedule that binds is the member's. `[VERIFIED — FINRA Regulatory Notice 26-10; FINRA Rule 4210(d)(2)]`
+  - *Historical, so a stale broker page is not confusing:* a page still teaching **4+ day trades in 5 business days → $25,000 minimum equity → closing-only below $25K** is describing the **pre-2026-06-04** rule. It is not wrong about what the rule used to be; it is wrong about what it is.
 
 ### Long Options (Reg T)
 - Long calls and puts: **100% of premium**. Must be paid in full. No margin lending on long options.
@@ -52,7 +53,7 @@ Margin = ($10 width × 100 × 10) - $600 credit = $10,000 - $600 = $9,400
 
 ## Portfolio Margin (PM)
 
-Portfolio Margin uses theoretical pricing models (not fixed percentages) to compute max loss under standardized stress scenarios. It is available to qualifying accounts with regulatory minimum $100,000 equity [VERIFIED].
+Portfolio Margin uses theoretical pricing models (not fixed percentages) to compute max loss under standardized stress scenarios. Brokers commonly quote a **$100,000 minimum equity** for PM eligibility [BROKER-VERIFIED] — confirm the figure with your own broker, because **it is not in the text of FINRA Rule 4210**: the only minimum the rule states is **$5,000,000**, and only for eligible participants trading *unlisted derivatives* [VERIFIED — FINRA Rule 4210(g)(4)(C)]. Do not treat $100,000 as a regulatory requirement.
 
 ### PM Calculation Method
 Positions are stressed under ±15% price moves (varies by underlying — index ±15%, large-cap ±20%, small-cap ±30%). Theoretical losses are computed using options pricing models. Total PM requirement = sum of worst-case theoretical losses across scenarios [BROKER-VERIFIED].
@@ -64,7 +65,7 @@ Positions are stressed under ±15% price moves (varies by underlying — index �
 | 10-lot SPX iron condor (50-wide wings) | ~$50,000 | ~$12,000 | 76% [BROKER-VERIFIED] |
 | 100 SPY shares + collar | ~$25,000 | ~$3,500 | 86% |
 | 5-lot TSLA strangle (50-wide) | ~$35,000 | ~$18,000 | 49% |
-| Diversified 20-position theta portfolio | ~$200,000 | ~$65,000 | 68% [ESTIMATED] |
+| Diversified 20-position theta portfolio | ~$200,000 | ~$65,000 | ~68% [ILLUSTRATIVE — order-of-magnitude shape only. The PM/Reg T ratio is not stable across books, regimes or brokers, and this row must not be used as a planning input; compute it for the actual book or read it from the broker API] |
 
 PM recognizes that hedged positions offset each other. Reg T treats each leg independently, significantly overstating actual risk [VERIFIED].
 
@@ -73,7 +74,7 @@ PM recognizes that hedged positions offset each other. Reg T treats each leg ind
 - **Interactive Brokers**: $100,000 minimum equity (US residents), $500,000 (non-US) [BROKER-VERIFIED]
 - **TastyTrade**: $125,000 minimum [BROKER-VERIFIED]
 - Must pass broker's options knowledge assessment
-- Pattern Day Trader rules still apply unless portfolio > $25,000
+- Day-trading margin: the **intraday-margin** requirements under FINRA Rule 4210(d)(2) apply (FINRA Regulatory Notice 26-10, effective 2026-06-04 — the old **$25,000** pattern-day-trader regime is **superseded**). Confirm the member's current intraday-margin schedule with your broker — **this changed in 2026**
 
 ## SPAN Margin (Futures Options)
 

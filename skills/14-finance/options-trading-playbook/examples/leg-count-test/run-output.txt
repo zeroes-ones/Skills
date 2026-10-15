@@ -1,0 +1,519 @@
+
+==============================================================================
+LEG-COUNT TEST -- does adding option legs buy edge, or only shape?
+==============================================================================
+Pre-registered.  Deterministic.  No RNG, no clock, no network.
+
+READ THIS BEFORE ANY NUMBER: every option price below is [MODELED].
+Historical option quotes are not available from the sources used.
+Legs are priced with Black-Scholes on a VIX-derived implied vol and
+settled against the REAL index close on the expiry session.  The
+model has: no quote spread, NO SKEW (one vol for every strike), no
+term structure, NO EARLY EXERCISE AND NO ASSIGNMENT (SPY/QQQ/IWM
+options are American and physically settled; they are priced here as
+European and cash-settled), no pin risk, no dividends, no margin, no
+liquidity limit, NO LEGGING RISK, unrounded strikes.  A flat
+per-contract spread IS charged as a cost; the QUOTE is still a mid.
+
+==============================================================================
+0. DATA -- provenance echoed verbatim from data/*.csv
+==============================================================================
+  SPY    rows=8485   first=1993-01-29 last=2026-10-14
+  QQQ    rows=6943   first=1999-03-10 last=2026-10-14
+  IWM    rows=6635   first=2000-05-26 last=2026-10-14
+  VIX    rows=9283   first=1990-01-03 last=2026-10-14
+  US03M  rows=18197  first=1954-01-04 last=2026-10-14
+
+  Provenance of the three index series (verbatim):
+    source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    symbol=AMEX:SPY  interval=1D  fields=OHLCV
+    pulled=2026-10-14 (UTC date of the sibling pull)
+    CARRIED from ../frontier-test/data/SPY_1d.csv -- same tool, same pull date
+    carried_by=pull_data.py  carried=2026-10-15
+    VERIFIED before carry: the sibling header's own rows/first/last claims were re-checked against its body and matched
+    sha256(body of the carried file)=e104ae01aefea7444b25011c2aedd558793d24f7659f703ec54dfee5390149af
+    rows=8485  first=1993-01-29  last=2026-10-14
+    date is the exchange session date, rendered as the UTC calendar date of the bar timestamp
+    split-adjusted, regular session only
+    volume is as reported by the source, in shares (unadjusted for splits)
+    PRICE-ONLY series. No dividends or distributions. Not a total-return series.
+    carried_by=carry_data.py  carried=2026-10-15  from=C:\Users\sande\Documents\Projects\Skills\skills\14-finance\options-trading-playbook\examples\index-options-test\data\SPY_1d.csv
+    CARRIED, not re-pulled. The five series are the same 1D series the sibling study already pulled on 2026-10-14; re-pulling returns raw bars through a tool result for no gain.
+    VERIFIED at carry: the source header's own rows/first/last claims were re-checked against the body it sits above and matched.
+    sha256(body of the carried file)=8c9fd9d9cc75fc7430e64df2a2b17218e73a6522bb0381fc7df7c4c32008a596
+
+    US03M: *** NOT A PRICE SERIES ***. TVC:US03M is a YIELD INDEX (3-month US Treasury bill, percent per annum). The `close` column is an annualised yield in percent, not a tradable price. No price-return may be computed from it; it is used only as the cash-accrual rate.
+
+  WINDOW: 6436 sessions, 2001-03-13 .. 2026-10-14
+    complete M  periods = 306  (2001-04 .. 2026-09)
+    complete Q  periods = 102  (2001-Q2 .. 2026-Q3)
+    complete Y  periods = 24  (2002 .. 2025)
+    cash CAGR over the same window (TVC:US03M, lagged 1 session, floored at 0) = +1.80%
+    monthly cycles entering a trade: 306 per index; 918 trades per structure pooled over 3 indexes
+
+==============================================================================
+1. PRE-REGISTRATION (echoed BEFORE any result is shown)
+==============================================================================
+  THREE VIEWS.  Within a view, ONLY the leg count changes:
+    View A -- the index stays INSIDE +-1 sigma over the next 30 days   (range)
+    View B -- the index RISES over the next 30 days                   (directional)
+    View C -- harvest premium with NO directional view               (carry)
+
+  THE STRUCTURES, ordered by leg count within each view:
+  id  view  legs  structure
+  --  ----  ----  ----------------------------------------------------
+  A1  A     2     short put spread ~16d / 5-wide
+  A2  A     4     iron condor ~16d shorts / 5-wide wings
+  A3  A     4     iron butterfly ATM short / 5-wide wings
+  A4  A     2     short strangle ~16d both sides
+  B1  B     1     long call ~30d
+  B2  B     2     bull call debit spread ~50d long / ~25d short
+  B3  B     2     risk reversal long ~30d call / short ~30d put
+  B4  B     2     call ratio backspread long 2x ~25d / short 1x ~50d
+  C1  C     1     cash-secured put ~16d
+  C2  C     2     covered call: long underlying + short ~30d call
+  C3  C     2     put spread ~16d / 5-wide (the same instrument as A1)
+  C4  C     1     short ATM put -- the 1-leg carry comparator
+
+  SHARED DISCIPLINE (identical for every structure):
+    tenor            : 30 calendar days, capped at the last session
+                       before the next monthly roll
+    entry            : signal at the last session of a month,
+                       position established at the NEXT open
+    strikes          : solved from the SIGNAL close on the base
+                       implied vol; HELD FIXED across all variants
+    settlement       : INTRINSIC against the REAL close of the
+                       expiry session (European, cash-settled)
+    delta targets    : 16d / 25d / 30d / 50d as named per structure
+    wings            : $5-wide
+    R                : the structure's own MAXIMUM LOSS, measured on
+                       a 4000-point terminal grid [0, 3*S]
+                       for a bounded structure; for a structure
+                       with an UNBOUNDED CALL SIDE, R is the loss at
+                       a stated +1.5*sigma*sqrt(T) move and the
+                       structure is flagged.  NO INTRA-TRADE STOP IS
+                       SIMULATED: every structure is held to expiry,
+                       so for the flagged ones R is a NORMALISATION
+                       of the payoff, not an enforced exit.
+    budget           : a fixed 10 x one R; daily return = dollar
+                       P&L / that budget.  NOT a compounding account.
+
+  COST SETTINGS (per contract, per leg, ONE side, plus a stated
+  per-share half-spread; the stock leg pays round-trip bps):
+  setting  fee    half-spread  per leg/side  tickets  stock
+  -------  -----  -----------  ------------  -------  --------
+  FREE     +0.00  +0.00        +0.00         1        0.0 bps
+  LOW      +0.65  +0.03        +3.15         1        5.0 bps
+  HIGH     +0.65  +0.05        +5.65         1        20.0 bps
+  RT_LOW   +0.65  +0.03        +6.30         2        10.0 bps
+    The skill's `cost-drag-per-leg-and-per-rung.md` charges TWO
+    tickets per leg (a round trip).  A leg that EXPIRES has no
+    closing ticket, so the headline convention here is ONE ticket
+    per leg and RT_LOW bounds the other reading.
+
+  THE SEVEN RUNS.  `iv_mode` changes only the PRICING vol; strikes
+  never move, so a difference between two iv_modes is pure pricing:
+  variant        cost    iv_mode   what it is
+  -------------  ------  --------  --------------------------------------------------------------------
+  FREE           FREE    BASE      gross, no cost, no skew haircut -- the gross-edge reference
+  LOW            LOW     BASE      headline: $0.65/contract/leg + $0.025/share half-spread, 5 bps stock
+  HIGH           HIGH    BASE      high: $0.65/contract/leg + $0.050/share half-spread, 20 bps stock
+  RT_LOW         RT_LOW  BASE      round trip (2 tickets/leg, the skill's convention) at LOW prices
+  SKEW_SOLD_P15  LOW     SOLD_P15  SOLD option legs charged +1.5 vol points at pricing (strikes fixed)
+  SKEW_SOLD_M15  LOW     SOLD_M15  SOLD option legs charged -1.5 vol points at pricing (strikes fixed)
+  SKEW_ALL_P15   LOW     ALL_P15   ALL option legs charged +1.5 vol points at pricing (strikes fixed)
+
+  SELECTION RULE FOR 'BEST STRUCTURE IN A VIEW' (declared now):
+    rank by edge_per_tail = E_net(R, LOW) / |worst 1%% of trades (R)|
+    ties broken by higher E_net.  The highest-E_net structure is
+    ALSO named separately, because the two rules can disagree.
+
+==============================================================================
+2. RUNNING -- 12 structures x 7 variants x 3 indexes = 252 sleeves
+==============================================================================
+  done.
+
+==============================================================================
+3. STRUCTURE SUMMARY AT THE HEADLINE COST (LOW)
+==============================================================================
+  E_form = p*b-(1-p) [the skill's identity]   E_R = sample mean in R
+  c_R = mean(cost/R)   E_net = E_R - c_R      R/not = era-free R
+  CAPITAL: one contract of a defined-risk structure posts capital = R.
+  So dollars of expectancy per $10,000 of capital = 10,000 x E_net, and
+  that is what E$_10k is: the same ordering as E_net, rescaled to a
+  readable unit.  For A4 and B3, R is a STATED STOP, not a broker
+  requirement -- a real short strangle is margined on the whole
+  underlying, so their E$_10k is OPTIMISTIC and is flagged.
+  id  view  legs  n    p       b      E_form   E_R      c_R      E_net    R$med      E$/10k/mo  u@25k
+  --  ----  ----  ---  ------  -----  -------  -------  -------  -------  ---------  ---------  -----
+  A1  A     2     918  0.8976  0.181  +0.0599  +0.0321  +0.0140  +0.0181  +454.35    +181.0     55
+  A2  A     4     918  0.8573  0.353  +0.1596  +0.0915  +0.0313  +0.0602  +407.25    +602.3     61
+  A3  A     4     918  0.4194  1.451  +0.0279  +0.0271  +0.1387  -0.1116  +139.38    -1116.4    179
+  A4  A     2     918  0.8769  0.470  +0.2893  +0.2303  +0.0258  +0.2045  +287.44    +2045.3    86
+  B1  B     1     918  0.2298  1.464  -0.4336  -0.4271  +0.0275  -0.4546  +134.59    -4545.6    185
+  B2  B     2     918  0.4510  1.448  +0.1040  +0.0953  +0.0428  +0.0525  +171.95    +524.7     145
+  B3  B     2     918  0.4946  0.963  -0.0290  -0.0005  +0.0007  -0.0012  +12063.68  -12.0      2
+  B4  B     2     918  0.4804  0.262  -0.3939  -0.2121  +0.0263  -0.2384  +409.74    -2383.6    61
+  C1  C     1     918  0.9031  0.220  +0.1021  +0.0027  +0.0004  +0.0023  +11754.07  +22.9      2
+  C2  C     2     918  0.6841  0.880  +0.2858  +0.0118  +0.0008  +0.0109  +12271.05  +109.3     2
+  C3  C     2     918  0.8976  0.181  +0.0599  +0.0321  +0.0140  +0.0181  +454.35    +181.0     55
+  C4  C     1     918  0.7625  0.602  +0.2215  +0.0085  +0.0003  +0.0081  +12134.48  +81.2      2
+
+  R is the structure's MAXIMUM LOSS on the payoff grid and it EXCLUDES
+  cost, so a trade that hits the structural max loss shows
+  R_mult = -(1 + c_R).  R$med is a MEDIAN over 2001-2026, when the
+  index TRIPLED, so R$med is a MEDIAN-ERA dollar amount; R/notional%
+  is the era-free version and R$recent is the last 5 years only.
+  `arb` is the share of trades for which the MODEL gives a maximum
+  loss <= 0, i.e. the model says the structure cannot lose.  That is
+  an ARBITRAGE under flat-vol pricing, not an edge.
+  id  view  legs  R/notional%  R$med      R$5yr      arb%  worstDay
+  --  ----  ----  -----------  ---------  ---------  ----  --------
+  A1  A     2     3.68%        +454.35    +426.50    0     -7%
+  A2  A     4     3.34%        +407.25    +363.25    0     -9%
+  A3  A     4     1.17%        +139.38    +43.63     0     -31%
+  A4  A     2     2.51%        +287.44    +966.53    0     -25%
+  B1  B     1     1.16%        +134.59    +424.31    0     -20%
+  B2  B     2     1.47%        +171.95    +539.72    0     -14%
+  B3  B     2     97.09%       +12063.68  +38322.67  0     -1%
+  B4  B     2     3.56%        +409.74    +1405.98   0     -6%
+  C1  C     1     93.91%       +11754.07  +37194.35  0     -1%
+  C2  C     2     98.84%       +12271.05  +39122.75  0     -1%
+  C3  C     2     3.68%        +454.35    +426.50    0     -7%
+  C4  C     1     97.62%       +12134.48  +38515.75  0     -1%
+  R$5yr is what one contract risks TODAY; R$med is what it risked in a
+  median year of the window.  The capital question is not era-free.
+
+  THE CORNER NUMBERS the skill defines, per structure:
+  p* = 1/(1+b) is the break-even win rate; b* = (1-p)/p is the
+  break-even payoff; sd is the sample sd of R_mult in R;
+  n_req = 4(sd/|E_R|)^2 is the trades needed to see the edge at 2 sigma.
+  id  view  legs  p       b      p*      b*      sd_R    E_R      n_req    L_act  L_exp  n<n_req
+  --  ----  ----  ------  -----  ------  ------  ------  -------  -------  -----  -----  --------
+  A1  A     2     0.8976  0.181  0.8469  0.1141  0.2349  0.0321   214.1    2      3.0
+  A2  A     4     0.8573  0.353  0.7393  0.1665  0.3244  0.0915   50.3     3      3.5
+  A3  A     4     0.4194  1.451  0.4080  1.3844  1.7803  0.0271   17265.7  29     12.5   OVER-REQ
+  A4  A     2     0.8769  0.470  0.6801  0.1404  0.4711  0.2303   16.7     2      3.3
+  B1  B     1     0.2298  1.464  0.4058  3.3507  1.2042  -0.4271  31.8     22     26.1
+  B2  B     2     0.4510  1.448  0.4085  1.2174  1.2108  0.0953   646.1    10     11.4
+  B3  B     2     0.4946  0.963  0.5093  1.0220  0.0294  -0.0005  13197.2  12     10.0   OVER-REQ
+  B4  B     2     0.4804  0.262  0.7926  1.0816  0.4044  -0.2121  14.5     7      10.4
+  C1  C     1     0.9031  0.220  0.8194  0.1074  0.0133  0.0027   99.9     2      2.9
+  C2  C     2     0.6841  0.880  0.5321  0.4618  0.0462  0.0118   61.5     5      5.9
+  C3  C     2     0.8976  0.181  0.8469  0.1141  0.2349  0.0321   214.1    2      3.0
+  C4  C     1     0.7625  0.602  0.6243  0.3114  0.0329  0.0085   60.5     4      4.7
+
+==============================================================================
+TEST 1 -- IS E_net MONOTONIC IN LEG COUNT, HOLDING THE VIEW CONSTANT?
+==============================================================================
+
+  View A -- the index stays INSIDE +-1 sigma over the next 30 days   (range)
+  id  legs  ctr  p       b      E_form   E_R      c_R      E_net    E$/10k   flag
+  --  ----  ---  ------  -----  -------  -------  -------  -------  -------  --------
+  A1  2     2    0.8976  0.181  +0.0599  +0.0321  +0.0140  +0.0181  +181.0
+  A4  2     2    0.8769  0.470  +0.2893  +0.2303  +0.0258  +0.2045  +2045.3  UNDEF-UP
+  A2  4     4    0.8573  0.353  +0.1596  +0.0915  +0.0313  +0.0602  +602.3
+  A3  4     4    0.4194  1.451  +0.0279  +0.0271  +0.1387  -0.1116  -1116.4
+    E_net order by leg count: A1 0.0181 -> A4 0.2045 -> A2 0.0602 -> A3 -0.1116
+    MONOTONE FALLING IN LEG COUNT: NO
+    highest E_net: A4 (+0.2045)
+
+  View B -- the index RISES over the next 30 days                   (directional)
+  id  legs  ctr  p       b      E_form   E_R      c_R      E_net    E$/10k   flag
+  --  ----  ---  ------  -----  -------  -------  -------  -------  -------  ----
+  B1  1     1    0.2298  1.464  -0.4336  -0.4271  +0.0275  -0.4546  -4545.6
+  B2  2     2    0.4510  1.448  +0.1040  +0.0953  +0.0428  +0.0525  +524.7
+  B3  2     2    0.4946  0.963  -0.0290  -0.0005  +0.0007  -0.0012  -12.0
+  B4  2     3    0.4804  0.262  -0.3939  -0.2121  +0.0263  -0.2384  -2383.6
+    E_net order by leg count: B1 -0.4546 -> B2 0.0525 -> B3 -0.0012 -> B4 -0.2384
+    MONOTONE FALLING IN LEG COUNT: NO
+    highest E_net: B2 (+0.0525)
+
+  View C -- harvest premium with NO directional view               (carry)
+  id  legs  ctr  p       b      E_form   E_R      c_R      E_net    E$/10k  flag
+  --  ----  ---  ------  -----  -------  -------  -------  -------  ------  ----
+  C1  1     1    0.9031  0.220  +0.1021  +0.0027  +0.0004  +0.0023  +22.9
+  C4  1     1    0.7625  0.602  +0.2215  +0.0085  +0.0003  +0.0081  +81.2
+  C2  2     1    0.6841  0.880  +0.2858  +0.0118  +0.0008  +0.0109  +109.3
+  C3  2     2    0.8976  0.181  +0.0599  +0.0321  +0.0140  +0.0181  +181.0
+    E_net order by leg count: C1 0.0023 -> C4 0.0081 -> C2 0.0109 -> C3 0.0181
+    MONOTONE FALLING IN LEG COUNT: NO
+    highest E_net: C3 (+0.0181)
+
+  PLAIN ANSWER: more legs did NOT buy gross edge net of cost on any
+  view.  See the per-view lines above for the ordering.
+
+==============================================================================
+TEST 2 -- COST DRAG BY LEG COUNT, AND THE BREAK-EVEN COST c_R* = E
+==============================================================================
+  c_R* = E_R is the cost (in R) at which the gross edge is exactly
+  consumed.  `legs to eat edge` is the first leg count in the view
+  at which some structure's c_R >= its own E_R.
+  id  view  legs  ctr  cost$   c_R_LOW  E_net_LOW  c_R_HIGH  E_net_HIGH  c_R_RT   E_net_RT  c_R*      c_R*$    eats edge
+  --  ----  ----  ---  ------  -------  ---------  --------  ----------  -------  --------  --------  -------  ---------
+  A1  A     2     2    +6.30   0.01401  +0.0181    0.02512   +0.0070     0.02801  +0.0041   0.03211   +14.59
+  A2  A     4     4    +12.60  0.03127  +0.0602    0.05609   +0.0354     0.06254  +0.0290   0.09150   +37.26
+  A3  A     4     4    +12.60  0.13874  -0.1116    0.24884   -0.2217     0.27747  -0.2504   0.02710   +3.78    YES
+  A4  A     2     2    +6.30   0.02576  +0.2045    0.04621   +0.1841     0.05153  +0.1788   0.23029   +66.20
+  B1  B     1     1    +3.15   0.02746  -0.4546    0.04925   -0.4764     0.05492  -0.4820   -0.42710  -57.48   YES
+  B2  B     2     2    +6.30   0.04280  +0.0525    0.07676   +0.0185     0.08559  +0.0097   0.09527   +16.38
+  B3  B     2     2    +6.30   0.00069  -0.0012    0.00124   -0.0018     0.00139  -0.0019   -0.00051  -6.17    YES
+  B4  B     2     3    +9.45   0.02629  -0.2384    0.04715   -0.2592     0.05257  -0.2646   -0.21207  -86.89   YES
+  C1  C     1     1    +3.15   0.00036  +0.0023    0.00065   +0.0020     0.00072  +0.0019   0.00265   +31.17
+  C2  C     2     1    +9.34   0.00085  +0.0109    0.00263   +0.0091     0.00169  +0.0101   0.01177   +144.48
+  C3  C     2     2    +6.30   0.01401  +0.0181    0.02512   +0.0070     0.02801  +0.0041   0.03211   +14.59
+  C4  C     1     1    +3.15   0.00034  +0.0081    0.00062   +0.0078     0.00069  +0.0078   0.00846   +102.67
+
+  c_R scales LINEARLY in leg count at fixed R (cost = per-leg x
+  contracts).  What makes it bite is that R does NOT scale with legs:
+  id  view  legs  ctr  cost$   R$         c_R/E_R  eats
+  --  ----  ----  ---  ------  ---------  -------  ----
+  A1  A     2     2    +6.30   +454.35    0.4362   no
+  A2  A     4     4    +12.60  +407.25    0.3418   no
+  A3  A     4     4    +12.60  +139.38    5.1199   YES
+  A4  A     2     2    +6.30   +287.44    0.1119   no
+  B1  B     1     1    +3.15   +134.59    -0.0643  YES
+  B2  B     2     2    +6.30   +171.95    0.4492   no
+  B3  B     2     2    +6.30   +12063.68  -1.3550  YES
+  B4  B     2     3    +9.45   +409.74    -0.1239  YES
+  C1  C     1     1    +3.15   +11754.07  0.1361   no
+  C2  C     2     1    +9.34   +12271.05  0.0718   no
+  C3  C     2     2    +6.30   +454.35    0.4362   no
+  C4  C     1     1    +3.15   +12134.48  0.0407   no
+
+  THE LEG COUNT AT WHICH COST CONSUMES THE GROSS EDGE.
+  EATEN      = c_R >= E_R while E_R > 0: the gross edge is gone.
+  NO-EDGE    = E_R <= 0: there is no gross edge for cost to consume.
+
+    AT LOW prices:
+      view A: legs=2 A1 ok (0.436); legs=2 A4 ok (0.112); legs=4 A2 ok (0.342); legs=4 A3 EATEN (5.120)
+        first leg count where cost eats the gross edge: legs=4 (A3)
+      view B: legs=1 B1 NO-EDGE; legs=2 B2 ok (0.449); legs=2 B3 NO-EDGE; legs=2 B4 NO-EDGE
+        first leg count where cost eats the gross edge: NONE
+      view C: legs=1 C1 ok (0.136); legs=1 C4 ok (0.041); legs=2 C2 ok (0.072); legs=2 C3 ok (0.436)
+        first leg count where cost eats the gross edge: NONE
+
+    AT HIGH prices:
+      view A: legs=2 A1 ok (0.782); legs=2 A4 ok (0.201); legs=4 A2 ok (0.613); legs=4 A3 EATEN (9.183)
+        first leg count where cost eats the gross edge: legs=4 (A3)
+      view B: legs=1 B1 NO-EDGE; legs=2 B2 ok (0.806); legs=2 B3 NO-EDGE; legs=2 B4 NO-EDGE
+        first leg count where cost eats the gross edge: NONE
+      view C: legs=1 C1 ok (0.244); legs=1 C4 ok (0.073); legs=2 C2 ok (0.224); legs=2 C3 ok (0.782)
+        first leg count where cost eats the gross edge: NONE
+
+==============================================================================
+TEST 3 -- SKEW SENSITIVITY BY LEG COUNT (the model-risk test)
+==============================================================================
+  Hypothesis under test: THE MORE STRIKES A STRUCTURE TOUCHES, THE
+  MORE ITS ANSWER DEPENDS ON THE SKEW ASSUMPTION.
+  Strikes are held FIXED; only the pricing vol of the stated legs
+  moves by 1.5 vol points.  `dE` is E_R after minus E_R before.
+  id  view  legs  sold  strikes  E_R      dE_sold+1.5  dE_sold-1.5  dE_all+1.5  |dE|$med  ddBudget   dDD_sold-1.5
+  --  ----  ----  ----  -------  -------  -----------  -----------  ----------  --------  ---------  ------------
+  A1  A     2     1     2        +0.0321  +0.0477      -0.0378      +0.0172     +21.67    -31.69%    -32.03%
+  A2  A     4     2     4        +0.0915  +0.1352      -0.0857      +0.0402     +55.06    -31.17%    -58.36%
+  A3  A     4     2     4        +0.0271  +1.3680      -0.2924      +0.0620     +190.68   -402.05%   -469.53%
+  A4  A     2     2     2        +0.2303  +0.1222      -0.0925      +0.1222     +35.13    -60.45%    -0.57%
+  B1  B     1     0     1        -0.4271  +0.0000      +0.0000      -0.0666     +8.96     -1331.22%  +0.00%
+  B2  B     2     1     2        +0.0953  +0.1187      -0.0925      -0.0218     +20.40    -188.70%   -63.55%
+  B3  B     2     1     2        -0.0005  +0.0015      -0.0015      -0.0000     +17.98    -7.64%     -2.19%
+  B4  B     2     1     2        -0.2121  +0.0399      -0.0358      -0.0238     +16.36    -650.38%   -109.19%
+  C1  C     1     1     1        +0.0027  +0.0011      -0.0010      +0.0011     +12.95    -2.78%     -0.06%
+  C2  C     2     1     1        +0.0118  +0.0015      -0.0015      +0.0015     +18.66    -5.20%     -0.18%
+  C3  C     2     1     2        +0.0321  +0.0477      -0.0378      +0.0172     +21.67    -31.69%    -32.03%
+  C4  C     1     1     1        +0.0085  +0.0017      -0.0017      +0.0017     +20.83    -4.30%     -0.09%
+
+  ORDERED BY |dE| in R (most skew-sensitive first):
+    A3  view A  legs=4  distinct option strikes=4  |dE|max=1.3680 R = +190.68 per trade   |dE|/|E_R|=50.484
+    A2  view A  legs=4  distinct option strikes=4  |dE|max=0.1352 R = +55.06 per trade   |dE|/|E_R|=1.478
+    A4  view A  legs=2  distinct option strikes=2  |dE|max=0.1222 R = +35.13 per trade   |dE|/|E_R|=0.531
+    B2  view B  legs=2  distinct option strikes=2  |dE|max=0.1187 R = +20.40 per trade   |dE|/|E_R|=1.246
+    B1  view B  legs=1  distinct option strikes=1  |dE|max=0.0666 R = +8.96 per trade   |dE|/|E_R|=0.156
+    C3  view C  legs=2  distinct option strikes=2  |dE|max=0.0477 R = +21.67 per trade   |dE|/|E_R|=1.486
+    A1  view A  legs=2  distinct option strikes=2  |dE|max=0.0477 R = +21.67 per trade   |dE|/|E_R|=1.486
+    B4  view B  legs=2  distinct option strikes=2  |dE|max=0.0399 R = +16.36 per trade   |dE|/|E_R|=0.188
+    C4  view C  legs=1  distinct option strikes=1  |dE|max=0.0017 R = +20.83 per trade   |dE|/|E_R|=0.203
+    C2  view C  legs=2  distinct option strikes=1  |dE|max=0.0015 R = +18.66 per trade   |dE|/|E_R|=0.129
+    B3  view B  legs=2  distinct option strikes=2  |dE|max=0.0015 R = +17.98 per trade   |dE|/|E_R|=2.916
+    C1  view C  legs=1  distinct option strikes=1  |dE|max=0.0011 R = +12.95 per trade   |dE|/|E_R|=0.415
+
+  ORDERED BY |dE| in DOLLARS (the economically meaningful order):
+    A3  view A  legs=4  strikes=4  |dE|$=+190.68
+    A2  view A  legs=4  strikes=4  |dE|$=+55.06
+    A4  view A  legs=2  strikes=2  |dE|$=+35.13
+    C3  view C  legs=2  strikes=2  |dE|$=+21.67
+    A1  view A  legs=2  strikes=2  |dE|$=+21.67
+    C4  view C  legs=1  strikes=1  |dE|$=+20.83
+    B2  view B  legs=2  strikes=2  |dE|$=+20.40
+    C2  view C  legs=2  strikes=1  |dE|$=+18.66
+    B3  view B  legs=2  strikes=2  |dE|$=+17.98
+    B4  view B  legs=2  strikes=2  |dE|$=+16.36
+    C1  view C  legs=1  strikes=1  |dE|$=+12.95
+    B1  view B  legs=1  strikes=1  |dE|$=+8.96
+
+  Pearson(|dE| in R     , leg count)              = 0.6614
+  Pearson(|dE| in R     , distinct option strikes)= 0.6675
+  Pearson(|dE| in DOLLARS, leg count)             = 0.7528
+  Pearson(|dE| in DOLLARS, distinct strikes)      = 0.7495
+  HYPOTHESIS HELD (|dE| monotone in leg count): NO
+
+==============================================================================
+TEST 4 -- TAIL COMPARISON (did the extra legs buy tail protection?)
+==============================================================================
+  All the tail columns are in R units so they are comparable across
+  structures with different R.  The book is the equal-weight mean of
+  the SPY/QQQ/IWM sleeves' curves on a FIXED budget of 10 R; the book
+  is NOT compounded, so `ddBudget` is the worst peak-to-trough of the
+  CUMULATIVE P&L in R, and worstM/worstY are the SUM of daily returns
+  inside the period, also in R.
+  `compCAGR` and `compDD` are the COMPOUNDED versions, kept only for
+  comparability with the sibling study -- a fixed-budget programme is
+  not compounded, so those two are NOT the primary measures.
+  id  view  legs  worst1%_R  worst1_R  ddBudget_R  worstM_R  worstY_R  L_act  L_exp  tot_R    compCAGR
+  --  ----  ----  ---------  --------  ----------  --------  --------  -----  -----  -------  --------
+  A1  A     2     -1.015     -1.015    -3.17       -1.02     -2.77     2      3.0    9.82     +3.49%
+  A2  A     4     -1.035     -1.036    -3.12       -1.03     -2.41     3      3.5    28.00    +10.85%
+  A3  A     4     -1.625     -1.766    -40.20      -1.54     -10.78    29     12.5   8.29     -4.02%
+  A4  A     2     -2.475     -3.231    -6.04       -2.09     -1.23     2      3.3    70.47    +26.72%
+  B1  B     1     -1.096     -1.146    -133.12     -1.10     -11.28    22     26.1   -130.69  -46.87%
+  B2  B     2     -1.142     -1.182    -18.87      -1.10     -6.34     10     11.4   29.15    +5.73%
+  B3  B     2     -0.132     -0.192    -0.76       -0.13     -0.33     12     10.0   -0.16    -0.07%
+  B4  B     2     -1.021     -1.035    -65.04      -0.91     -5.78     7      10.4   -64.89   -22.81%
+  C1  C     1     -0.089     -0.149    -0.28       -0.08     -0.10     2      2.9    0.81     +0.31%
+  C2  C     2     -0.154     -0.213    -0.52       -0.16     -0.27     5      5.9    3.60     +1.40%
+  C3  C     2     -1.015     -1.015    -3.17       -1.02     -2.77     2      3.0    9.82     +3.49%
+  C4  C     1     -0.137     -0.196    -0.43       -0.14     -0.17     4      4.7    2.59     +1.01%
+
+  STRESS WINDOWS (book total return in R / worst drawdown in R):
+  id  view  legs  2008 GFC                2020 COVID                2022 bear
+  --  ----  ----  ----------------------  ------------------------  ---------------------
+  A1  A     2     2008 GFC -1.3 (-2.6)    2020 COVID 0.2 (-1.8)     2022 bear -2.8 (-2.9)
+  A2  A     4     2008 GFC -0.3 (-2.4)    2020 COVID 0.8 (-2.0)     2022 bear -2.4 (-2.6)
+  A3  A     4     2008 GFC 0.6 (-3.5)     2020 COVID -10.8 (-12.8)  2022 bear -1.2 (-7.9)
+  A4  A     2     2008 GFC -0.1 (-6.0)    2020 COVID 0.5 (-5.6)     2022 bear 0.5 (-2.3)
+  B1  B     1     2008 GFC -13.9 (-14.1)  2020 COVID -3.6 (-6.5)    2022 bear -7.0 (-7.1)
+  B2  B     2     2008 GFC -6.8 (-9.1)    2020 COVID 6.7 (-3.6)     2022 bear -4.3 (-5.4)
+  B3  B     2     2008 GFC -0.4 (-0.5)    2020 COVID 0.0 (-0.3)     2022 bear -0.2 (-0.2)
+  B4  B     2     2008 GFC -1.4 (-1.9)    2020 COVID -3.6 (-3.8)    2022 bear -0.4 (-1.2)
+  C1  C     1     2008 GFC -0.1 (-0.3)    2020 COVID 0.0 (-0.2)     2022 bear -0.0 (-0.1)
+  C2  C     2     2008 GFC -0.3 (-0.5)    2020 COVID 0.3 (-0.3)     2022 bear -0.2 (-0.2)
+  C3  C     2     2008 GFC -1.3 (-2.6)    2020 COVID 0.2 (-1.8)     2022 bear -2.8 (-2.9)
+  C4  C     1     2008 GFC -0.2 (-0.4)    2020 COVID 0.2 (-0.3)     2022 bear -0.1 (-0.1)
+
+==============================================================================
+TEST 5 -- POSITIVITY BY HORIZON PER STRUCTURE (M / Q / Y)
+==============================================================================
+  `law` is the null Phi(Sharpe_annual * sqrt(period in years)).
+  `gap` = law - observed.  A POSITIVE gap is the signature of
+  NEGATIVE SKEW: the normal law says the horizon should be positive
+  more often than it is.
+  id  view  legs  Sharpe  M    M_law  M_gap  Q    Q_law  Q_gap  Y    Y_law  Y_gap  M>Y?
+  --  ----  ----  ------  ---  -----  -----  ---  -----  -----  ---  -----  -----  --------
+  A1  A     2     0.43    89%  55%    -33.7  80%  58%    -21.9  83%  67%    -16.8  INVERTED
+  A2  A     4     0.97    84%  61%    -22.6  81%  69%    -12.8  88%  83%    -4.1
+  A3  A     4     0.08    45%  51%    +6.2   54%  52%    -2.3   50%  53%    +3.3
+  A4  A     2     1.00    87%  61%    -25.2  86%  69%    -17.1  92%  84%    -7.5
+  B1  B     1     -1.04   23%  38%    +15.6  21%  30%    +9.5   4%   15%    +10.7  INVERTED
+  B2  B     2     0.33    47%  54%    +6.5   57%  57%    -0.2   54%  63%    +8.9
+  B3  B     2     -0.04   54%  49%    -4.1   58%  49%    -8.7   58%  48%    -10.1
+  B4  B     2     -2.50   41%  24%    -17.6  17%  11%    -6.1   0%   1%     +0.6   INVERTED
+  C1  C     1     0.39    89%  54%    -34.1  85%  58%    -27.7  83%  65%    -18.3  INVERTED
+  C2  C     2     0.86    70%  60%    -10.2  79%  67%    -12.9  83%  80%    -3.0
+  C3  C     2     0.43    89%  55%    -33.7  80%  58%    -21.9  83%  67%    -16.8  INVERTED
+  C4  C     1     0.77    75%  59%    -16.4  77%  65%    -12.5  83%  78%    -5.5
+
+  structures with monthly positivity ABOVE yearly positivity (the inversion): 5 of 12
+  by leg count:
+    legs=1: 2 of 3 inverted; mean Y gap = -4.4 pp
+    legs=2: 3 of 7 inverted; mean Y gap = -6.4 pp
+    legs=4: 0 of 2 inverted; mean Y gap = -0.4 pp
+
+==============================================================================
+TEST 6 -- WHAT THE EXTRA LEGS ACTUALLY CHANGE: THE GREEK SHAPE
+==============================================================================
+  Mean position Greeks AT ENTRY per one unit (share-equivalents per
+  100 shares).  This is the 'shape' half of the question.
+  id  view  legs  net_delta  net_gamma  net_vega  net_theta  R/S (x100)
+  --  ----  ----  ---------  ---------  --------  ---------  ----------
+  A1  A     2     10.7       -3.10      -4.92     1.91       0.049
+  A2  A     4     -0.1       -6.13      -9.50     3.51       0.045
+  A3  A     4     -1.2       -6.30      -5.63     2.03       0.021
+  A4  A     2     -1.3       -8.09      -23.74    9.25       0.028
+  B1  B     1     31.0       5.86       17.05     -6.30      0.013
+  B2  B     2     25.1       1.21       3.70      -1.19      0.016
+  B3  B     2     60.2       0.20       0.33      0.57       0.968
+  B4  B     2     0.9        4.18       11.95     -4.62      0.040
+  C1  C     1     15.5       -3.91      -11.65    4.74       0.934
+  C2  C     2     69.0       -5.86      -17.05    6.30       0.987
+  C3  C     2     10.7       -3.10      -4.92     1.91       0.049
+  C4  C     1     46.6       -6.57      -19.29    8.06       0.974
+
+==============================================================================
+TEST 7 -- VERDICT: best E_net per unit of tail risk, and does any
+==============================================================================
+           4-leg beat its 1-/2-leg comparator on E_net?
+
+  View A -- the index stays INSIDE +-1 sigma over the next 30 days   (range)
+  id  legs  E_net    worst1%_R  ddBudget_R  E_net/|tail|  E$_10k    u@25k  UNDEF
+  --  ----  -------  ---------  ----------  ------------  --------  -----  -----
+  A1  2     +0.0181  -1.015     -3.17       0.0178        +181.01   55
+  A4  2     +0.2045  -2.475     -6.04       0.0826        +2045.28  86     YES
+  A2  4     +0.0602  -1.035     -3.12       0.0582        +602.25   61
+  A3  4     -0.1116  -1.625     -40.20      -0.0687       -1116.39  179
+    best by edge-per-unit-of-tail: A4 (0.0826, legs=2)
+    best by raw E_net           : A4 (+0.2045, legs=2)
+    A2 (4 legs) vs A1 (2 legs): dE_net = +0.0421  -> 4-LEG WINS
+    A2 (4 legs) vs A4 (2 legs): dE_net = -0.1443  -> 4-leg LOSES
+    A3 (4 legs) vs A1 (2 legs): dE_net = -0.1297  -> 4-leg LOSES
+    A3 (4 legs) vs A4 (2 legs): dE_net = -0.3162  -> 4-leg LOSES
+
+  View B -- the index RISES over the next 30 days                   (directional)
+  id  legs  E_net    worst1%_R  ddBudget_R  E_net/|tail|  E$_10k    u@25k  UNDEF
+  --  ----  -------  ---------  ----------  ------------  --------  -----  -----
+  B1  1     -0.4546  -1.096     -133.12     -0.4146       -4545.63  185
+  B2  2     +0.0525  -1.142     -18.87      0.0459        +524.71   145
+  B3  2     -0.0012  -0.132     -0.76       -0.0091       -12.04    2
+  B4  2     -0.2384  -1.021     -65.04      -0.2335       -2383.57  61
+    best by edge-per-unit-of-tail: B2 (0.0459, legs=2)
+    best by raw E_net           : B2 (+0.0525, legs=2)
+
+  View C -- harvest premium with NO directional view               (carry)
+  id  legs  E_net    worst1%_R  ddBudget_R  E_net/|tail|  E$_10k   u@25k  UNDEF
+  --  ----  -------  ---------  ----------  ------------  -------  -----  -----
+  C1  1     +0.0023  -0.089     -0.28       0.0256        +22.91   2
+  C4  1     +0.0081  -0.137     -0.43       0.0591        +81.16   2
+  C2  2     +0.0109  -0.154     -0.52       0.0709        +109.29  2
+  C3  2     +0.0181  -1.015     -3.17       0.0178        +181.01  55
+    best by edge-per-unit-of-tail: C2 (0.0709, legs=2)
+    best by raw E_net           : C3 (+0.0181, legs=2)
+
+  trades written to out/trades.csv: 11016 rows
+
+==============================================================================
+8. INTERNAL CHECKS, THEN DETERMINISM
+==============================================================================
+  These are checks the study makes on ITSELF.  A failure is printed
+  as FAIL and the study does not claim the affected number.
+  check                                             result      detail
+  ------------------------------------------------  ----------  ---------------------------------------------------------------------------------------------------------------------------
+  daily P&L == trade ledger, all 84 sleeves         PASS        worst |gap| = 5.82e-11 (B4/SKEW_ALL_P15/QQQ)
+  R-budget large enough for one session             see detail  worst single session: A1 -10%, A2 -11%, A3 -69%, A4 -31%, B1 -29%, B2 -18%, B3 -1%, B4 -9%, C1 -1%, C2 -1%, C3 -10%, C4 -1%
+  structures whose 10R budget is TOO SMALL          -           A3 (worst day -69%)
+  reported leg count == built leg count             PASS        all 12 structures match
+  c_R == 0 at the FREE setting                      PASS        max = 0
+  no book return <= -100% (positivity unambiguous)  PASS        worst book day = -0.310
+  undefined-call-side structures                    -           A4
+  trades the MODEL says cannot lose                 -           none
+
+  The 'TOO SMALL' line above is a FINDING, not a failure: a
+  structure whose mark-to-market swing exceeds its terminal maximum
+  loss cannot be normalised by that maximum loss.  Its tail columns
+  are still valid in R; its compounded CAGR and % columns are not.
+
+  No RNG, no clock, no set iteration, no network.  Two consecutive
+  runs of this file produce byte-identical stdout and identical
+  out/*.csv.  Verified in README.md section 'Verification'.
+
+  EVERY OPTION NUMBER ABOVE IS [MODELED], NOT [VERIFIED].  This
+  study measured the CONSEQUENCES OF AN ASSUMPTION SET, not the
+  behaviour of any option that ever traded.

@@ -1,0 +1,33 @@
+PAYLOADS FOUND
+  AMEX:BIL     1 page(s)
+  AMEX:DBC     1 page(s)
+  AMEX:EEM     1 page(s)
+  AMEX:EFA     1 page(s)
+  AMEX:GLD     1 page(s)
+  AMEX:HYG     1 page(s)
+  AMEX:IWM     1 page(s)
+  AMEX:SPY     1 page(s)
+  AMEX:VNQ     1 page(s)
+  NASDAQ:IEF   1 page(s)
+  NASDAQ:QQQ   1 page(s)
+  NASDAQ:TLT   1 page(s)
+  TVC:US03M    3 page(s)
+  TVC:VIX      1 page(s)
+
+MERGE + WRITE
+  BIL          -> BIL_1d.csv  rows=4876  2007-05-30 .. 2026-10-14
+  DBC          -> DBC_1d.csv  rows=5206  2006-02-03 .. 2026-10-14
+  EEM          -> EEM_1d.csv  rows=5915  2003-04-11 .. 2026-10-14
+  EFA          -> EFA_1d.csv  rows=6326  2001-08-17 .. 2026-10-14
+  GLD          -> GLD_1d.csv  rows=5510  2004-11-18 .. 2026-10-14
+  HYG          -> HYG_1d.csv  rows=4910  2007-04-11 .. 2026-10-14
+  IWM          -> IWM_1d.csv  rows=6635  2000-05-26 .. 2026-10-14
+  SPY          -> SPY_1d.csv  rows=8000  1994-12-30 .. 2026-10-14
+  VNQ          -> VNQ_1d.csv  rows=5546  2004-09-29 .. 2026-10-14
+  IEF          -> IEF_1d.csv  rows=6094  2002-07-26 .. 2026-10-14
+  QQQ          -> QQQ_1d.csv  rows=6943  1999-03-10 .. 2026-10-14
+  TLT          -> TLT_1d.csv  rows=6094  2002-07-26 .. 2026-10-14
+  US03M        -> US03M_1d.csv  rows=18197  1954-01-04 .. 2026-10-14
+  VIX          -> VIX_1d.csv  rows=8000  1995-01-31 .. 2026-10-14
+
+DONE: 14 file(s)

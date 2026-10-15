@@ -1,0 +1,9 @@
+VERIFY OVERLAP
+  sibling ..\weather-test\data\VIX_1d.csv: 9283 rows, 1990-01-03 .. 2026-10-14
+  this study data\VIX_1d.csv: 8000 rows, 1995-01-31 .. 2026-10-14
+  overlapping rows:   8000
+  identical rows:     8000
+  last-bar exceptions:0
+  rows only in the sibling file: 1283 (1990-01-03 .. 1995-01-30)
+
+WROTE data\VIX_1d.csv  rows=9283  1990-01-03 .. 2026-10-14

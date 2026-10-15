@@ -63,7 +63,12 @@ Tail hedging allocates a small portion of portfolio to deeply OTM options that p
 - **Sizing rule**: Position should pay off 100%+ of portfolio drawdown at the strike
 
 ### Real-World Reference: Universa Investments
-Universa's tail hedge strategy returned +4,144% in March 2020. SPX fell 34%, Universa's tail hedge fund returned +4,144%, offsetting equity losses in client portfolios [VERIFIED]. Key insight: the fund did NOT produce returns in calm markets. It was a persistent 1-2% annual drag that paid off in a single month.
+Universa's tail-hedge strategy produced a return in the thousands of percent in March 2020 against a
+34% SPX drawdown — press reporting at the time put it near **+3,600%** for the month, and the figure
+varies with share class, reporting window and fee treatment. [ESTIMATED ±25%, **unattributed** — no
+single precise number should be quoted from here. Cite the fund's own investor letter or a named
+publication with a date, or state only the order of magnitude.] Key insight: the fund did NOT produce
+returns in calm markets. It was a persistent 1-2% annual drag that paid off in a single month.
 
 ### DIY Tail Hedge Cost
 Portfolio: $1,000,000. Annual tail hedge budget: $10,000-$20,000 (1-2%). Buy 30-delta SPX puts quarterly. At $10,000/quarter, you can buy approximately 2-3 SPX 30-delta put spreads per quarter (depending on current VIX). In March 2020, a $10,000 quarterly allocation in Jan 2020 SPX puts would have been worth $150,000-$200,000 at the trough [ESTIMATED, ±25%].

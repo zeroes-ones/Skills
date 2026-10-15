@@ -1,0 +1,12 @@
+results dir: C:/Users/sande/.kimi-code/sessions/wd_skills_9a6bd76ebae8/session_153a8eec-637b-476c-aa65-46c967d643b5/agents/agent-31/tool-results
+  found 4 OHLCV payload(s)
+wire log   : C:/Users/sande/.kimi-code/sessions/wd_skills_9a6bd76ebae8/session_153a8eec-637b-476c-aa65-46c967d643b5/agents/agent-31/wire.jsonl
+  wire.jsonl: scanned 1073 events, found 2 OHLCV payload(s)
+
+symbol            pages  rawbars     rows first        last         csv
+AMEX:GLD              1     5510     5510 2004-11-18   2026-10-14   GLD_1d.csv
+AMEX:SPY              3     8490     8485 1993-01-29   2026-10-14   SPY_1d.csv
+NASDAQ:QQQ            1     6943     6943 1999-03-10   2026-10-14   QQQ_1d.csv
+NASDAQ:TLT            1     6094     6094 2002-07-26   2026-10-14   TLT_1d.csv
+
+wrote 4 CSV file(s) to data

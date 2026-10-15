@@ -361,7 +361,7 @@ Cross-Skill Coordination
 |----------------|------------------|-----------------|
 | `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
 | `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
-| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+| `equity-risk-and-capital-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
 
 ## Error Recovery
 

@@ -30,6 +30,15 @@ Companion to `SKILL.md` Decision Tree 1.
 
 **Contracts = floor(band $ ÷ max-loss per contract).** If the floor is 0, the structure is too big for the account — pick a narrower/cheaper structure or skip. Never round up "because it's close".
 
+**Unit and rounding convention (stated once, applies to every table in this file and to the Canonical Threshold Table).**
+- A band figure is a **per-position** cap in dollars. A per-contract figure is written as such and is
+  always `premium × 100` unless the contract multiplier is named.
+- Dollar caps are **floored to the whole dollar**, never rounded to nearest and never rounded up: a
+  cap that is a cent too high is a breach by construction. That is why the 0.75% column reads **$37**
+  at $5,000 (0.75% = $37.50) and **$187** at $25,000 (0.75% = $187.50). The same rule produces the
+  $750 in `references/08-canonical-thresholds-and-precedence.md` Case A — there it is a **per-position**
+  figure on a 10-lot spread ($0.75 profit per share × 100 shares × 10 lots), not a per-contract one.
+
 ## Contract-count honesty checks
 
 - A "1-lot cap" on a $2,000-debit structure is a $2,000 risk — if that exceeds the band, the cap is meaningless; cut the structure, not the count.

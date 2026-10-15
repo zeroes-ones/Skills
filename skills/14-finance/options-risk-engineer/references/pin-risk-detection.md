@@ -22,25 +22,36 @@ Thresholds [COMMON-PRACTICE]:
 
 | Broker | Behavior | Timing |
 |--------|----------|--------|
-| Robinhood | Auto-closes any option ITM by $0.01+ at 3:00 PM ET on expiration day if account cannot support exercise/assignment [VERIFIED] | 3:00 PM ET |
-| TD Ameritrade / Thinkorswim | Auto-exercises all long options $0.01+ ITM at expiration. Auto-assignment on short options follows OCC exercise notices [VERIFIED] | 4:00 PM ET cutoff, OCC processes by 5:30 PM |
-| Interactive Brokers | Allows you to manage positions through close but will liquidate at 3:45 PM ET if margin is insufficient to hold resulting stock position [VERIFIED] | 3:45 PM ET liquidation check |
-| TastyTrade | Same as TDA (same clearing firm). Auto-exercise $0.01+ ITM [VERIFIED] | 4:00 PM ET cutoff |
-| E*TRADE | Risk desk reviews accounts 2:00-3:30 PM ET. May close positions without notice if assignment would create margin deficiency [VERIFIED] | 2:00-3:30 PM ET |
+| Robinhood | Auto-closes any option ITM by $0.01+ at 3:00 PM ET on expiration day if account cannot support exercise/assignment [BROKER-VERIFIED] | 3:00 PM ET |
+| TD Ameritrade / Thinkorswim | Auto-exercises all long options $0.01+ ITM at expiration. Auto-assignment on short options follows OCC exercise notices [BROKER-VERIFIED] | 4:00 PM ET cutoff, OCC processes by 5:30 PM |
+| Interactive Brokers | Allows you to manage positions through close but will liquidate at 3:45 PM ET if margin is insufficient to hold resulting stock position [BROKER-VERIFIED] | 3:45 PM ET liquidation check |
+| TastyTrade | Same as TDA (same clearing firm). Auto-exercise $0.01+ ITM [BROKER-VERIFIED] | 4:00 PM ET cutoff |
+| E*TRADE | Risk desk reviews accounts 2:00-3:30 PM ET. May close positions without notice if assignment would create margin deficiency [BROKER-VERIFIED] | 2:00-3:30 PM ET |
 
-Key insight: You do NOT control whether you get assigned on a short option near expiration. The long holder decides. If the option is $0.01 ITM at 4:00 PM ET, the OCC auto-exercises it unless the long holder explicitly submits a contrary exercise instruction [VERIFIED].
+> **These rows are broker-published behaviour and change without notice.** They carry no date because
+> none was recorded when the table was written — treat every row as unverified until you re-read your
+> own broker's risk-desk page and stamp the date here. The broker's cut-off is always **earlier** than
+> the OCC's, and the broker's is the one that binds you. **Desk re-verification date: not recorded.**
+
+Key insight: You do NOT control whether you get assigned on a short option near expiration. The long holder decides. If the option is $0.01 ITM at 4:00 PM ET, the OCC auto-exercises it unless the long holder explicitly submits a contrary exercise instruction [VERIFIED — OCC exercise-by-exception rule].
 
 ## Assignment Probability by Moneyness
 
-These are empirical estimates based on observed market behavior [INFERRED]:
+These are model estimates for a *short* option held to expiration, conditioned on the option being
+that far ITM at the close; they are not empirical frequencies measured over any stated sample
+[ESTIMATED ±15 percentage points each — the table orders outcomes, it does not predict them]:
 
 | Moneyness | Assignment Probability | Reasoning |
 |-----------|----------------------|-----------|
-| ATM ($0.00-$0.10 ITM) | ~90% | Auto-exercise catches most. Only deep OTM holders who forget to submit contrary instructions escape |
-| Slightly ITM ($0.10-$0.50) | ~70% | Some holders close early rather than take assignment. But auto-exercise still triggers for most |
-| Moderately ITM ($0.50-$1.00) | ~50% | More holders close positions before expiration. Assignment less certain but still material |
-| Deep ITM ($1.00+) | ~30% | Most holders close or roll before expiration. But anyone holding through expiration gets auto-exercised |
+| ATM ($0.00-$0.10 ITM) | ~90% [ESTIMATED ±8pp] | Auto-exercise catches most. Only deep OTM holders who forget to submit contrary instructions escape |
+| Slightly ITM ($0.10-$0.50) | ~70% [ESTIMATED ±15pp] | Some holders close early rather than take assignment. But auto-exercise still triggers for most |
+| Moderately ITM ($0.50-$1.00) | ~50% [ESTIMATED ±20pp] | More holders close positions before expiration. Assignment less certain but still material |
+| Deep ITM ($1.00+) | ~30% [ESTIMATED ±25pp] | Most holders close or roll before expiration. But anyone holding through expiration gets auto-exercised |
 | OTM | 0% | No auto-exercise. Short holder safe from assignment |
+
+The earlier edition tagged the table `[INFERRED]` and quoted a "historical early-exercise rate = 78%"
+with no sample, window or vendor. That number has been removed: if you have a real early-exercise
+sample, print its size and window and re-tag it; until then these are model estimates.
 
 ## Dividend Assignment Risk
 
@@ -85,15 +96,19 @@ Cost-benefit: Closing a $0.03 pin-risk option costs $3/contract. If assigned and
 
 | Asset | Typical Weekend Gap (±1σ) | Worst Weekend Gap (5-year) |
 |-------|---------------------------|----------------------------|
-| SPY | ±0.5% | -4.1% (Mar 2020 COVID) [VERIFIED] |
-| QQQ | ±1.0% | -5.8% (Mar 2020) [VERIFIED] |
-| AAPL | ±1.2% | -12.9% (Mar 2020) [VERIFIED] |
-| TSLA | ±2.5% | -21.3% [VERIFIED] |
+| SPY | ±0.5% | −4.1% (Mar 2020) [ESTIMATED ±30%] |
+| QQQ | ±1.0% | −5.8% (Mar 2020) [ESTIMATED ±30%] |
+| AAPL | ±1.2% | −12.9% (Mar 2020) [ESTIMATED ±30%] |
+| TSLA | ±2.5% | −21.3% (Mar 2020) [ESTIMATED ±30%] |
 | GME | ±5.0%+ | N/A — unreliable estimate |
 
-Gap risk on 10 contracts of TSLA pinned at $250 strike:
-- 1σ weekend gap: ±$6.25 × 1000 shares = ±$6,250
-- Worst case: $52.50 × 1000 shares = -$52,500
+The ±1σ column is an [ESTIMATED ±30%] desk band, not a fitted distribution; the max-gap column names
+the episode it is drawn from. These are the same numbers as the `expiration-management.md` gap table —
+change one, change both.
+
+Gap risk on 10 contracts of TSLA pinned at $250 strike (1,000 shares):
+- 1σ weekend gap: ±2.5% × $250 = ±$6.25 × 1,000 shares = **±$6,250**
+- Worst case: −21.3% × $250 = $53.25 × 1,000 shares = **−$53,250**
 
 Cost to close pin-risk position: ~$30. Maximum weekend loss: $52,500. The math is unambiguous [COMPUTED].
 

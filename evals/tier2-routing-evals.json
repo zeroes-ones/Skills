@@ -442,6 +442,148 @@
         "weight": 1.0
       }
       ]
+    },
+    {
+      "id": "routing-options-lifecycle",
+      "description": "Options desk routing: an already-open position's next move, per-trade sizing, single-leg surgery and book-level risk. Prompts use the desk owner's own vocabulary — structure names (iron condor, credit/debit spread, butterfly, calendar), horizons (weeklies, monthlies, LEAPS), the book (exposed, gaps down), buying power, re-entry (cut a name, get back in) — to test that the four lifecycle skills are reachable when the user names a STRUCTURE rather than an intent. The recurring guard is options-strategist: naming a structure used to route every one of these to the strategy-selection skill.",
+      "scenarios": [
+        {
+          "id": "options-down-40-iron-condor",
+          "input": "I'm down 40% on an iron condor with 12 DTE left — what do I do?",
+          "expected": "options-position-lifecycle",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-close-order-weeklies-monthlies-leaps",
+          "input": "I've got weeklies, monthlies and LEAPS open and I want to lighten up — what do I close first?",
+          "expected": "options-position-lifecycle",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-butterfly-at-max-profit",
+          "input": "My butterfly is at 60% of maximum profit with 20 DTE — close it now or hold it?",
+          "expected": "options-position-lifecycle",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-csp-two-dte-at-strike",
+          "input": "My cash-secured put is 2 DTE and the stock is sitting right on my strike — what now?",
+          "expected": "options-position-lifecycle",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-debit-spread-hold-roll-cut",
+          "input": "This debit spread is down 35% with 18 DTE — hold, roll or cut it?",
+          "expected": "options-position-lifecycle",
+          "must_not_route": ["advanced-options-structures", "options-automation-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-how-many-contracts",
+          "input": "How many contracts should I put on for this debit spread?",
+          "expected": "trade-sizing-recovery",
+          "must_not_route": ["advanced-options-structures", "options-automation-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-two-losses-size",
+          "input": "Two losses in a row — what size should the next one be?",
+          "expected": "trade-sizing-recovery",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-cut-a-name-get-back-in",
+          "input": "I cut a name last week for a loss — can I get back in, and at what size?",
+          "expected": "trade-sizing-recovery",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-maximum-loss-band",
+          "input": "What maximum loss should I accept on this position before I cut it?",
+          "expected": "trade-sizing-recovery",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-how-much-can-i-put-on",
+          "input": "How much can I put on this position, and what's my risk per trade?",
+          "expected": "trade-sizing-recovery",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-close-just-the-call-side",
+          "input": "How do I close just the call side of my condor?",
+          "expected": "options-leg-management",
+          "must_not_route": ["advanced-options-structures", "options-automation-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-short-leg-itm-into-expiry",
+          "input": "My short leg is going ITM into expiry — do I roll it up or take the assignment?",
+          "expected": "options-leg-management",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-fly-into-vertical",
+          "input": "Turn my butterfly into a vertical spread — one package order.",
+          "expected": "options-leg-management",
+          "must_not_route": ["advanced-options-structures", "intraday-options-trader"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-unbalanced-calendar-leg",
+          "input": "One leg of my calendar is deep ITM and the structure came in unbalanced — how do I repair the leg?",
+          "expected": "options-leg-management",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-book-exposed-to-gap",
+          "input": "How exposed is my book if everything gaps down tomorrow?",
+          "expected": "options-risk-engineer",
+          "must_not_route": ["options-strategist", "advanced-options-structures"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-buying-power-reg-t",
+          "input": "How much buying power do I need for this multi-leg position under Reg T margin?",
+          "expected": "options-risk-engineer",
+          "must_not_route": ["options-strategist", "options-automation-engineer"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        },
+        {
+          "id": "options-which-structure-for-neutral-thesis",
+          "input": "I'm neutral on SPX into a big IV event — which structure should I actually build?",
+          "expected": "options-strategist",
+          "must_not_route": ["options-position-lifecycle", "options-leg-management", "trade-sizing-recovery"],
+          "allow_top_n": 3,
+          "weight": 1.0
+        }
+      ]
     }
   ]
 }

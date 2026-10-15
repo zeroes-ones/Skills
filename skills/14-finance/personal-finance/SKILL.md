@@ -406,7 +406,7 @@ This table is specific to `personal-finance`: each row names a failure this work
 | Scenario | Coordinate With | Why |
 |----------|----------------|-----|
 | Business owner personal + business finances | accountant | Entity structure (LLC vs S-Corp), payroll, business deductions affect personal tax picture |
-| Corporate RSUs, stock options, compensation | fp-and-a-analyst | Equity compensation planning, AMT, concentrated position risk |
+| Corporate RSUs, stock options, compensation | equity-tax-lot-and-exit-management, equity-risk-and-capital-engineer | Lot basis, holding periods and the wash-sale interaction with an RSU/ESPP lot; concentration risk on the single-name position — **not** ISO/NSO exercise, AMT, 83(b) or QSBS/§1202, which no skill in this library covers (see the note below) |
 | Real estate investment analysis | fp-and-a-analyst | Cap rates, cash-on-cash returns, 1031 exchange strategy |
 | Elder care financial planning | accountant | Medicaid planning, spend-down strategies, caregiver tax deductions |
 | Cross-border finances (US + foreign) | accountant | FBAR, PFIC rules, foreign tax credits, exit tax |
@@ -415,6 +415,8 @@ This table is specific to `personal-finance`: each row names a failure this work
 | Disability or long-term care planning | insurance (manual coordination) | Long-term care insurance vs self-insure break-even, Social Security Disability Insurance eligibility, ABLE accounts for disabled dependents |
 | Career break, sabbatical, or mini-retirement | fp-and-a-analyst | COBRA vs ACA marketplace, gap-year tax bracket optimization, Roth conversion ladder during low-income years, resume-gap financial bridge plan |
 | Sudden windfall > $100K (inheritance, exit, lottery) | accountant, legal-advisor | Step-up in basis rules, gift tax implications, structured settlement vs lump sum NPV, 6-month "do nothing" rule to avoid emotional decisions |
+
+_Equity-compensation planning itself — ISO/NSO exercise, AMT, 83(b) elections, QSBS/§1202 — is **not covered by any skill in this library**; the two skills in that row cover only lot basis and holding periods, and concentration risk._
 
 | Upstream Skill | What You Receive | When to Involve |
 |---|---|---|

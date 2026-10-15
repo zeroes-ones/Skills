@@ -1,15 +1,16 @@
 ---
 name: options-risk-engineer
 description: >
-  Use when monitoring options-specific portfolio risk, computing portfolio-level Greeks,
-  detecting pin risk and early assignment exposure, calculating margin requirements across
-  Reg T and Portfolio Margin regimes, managing expiration risk, constructing options-based
-  hedges (protective puts, collars, tail hedges), evaluating correlation and concentration
-  risk in multi-leg options portfolios, or performing stress tests and tail-risk quantification
-  for non-linear option payoffs. Handles gamma exposure (GEX) analysis, vanna/charm monitoring,
-  theta decay tracking, liquidity and slippage assessment, and event risk (earnings, FDA,
-  FOMC) management. Do NOT use for strategy selection, individual trade execution, or
-  options pricing model implementation.
+  Use when the question is about the whole BOOK rather than one position: portfolio-level Greeks and
+  net delta/gamma; how exposed the book is if everything gaps down; stress tests and tail-risk
+  quantification for non-linear option payoffs; correlation and concentration across correlated
+  structures; pin risk and early-assignment exposure; buying power and margin requirements under Reg
+  T and Portfolio Margin; capital floors; and expiration risk across the book. Handles gamma exposure
+  (GEX) analysis, vanna/charm monitoring, theta decay tracking, liquidity and slippage assessment,
+  and event risk (earnings, FDA, FOMC). Do NOT use for one open position's hold-or-close call
+  (options-position-lifecycle), contract counts or loss bands (trade-sizing-recovery), repair of a
+  single leg (options-leg-management), strategy selection (options-strategist), order execution
+  (options-automation-engineer), or pricing model implementation (options-quant-engineer).
 license: MIT
 tags:
   - options-risk
@@ -21,11 +22,19 @@ tags:
   - tail-risk
   - portfolio-risk
   - expiration-management
+  - book-risk
+  - book-exposure
+  - gap-risk
+  - buying-power
+  - capital-floor
+  - stress-test
+  - concentration
+  - correlation
 author: Sandeep Kumar Penchala
 type: finance
 status: stable
-version: 1.0.0
-updated: 2026-07-30
+version: 1.1.0
+updated: 2026-10-14
 token_budget: 4000
 chain:
   type: symmetric
@@ -38,6 +47,7 @@ chain:
     - intraday-options-trader
     - leaps-strategist
     - futures-options-trader
+    - options-position-lifecycle
   feeds_into:
     - algorithmic-trader
     - portfolio-signal-manager
@@ -51,15 +61,13 @@ chain:
     - portfolio-signal-manager
   examples:
     - examples/uoa-options-trading/07-risk-validation/
-  examples:
-  - skills/14-finance/options-risk-engineer/examples/backtest
 
 ---
 
 # Options Risk Engineer
 > **Portability target:** Spec-level (runs on Claude Code, Copilot, Gemini CLI, Codex, Cursor). No vendor-specific frontmatter fields.
 
-Monitor and manage options-specific risks that equity-only portfolios never face. This skill is the safety net that prevents catastrophic losses from gamma explosions, pin risk, early assignment, and margin calls. It computes portfolio-level Greeks (Delta, Gamma, Theta, Vega, Vanna, Charm), detects assignment risk before expiration, calculates margin requirements under Reg T, Portfolio Margin, and SPAN regimes, manages expiration risk with automatic close/roll rules, constructs options-based hedges (protective puts, collars, tail hedges, delta hedging), evaluates correlation and concentration risk, and quantifies tail risk through stress testing and VaR/CVaR with non-linear payoffs. Options are leveraged instruments — a $5K options position can create $100K of notional exposure [VERIFIED]. Gamma risk at 5 DTE is ~10x what it was at 45 DTE for ATM options [VERIFIED]. Risk management is not optional.
+Monitor and manage options-specific risks that equity-only portfolios never face. This skill is the safety net that prevents catastrophic losses from gamma explosions, pin risk, early assignment, and margin calls. It computes portfolio-level Greeks (Delta, Gamma, Theta, Vega, Vanna, Charm), detects assignment risk before expiration, calculates margin requirements under Reg T, Portfolio Margin, and SPAN regimes, manages expiration risk with automatic close/roll rules, constructs options-based hedges (protective puts, collars, tail hedges, delta hedging), evaluates correlation and concentration risk, and quantifies tail risk through stress testing and VaR/CVaR with non-linear payoffs. Options are leveraged instruments — $5,000 of premium can control $100,000 of notional (20 contracts × 100 shares × a $50 underlying) [COMPUTED]. ATM gamma scales as Γ ∝ 1/√T, so gamma at 5 DTE is √(45/5) = **3.0×** its 45-DTE value, not 10× [COMPUTED — see Phase 8 step 1 for the derivation and the corrected ladder]. Risk management is not optional.
 ## <!-- DEEP: 5+min --> RESEARCH_PREREQUISITE — Execute Before Any Output
 
 **This is a HARD GATE. Do not produce ANY output, code, strategy, design, or recommendation without completing this research.**
@@ -147,8 +155,10 @@ What options risk management task?
 ├── Options-based hedge construction → Phase 5
 ├── Correlation & concentration analysis → Phase 6
 ├── Event risk assessment → Phase 7
-├── Tail risk quantification & stress testing → Phase 8
-└── Full portfolio risk audit (all phases) → Run Phases 0-8 sequentially
+├── DTE bucket close/roll calendar (0DTE → LEAPS) → Phase 8
+├── Capital & liquidity preservation (reserve floor, deployment ladder) → Phase 9
+├── Tail risk quantification & stress testing → Phase 0 (GEX/VaR) + stress scenarios
+└── Full portfolio risk audit (all phases) → Run Phases 0-9 sequentially
 
 ```
 
@@ -165,6 +175,8 @@ What options risk management task?
 | R5 | REFUSE to assume correlation remains stable during a crash. "I hedged with QQQ puts because my portfolio correlates 0.3 to tech" — those puts will be worth less than you think when correlation spikes to 0.9 during the crash. All hedge stress tests must include correlation→1.0 scenario. | Trigger: hedge_analysis uses correlation_matrix without correlation→1.0 worst-case scenario | STOP. "Hedge analysis assumes stable correlation. Re-run with correlation→1.0 crash scenario. If hedge provides less than 50% protection in that scenario, the hedge is insufficient. March 2020 proved this — diversify hedges, don't optimize for one correlation regime." |
 | R6 | REFUSE to let any position exceed 10% of portfolio NAV in notional exposure without explicit override. A single short call spread with $50K notional on a $100K portfolio = 50% exposure to one ticker's outcome. Notional leverage, not premium paid, determines risk. | Trigger: position.notional_exposure / portfolio.nav > 0.10 AND notional_override != true | STOP. "Position {ticker} has {pct}% notional exposure (${amount}) vs 10% limit. Notional exposure, not premium, determines tail risk. Either reduce size to 10% or override with documented rationale and stop-loss plan." |
 | R7 | NEVER present gamma exposure as a static number. Gamma changes as the underlying moves, as expiration approaches, and as IV changes. "Net gamma = +$500" at 10 AM is wrong by 10:30 AM if the stock moved 2%. Always report gamma as a range: GEX at current price, with delta of GEX per 1%, 2%, 5% moves. | Trigger: gamma reported as single value without GEX range context | STOP. "Gamma is path-dependent. Report as: Net Gamma at spot = +$500/1% [COMPUTED], at SPX+1% = +$750/1%, at SPX-1% = +$320/1%. Single-point gamma is a snapshot that decays in minutes." |
+| R8 | REFUSE to hold any position past its DTE bucket's hard deadline without a written, timestamped hold decision. The DTE Bucket Close/Roll Calendar is a forcing function, not a suggestion: the default is that the bucket's risk is flat before the deadline, and "no decision" is not a hold decision. | Trigger: position.dte ≤ bucket.hard_deadline AND hold_decision is absent | STOP. "{ticker} {strike}{type} is at {dte} DTE — inside the {bucket} hard deadline. Close, roll credit-or-flat inside the roll window, or record a written hold decision with a timestamp and a stop. A position past its deadline with no recorded decision is an orphaned position, and orphaned positions are assigned." |
+| R9 | REFUSE to open any ticket that leaves uncommitted buying power below the reserve floor. The floor — `max(0.20 × NAV, 0.50 × WCML, 1.5 × exit_cost)` — is checked BEFORE the ticket, never after the fill. | Trigger: new_order AND (total_BP − committed_BPR − new_ticket_BPR) < reserve_floor | STOP. "Ticket blocked: after this fill uncommitted BP = ${after} [COMPUTED], below the ${floor} reserve floor. The reserve is what prevents a good position from being liquidated at a bad price. Close an existing position first — risk first, economics second, housekeeping third, balance sheet never." |
 
 ## Verification
 <!-- STANDARD: 3min -->
@@ -187,7 +199,21 @@ Options risk numbers are deadly if wrong. A miscalculated margin requirement cau
 |-----|---------|-------------|---------|
 | `[COMPUTED]` | Calculated by this skill from verified market data and known formulas | Greek aggregation, margin computation from published rules, VaR from historical simulation | "Net Delta = +$45,000 [COMPUTED] via: Σ(position.delta × underlying_price × contract_multiplier) from market-data-engineer snapshot at 14:30 ET" |
 | `[BROKER-VERIFIED]` | Confirmed against broker API or account statement | Margin requirement from broker, position P&L, buying power | "Portfolio Margin Requirement = $82,500 [BROKER-VERIFIED] via IBKR API /portfolio/margin endpoint at 14:31 ET" |
-| `[ESTIMATED]` | Calculated but with known uncertainty; always includes ±X% error bound | Pin risk probability, slippage cost, assignment likelihood, earnings gap estimate | "Assignment Probability = 82% [ESTIMATED ±12%] based on: ITM by $0.72, ex-div in 2 days, historical early-exercise rate = 78% for similar setups" |
+| `[ESTIMATED]` | Calculated but with known uncertainty; always includes ±X% error bound | Pin risk probability, slippage cost, assignment likelihood, earnings gap estimate | "Assignment Probability = 76% [ESTIMATED ±12%] based on: ITM by $0.72, ex-div in 2 days, and the moneyness table in `references/pin-risk-detection.md`" |
+| `[VERIFIED]` | **A named, checkable source is cited next to the number** — an exchange or OCC rule with its document and article/section, a broker's published schedule with the broker named and the date read, or a vendor series with the vendor, window and as-of date. The tag is a claim about *provenance*, not about *confidence* | Contract specifications, OCC By-Laws citations, exchange rule numbers, a broker's own margin schedule. A number whose only support is "well known" is not `[VERIFIED]` — downgrade it to `[ESTIMATED ±X%]` or `[COMMON-PRACTICE]` | "Third-Friday SPX options are AM-settled to a Special Opening Quotation [VERIFIED — CBOE SPX contract specifications, settlement]" |
+| `[COMMON-PRACTICE]` | A desk convention with no external source; carries no claim beyond "this is what experienced desks do" | Hedging cadences, tiered size limits, review rhythms | "Roll tail hedges at 30 DTE [COMMON-PRACTICE]" |
+| `[ILLUSTRATIVE]` | A constructed example or a severity band whose purpose is to *rank* failure modes, not to price them. Never to be summed, budgeted from, or quoted as a distribution | The `$X–$Y` cost bands in the Safety Protocol, Anti-Rationalization, Error Recovery and Gotchas tables; worked illustrative portfolio losses | "Cost: $20K–$200K [ILLUSTRATIVE — severity band, not a measured distribution]" |
+
+**Every `[VERIFIED]` must print its source inline.** A bare `[VERIFIED]` with no document, no
+article/date and no vendor is a **mis-tagged estimate** and fails guardrail G1. Where this skill
+cannot name the source (broker auto-liquidation behaviour, correlation snapshots, historical gap
+tables, fund-performance anecdotes), the tag must be `[ESTIMATED ±X%]`, `[COMMON-PRACTICE]` or
+`[ILLUSTRATIVE]`, not `[VERIFIED]`.
+
+**Cost bands are severity bands.** The `$5K–$500K` style ranges that appear throughout this skill exist
+to order failure modes by consequence. They are `[ILLUSTRATIVE]`: they are not measured distributions,
+they do not add up, and no sizing decision may be derived from one. A band that is being used as an
+input must first be replaced by a `[COMPUTED]` figure from the book's own positions.
 
 ### Safety Protocol Rules
 
@@ -219,7 +245,7 @@ Never present an untagged number. Never present a number you can't defend.
 
 | Rationalization | Reality |
 |---|---|
-| "I sold a put spread with 10 DTE — the short strike is 5% OTM. I'll just wait for expiration. It'll expire worthless." | A 5% OTM put spread with 10 DTE is not safe. A 5% move in 10 days is a 1.5-sigma event for the average stock (annual vol ~25%) — that's a 7% probability per option cycle. Over 14 trades per year, one WILL breach. And when the stock drops 3% in one day, gamma on near-expiration options explodes, turning your "small" position into a large unrealized loss that triggers emotional decisions. **Cost: $5K-$50K per breached spread — and the emotional cost of watching a "safe" trade go against you at 5x the speed you expected. Close spreads at 50% max profit or 7 DTE, whichever comes first.** |
+| "I sold a put spread with 10 DTE — the short strike is 5% OTM. I'll just wait for expiration. It'll expire worthless." | A 5% OTM put spread with 10 DTE is not safe — but the arithmetic is not 1.5σ. With σ = 25% annualised on the **trading-day convention** (252 days/year): σ_period = 0.25 × √(10/252) = **4.98%**, so a 5% adverse move is a **1.00σ** move with a one-tailed probability of ≈**15.8%** per option cycle [COMPUTED]. On the calendar-day convention (365) the same inputs give 4.14% and 1.21σ, P ≈ 11.3% — always state which convention you used, because the two differ. Over 14 cycles the chance of at least one breach is 1 − (1 − 0.158)¹⁴ ≈ **91%** [COMPUTED]. And when the stock drops 3% in one day, gamma on near-expiration options accelerates — √(45/5) = 3.0× the 45-DTE value, not 10× — turning your "small" position into a large unrealized loss that triggers emotional decisions. **Cost: an illustrative severity band of $5K–$50K per breached spread [ESTIMATED ±50%] — a prioritisation band for ranking failure modes, not a measured distribution — plus the speed at which the loss appears. Close spreads at 50% max profit or 7 DTE, whichever comes first.** |
 | "I don't need to track portfolio Greeks — I know what each position does individually." | Options Greeks are NOT additive in a simple sense. Vega from 5 AAPL call positions is 5× the single position. But gamma from 3 different expiration dates interacts non-linearly. Net portfolio delta of +$12,000 across 8 positions can mask one position that's -$35,000 delta and another that's +$47,000 — the portfolio looks neutral but the component volatility is extreme. Correlation between positions means the delta hedge that works for one position unhedges another. **Cost: $20K-$200K in "neutral" portfolios that blow up because Greek interaction effects weren't modeled. Portfolio-level Greeks must be computed from the aggregate payoff function, not summed from individual Greeks.** |
 | "Portfolio Margin will save me — my broker says I get 6:1 leverage." | Portfolio Margin (PM) uses theoretical stress tests to determine margin — a 15% decline scenario for broad-based indices. In a real crash, your portfolio's actual loss can exceed the PM stress scenario by 2-3x if you have correlated tail risk. The 2020 COVID crash saw 34% declines — more than double what PM stress tests. PM is a regulatory minimum, not a safety buffer. If your PM margin use is >50%, a real crash will margin-call you before you can react. **Cost: $50K-$500K in forced liquidation at worst prices when PM margin requirement jumps from $50K to $150K in one day. Keep PM margin use below 40% for crash resilience.** |
 | "The option is ITM by $0.30 — it won't be assigned. Assignment happens at expiration." | American-style options can be assigned at ANY TIME. ITM calls with dividends coming will be assigned the day before ex-div by dividend-capture arbitrageurs. ITM puts can be assigned whenever the holder wants to close their short stock position. Early assignment probability is not zero just because the option is barely ITM — if the time premium is less than the dividend, assignment is near-certain. **Cost: $10K-$100K in unwanted stock positions from early assignment. A $0.30 ITM call assigned before ex-div means you deliver stock you might not own (short call assignment) — creating a short stock position with unlimited risk.** |
@@ -248,13 +274,15 @@ World-class options risk management is about understanding what kills you — an
 <!-- QUICK: 30s -->
 
 - Computing portfolio-level Greeks (net delta, gamma, theta, vega) across multi-leg options positions
-- Detecting pin risk when a short option strikes near current price within 5 DTE
+- Detecting pin risk on a short option — **monitoring band** at 2% of spot with DTE ≤ 7, **action band** at 0.5% of spot with DTE ≤ 5, widened to 1% of spot on expiration day
 - Calculating margin requirements under Reg T, Portfolio Margin, or SPAN before entering a trade
 - Managing expiration risk — DTE-based close/roll rules, ITM exercise handling, cash vs physical delivery
 - Constructing options-based hedges (protective puts, collars, delta hedging, tail hedges)
 - Evaluating whether correlation assumptions hold during stress scenarios
 - Stress testing the portfolio against historical crashes (1987, 2008, 2020) with non-linear option payoffs
 - Monitoring gamma exposure (GEX) and second-order Greeks (vanna, charm) for large positions
+- Deciding when to close or roll by DTE bucket — 0DTE, weeklies, monthlies, quarterlies (60-120 DTE), and LEAPS — against one consolidated calendar instead of piecewise rules
+- Setting and enforcing a cash / free-buying-power reserve floor and a deployable-capital ceiling before adding risk
 
 ## When NOT to Use
 
@@ -266,6 +294,10 @@ World-class options risk management is about understanding what kills you — an
 - Pricing exotic options or implementing stochastic vol models — use **quantitative-analyst**
 - Resolving equity signal conflicts or position sizing for stocks — use **portfolio-signal-manager**
 - Portfolio construction for non-options assets — use **portfolio-signal-manager**
+- Choosing the *entry* DTE or entry structure for a new position — **swing-options-trader** owns 2-30 DTE selection, **intraday-options-trader** owns 0DTE, **leaps-strategist** owns long-dated. This skill owns the exit calendar and the force; they own the entry craft
+- Deciding **what to do next with an open position** (close / roll / trim / hold) — use **options-position-lifecycle**. This skill supplies the clock, the pin band and the deadline; that skill decides the action
+- **Repairing an individual leg** — rolling one leg, legging out of a spread, closing half a structure — use **options-leg-management**. Leg surgery is theirs; the aggregate risk of the resulting position comes back here
+- **Automating the resulting orders** — pushing closes, rolls and hedge adjustments into an execution system — use **options-automation-engineer**. This skill emits risk output, not orders
 
 ## Best Practices
 
@@ -281,6 +313,9 @@ World-class options risk management is about understanding what kills you — an
 8. Diversify expiration dates — all options expiring same week creates correlated gamma risk
 9. Never let any single ticker's notional exposure exceed 10% of NAV — option notional, not premium, is the true exposure
 10. Run full stress tests monthly and after any position that changes portfolio risk by >20%
+11. Check the reserve floor before every ticket, not after — `uncommitted_BP_after_fill ≥ max(0.20 × NAV, 0.50 × WCML, 1.5 × exit_cost)`. A reserve tested after the fill is a post-mortem, not a policy
+12. Give every position a named exit route and a maximum exit cost at entry (core ≤3% of position value, satellite ≤5%). A position whose only exit route is a broker liquidation is not a position
+13. Assign every position to a DTE bucket and let the bucket's windows run: roll credit-or-flat inside the roll window, close at the hard deadline, never exceed two rolls per position per cycle, and never let a quarterlies (60-120 DTE) position go unreviewed
 
 ## Error Decoder
 
@@ -302,7 +337,7 @@ World-class options risk management is about understanding what kills you — an
 | ❌ **Using one margin regime for all calculations** | "I'm on Portfolio Margin so Reg T doesn't matter" — but PM rules can change overnight. Brokers can increase PM requirements during high volatility without notice. Reg T is the statutory floor | ✅ Always compute both Reg T and PM. Use PM for capital efficiency but maintain Reg T awareness as the fallback. If broker tightens PM during a crisis, you need to know your Reg T margin requirement |
 | ❌ **Ignoring expiration concentration** | Three different tickers with options all expiring same Friday = gamma event cluster. If the market moves sharply that week, all three positions experience gamma explosion simultaneously | ✅ Spread expirations across at least 3 different weeks. No more than 30% of positions expiring any single week. Track "gamma-at-expiration" as a separate risk metric |
 | ❌ **Hedging tail risk with OTM puts and forgetting to roll** | OTM puts decay to zero — theta is working against the hedge. A 60-DTE 20% OTM put loses 60% of its value in the first 30 days. By the time the crash comes, the "hedge" is worth pennies | ✅ Roll tail hedges at 30 DTE. Budget 2-4% of NAV annually for hedge cost. If you can't afford the premium bleed, use put spreads or VIX calls instead — cheaper but with capped protection |
-| ❌ **Trusting bid-ask midpoint for illiquid options** | A $0.10 bid / $0.90 ask with $0.50 mid implies a position that costs $0.40 to enter AND $0.40 to exit — 80% round-trip cost. But the midprice is just a convention, not a tradeable price | ✅ Always compute slippage: use bid for sells, ask for buys. If spread > 10% of mid, the option is effectively untradeable at size. Position sizing must account for round-trip slippage cost |
+| ❌ **Trusting bid-ask midpoint for illiquid options** | A $0.10 bid / $0.90 ask on a $0.50 mid means you cross $0.40 above mid to get in and $0.40 below mid to get out — a $0.80 round trip on a $0.50 mid, i.e. **160% of mid** [COMPUTED: (0.90 − 0.10) / 0.50], the same convention `capital-liquidity-preservation.md` uses for `exit_cost_pct`. The midprice is a convention, not a tradeable price | ✅ Always compute slippage: use bid for sells, ask for buys — and quote the cost as `(ask − bid) / mid`, not as one side of it. If spread > 10% of mid, the option is effectively untradeable at size; at 160% it is untradeable at one lot. Position sizing must account for round-trip slippage cost |
 
 ## State Log
 
@@ -330,6 +365,11 @@ World-class options risk management is about understanding what kills you — an
 | `stress.scenarios` | [StressResult] | Session → Archive | Results of latest stress test: P&L per scenario, max drawdown, margin call trigger |
 | `risk.vaR` | VaRResult | Daily | 1-day VaR(95%, 99%), CVaR(95%, 99%) computed with non-linear payoff handling |
 | `risk.max_drawdown_est` | float | Session | Estimated maximum drawdown in next 30 days based on current Greeks and IV |
+| `calendar.buckets` | [BucketAssignment] | Session | Every open position labelled with its DTE bucket, settlement type (American-physical / European-cash), settle-on-open vs settle-on-close, and its entry-craft owner skill |
+| `calendar.hard_deadlines` | [Deadline] | Session | Per position: default action window, roll window, hard deadline, roll count against the two-roll cap, and the timestamp of any written hold decision |
+| `capital.reserve_floor` | ReserveFloor | Realtime | `max(0.20 × NAV, 0.50 × WCML, 1.5 × exit_cost)`, recomputed from live total_BP every time it is tested — never cached |
+| `capital.deployable` | DeployableCapital | Session | `total_BP − reserve_floor`, the state ceiling from the ladder, and the effective ceiling `min(Phase 3 colour band, state ceiling)` |
+| `liquidity.exit_routes` | [ExitRecord] | Session | Per position: `exit_route` (a-e; broker liquidation does not count), `exit_cost_pct`, `exit_cost_cap`, and the OI/ADV sizing reference the exit cost depends on |
 
 ## Core Workflow
 
@@ -342,6 +382,15 @@ World-class options risk management is about understanding what kills you — an
 
 ### Phase 1: Pin Risk & Assignment Detection (5min)
 
+**The two pin bands — stated once here, and used everywhere in this skill.**
+- **Monitoring band:** DTE ≤ 7, *or* a short strike within **2% of spot** → daily monitoring (hourly at DTE ≤ 3); open an action record for the leg. The T−5 rung of the expiry week lists exactly this set.
+- **Action band:** DTE ≤ 5 **and** a short strike within **0.5% of spot** → a forced close/roll decision. "Monitor" is not an action in this band.
+- **Expiration-day widening (T−0 only):** any short strike within **1% of spot** → close, do not monitor. One session of extra width, because the underlying re-rates to the afternoon move.
+
+Every other percentage or DTE figure for pin risk elsewhere in this corpus is one of these three,
+mis-labelled. `references/pin-risk-detection.md` holds the scoring algorithm; its detection threshold
+(0.5% of spot, DTE ≤ 3) is the **action band** tightened to its core.
+
 1. **Compute Pin Risk Score** for all short options with DTE ≤ 7: `distance_component × dte_multiplier × position_factor`. Score ≥60 = close/roll immediately. Score 40-59 = close at next opportunity.
 2. **Check assignment triggers**: Dividend arbitrage on calls, deep ITM puts with <$0.05 time premium, ITM >$2.00 near expiration. Apply pre-close rules.
 3. Complete when: All short options ≤5 DTE scored. ITM shorts have assignment probability [ESTIMATED] with error bounds. Pre-close recommendations for scores ≥40.
@@ -349,9 +398,9 @@ World-class options risk management is about understanding what kills you — an
 
 ### Phase 2: Expiration Risk Management (3min)
 
-1. **Classify positions by DTE zone**: >21 (normal), 14-21 (plan), 7-14 (gamma acceleration), 3-7 (active), 0-3 (critical), 0 DTE (continuous). Apply DTE-appropriate actions.
+1. **Classify positions by DTE bucket — one partition, the same one Phase 8 and DT6 use**: 0 DTE (same session) · weeklies 1–7 · gamma shoulder 8–20 · **monthlies 21–59** · **quarterlies 60–120** · annuals 121–365 · LEAPS >365 — every DTE value lands in exactly one bucket. Apply the bucket's actions. Inside a bucket the finer labels are *review cadence*, not zones — within weeklies, 4–7 DTE is "plan" and ≤3 DTE is "active" for monitoring frequency only. This single partition replaces the earlier `>21 / 14–21 / 7–14 / 3–7 / 0–3` list, which was a second, incompatible set of boundaries over the same axis. **The 21–59 / 60–120 split is a chosen grid, not a derived rung — and it is stated once, here and in `dte-close-roll-calendar.md` §2.** The earlier pair `monthlies 21–60 / quarterlies 60–120` put **60 DTE in two buckets at once**, with two different roll windows (21–30 vs 60–75) and two different hard deadlines (21 vs 45 DTE). **60 DTE now resolves to quarterlies, never to monthlies:** a 60-DTE position carries the quarterlies roll window (**60–75 DTE**) and the quarterlies hard deadline (**45 DTE**), and exactly one set. The roll windows of the seven buckets are likewise disjoint — T−7→T−5 · 14–20 · 21–30 · 60–75 · 121–150 · 120–90 — so no DTE value carries two roll windows either.
 2. **Classify by settlement type**: Physical delivery (most equity) vs cash-settled (SPX/NDX/VIX). Apply Friday expiration protocol. Enforce 0DTE rules (max 2% NAV, continuous monitoring, hard stops).
-3. Complete when: DTE calendar populated. Settlement classification complete. All ≤3 DTE positions have close/roll/expire decision documented.
+3. Complete when: DTE calendar populated from the single bucket partition. Settlement classification complete. Every position inside the **action band** (DTE ≤ 5) has an explicit close/roll/expire decision documented — "monitoring" is not a decision.
    - Full DTE rules, settlement guide, 0DTE rules → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
 ### Phase 3: Margin & Capital Efficiency (5min)
@@ -389,6 +438,24 @@ World-class options risk management is about understanding what kills you — an
 3. Complete when: Event calendar populated. P&L impact computed [COMPUTED] for all material events. Response actions documented.
    - Full event calendar, P&L formula, response matrix → [portfolio-risk-computations.md](references/portfolio-risk-computations.md)
 
+### Phase 8: DTE Bucket Close/Roll Calendar (5min)
+
+1. **Assign every position to a bucket** — 0DTE · weeklies 1-7 · gamma shoulder 8-20 · monthlies 21-59 · quarterlies 60-120 · annuals 121-365 · LEAPS >365 — and record its entry-craft owner (`intraday-options-trader` for 0DTE, `swing-options-trader` for 2-30 DTE, `leaps-strategist` for long-dated). Buckets are assigned by the position's own gamma, never by rounding down to the gentler bucket. **Say which half of this is derived and which half is chosen.** *Derived* [COMPUTED]: ATM gamma scales as `Γ_ATM = φ(d1)/(Sσ√T)`, i.e. **Γ ∝ 1/√T**, so gamma doubles when the remaining life is **quartered** — 45 → 22.5 → 11.25 → 5.6 → 2.8 DTE, i.e. ≈21 / ≈11 / ≈6 / ≈3 DTE. The ratio that doubles on each *halving* of remaining life is **gamma per dollar of premium still at stake**, `Γ/V = 1/(S²σ²T)`, exact in the same r = 0 ATM reduced form — *not* `Γ/|Θ|`, which is `2/(S²σ²)` and independent of T (the √T cancels; see `portfolio-greeks-aggregation.md`'s `Θ ≈ −½ΓS²σ²`). *Chosen* [ESTIMATED]: the exact rung numbers 21 / 14 / 7 / 3 are desk policy that rounds those derived rungs onto the listed weekly/monthly grid, and the 60 / 120 / 365 rungs are calendar-grid choices with no γ argument behind them. Do not present them as measured constants — the shape is derived, the grid is ours. Full derivation and limitations → `dte-close-roll-calendar.md` §1.
+2. **Label settlement mechanics in the same pass** — American-physical vs European-cash, and settle-on-open vs settle-on-close. Third-Friday index contracts are AM-settled to a Special Opening Quotation; weekly and end-of-month index contracts are PM-settled to the close; VIX options are European, cash-settled, and expire on Wednesday [VERIFIED — CBOE contract specifications]. European contracts carry no early-assignment risk; American ITM short calls carry ex-dividend risk on T−1.
+3. **Run the expiry-week timeline for anything at ≤5 DTE** — T−5 pin scan · T−4 roll economics and ex-dividend check · T−3 margin inflation · T−2 assignment funding · T−1 early-assignment day · T−0 09:35 pin guard → 12:00 half-day check → 14:45 last voluntary close → 15:00 practical deadline → 15:45 do-not-rely line → 16:00 equity close (16:15 index) → 17:30 OCC exercise-notice cut-off [VERIFIED — OCC By-Laws Art. VI] → T+1 realization. **The sequence is two different deadlines, in order, and the 0DTE carve-out:** for **0DTE** the close is **14:45 ET with a 15:00 ET hard stop** (the same times `intraday-options-trader` publishes), so 14:45 and 15:00 are the 0DTE clock. The **15:45 ET do-not-rely line is the non-0DTE marker**: past it a resting limit at mid will not fill, so it is the last DTE at which a *longer-dated* leg can still be worked with a limit order — it is a deadline for hoping, not for acting, and it sits after 15:00 by design rather than by accident.
+4. **State the default outcome, and defer the roll decision** — this skill owns the roll **window** and the **hard deadline**; the roll **rule** (credit-or-flat), the roll **cap**, and *whether* to roll belong to `options-position-lifecycle`. Ask that skill for the verdict at the window and enforce only the deadline. Anything left alone is not left neutral: ITM by ≥$0.01 auto-exercises into assignment (American physical) or cash settlement (European index), and OTM expires worthless [VERIFIED — OCC exercise-by-exception].
+5. Complete when: Every position carries a bucket label, a settlement label, and a named entry-craft owner. Every position at or past its default action window has a written, timestamped decision. Every roll this cycle was reported to `options-position-lifecycle` for its credit-or-flat and cap verdict, and no position was rolled past its hard deadline.
+   - Full bucket map, expiry-week timeline, American/European mechanics, settle-on-open vs settle-on-close, calendar hazards → [dte-close-roll-calendar.md](references/dte-close-roll-calendar.md)
+   - Full bucket map, expiry-week timeline, American/European mechanics, settle-on-open vs settle-on-close, calendar hazards → [dte-close-roll-calendar.md](references/dte-close-roll-calendar.md)
+
+### Phase 9: Capital & Liquidity Preservation (3min)
+
+1. **Compute the reserve floor before anything else** — `uncommitted_BP_after_fill ≥ max(0.20 × NAV, 0.50 × WCML, 1.5 × exit_cost)`, where `WCML` is the book's worst-case simultaneous max loss at correlation → 1.0 (the Phase 6 scenario, not a sum of premiums) and `exit_cost = Σ (position_value × exit_cost_pct)`. The test runs **before** the ticket, never after the fill.
+2. **Size to the deployable-capital ladder** — the effective commitment ceiling is `min(Phase 3 colour band, state ceiling)`, so the ladder can only tighten. State ceilings: ≤50% after one position taken to max loss, ≤35% after two, ≤25% at a ≥15% NAV drawdown, ≤15% with no new tickets at ≥25% or Red. This is the capital-allocation face of Phase 3's Green/Yellow/Orange/Red ladder and the drawdown cascade — not a replacement for either.
+3. **Plan the exit at entry** — record a named exit route and a maximum exit cost for every position (core ≤3% of position value, satellite ≤5%), derived from `(ask − bid) / mid` plus the Phase 4 slippage tier, and sized by the existing `min(5% of OI, 5% of 20-day dollar volume)` reference. A position whose only exit route is a broker liquidation fails the gate.
+4. Complete when: Reserve floor computed from live total_BP with all three terms shown. Every open position has a non-null exit route and `exit_cost_pct ≤ cap`. The deployable ceiling is reported alongside the Phase 3 BPR. The forced-selling order (risk first → economics second → housekeeping third → balance sheet never) is recorded as the standing liquidation priority before it is needed.
+   - Full reserve-floor derivations, deployment ladder, exit-cost formula, the worked floor test, forced-selling order → [capital-liquidity-preservation.md](references/capital-liquidity-preservation.md). The worked test (§1.1) is the reference case: NAV $500k, total_BP $400k, committed BPR $180k → uncommitted BP **$220k**; floor terms $100k / $80k / $12k → **floor $100k**; headroom **$120k** → a **$140k-BPR ticket is BLOCKED** (after-fill uncommitted BP $80k) and a **$90k ticket is ALLOWED** (after-fill $130k) [COMPUTED].
+
 ## Decision Trees
 
 <!-- STANDARD: 3min -->
@@ -397,11 +464,13 @@ World-class options risk management is about understanding what kills you — an
 
 ```
 
-DTE ≤ 5?
-├── NO → Normal monitoring. Revisit at 7 DTE.
+DTE ≤ 5 (the action band)?
+├── NO → inside the monitoring band (DTE ≤ 7, or a short strike within 2% of spot)?
+│    ├── YES → daily monitoring, hourly at DTE ≤ 3; open the action record for the leg
+│    └── NO  → normal monitoring
 └── YES → Short option?
     ├── NO (long) → ITM? YES+cash→let expire | YES-capital→close | NO→expires worthless (roll if tail hedge)
-    └── YES (short) → Within 1% of strike?
+    └── YES (short) → Within 1% of strike?  (T-0 widened band; the band is 0.5% on T-1 and earlier)
         ├── YES → Pin Risk ≥60? YES→close market | NO→close limit, market if unfilled
         └── NO → ITM? NO→alert at strike-1% | YES→cash-settled? let expire | physical? want stock? YES→accept | NO→close 3PM Fri
 
@@ -442,6 +511,8 @@ VIX level?
 ├── 25-35 (Elevated) → Reduce size 30%. Tighten stops. Buffer >50%.
 └── >35 (Extreme) → HALT new positions. Close DTE<7. Delta→near-zero. >50→consider cash.
 
+```
+
 ### DT5: Which Margin Regime?
 
 ```
@@ -451,6 +522,63 @@ Account equity?
 ├── ≥$110K, PM enabled → Use PM. Compare PM vs RegT: PM<70% RegT=good relief | >90%=doesn't help
 ├── ≥$110K, PM not enabled → Request PM. Use Reg T until approved.
 └── Futures account → SPAN (16 scenarios). Cross-margining with futures.
+
+```
+
+### DT6: Which DTE Bucket Am I In, and What Does It Force?
+
+```
+
+How many days to expiration, and what has the position done?
+├── 0 DTE (same session) → close by 14:45 ET; hard stop 15:00 ET
+│    └── cash-settled index may hold to its settlement print; equity-style must never be held into the broker's process
+│         (entry craft owner: intraday-options-trader)
+├── 1-7 DTE (weeklies) → 50% of max profit or 3 DTE, whichever first; roll window T-7 → T-5
+│    ├── short strike within 2% of spot? → MONITORING band: open the action record for that leg
+│    │    └── within 0.5% of spot (or within 1% on T-0)? → ACTION band: CLOSE. Monitor is not an action
+│    └── ITM short AMERICAN call with ex-div before expiry? → close before T-1; assignment is near-certain
+│         (entry craft owner: swing-options-trader, 2-30 DTE)
+├── 8-20 DTE (gamma shoulder) → hold; resting orders at 50% of max profit; no new credit added; roll window 14-20
+├── 21-59 DTE (monthlies) → entry and scale zone; roll window 21-30; hard deadline 21 DTE for short premium
+│    └── defined-risk already at max profit? → close at 7 DTE, not at 21
+├── 60-120 DTE (quarterlies) → hold; harvest 50-75%; roll window 60-75; hard deadline 45 DTE
+│    └── 60 DTE IS THIS BUCKET AND NOT MONTHLIES — it appears in one bucket only, and carries one
+│         roll window (60-75) and one hard deadline (45 DTE). THIS BUCKET HAS NO OTHER OWNER.
+├── 121-365 DTE (annuals) → hold; manage by delta and vega, not theta; roll window 121-150; hard deadline 90
+└── >365 DTE (LEAPS) → hold as a capital-efficient stock substitute; monthly review plus every ex-div;
+     roll window 120-90; hard deadline 60.  (entry craft owner: leaps-strategist)
+
+This skill owns the CALENDAR and the FORCE: the bucket, the review cadence, the roll WINDOW and the hard
+deadline. It does NOT own the roll RULE (credit-or-flat), the roll CAP, or the decision to roll — those are
+`options-position-lifecycle`'s, together with whether a roll, a trim or a close is the right action at the
+window. Ask for that verdict; enforce only the deadline.
+Pin risk uses the two bands defined in Phase 1: MONITORING at 2% of spot, ACTION at 0.5% (widened to 1% on T-0).
+Buckets are assigned by the position's own gamma, not by rounding down to the gentler bucket.
+**One partition, one set of windows.** Every DTE value lands in exactly one bucket (21–59 / 60–120 is the
+chosen split, so 60 DTE is quarterlies and not monthlies), and every bucket's roll window is disjoint from
+every other's: T−7→T−5 · 14–20 · 21–30 · 60–75 · 121–150 · 120–90. Review cadence and hard deadline are
+likewise stated once per bucket, here and in `dte-close-roll-calendar.md` §2, with the same values.
+
+```
+
+### DT7: I Need Capital — What Closes First?
+
+```
+
+Capital is needed. What closes?
+├── Is uncommitted BP already below the reserve floor?
+│    ├── YES → the failure is upstream: the floor was tested after a fill, not before
+│    │    └── Log it, block ALL new tickets until restored, then close in the order below
+│    └── NO → this is a planned reduction, not an emergency — close in the order below anyway
+├── 1. Undefined-risk and route-less positions → CLOSE NOW (naked shorts, no exit_route, no stop)
+├── 2. The position or correlated cluster that CAUSED the drawdown → CLOSE the risk, not the winners
+├── 3. Largest dollar exit cost among positions that can exit inside their own cap → worst economics, not worst liquidity
+├── 4. Most short-gamma / short-vega positions → they worsen non-linearly; removing them lowers the RATE of further loss
+├── 5. Zero-value residuals and expired-intent hedges → housekeeping, no market impact
+├── 6. Positions already inside their bucket's default action window → pre-paying a forced decision
+├── 7. NEVER FIRST: tightest spread, deepest liquidity, closest to max profit
+│    └── they fund the loss at the best price the book can get; selling them first leaves only the unwanted
+└── 8. NEVER: one leg of a correlated cluster while keeping the rest → converts diversification into concentration
 
 ```
 
@@ -492,7 +620,7 @@ Every inter-skill message: `{message_id, source_skill, target_skill, message_typ
 |----------------|------------------|-----------------|
 | `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
 | `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
-| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+| `trade-sizing-recovery` / risk tooling | Per-trade size bands and loss limits the book is aggregated against | When sizing positions or setting guards |
 
 ## Production Checklist
 
@@ -512,6 +640,8 @@ Before deploying options-risk-engineer with live positions:
 - [ ] **CR10: Hedge effectiveness measured monthly.** Is the hedge actually reducing drawdowns? If a 3% NAV annual hedge cost reduces max drawdown by only 2%, the hedge is not cost-effective.
 - [ ] **CR11: All risk alerts tested end-to-end.** Pin risk alert → notification received within 5 minutes. Margin call warning → liquidation plan triggered. Test with simulated events.
 - [ ] **CR12: Anti-hallucination guardrails verified.** Every risk number in output carries [COMPUTED], [BROKER-VERIFIED], or [ESTIMATED] tag. Spot-check 20 numbers — all must have provenance.
+- [ ] **CR13: DTE calendar encoded, not remembered.** Every open position resolves to a bucket; every bucket resolves to a review cadence, a default action window, a roll window, and a hard deadline. The expiry-week rungs (T−5 through T+1, including the 14:45 ET close and the 15:45 ET do-not-rely line) are scheduled events, not knowledge. Half-day and holiday sessions shift the timeline and are handled.
+- [ ] **CR14: Reserve floor and deployment ladder enforced by the system, not by discipline.** The pre-trade test blocks a ticket that would breach `max(0.20 × NAV, 0.50 × WCML, 1.5 × exit_cost)`; the deployment ceiling is taken as `min(Phase 3 colour band, state ceiling)` and therefore only tightens. Every open position has a non-null `exit_route` (broker liquidation does not count) and `exit_cost_pct ≤ cap`. The forced-selling order is recorded as the standing liquidation priority.
 
 ## Error Recovery
 
@@ -533,11 +663,13 @@ Before deploying options-risk-engineer with live positions:
 | Any position DTE drops below 7 | Activate daily (then hourly at 3 DTE) pin risk monitoring. Compute assignment probability if short option. Review close/roll decision. | Options gamma accelerates exponentially below 7 DTE. Risk changes faster than you think — a position that was "safe" at 10 DTE is dangerous at 5 DTE |
 | Portfolio net delta exceeds ±40% of NAV | Reduce delta to <40% by closing directional positions or adding delta hedge. If delta is intentional (directional bet), document thesis with stop-loss at -20% of NAV | Options amplify delta — a 40% NAV delta means a 5% market move changes portfolio value by 2% just from delta alone. Add gamma impact and the move is larger |
 | VIX rises 10+ points in one week | Reduce ALL position sizes by 30%. Close positions with DTE < 7. Activate or increase tail hedges. Increase margin buffer to >50% unused | A 10-point VIX spike signals regime change. What was "normal" risk yesterday is "extreme" risk today. Reduce before the market forces reduction through margin calls |
-| Two consecutive trading days with >3% portfolio loss | HALT new positions. Run full risk audit (all 8 phases). Identify: was this correlation risk? Gamma explosion? Vol expansion? Sector-specific? Fix the root cause before resuming | Consecutive large losses signal that something in the risk model is wrong. Continuing to trade through losses hoping they reverse is gambling, not risk management |
+| Two consecutive trading days with >3% portfolio loss | HALT new positions. Run full risk audit (all phases). Identify: was this correlation risk? Gamma explosion? Vol expansion? Sector-specific? Fix the root cause before resuming | Consecutive large losses signal that something in the risk model is wrong. Continuing to trade through losses hoping they reverse is gambling, not risk management |
 | Short option open interest shows >50% decline in one day | CHECK liquidity immediately. Large OI decline suggests position liquidation by a large player. If you're on the same side, exit may become difficult. If opposite side, pin risk may increase | OI changes precede liquidity changes. A sudden OI drop means someone big got out — the market for that option just got thinner |
 | Broker announces margin requirement changes for options | Recompute ALL margin requirements immediately. The change may make previously acceptable positions now in violation. If margin increases >20%, reduce positions to maintain 30%+ buffer | Brokers change margin rules during volatility events. What was 20% margin yesterday may be 35% tomorrow. You find out when the margin call arrives — unless you proactively check |
 | Earnings date announced less than 2 weeks out for a held ticker | Apply earnings risk protocol: reduce position by 50% OR purchase straddle to hedge. Do not hold short options through earnings on >5% NAV positions | Earnings are binary events with known dates. There is no excuse for being surprised by earnings risk. The only question is whether you chose to accept it |
 | Any position's bid-ask spread widens >3× normal | HALT trading in this option. Investigate: is this a temporary condition (market open, news) or structural (declining OI, delisting risk)? If structural, plan exit NOW while some liquidity remains | Widening spreads are the market's early warning system. When spreads gap wider, market makers are signaling that risk has increased. Listen to the signal |
+| Any position crosses into a new DTE bucket | Apply the new bucket's mandated review frequency and default action window immediately. Re-label the position, re-check its settlement basis, and re-check its hard deadline | The clock, not the market, changes the risk. A position that was a monthly at 22 DTE is a gamma-acceleration position at 14 DTE — same price, different animal |
+| Uncommitted buying power falls below the reserve floor | Block ALL new tickets until the floor is restored. Reduce in the forced-selling order: risk first → economics second → housekeeping third → balance sheet never | The reserve exists so that a good position never has to be liquidated at a bad price. Spending it converts a drawdown into a permanent loss |
 
 | Rationalization | Reality |
 |---|---|
@@ -556,7 +688,7 @@ Before deploying options-risk-engineer with live positions:
 | Net delta = $0 but portfolio lost $15K on a 3% up move | The portfolio was short gamma on the upside — delta went from 0 to -$12K as the market rose. The "delta neutral" portfolio became directionally short as it moved. Gamma asymmetry: long OTM calls have little gamma until they go ITM; short ATM options have high gamma always | Map the full delta profile across ±5% underlying moves. If delta changes by >2% of NAV per 1% move, you have a gamma problem. Reduce short gamma positions or delta-hedge dynamically with threshold-based rebalancing | **Delta neutrality is a point on a curve, not a line.** The curve's shape (gamma) determines whether "neutral" means anything. A portfolio with zero delta but high gamma is a spring-loaded trap — neutral until it moves, then aggressively directional |
 | Margin requirement doubled overnight without any trading | Expiration week acceleration — short options 3-5 DTE have margin calculated with higher stress factors. Additionally, IV increased 3 points, raising short option margin. Combined effect: margin doubled | Track "projected margin at DTE=3" for all positions when they're at 14 DTE. If projected margin exceeds buffer, plan adjustments BEFORE the acceleration. Don't wait for the broker's margin increase — anticipate it | **Margin is dynamic, not static.** A position that uses $10K margin at 21 DTE may use $25K at 3 DTE. If you sized based on the 21-DTE margin, you're overextended at expiration |
 | Bought 30% OTM SPY puts for crash protection. Market dropped 25%, puts only gained 60% of expected | Volatility skew changed — demand for OTM puts spiked, making them MORE expensive to buy (good for owners). But IV didn't rise as much as historical crashes because the decline was orderly (2022-style), not panicked (2020-style). Vega gain was less than modeled | Use VIX calls for panic-independent crash protection. Puts protect against price declines; VIX calls protect against panic. Different crashes have different vol responses. Diversify your tail hedges across instruments | **Tail hedges are regime-dependent.** A put hedge works best in panicked crashes (2008, 2020). In orderly declines (2022), VIX calls and put backspreads work better. One hedge does not fit all crashes |
-| Assigned on a short call the day before a $1.50 dividend | The call's time premium ($0.08) was less than the dividend ($1.50). Exercising the call to capture the dividend yielded $1.42 in risk-free profit for the call holder. This was entirely predictable | Check every short call's ex-div date against expiration. If dividend > remaining time premium, assignment probability >85% [ESTIMATED]. Close or roll before the ex-div date. The market knows about dividends — option prices reflect it, but early exercise is path-dependent | **Dividends drive early assignment, not moneyness.** An OTM call won't be exercised for dividends. An ITM call will be exercised if the dividend exceeds the time premium. Track ex-div dates as carefully as expiration dates |
+| Assigned on a short call the day before a $1.50 dividend | The call's time premium ($0.08) was less than the dividend ($1.50). Exercising the call to capture the dividend yielded $1.42 in risk-free profit for the call holder. This was entirely predictable | Check every short call's ex-div date against expiration. If dividend > remaining time premium, assignment probability is high — **>85% [ESTIMATED ±10 percentage points]**. The bound is mandatory and it is wide: this skill holds no early-exercise sample wide enough to calibrate a tighter one, so treat the figure as an ordering statement, not a probability. Close or roll before the ex-div date. The market knows about dividends — option prices reflect it, but early exercise is path-dependent | **Dividends drive early assignment, not moneyness.** An OTM call won't be exercised for dividends. An ITM call will be exercised if the dividend exceeds the time premium. Track ex-div dates as carefully as expiration dates |
 | Portfolio VaR(95%) = $8,500. Actual loss on a bad day = $31,000 | VaR was computed assuming normal distribution and linear instruments. Options have non-linear payoffs — a 3-sigma move causes 5-10× the loss that normal VaR predicts. The portfolio had short gamma and short vega — both amplify losses in extreme moves | Use historical simulation VaR with full option repricing. For portfolios with significant short gamma or short vega, report Stress VaR (worst case from historical scenarios) alongside statistical VaR. If Stress VaR > 3× statistical VaR, you have tail risk that statistical VaR misses | **VaR lies about options risk.** Normal-distribution VaR understates options portfolio risk by 30-60%. If you're managing options risk with standard VaR, you're driving with a speedometer that reads half of actual speed |
 | Closed a pin-risk position at 3:55 PM ET with a limit order at mid. Order didn't fill. Assigned over the weekend | Market makers widen spreads in the final minutes of expiration day. A limit order at mid in a 0.30/1.20 market has near-zero fill probability. You "tried" to close but didn't actually close — the outcome is the same as not trying | For pin-risk closures on expiration day: use market orders after 3:30 PM ET. The slippage cost ($30-60 on a $0.30/1.20 spread) is less than the cost of assignment ($5K-$50K unwanted stock position). Accept the slippage as insurance cost | **"Trying to close" is not the same as closing.** In the final 30 minutes, fills are all that matter. A limit order that doesn't fill provides zero protection. Use market orders or accept assignment |
 
@@ -569,11 +701,13 @@ Before deploying options-risk-engineer with live positions:
 | G1: PROVENANCE-REQUIRED | Every risk number in any output must carry [COMPUTED], [BROKER-VERIFIED], or [ESTIMATED ±X%]. Scan all numerical outputs before presenting to user. | "Risk output blocked: number '{value}' for '{metric}' missing provenance tag. Tag all risk numbers. Untagged risk numbers cause forced liquidations." |
 | G2: MARGIN-DUAL-REGIME | Before any margin-dependent decision, compute margin under applicable regimes. For accounts >$110K, compute BOTH Reg T and PM. For futures options, compute SPAN. | "Margin decision blocked: only one regime computed. Compute Reg T = $X [COMPUTED] and Portfolio Margin = $Y [ESTIMATED] before proceeding. Single-regime margin is dangerous." |
 | G3: GREEK-NORMALIZATION | All portfolio Greeks must be reported normalized to NAV (as % of portfolio value). Raw dollar Greeks without NAV context are rejected. | "Greek output blocked: Net Delta = $X reported without NAV normalization. Report as: Net Delta = $X [COMPUTED] (Y% of $Z NAV). Raw Greeks without context are noise." |
-| G4: PIN-RISK-PRE-CLOSE | Any short option with DTE < 5 AND Pin Risk Score ≥ 40 must generate an explicit close/roll recommendation. "Monitor" is insufficient. | "Pin risk blocked: position {id} with score {score} and {dte} DTE requires explicit action (close or roll). 'Monitor' is not an acceptable response to elevated pin risk." |
+| G4: PIN-RISK-PRE-CLOSE | Any short option inside the **action band** — DTE ≤ 5 with the short strike within 0.5% of spot (widened to 1% of spot on T−0) — or DTE ≤ 5 with Pin Risk Score ≥ 40 must generate an explicit close/roll recommendation. "Monitor" is insufficient. | "Pin risk blocked: position {id} with score {score} and {dte} DTE requires explicit action (close or roll). 'Monitor' is not an acceptable response inside the action band." |
 | G5: EXPIRATION-CONCENTRATION | Before allowing any new position with same-week expiration that would push weekly concentration >30%, block and require expiration diversification. | "New position blocked: adding {ticker} {expiry} would increase {week} expiration concentration to {pct}% (>30% limit). Choose a different expiration week or close an existing position expiring that week." |
 | G6: NOTIONAL-LIMIT | Before approving any position, verify notional_exposure / NAV ≤ 10%. Block if exceeded without explicit override. | "Position blocked: {ticker} notional exposure {pct}% exceeds 10% per-ticker limit. Reduce size to {max_contracts} contracts or override with documented rationale and hard stop-loss." |
 | G7: STRESS-TEST-MONTHLY | Portfolio must pass stress test acceptance criteria. If any historical scenario produces drawdown >40% or triggers margin call, flag as UNACCEPTABLE. | "Stress test FAILED: {scenario} produces {pct}% drawdown (>40% limit). Reduce short gamma, add protective hedges, or decrease leverage until all scenarios pass. Do not deploy with failing stress tests." |
 | G8: HEDGE-EFFECTIVENESS | After any market decline >3%, measure hedge performance. If hedge provided <30% of expected protection, flag hedge effectiveness failure. | "Hedge effectiveness FAILED: {hedge_type} provided {actual_pct}% protection vs {expected_pct}% expected. Diagnose: correlation breakdown, vol regime change, or strike distance issue. Reconfigure hedge before next decline." |
+| G9: RESERVE-FLOOR-PRE-TRADE | Before approving any new position, compute `uncommitted_BP_after_fill = total_BP − (committed_BPR + new_ticket_BPR)` and compare against `max(0.20 × NAV, 0.50 × WCML, 1.5 × exit_cost)`. Block if any term fails. The floor is never tested after a fill. | "Ticket blocked: after this fill uncommitted BP = ${after} [COMPUTED], below the ${floor} reserve floor ({term} is binding). The reserve exists so a good position never has to be liquidated at a bad price. Close an existing position first — risk first, economics second, housekeeping third, balance sheet never." |
+| G10: BUCKET-DEADLINE | Every open position must resolve to a DTE bucket, and any position at or past its bucket's hard deadline must carry a written, timestamped hold decision. A roll must be credit-or-flat and no position may exceed two rolls per cycle. | "Position {id} is at {dte} DTE — past the {bucket} hard deadline with no recorded hold decision. Close, roll credit-or-flat, or record the decision with a timestamp and a stop. A position past its deadline with no recorded decision is an orphaned position, and orphaned positions are assigned." |
 
 ## What Good Looks Like
 
@@ -585,6 +719,8 @@ Before deploying options-risk-engineer with live positions:
 - **Stress tests use real option repricing:** Full Greek recalculation per scenario, not linear approximations
 - **Liquidity priced into sizing:** No position >5% ADV or >5% OI. Exit feasibility confirmed before entry
 - **Maximum daily loss answerable:** "What's the max this portfolio can lose in one day?" — dollar amount, confidence interval, scenario, recovery plan
+- **Reserve intact, deliberately:** Uncommitted buying power is above `max(0.20 × NAV, 0.50 × WCML, 1.5 × exit_cost)` before every ticket, not after any fill. The reserve is treated as the cost of never being a forced seller
+- **Every position has a bucket and an exit:** Each open position carries a DTE bucket label, a settlement label (American-physical vs European-cash, settle-on-open vs settle-on-close), a named exit route, and a maximum exit cost inside its cap. The forced-selling order is written down before it is ever needed
 
 ## References
 
@@ -604,6 +740,8 @@ The following reference files are loaded on demand when deeper context is needed
 | **Correlation & Concentration** | [correlation-concentration.md](references/correlation-concentration.md) | Options-specific correlation risks (same underlying, same expiration, sector). Notional exposure aggregation across options + equity positions. Expiration concentration limits and gamma event clustering. Crash correlation analysis with →1.0 stress testing. |
 | **Liquidity & Slippage** | [liquidity-slippage.md](references/liquidity-slippage.md) | Bid-ask spread analysis and round-trip cost estimation. Open interest-based position sizing limits. Slippage estimation for market vs limit orders at different liquidity tiers. Fill probability modeling for illiquid options. |
 | **Stress Testing & Tail Risk** | [stress-testing-tail-risk.md](references/stress-testing-tail-risk.md) | Historical scenario definitions (1987, 2008, 2020, 2022, 2018 volmageddon, flash crash). Option repricing methodology for stress scenarios. VaR/CVaR computation with non-linear payoff handling. Monte Carlo max drawdown estimation. Stress test acceptance criteria. |
+| **DTE Close/Roll Calendar** | [dte-close-roll-calendar.md](references/dte-close-roll-calendar.md) | The consolidated bucket map (0DTE → weeklies → monthlies 21–59 → quarterlies 60–120 → annuals → LEAPS) with review cadence, default action window, roll window, and hard deadline per bucket — one bucket per DTE value, and one roll window per bucket. The gamma-**per-premium** ladder (`Γ/V ∝ 1/T`) that the boundary *shape* sits on, with the `Γ/θ` form explicitly withdrawn as flat in T. Expiry-week timeline T−5 to T+1 with sources. What happens if you do nothing (auto-exercise, assignment, cash settlement). American vs European/cash-settled mechanics and settle-on-open vs settle-on-close. Calendar hazards (half-days, triple witching, adjusted contracts). |
+| **Capital & Liquidity Preservation** | [capital-liquidity-preservation.md](references/capital-liquidity-preservation.md) | The three-term reserve floor (drawdown, tail, exit-cost) with each derivation shown. The deployable-capital ladder by book state, tied to the existing Green/Yellow/Orange/Red BPR bands. Exit-liquidity planning at entry with the round-trip exit-cost formula and worked dollar examples. The forced-selling order (risk first → economics second → housekeeping third → balance sheet never) and why it is ordered that way. |
 
 ### Related Skills
 
@@ -618,6 +756,9 @@ The following reference files are loaded on demand when deeper context is needed
 | `incident-responder` | Reference — incident response for trading failures | When margin calls, forced liquidations, or risk model failures occur |
 | `observability-engineer` | Reference — risk monitoring dashboards and alerts | When setting up real-time risk monitoring infrastructure |
 | `data-scientist` | Reference — backtesting risk models and calibrating parameters | When validating risk model accuracy or calibrating assignment probability models |
+| `swing-options-trader` | Entry-craft owner for the 2–30 DTE band. This skill owns the *calendar* (when the position must be reviewed, rolled, or closed); `swing-options-trader` owns the *entry* (which structure, which strike, which DTE) | When the question is which swing structure to open rather than when an open position must be managed |
+| `intraday-options-trader` | Entry-craft owner for 0DTE. This skill supplies the hard deadline (14:45 ET default close, 15:00 ET hard stop) and the position cap | When the question is 0DTE entry selection, not 0DTE forcing |
+| `leaps-strategist` | Entry-craft owner for long-dated (>365 DTE) positions and the 90-DTE roll trigger; this calendar places that trigger on the gamma-theta halving ladder | When the question is LEAPS structure or substitution, not the roll calendar |
 
 ## Deliberate Practice
 

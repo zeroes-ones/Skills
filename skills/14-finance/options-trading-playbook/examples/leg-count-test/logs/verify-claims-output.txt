@@ -1,0 +1,7 @@
+==============================================================================
+VERIFY CLAIMS -- FINDINGS.md / README.md vs the study's own output
+==============================================================================
+  662 checks run
+  0 MISMATCH / MISSING
+
+VERIFY CLAIMS PASSED -- every transcribed number matches out/*.csv and run-output.txt

@@ -2,7 +2,7 @@
 
 ## Why Standard VaR Fails for Options
 
-Value at Risk (VaR) assumes normally distributed returns. Options produce non-linear, asymmetric payoff profiles. Standard VaR underestimates option portfolio risk by 2-5x [VERIFIED].
+Value at Risk (VaR) assumes normally distributed returns. Options produce non-linear, asymmetric payoff profiles. Standard VaR understates a short-gamma option portfolio's one-day loss by roughly **30–60%** — the true loss runs about **1.4× to 2.5×** the VaR figure, and more in the tail [ESTIMATED ±20%]. This is one figure with three homes: `SKILL.md` (Anti-Rationalization / Gotchas), `portfolio-risk-computations.md` and this file; change all of them together or none.
 
 Example: A short strangle collects $3.00 credit. VaR at 95% says max loss = $200 based on 2σ move. But a 3σ tail event produces $2,500 loss — 12.5x VaR estimate [COMPUTED].
 
@@ -27,7 +27,7 @@ Apply these historical scenarios to current portfolio [VERIFIED]:
 
 ### Scenario 3: March 2020 COVID Crash
 - SPX: -34% in 23 trading days (February 19 → March 23, 2020)
-- VIX: 14.38 → 82.69 peak [VERIFIED]
+- VIX: 14.38 (the pre-crisis low, Feb 2020) → 82.69 (the 16 Mar 2020 peak). The record *single-session* move is close-to-close 57.83 → 82.69, **+24.86 points on one day** [VERIFIED — CBOE VIX historical daily closes]
 - Circuit breakers triggered 4 times in 10 days. Markets halted, options untradeable during halts.
 - Put options priced for total collapse. Vega went exponential — IV on OTM SPX puts hit 150%+ [VERIFIED]
 - Portfolio test: Can you survive a 34% drawdown with 4 trading halts?

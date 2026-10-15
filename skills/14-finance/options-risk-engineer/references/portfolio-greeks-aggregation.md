@@ -38,11 +38,17 @@ GEX = Σ(gamma × open_interest × 100 × spot_price²)
 - **GEX < 0**: Dealers are net short gamma → market amplifying. Dealers sell into dips and buy into rips, accelerating moves.
 - **GEX flip**: When GEX crosses from positive to negative, markets transition from mean-reverting to trending. S&P 500 realized volatility approximately doubles in negative-GEX regimes vs positive-GEX regimes [INFERRED from GEX research].
 
-Example: SPY at $500 with 50,000 OI at 500 strike, gamma = 0.02:
+Example: SPY at $500 with 50,000 OI at the 500 strike, gamma = 0.02:
 ```
-GEX = 0.02 × 50,000 × 100 × 500² = $25 billion of gamma exposure at that strike alone
+raw GEX     = 0.02 × 50,000 × 100 × 500²  = $25,000,000,000  = $25 billion
+per 1% move = raw GEX × 0.01              = $250,000,000     = $250 million
 ```
 [COMPUTED]
+
+**State which of the two you are quoting, every time — they differ by exactly 100×, and both are
+published under the name "GEX".** The raw `Σ(Γ × OI × 100 × S²)` figure is a dollar-gamma per unit
+move; the per-1%-move figure is that value × 0.01 and is the convention most dealer-positioning
+vendors publish. A "$25B GEX" headline and a "$250M GEX" headline describe exactly the same book.
 
 ## Vanna: Delta-Vol Interaction
 
@@ -73,7 +79,7 @@ Charm = change in delta per day passing [COMPUTED]:
 
 1. **Net gamma flips negative**: Your portfolio accelerates into losses. A 2% move becomes a 4% move becomes an 8% move as gamma amplifies. This is how option sellers blow up.
 2. **Theta goes negative**: You are paying time decay. Unless this is a defined-risk directional bet with a clear catalyst timeline, you are bleeding money [COMMON-PRACTICE].
-3. **Vega exceeds 10% NAV**: One vol event and you're done. VIX can spike 20+ points in a day (March 2020: VIX +31 points in one day [VERIFIED]). At 10% NAV vega, that is 310% of your portfolio gone.
+3. **Vega exceeds 10% NAV**: One vol event and you're done. VIX can spike 20+ points in a single session — on 16 March 2020 it closed 57.83 → **82.69, +24.86 points** [VERIFIED — CBOE VIX historical daily closes, 2020-03-16]. At 10% NAV vega, that single session is a 249% NAV hit.
 4. **Charm accumulation near expiration**: If 30%+ of portfolio delta comes from options ≤ 7 DTE, charm will significantly shift your exposure each day. You wake up with a different portfolio than you went to bed with [COMPUTED].
 5. **Vanna concentration in same direction**: If all positions have positive vanna, your delta exposure inflates during vol spikes precisely when you need stable exposures.
 
@@ -90,13 +96,20 @@ Charm = change in delta per day passing [COMPUTED]:
 ## Second-Order Greek Dependencies
 
 ### Gamma-Theta Tradeoff
-For ATM options, gamma and theta are inversely related by the Black-Scholes PDE [VERIFIED]:
+For ATM options, gamma and theta are **linked** by the Black-Scholes PDE — same magnitude, opposite
+sign, so a position cannot carry one without the other [COMPUTED, not sourced — it is an identity, not
+an empirical claim]:
 ```
 theta ≈ -0.5 × gamma × spot² × σ²
 ```
+Equivalently, at the money, `Γ / |Θ| = 2 / (S²σ²)` — **independent of time to expiration** (the √T
+cancels). That matters: a ratio that does not contain T cannot generate a DTE ladder, and any figure
+that says `Γ/|Θ| ∝ 1/T` is a different (wrong) formula. What *does* scale with time is gamma per dollar
+of premium still at stake, `Γ/V = 1/(S²σ²T)`, which is where the expiry calendar's ladder comes from.
+
 A high-theta position necessarily carries high gamma. You cannot collect $100/day in theta without accepting the gamma risk that comes with it. This is not a strategy choice — it is a mathematical identity [COMPUTED].
 
-Example: SPY ATM strangle collecting $85/day theta has gamma ~0.035 per contract. On 10 contracts, a $3 SPY move shifts delta by (0.035 × 3 × 10 × 100) = 105 shares. The theta you collect pays for delta-hedging friction — not risk-free income [COMPUTED].
+Example, with every unit labelled [COMPUTED]: a near-the-money SPY 30-DTE strangle (S = $500, σ = 20%) collects **≈$19/day of theta per contract** — $191/day on a 10-contract position. Its ATM gamma is `Γ = φ(d1)/(Sσ√T) ≈ 0.0139 per share`, i.e. **1.39 Δshares per $1 per contract**. The identity then checks itself: `1.39 ÷ 19.05 = 0.073 = 365 × 2/(S²σ²)`. On 10 contracts, a $3 SPY move shifts delta by `1.39 × 3 × 10 ≈ 42 shares`. The theta you collect pays for delta-hedging friction — not risk-free income.
 
 ### Speed: Gamma of Gamma
 Speed = rate of gamma change per $1 move. Large speed means gamma accelerates as price moves [COMPUTED]:
@@ -109,15 +122,39 @@ Near expiration, speed is extreme. A position with gamma of 0.02 at 7 DTE can ha
 
 Portfolio: 10 SPY 500 straddles (long), 5 AAPL 190 calls (short), 20 IWM 200 puts (long). NAV: $250,000 [COMPUTED]:
 
-| Position | Contracts | Delta | Gamma | Theta | Vega |
+| Position | Contracts | Net Δ (shares) | Net Γ (Δshares per +$1) | Net Θ ($/day) | Net ν ($ per +1 vol pt) |
 |----------|-----------|-------|-------|-------|------|
 | SPY 500 straddle (long) | 10 | +15 | +0.045 | -$22 | +$85 |
 | AAPL 190 call (short) | 5 | -175 | -0.018 | +$12 | -$28 |
 | IWM 200 put (long) | 20 | -380 | +0.032 | -$8 | +$45 |
 
-Aggregates: Delta = -540 shares. Gamma = +39. Theta = -$18/day. Vega = +$10,200.
+**Convention for this table — stated once, and each column header carries its unit.** Every cell is a
+**POSITION TOTAL** in the unit printed in the header, never a per-contract figure:
 
-Portfolio assessment: Delta 540/250,000 = 0.22% NAV — well within market-neutral limits. Gamma of +39 means a $1 underlying move shifts delta by 39 shares — 7% of net delta, manageable. But Theta of -$18/day means you are paying time decay — verify this is intentional for the protective long positions. Vega of $10,200 means a 5% IV spike adds $51,000 (20.4% NAV) — above the 5% NAV limit. Reduce vega exposure [COMPUTED].
+```
+Net Δ (shares)          = delta_share   × 100 × contracts
+Net Γ (Δshares per +$1) = gamma_share   × 100 × contracts
+Net Θ ($/day)           = theta_share_per_day × 100 × contracts
+Net ν ($ per +1 vol pt) = vega_share    × 100 × contracts
+```
+
+So the aggregate row is the plain **column sum** — and no other arithmetic. (The earlier edition mixed
+conventions: its Δ and Θ were position totals, its ν was per-contract, and its "Gamma = +39" matched no
+convention at all. That is the defect this table now closes.)
+
+Aggregates (column sums): Δ = 15 − 175 − 380 = **−540 shares**; Γ = 0.045 − 0.018 + 0.032 = **+0.059 Δshares per $1**; Θ = −22 + 12 − 8 = **−$18.00/day**; ν = 85 − 28 + 45 = **+$102 per vol point**.
+
+Portfolio assessment: Δ is −540 shares **across three different underlyings** — convert per underlying
+(`delta_share × that underlying's price`) before any NAV comparison, because a share of SPY and a share
+of IWM are not the same risk (guardrail G3). Γ is +0.059 Δshares per $1 at the book level, small only
+because the legs partly offset — read the per-position gammas, not the total. Θ is −$18.00/day: the book
+is paying time decay to own the long premium; verify that is intentional. ν is **+$102 per vol point**:
+a 5-point IV spike costs $510, i.e. 0.2% of the $250,000 NAV, well inside the 5%-of-NAV limit — and since
+vega is linear in size, the limit test is a multiplication, so state vega *per vol point* rather than as
+a dollar total [COMPUTED].
+
+*The row values above are sample inputs, not a calibrated book. Re-derive every column from your own
+positions with the four formulas in `SKILL.md` Phase 0 before acting on a table like this.*
 
 ## Greek Monitoring Dashboard
 

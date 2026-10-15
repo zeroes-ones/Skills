@@ -110,6 +110,8 @@ def stem(word):
         if len(s) > 3 and s[-1] == s[-2] and s[-1] not in "aeiou":
             s = s[:-1]
         return s
+    if w.endswith("sses") and len(w) > 4:
+        return w[:-2]
     if w.endswith("s") and not w.endswith(("ss", "us", "is")) and len(w) > 4:
         return w[:-1]
     return w

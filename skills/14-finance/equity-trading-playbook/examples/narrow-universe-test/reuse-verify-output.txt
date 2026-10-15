@@ -1,0 +1,74 @@
+VERIFY OVERLAP
+  sibling ../frontier-test/data/BIL_1d.csv: 4876 rows, 2007-05-30 .. 2026-10-14
+  this study data\BIL_1d.csv: 4876 rows, 2007-05-30 .. 2026-10-14
+  overlapping rows:   4876
+  identical rows:     4876
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/EEM_1d.csv: 5915 rows, 2003-04-11 .. 2026-10-14
+  this study data\EEM_1d.csv: 5915 rows, 2003-04-11 .. 2026-10-14
+  overlapping rows:   5915
+  identical rows:     5915
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/GLD_1d.csv: 5510 rows, 2004-11-18 .. 2026-10-14
+  this study data\GLD_1d.csv: 5510 rows, 2004-11-18 .. 2026-10-14
+  overlapping rows:   5510
+  identical rows:     5510
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/IWM_1d.csv: 6635 rows, 2000-05-26 .. 2026-10-14
+  this study data\IWM_1d.csv: 6635 rows, 2000-05-26 .. 2026-10-14
+  overlapping rows:   6635
+  identical rows:     6635
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/QQQ_1d.csv: 6943 rows, 1999-03-10 .. 2026-10-14
+  this study data\QQQ_1d.csv: 6943 rows, 1999-03-10 .. 2026-10-14
+  overlapping rows:   6943
+  identical rows:     6943
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/SPY_1d.csv: 8485 rows, 1993-01-29 .. 2026-10-14
+  this study data\SPY_1d.csv: 8485 rows, 1993-01-29 .. 2026-10-14
+  overlapping rows:   8485
+  identical rows:     8485
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/TLT_1d.csv: 6094 rows, 2002-07-26 .. 2026-10-14
+  this study data\TLT_1d.csv: 6094 rows, 2002-07-26 .. 2026-10-14
+  overlapping rows:   6094
+  identical rows:     6094
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/US03M_1d.csv: 18197 rows, 1954-01-04 .. 2026-10-14
+  this study data\US03M_1d.csv: 18197 rows, 1954-01-04 .. 2026-10-14
+  overlapping rows:   18197
+  identical rows:     18197
+  differing rows:     0
+  -> identical; nothing to do
+
+VERIFY OVERLAP
+  sibling ../frontier-test/data/VIX_1d.csv: 9283 rows, 1990-01-03 .. 2026-10-14
+  this study data\VIX_1d.csv: 9283 rows, 1990-01-03 .. 2026-10-14
+  overlapping rows:   9283
+  identical rows:     9283
+  differing rows:     0
+  -> identical; nothing to do
+
+
+DONE: 9 reused series

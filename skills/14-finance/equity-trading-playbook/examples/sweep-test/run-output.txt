@@ -1,0 +1,546 @@
+
+====================================================================================================
+sweep-test -- a multiple-testing-controlled sweep of MA trend books
+====================================================================================================
+  run at            : deterministic (no wall-clock read; see README for the run date)
+  data dir          : data/  (12 CSV series, provenance headers included)
+  sibling engine    : skills/14-finance/timeframe-performance-statistics/scripts/timeframe_stats.py
+  source of the grid: declared in this file's constants BEFORE any result
+
+  instrument inventory (bars, first bar, last bar):
+    DBC    5206 bars  2006-02-03 .. 2026-10-14
+    EEM    5915 bars  2003-04-11 .. 2026-10-14
+    EFA    6326 bars  2001-08-17 .. 2026-10-14
+    GLD    5510 bars  2004-11-18 .. 2026-10-14
+    HYG    4910 bars  2007-04-11 .. 2026-10-14
+    IEF    6094 bars  2002-07-26 .. 2026-10-14
+    IWM    6635 bars  2000-05-26 .. 2026-10-14
+    QQQ    6943 bars  1999-03-10 .. 2026-10-14
+    SPY    8485 bars  1993-01-29 .. 2026-10-14
+    TLT    6094 bars  2002-07-26 .. 2026-10-14
+    VIX    9283 bars  1990-01-03 .. 2026-10-14
+    VNQ    5546 bars  2004-09-29 .. 2026-10-14
+
+====================================================================================================
+SECTION 1 -- the declared grid, counted before the first result
+====================================================================================================
+  signal            : close vs SMA(N); long when close > SMA(N), flat otherwise
+  N                 : [50, 100, 150, 200, 250]
+  rebalance         : ['daily', 'monthly']  (position may only change on a book date)
+  sub-books         : every 1-, 2-, 3- and 4-instrument subset, equal weight
+
+  Grid P (pre-registered universe, 8 instruments):
+    1/2/3/4-instrument subsets = 8 + 28 + 56 + 70 = 162
+    x 5 moving averages x 2 rebalance modes = DECLARED CONFIGURATIONS = 1620
+    universe = SPY, QQQ, IWM, EEM, TLT, GLD, EFA, VNQ
+
+  Grid L (long-window sensitivity, 4 instruments): DECLARED = 150
+    universe = SPY, QQQ, IWM, EEM
+
+  Grid X (extended universe, 11 instruments): DECLARED = 5610
+    universe = SPY, QQQ, IWM, EEM, TLT, GLD, EFA, VNQ, IEF, HYG, DBC
+
+  pre-registered default (no search behind it): SPY+QQQ+IWM+EEM at N=200, monthly rebalance
+    chosen on instrument COVERAGE (longest common history, widest breadth),
+    not on performance; the grid caps a book at 4 instruments, so this is the
+    largest all-equity book the declared grid contains
+  second reference   : SPY at N=200, monthly (the textbook single-instrument rule)
+  Sharpe convention : daily simple returns, full sample, Rf=0, x sqrt(252)
+  CAGR convention   : compounded equity, calendar-time exponent (365.25 d/yr)
+  period positivity : COMPLETE calendar years / quarters / months only,
+                      so the partial first and last periods never count
+
+====================================================================================================
+SECTION 1b -- the windows each grid is actually evaluated on
+====================================================================================================
+  Grid L : 5666 sessions per config  2004-04-07 .. 2026-10-14  (22.52 years)
+           complete years=21 quarters=89 months=269   configs=150
+           SPY vol tercile cuts (annualised, window's own distribution): 0.1036 / 0.1556
+           sessions carrying a regime label: 5666 of 5666 (the rest are the trailing-window warm-up)
+  Grid P : 5261 sessions per config  2005-11-14 .. 2026-10-14  (20.91 years)
+           complete years=20 quarters=83 months=250   configs=1620
+           SPY vol tercile cuts (annualised, window's own distribution): 0.1046 / 0.1622
+           sessions carrying a regime label: 5261 of 5261 (the rest are the trailing-window warm-up)
+  Grid X : 4661 sessions per config  2008-04-07 .. 2026-10-14  (18.52 years)
+           complete years=17 quarters=73 months=221   configs=5610
+           SPY vol tercile cuts (annualised, window's own distribution): 0.1063 / 0.1640
+           sessions carrying a regime label: 4661 of 4661 (the rest are the trailing-window warm-up)
+
+====================================================================================================
+SECTION 1c -- the grid count, verified against what was actually run
+====================================================================================================
+  Grid L : declared 150, run 150  -> OK
+  Grid P : declared 1620, run 1620  -> OK
+  Grid X : declared 5610, run 5610  -> OK
+  ALL GRIDS: 7380 configurations evaluated
+
+====================================================================================================
+SECTION 2 -- WHAT THE GRID PRODUCES BY CONSTRUCTION (Grid P, 1620 configs)
+====================================================================================================
+  A grid this size always contains a green row. That is what this table
+  measures: the spread of results with no skill in the search at all.
+
+  quantiles are linear-interpolated on the sorted values; every column pair
+  runs best -> worst, and for a drawdown 'best' means the SMALLEST fall.
+
+  FULL WINDOW -- 2005-11-14 .. 2026-10-14
+  metric                       best(p100)          p90       median          p10    worst(p0)
+  CAGR                             12.00%        7.24%        4.70%        2.22%       -2.49%
+  Sharpe                           1.0060       0.7259       0.5129       0.2729      -0.0892
+  Max drawdown                    -10.22%      -14.78%      -20.90%      -31.78%      -68.25%
+  Worst year                       -3.63%       -7.08%      -11.63%      -18.58%      -48.30%
+  Positive-year fraction           90.00%       80.00%       70.00%       55.00%       30.00%
+  Positive-quarter frac            74.70%       66.27%       57.83%       49.40%       26.51%
+  Losing regime cells                   0            1            2            2            3
+
+  IN-SAMPLE (first 70% of sessions) -- 2005-11-14 .. 2020-07-01
+  metric                       best(p100)          p90       median          p10    worst(p0)
+  CAGR                             10.05%        6.27%        4.31%        2.11%       -2.51%
+  Sharpe                           0.9892       0.6797       0.4626       0.2486      -0.0728
+  Max drawdown                     -9.49%      -13.81%      -19.89%      -30.89%      -68.25%
+  Worst year                       -1.87%       -5.48%       -9.64%      -17.25%      -48.30%
+  Positive-year fraction           92.86%       78.57%       64.29%       57.14%       28.57%
+  Positive-quarter frac            77.59%       67.24%       58.62%       50.00%       34.48%
+  Losing regime cells                   0            1            2            2            3
+
+  configs with positive CAGR    over the full window: 1599 of 1620 (98.7%)
+  configs with positive Sharpe  over the full window: 1613 of 1620 (99.6%)
+  configs positive in EVERY complete year          : 0 of 1620
+
+====================================================================================================
+SECTION 3 -- THE BONFERRONI BAR, AND HOW MANY CONFIGURATIONS CLEAR IT
+====================================================================================================
+  test statistic    : t = mean(daily portfolio return) / (sd / sqrt(n_days))
+                      equivalent to annualised Sharpe x sqrt(years)
+  family            : ALL 1620 configurations in Grid P, counted together
+  m                 : 1620
+  alpha (family)    : 0.05 (two-sided)
+  per-test alpha    : 0.0000308642
+  critical |t|      : 4.1670
+  (for contrast, the unadjusted 2-sigma threshold is 1.9600, and the sibling
+   study's m=12 bar was 2.865 and its m=56 bar was 3.322)
+
+  t distribution over the grid: min -0.4075  p10 1.2468  median 2.3431  p90 3.3162  max 4.5962
+  configurations with |t| >= critical (raw n)          : 10 of 1620 (0.62%)
+  t_eff distribution (n_eff-adjusted for lag-1 rho): p90 3.4334  max 4.6616
+  configurations with |t_eff| >= critical              : 17 of 1620 (1.05%)
+  lag-1 autocorrelation of the daily returns: median -0.0446 (min -0.1577, max 0.0255)
+  n_eff EXCEEDS the raw n_days (5260) for 1569 of 1620 configurations, because that
+  autocorrelation is NEGATIVE. The sample-size correction is therefore
+  LENIENT here, not conservative -- it is a property of the data, not a test.
+
+  THE HONEST COUNT: 10 of 1620 configurations clear the family-wise bar at
+  alpha=0.05 with the raw t. The answer to 'how many are genuinely positive
+  rather than positive by selection' is therefore: 10.
+
+  WHICH ONES, and the two things that make this count generous:
+  configuration                                      t    Sharpe      CAGR   pos yrs
+  N150-monthly-SPY+GLD                          4.5962    1.0060     9.93%    17/20
+  N150-monthly-SPY+QQQ+GLD                      4.4931    0.9834    10.36%    17/20
+  N150-monthly-QQQ+GLD                          4.4386    0.9715    11.26%    17/20
+  N150-daily-QQQ+GLD                            4.4268    0.9689    10.57%    16/20
+  N150-monthly-SPY+QQQ+TLT+GLD                  4.4198    0.9674     7.77%    16/20
+  N200-daily-QQQ+GLD                            4.2811    0.9371    10.40%    17/20
+  N250-daily-QQQ+GLD                            4.2579    0.9320    10.51%    16/20
+  N250-daily-SPY+QQQ+GLD                        4.1746    0.9137     9.42%    15/20
+  N150-monthly-QQQ+TLT+GLD                      4.1728    0.9134     7.49%    17/20
+  N200-daily-SPY+QQQ+GLD                        4.1687    0.9124     9.21%    15/20
+
+  (1) The median configuration in this grid has t = 2.343, which already clears
+      the unadjusted 2-sigma threshold of 1.96. A test on the mean of a
+      long-or-flat strategy's daily returns is testing 'does the market rise',
+      not 'does the rule add anything': SPY is above its own SMA(200) on 77.9%
+      of this window's sessions, so a sleeve that follows it is long most of
+      the time and inherits most of the market's drift with no skill at all.
+      The Bonferroni bar makes the family-wise statement correct; it does not
+      make the underlying null interesting.
+  (2) The sample-size correction cuts the OTHER way, and this is worth seeing.
+      Daily returns of these trend books have a NEGATIVE lag-1 autocorrelation
+      (median rho1 = -0.0446), so n_eff is LARGER than the day count and the
+      adjusted count rises from 10 to 17 rather than falling. Neither number
+      should be taken as settled. What IS settled is that 99.4% of this grid
+      cannot be distinguished from noise at the family-wise level.
+
+  WHAT THE 10 SURVIVORS HAVE IN COMMON -- read this before believing any of
+  them. If the survivors were a real effect they would be spread across the
+  universe; if they are a selection they will cluster.
+      contains SPY  :  5 of 10 survivors   (640 of 1620 configs in the grid)
+      contains QQQ  :  9 of 10 survivors   (640 of 1620 configs in the grid)
+      contains IWM  :  0 of 10 survivors   (640 of 1620 configs in the grid)
+      contains EEM  :  0 of 10 survivors   (640 of 1620 configs in the grid)
+      contains TLT  :  2 of 10 survivors   (640 of 1620 configs in the grid)
+      contains GLD  : 10 of 10 survivors   (640 of 1620 configs in the grid)
+      contains EFA  :  0 of 10 survivors   (640 of 1620 configs in the grid)
+      contains VNQ  :  0 of 10 survivors   (640 of 1620 configs in the grid)
+      rebalance daily   :  5 of 10 survivors
+      rebalance monthly :  5 of 10 survivors
+      N=50          :  0 of 10 survivors
+      N=100         :  0 of 10 survivors
+      N=150         :  6 of 10 survivors
+      N=200         :  2 of 10 survivors
+      N=250         :  2 of 10 survivors
+      books of size 1/2/3/4: 0/5/4/1
+
+====================================================================================================
+SECTION 4 -- OUT-OF-SAMPLE DEGRADATION (70/30 time split, Grid P)
+====================================================================================================
+  split             : first 70% of sessions in-sample -> 2005-11-14 .. 2020-07-01
+                      held out 30% -> 2020-07-02 .. 2026-10-14
+                      the held-out data is used once, on the in-sample ranking
+  ranked by         : in-sample Sharpe, descending
+  top decile        : 162 of 1620 configurations
+
+  top-decile metric                  median        q25        q75        p10
+  Sharpe degradation (OOS-IS)        0.0642    -0.0986     0.2035    -0.2743
+  CAGR degradation (OOS-IS)           1.01%     -0.57%      3.00%     -2.14%
+
+                                     median        q25        q75
+  top-decile IS Sharpe               0.7368     0.7046     0.7960
+  top-decile OOS Sharpe              0.8307     0.6513     0.9721
+  top-decile IS CAGR                  6.52%      5.86%      7.14%
+  top-decile OOS CAGR                 7.44%      5.20%     10.66%
+
+  BEFORE READING THE DEGRADATION AS 'THE EDGE SURVIVED', READ THIS:
+    the WHOLE grid, same two sub-periods (not just the winners):
+      all 1620 configs: IS Sharpe median 0.4626 -> OOS median 0.6185
+      all 1620 configs: IS CAGR   median 4.31% -> OOS median 5.94%
+      SPY buy-and-hold-equivalent sleeve (N=200, monthly, single instrument):
+        IS Sharpe 0.6800 CAGR 7.76%  ->  OOS Sharpe 0.8011 CAGR 9.73%
+    the held-out window is NOT a neutral holdout: for a long-or-flat strategy
+    it is the kinder half of this sample, and every long-only configuration
+    improves on it. Degradation measured here is therefore a LOWER bound on
+    how badly the selection decays. The honest test is not 'did Sharpe hold
+    up' but 'did the SEARCH's advantage over the no-search benchmark hold up'.
+
+  the pre-registered default (no search): N200-monthly-SPY+QQQ+IWM+EEM
+    IS   Sharpe 0.4764  CAGR 5.65%  positive years 11/14
+    OOS  Sharpe 0.8743  CAGR 10.93%  positive years 4/5
+  textbook single-instrument reference: N200-monthly-SPY
+    IS   Sharpe 0.6800  CAGR 7.76%  ->  OOS Sharpe 0.8011  CAGR 9.73%
+
+  TEST A -- advantage over the pre-registered default BOOK, top decile
+  (cross-instrument: a 2-instrument book and a 4-instrument book have
+   different volatility, so a Sharpe gap across them is partly a size effect;
+   the CAGR row does not have that problem)
+    Sharpe: median retained fraction of the in-sample advantage = -0.1782
+            q25 -0.7846  q75 0.3691
+            configs retaining >= 0 of the advantage: 62 of 162
+    CAGR  : median retained fraction = -1.7616  (q25 -6.9790  q75 0.8703)
+            configs retaining >= 0 of the advantage: 66 of 162
+
+  TEST B -- advantage over THE SAME BOOK at the conventional parameter
+  (N=200, monthly). This is the direct analogue of the sibling study's
+  parameter-fishing test: identical instruments, identical rebalance, and the
+  ONLY thing the search changed is the moving-average length and mode.
+    top-decile configs with an in-grid same-book reference: 137 of 162
+    Sharpe: median retained fraction = 0.0692  (q25 -1.3584  q75 1.2841)
+            retained >= 0: 71 of 137   (retained >= 0.5: 57)
+    CAGR  : median retained fraction = -0.2607  (q25 -1.5736  q75 1.1889)
+            retained >= 0: 61 of 137
+
+    the single best in-sample config against its own no-search reference:
+      N150-monthly-SPY+QQQ+TLT+GLD
+      reference        N200-monthly-SPY+QQQ+TLT+GLD
+      Sharpe  IS 0.9892 vs 0.9220 (adv 0.0672)   OOS 0.9300 vs 0.8529 (adv 0.0771)
+      retained = 114.8% of the in-sample advantage
+
+  the single best in-sample config (the one a fished result would publish):
+    N150-monthly-SPY+QQQ+TLT+GLD
+    IS   Sharpe 0.9892  CAGR 7.59%  positive years 11/14
+    OOS  Sharpe 0.9300  CAGR 8.18%  positive years 4/5
+    its full-window rank by t among all 1620: 5 (it does not clear the bar)
+
+  SIBLING COMPARISON. The options regime study found, on SPY, that the best
+  of a 30-combination parameter grid beat its pre-registered default by
+  +0.213R in-sample and +0.006R out-of-sample -- 3% retained -- and that on
+  its wider 56-combination grid NOTHING cleared the Bonferroni bar. Test B
+  above is the same measurement on a 54x bigger grid.
+  A bigger sweep does not repair that; it can only make the in-sample side
+  of the comparison look better.
+
+====================================================================================================
+SECTION 5 -- MAXIMUM POSITIVITY ACROSS ALL 1620 CONFIGURATIONS
+====================================================================================================
+  The owner's question: what is the highest fraction of market conditions any
+  configuration is positive in? Answered over EVERY configuration, including
+  the ones that fail the Bonferroni bar, because that is the honest reading of
+  the instruction.
+
+  YEARS, at a POSITIVE CAGR:
+    highest fraction positive = 18 of 20 = 90.00%
+    configuration             = N100-monthly-QQQ+TLT+GLD
+    CAGR 6.79%   Sharpe 0.8740   maxDD -11.37%   worst year -7.77%
+    losing years              = 2: 2015 -5.83%; 2022 -7.77%
+    reach 100%?              = NO
+    configurations tying at that fraction = 4
+    (no CAGR sign filter) maximum = 18 of 20 = 90.00% at N50-daily-QQQ+TLT
+
+  QUARTERS, at a POSITIVE CAGR:
+    highest fraction positive = 62 of 83 = 74.70%
+    configuration             = N150-monthly-SPY+GLD
+    CAGR 9.93%   Sharpe 1.0060   maxDD -13.43%   worst quarter -6.97%
+    losing quarters              = 21: 2006-Q3 -0.27%; 2008-Q2 -3.74%; 2008-Q3 -0.72%; 2008-Q4 0.00%; 2011-Q4 -1.74%; 2012-Q2 -3.33%; 2012-Q4 -3.43%; 2014-Q1 -0.91%; 2014-Q3 -1.48%; 2015-Q1 -5.35%; 2015-Q2 -0.13%; 2015-Q3 -3.05%; 2015-Q4 -0.97%; 2018-Q2 -1.01%; 2018-Q4 -3.46%; 2020-Q1 -2.25%; 2021-Q3 -1.52%; 2022-Q2 -6.97%; 2022-Q3 0.00%; 2022-Q4 -1.63%; 2023-Q3 -1.28%
+    reach 100%?              = NO
+    configurations tying at that fraction = 1
+    (no CAGR sign filter) maximum = 62 of 83 = 74.70% at N150-monthly-SPY+GLD
+
+  MONTHS, at a POSITIVE CAGR:
+    highest fraction positive = 157 of 250 = 62.80%
+    configuration             = N150-monthly-QQQ+IWM+GLD+EFA
+    CAGR 8.11%   Sharpe 0.7804   maxDD -17.61%   worst month -7.24%
+    losing months              = 93: 2006-02 -0.91%; 2006-05 -4.52%; 2006-06 -1.23%; 2006-09 -1.08%; 2006-12 -0.70%; 2007-06 -0.83%; 2007-07 -2.38%; 2007-11 -4.75%; 2008-01 -0.26%; 2008-03 -1.50%; 2008-04 -1.04%; 2008-06 -5.79%; 2008-07 -0.36%; 2008-09 -5.89%; 2008-10 0.00%; 2008-11 0.00%; 2008-12 0.00%; 2009-03 -0.63%; 2009-04 -0.83%; 2009-06 -1.01%; 2009-10 -2.09%; 2010-01 -4.13%; 2010-05 -2.97%; 2010-06 -1.35%; 2010-07 -1.27%; 2011-01 -0.46%; 2011-05 -1.75%; 2011-06 -2.54%; 2011-09 -2.77%; 2011-11 -0.26%; 2011-12 -2.91%; 2012-04 -1.22%; 2012-05 -6.19%; 2012-07 -0.13%; 2012-10 -2.33%; 2013-06 -2.03%; 2013-08 -1.38%; 2014-01 -2.47%; 2014-03 -1.89%; 2014-04 -0.60%; 2014-07 -2.87%; 2014-09 -1.79%; 2014-12 -0.02%; 2015-01 -1.34%; 2015-03 -0.64%; 2015-06 -1.66%; 2015-08 -5.14%; 2015-09 0.00%; 2015-10 0.00%; 2015-12 -0.47%; 2016-01 -1.73%; 2016-03 -0.21%; 2016-05 -1.00%; 2016-10 -2.80%; 2017-06 -0.67%; 2018-02 -3.01%; 2018-03 -0.86%; 2018-09 -0.76%; 2018-10 -4.90%; 2018-11 0.00%; 2018-12 0.00%; 2019-02 -0.15%; 2019-05 -4.84%; 2019-08 -0.21%; 2019-09 -0.67%; 2020-02 -5.83%; 2020-03 -1.93%; 2020-09 -3.91%; 2020-10 -1.23%; 2021-06 -0.43%; 2021-09 -3.86%; 2021-11 -1.72%; 2022-01 -2.61%; 2022-04 -0.52%; 2022-05 -0.82%; 2022-06 0.00%; 2022-07 0.00%; 2022-08 0.00%; 2022-09 0.00%; 2022-10 0.00%; 2022-12 -3.86%; 2023-02 -2.63%; 2023-08 -2.94%; 2023-09 -2.88%; 2023-10 -0.52%; 2024-01 -0.99%; 2024-04 -2.87%; 2024-10 -0.81%; 2024-12 -2.44%; 2025-02 -1.53%; 2026-03 -7.24%; 2026-07 -2.00%; 2026-09 -1.39%
+    reach 100%?              = NO
+    configurations tying at that fraction = 1
+    (no CAGR sign filter) maximum = 157 of 250 = 62.80% at N150-monthly-QQQ+IWM+GLD+EFA
+
+  Does anything reach 100% of YEARS? no (0 configuration(s)).
+  The best achievable fraction of years is 90.00%, and it belongs to a
+  configuration that is selected by the same search that produced it.
+
+====================================================================================================
+SECTION 6 -- THE ONE CONFIGURATION THAT WAS NOT SEARCHED: THE DEFAULT
+====================================================================================================
+  N200-monthly-SPY+QQQ+IWM+EEM
+  this was fixed before the run; it is printed because it is the benchmark,
+  not because it won. Its rank in the grid: 488 of 1620 by full-window Sharpe.
+
+  CAGR 7.21%   Sharpe 0.5920   maxDD -20.18%   worst year -12.79%
+  positive years 16/20 (80.00%)   quarters 48/83 (57.83%)   months 138/250 (55.20%)
+  losing regime cells 2 of 6
+  t 2.7047 (raw n)   t_eff 2.8914 (autocorrelation-adjusted)
+  Bonferroni bar 4.1670 -> FAILS
+
+  per-year returns (complete years only):
+    2006    14.57%
+    2007    10.71%
+    2008   -12.79%  LOSS
+    2009    30.48%
+    2010     1.55%
+    2011    -5.62%  LOSS
+    2012     3.10%
+    2013    21.18%
+    2014     2.81%
+    2015    -3.28%  LOSS
+    2016     5.07%
+    2017    22.54%
+    2018     1.62%
+    2019     2.90%
+    2020    18.10%
+    2021    14.86%
+    2022    -9.40%  LOSS
+    2023     4.71%
+    2024    14.56%
+    2025    13.78%
+
+====================================================================================================
+SECTION 7 -- REGIME COVERAGE: TREND STATE x REALISED-VOL TERCILE
+====================================================================================================
+  regime source     : SPY. trend = SPY close vs SPY SMA(200);
+  vol tercile       : trailing 21-session realised vol of SPY, annualised,
+                      cut at 0.1046 / 0.1622, from this window's own distribution.
+  the label is measured ON the session whose return is attributed to it, so
+  this is descriptive attribution, not a predictive statement.
+
+
+  clears Bonferroni (t=4.596) : N150-monthly-SPY+GLD   CAGR 9.93%  Sharpe 1.0060
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.047103% /  1752  POSITIVE
+    UP             MID                  0.035855% /  1635  POSITIVE
+    UP             HIGH                 0.111925% /   711  POSITIVE
+    DOWN           LOW                  0.039785% /     2  POSITIVE
+    DOWN           MID                 -0.196284% /   117  NEGATIVE
+    DOWN           HIGH                 0.010113% /  1043  POSITIVE
+    negative cells (>=20 sessions): 1 of 6
+
+  clears Bonferroni (t=4.493) : N150-monthly-SPY+QQQ+GLD   CAGR 10.36%  Sharpe 0.9834
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.058161% /  1752  POSITIVE
+    UP             MID                  0.043307% /  1635  POSITIVE
+    UP             HIGH                 0.152556% /   711  POSITIVE
+    DOWN           LOW                  0.000959% /     2  POSITIVE
+    DOWN           MID                 -0.249436% /   117  NEGATIVE
+    DOWN           HIGH                -0.032644% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  clears Bonferroni (t=4.439) : N150-monthly-QQQ+GLD   CAGR 11.26%  Sharpe 0.9715
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.057074% /  1752  POSITIVE
+    UP             MID                  0.048874% /  1635  POSITIVE
+    UP             HIGH                 0.151641% /   711  POSITIVE
+    DOWN           LOW                  0.051435% /     2  POSITIVE
+    DOWN           MID                 -0.236273% /   117  NEGATIVE
+    DOWN           HIGH                -0.021650% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  clears Bonferroni (t=4.427) : N150-daily-QQQ+GLD   CAGR 10.57%  Sharpe 0.9689
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.054094% /  1752  POSITIVE
+    UP             MID                  0.043210% /  1635  POSITIVE
+    UP             HIGH                 0.149777% /   711  POSITIVE
+    DOWN           LOW                  0.052336% /     2  POSITIVE
+    DOWN           MID                 -0.163179% /   117  NEGATIVE
+    DOWN           HIGH                -0.028833% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  clears Bonferroni (t=4.420) : N150-monthly-SPY+QQQ+TLT+GLD   CAGR 7.77%  Sharpe 0.9674
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.041704% /  1752  POSITIVE
+    UP             MID                  0.029045% /  1635  POSITIVE
+    UP             HIGH                 0.104801% /   711  POSITIVE
+    DOWN           LOW                  0.053818% /     2  POSITIVE
+    DOWN           MID                 -0.164374% /   117  NEGATIVE
+    DOWN           HIGH                -0.012106% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  clears Bonferroni (t=4.281) : N200-daily-QQQ+GLD   CAGR 10.40%  Sharpe 0.9371
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.053802% /  1752  POSITIVE
+    UP             MID                  0.045471% /  1635  POSITIVE
+    UP             HIGH                 0.151795% /   711  POSITIVE
+    DOWN           LOW                  0.090252% /     2  POSITIVE
+    DOWN           MID                 -0.160767% /   117  NEGATIVE
+    DOWN           HIGH                -0.036035% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  clears Bonferroni (t=4.258) : N250-daily-QQQ+GLD   CAGR 10.51%  Sharpe 0.9320
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.056184% /  1752  POSITIVE
+    UP             MID                  0.050063% /  1635  POSITIVE
+    UP             HIGH                 0.156463% /   711  POSITIVE
+    DOWN           LOW                  0.052336% /     2  POSITIVE
+    DOWN           MID                 -0.185970% /   117  NEGATIVE
+    DOWN           HIGH                -0.045211% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  clears Bonferroni (t=4.175) : N250-daily-SPY+QQQ+GLD   CAGR 9.42%  Sharpe 0.9137
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.057728% /  1752  POSITIVE
+    UP             MID                  0.046375% /  1635  POSITIVE
+    UP             HIGH                 0.166393% /   711  POSITIVE
+    DOWN           LOW                  0.014682% /     2  POSITIVE
+    DOWN           MID                 -0.230001% /   117  NEGATIVE
+    DOWN           HIGH                -0.065667% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  clears Bonferroni (t=4.173) : N150-monthly-QQQ+TLT+GLD   CAGR 7.49%  Sharpe 0.9134
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.035514% /  1752  POSITIVE
+    UP             MID                  0.028071% /  1635  POSITIVE
+    UP             HIGH                 0.088532% /   711  POSITIVE
+    DOWN           LOW                  0.104523% /     2  POSITIVE
+    DOWN           MID                 -0.127683% /   117  NEGATIVE
+    DOWN           HIGH                 0.001803% /  1043  POSITIVE
+    negative cells (>=20 sessions): 1 of 6
+
+  clears Bonferroni (t=4.169) : N200-daily-SPY+QQQ+GLD   CAGR 9.21%  Sharpe 0.9124
+    trend state    vol tercile    mean daily ret / n
+    UP             LOW                  0.055864% /  1752  POSITIVE
+    UP             MID                  0.042404% /  1635  POSITIVE
+    UP             HIGH                 0.148495% /   711  POSITIVE
+    DOWN           LOW                  0.026836% /     2  POSITIVE
+    DOWN           MID                 -0.187565% /   117  NEGATIVE
+    DOWN           HIGH                -0.053216% /  1043  NEGATIVE
+    negative cells (>=20 sessions): 2 of 6
+
+  WHAT IS STRUCTURALLY NEGATIVE FOR A LONG-ONLY TREND APPROACH
+  Read from the cells above across every configuration printed:
+    * DOWN trend states are the losers, and only DOWN states. The rule is
+      long-only: its only defence in a downtrend is being flat, and it manages
+      that only after price has already fallen through the average -- so the
+      whipsaw sessions land in the DOWN cells with a negative mean.
+    * The DOWN cell that loses in EVERY survivor is DOWN x MID. DOWN x HIGH is
+      negative in 8 of the 10 (the two exceptions are the gold-led books).
+      The DOWN x LOW cell is thin -- its session count is in the table above --
+      and is not a result.
+    * Volatility on its own is NOT the problem: UP x HIGH is POSITIVE in 10 of
+      10 survivors, and in several of them it carries the LARGEST mean of the
+      six cells. High volatility above the average is where a trend rule earns
+      its money; the same volatility below the average is where it pays it back.
+    * The regime is lopsided: SPY is above its own SMA(200) on 4098 of this
+      window's 5260 sessions (77.9%). A long-or-flat rule therefore inherits the
+      market's drift for most of the sample with no skill at all, which is why
+      the Bonferroni count in Section 3 is as large as it is.
+    * There is no cell for 'no trade'. When the rule is flat the return is
+      exactly 0.0, which is counted in the regime sums as a flat session.
+
+====================================================================================================
+SECTION 8 -- THE SAME SET AT 5 AND 20 bps ROUND TRIP
+====================================================================================================
+  cost model        : a round-trip rate c bps charges c/2 bps per side of the
+  traded notional, on every sleeve position flip and on each monthly book
+  reset's one-way turnover; charged against the RETURN.
+
+  THE SURVIVING SET, RE-RUN AT 5 AND 20 bps
+  The surviving set is the configurations that cleared the Bonferroni bar in
+  Section 3 -- not a hand-picked few. The pre-registered default is carried as
+  a reference row. Sharpe is quoted for the same run as its CAGR.
+
+  configuration                               cagr 0bp  cagr 5bp  cagr20bp   dCAGR20   shp 0bp  shp 5bp  shp20bp
+  N150-monthly-SPY+GLD                           9.93%     9.87%     9.70%    -0.23%    1.0060   1.0007   0.9849
+  N150-monthly-SPY+QQQ+GLD                      10.36%    10.30%    10.13%    -0.23%    0.9834   0.9786   0.9641
+  N150-monthly-QQQ+GLD                          11.26%    11.20%    11.03%    -0.23%    0.9715   0.9672   0.9540
+  N150-daily-QQQ+GLD                            10.57%    10.35%     9.69%    -0.88%    0.9689   0.9508   0.8961
+  N150-monthly-SPY+QQQ+TLT+GLD                   7.77%     7.71%     7.53%    -0.24%    0.9674   0.9605   0.9399
+  N200-daily-QQQ+GLD                            10.40%    10.22%     9.66%    -0.74%    0.9371   0.9219   0.8765
+  N250-daily-QQQ+GLD                            10.51%    10.35%     9.87%    -0.64%    0.9320   0.9193   0.8811
+  N250-daily-SPY+QQQ+GLD                         9.42%     9.27%     8.81%    -0.62%    0.9137   0.9002   0.8595
+  N150-monthly-QQQ+TLT+GLD                       7.49%     7.43%     7.24%    -0.24%    0.9134   0.9065   0.8859
+  N200-daily-SPY+QQQ+GLD                         9.21%     9.03%     8.49%    -0.73%    0.9124   0.8961   0.8470
+  N200-monthly-SPY+QQQ+IWM+EEM                   7.21%     7.15%     6.99%    -0.22%    0.5920   0.5882   0.5769
+
+  of the 10 Bonferroni survivors, 0 have a NEGATIVE full-window CAGR at a
+  20 bps round trip. The drag is the whole story of who pays for turnover:
+    the 5   daily-rebalanced survivors give up 0.62% to 0.88% of CAGR at 20 bps
+    the 5 monthly-rebalanced survivors give up 0.23% to 0.24% of CAGR at 20 bps
+  A daily-rebalanced book pays on every signal flip; a monthly one pays
+  only at the month's reset. Costs do NOT separate these survivors from the
+  grid's losers -- the grid-wide positive count printed just below barely
+  moves. What separates them is the Bonferroni count in Section 3.
+
+  grid-wide effect of costs -- every one of the 1620 configurations re-run:
+    at  0 bps: 1599 of 1620 configurations have a positive full-window CAGR
+    at  5 bps: 1592 of 1620 configurations still have a positive full-window CAGR
+    at 20 bps: 1550 of 1620 configurations still have a positive full-window CAGR
+
+====================================================================================================
+SECTION 9 -- ROBUSTNESS: THE SAME DESIGN ON OTHER UNIVERSES AND WINDOWS
+====================================================================================================
+  These grids exist to test whether the Section 2-5 conclusions are an
+  artifact of the 8-instrument universe or of the 2005+ window.
+
+
+-- Grid L -- 4 instruments, 150 configs, window 2004-04-07 .. 2026-10-14 ---------------------------
+  CAGR      best 11.08%  p90 7.86%  median 5.86%  p10 3.64%  worst 1.36%
+  Sharpe    best 0.7816  p90 0.6483  median 0.5156  p10 0.3157  worst 0.1651
+  best positive-year fraction 85.71% ; configs at 100%: 0
+  Bonferroni bar for m=150: per-test alpha 0.0003333333, critical |t| 3.5879
+  configurations clearing it: 1 of 150
+  max positive years at a positive CAGR: 18 of 21 (85.71%) at N150-monthly-SPY+QQQ+IWM+EEM
+  configs with positive CAGR: 150 of 150
+
+
+-- Grid X -- 11 instruments, 5610 configs, window 2008-04-07 .. 2026-10-14 -------------------------
+  CAGR      best 12.86%  p90 5.90%  median 3.28%  p10 1.10%  worst -2.20%
+  Sharpe    best 0.9748  p90 0.6799  median 0.4308  p10 0.1861  worst -0.3245
+  best positive-year fraction 94.12% ; configs at 100%: 0
+  Bonferroni bar for m=5610: per-test alpha 0.0000089127, critical |t| 4.4420
+  configurations clearing it: 0 of 5610
+  max positive years at a positive CAGR: 16 of 17 (94.12%) at N150-daily-QQQ+IEF
+  configs with positive CAGR: 5496 of 5610
+
+====================================================================================================
+SECTION 10 -- WHAT THIS SWEEP DOES NOT TEST
+====================================================================================================
+  * Short legs. Every configuration here is long-or-flat; there is no way to profit from a downtrend except by standing aside.
+  * Single names, sectors, futures, options, crypto, FX. All eleven instruments are broad US-listed ETFs and the VIX index.
+  * Position sizing, leverage, stops, volatility targeting, or any risk overlay. Every sleeve is 0 or 1.
+  * Distributions. Every series is price-only, so TLT, HYG, IEF, VNQ and EEM are understated and the always-long comparison most of all.
+  * Mixed-N books -- a book whose members use different moving-average lengths. That grid is 5^k x C(8,k) for k=2,3,4, i.e. 700 + 7,000 + 43,750 = 51,450 configurations on top of the 7,380 declared here. It was NOT run, and it would only make the multiple-testing problem worse, not better.
+  * Alternative signal families (breakout, momentum ranking, carry, mean reversion at other horizons). The sweep varies N and the book, not the rule.
+  * The last bar was still forming at pull time and may revise.
+
+====================================================================================================
+END OF RUN
+====================================================================================================
+  Every figure above comes from this run. No configuration in this file is a
+  recommendation. The pre-registered default is the benchmark, not the answer.

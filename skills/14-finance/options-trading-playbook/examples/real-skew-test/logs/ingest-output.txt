@@ -1,0 +1,43 @@
+wrote C:\Users\sande\Documents\Projects\Skills\skills\14-finance\options-trading-playbook\examples\real-skew-test\data\real_quotes_skew.csv (122 declared rows)
+  FUNNEL: declared=122  resolved_as_instrument=108  returned_bar=82
+  UNRESOLVED SPY_2018-04-02_2018-05-11_put_232: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2018-10-01_2018-11-09_put_274: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2018-10-01_2018-11-09_put_263: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2018-10-01_2018-11-09_put_248: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2019-04-01_2019-05-10_put_269: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2019-04-01_2019-05-10_call_294: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2019-04-01_2019-05-10_call_303: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2020-02-24_2020-04-03_put_274: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2020-04-01_2020-05-08_put_231: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2020-04-01_2020-05-08_put_222: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2020-04-01_2020-05-08_put_209: instrument not resolved after 2 attempts
+  UNRESOLVED SPY_2020-10-01_2020-11-06_put_303: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2020-10-01_2020-11-06_put_286: instrument not resolved after 4 attempts
+  UNRESOLVED SPY_2021-04-01_2021-05-07_put_361: instrument not resolved after 3 attempts
+  UNRESOLVED SPY_2021-04-01_2021-05-07_put_341: instrument not resolved after 3 attempts
+  UNRESOLVED SPY_2021-04-01_2021-05-07_call_413: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2021-10-01_2021-11-05_put_369: instrument not resolved after 1 attempts
+  UNRESOLVED SPY_2022-10-03_2022-11-11_put_312: instrument not resolved after 2 attempts
+  UNRESOLVED SPY_2022-10-03_2022-11-11_call_389: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2023-04-03_2023-05-12_put_349: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2023-04-03_2023-05-12_call_423: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2023-10-02_2023-11-10_put_402: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2023-10-02_2023-11-10_put_363: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2023-10-02_2023-11-10_call_453: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2024-04-01_2024-05-10_put_491: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2024-04-01_2024-05-10_put_444: instrument not resolved after 1 attempts
+  UNRESOLVED SPY_2024-04-01_2024-05-10_call_553: instrument not resolved after 1 attempts
+  UNRESOLVED SPY_2024-10-01_2024-11-08_put_552: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2024-10-01_2024-11-08_put_512: instrument not resolved after 2 attempts
+  UNRESOLVED SPY_2024-10-01_2024-11-08_put_483: instrument not resolved after 1 attempts
+  UNRESOLVED SPY_2025-04-01_2025-05-09_put_544: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2025-04-01_2025-05-09_put_527: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2025-04-01_2025-05-09_put_477: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2025-10-01_2025-11-07_put_628: instrument not resolved after 2 attempts
+  UNRESOLVED SPY_2025-10-01_2025-11-07_put_602: instrument not resolved after 2 attempts
+  UNRESOLVED SPY_2025-10-01_2025-11-07_put_568: instrument not resolved after 1 attempts
+  UNRESOLVED SPY_2025-10-01_2025-11-07_call_689: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2025-10-01_2025-11-07_call_709: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2026-04-01_2026-05-08_put_616: resolved but no NON-interpolated bar at or before the sample date
+  UNRESOLVED SPY_2026-04-01_2026-05-08_put_557: instrument not resolved after 1 attempts
+  sha256(body)=57c2f5923f340be44712a60fe5df78a9c4db7e30c743d175b3d4c7d92cc6493b

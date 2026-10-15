@@ -1,0 +1,233 @@
+========================================================================================
+HAND CHECK -- SPY S1, calendar year 1994 (trades grouped by EXIT date)
+========================================================================================
+
+  raw trades read from tradelogs\SPY_S1.csv
+
+  trade_id   open         close                   pnl           risk     R = pnl/risk
+  ------------------------------------------------------------------------------------
+  S1_0001    1993-11-12   1994-03-28         -1527.52        1527.52        -1.000000
+  S1_0002    1994-06-15   1994-06-17         -1285.18        1285.18        -1.000000
+  S1_0003    1994-08-03   1994-08-05         -1015.23        1140.92        -0.889830
+  S1_0004    1994-08-11   1994-08-12            33.93        1052.27         0.032248
+  S1_0005    1994-08-15   1994-09-21         -1222.56        1222.56        -1.000000
+  S1_0006    1994-09-29   1994-10-04         -1916.61        1916.61        -1.000000
+  S1_0007    1994-10-12   1994-11-22         -1840.71        1788.10        -1.029418
+
+  (R is recomputed from entry_px / stop_px / exit_px, the same way
+   study.py does it. pnl/risk is the same number rounded to 2 dp.)
+
+  R multiples: -1.000000, -1.000000, -0.889830, 0.032248, -1.000000, -1.000000, -1.029418
+  n total        = 7
+  wins (R>0)     = 1   ['0.032248']
+  losses (R<0)   = 6   ['1.000000', '1.000000', '0.889830', '1.000000', '1.000000', '1.029418']
+  breakeven(R=0) = 0  (excluded from the win-rate denominator)
+  decided        = 7
+
+  p       = wins / decided      = 1 / 7 = 0.142857
+  avg_win = sum(wins) / n_wins  = 0.032248 / 1 = 0.032248
+  avg_loss= sum(loss) / n_loss  = 5.919248 / 6 = 0.986541
+  b       = avg_win / avg_loss  = 0.032248 / 0.986541 = 0.032688
+  E       = p*b - (1-p)         = 0.142857*0.032688 - 0.857143 = -0.852473
+  p*      = 1/(1+b)             = 1/(1+0.032688) = 0.968347
+  b*      = (1-p)/p             = 0.857143/0.142857 = 6.000000
+
+  ALGEBRAIC CROSS-CHECK OF E. The raw-R expectancy per trade is
+    p*avg_win - (1-p)*avg_loss
+    = 0.142857*0.032248 - 0.857143*0.986541 = -0.841000
+  and E = p*b - (1-p) divides that by the average loss:
+    raw_E / avg_loss = -0.841000 / 0.986541 = -0.852473
+  which equals E = -0.852473 to 1.11e-16. So E is in AVERAGE-LOSS UNITS,
+  not raw R, and the two formulations are algebraically identical.
+
+  STUDY.PY REPORTED (per-year.csv):
+    n_trades = 7   p = 0.142857   b = 0.032688   E = -0.852473
+
+  HAND COMPUTED:
+    n_trades = 7   p = 0.142857   b = 0.032688   E = -0.852473
+
+  MATCH: the script and the hand computation agree to 6 dp.
+========================================================================================
+HAND CHECK -- SPY S1, calendar year 2000 (trades grouped by EXIT date)
+========================================================================================
+
+  raw trades read from tradelogs\SPY_S1.csv
+
+  trade_id   open         close                   pnl           risk     R = pnl/risk
+  ------------------------------------------------------------------------------------
+  S1_0018    1999-10-29   2000-01-31           -23.00        3853.23        -0.005970
+  S1_0019    2000-02-01   2000-02-22         -4310.95        4310.95        -1.000000
+  S1_0020    2000-02-24   2000-02-25         -1097.39        3855.58        -0.284625
+  S1_0021    2000-03-01   2000-03-15          -544.96        4299.66        -0.126745
+  S1_0022    2000-03-16   2000-04-14         -4624.26        4624.26        -1.000000
+  S1_0023    2000-04-18   2000-05-11          -311.25        7109.51        -0.043779
+  S1_0024    2000-05-12   2000-05-24         -2688.41        4662.22        -0.576638
+  S1_0025    2000-05-25   2000-05-26         -1332.74        4363.14        -0.305455
+  S1_0026    2000-05-31   2000-07-31           263.04        4656.48         0.056490
+  S1_0027    2000-08-01   2000-09-19          1044.39        2755.50         0.379019
+  S1_0028    2000-09-20   2000-09-21          -836.55        2653.67        -0.315243
+  S1_0029    2000-09-22   2000-09-26          1226.99        2759.17         0.444696
+  S1_0030    2000-09-29   2000-10-02          -816.33        3185.52        -0.256262
+
+  (R is recomputed from entry_px / stop_px / exit_px, the same way
+   study.py does it. pnl/risk is the same number rounded to 2 dp.)
+
+  R multiples: -0.005970, -1.000000, -0.284625, -0.126745, -1.000000, -0.043779, -0.576638, -0.305455, 0.056490, 0.379019, -0.315243, 0.444696, -0.256262
+  n total        = 13
+  wins (R>0)     = 3   ['0.056490', '0.379019', '0.444696']
+  losses (R<0)   = 10   ['0.005970', '1.000000', '0.284625', '0.126745', '1.000000', '0.043779', '0.576638', '0.305455', '0.315243', '0.256262']
+  breakeven(R=0) = 0  (excluded from the win-rate denominator)
+  decided        = 13
+
+  p       = wins / decided      = 3 / 13 = 0.230769
+  avg_win = sum(wins) / n_wins  = 0.880205 / 3 = 0.293402
+  avg_loss= sum(loss) / n_loss  = 3.914716 / 10 = 0.391472
+  b       = avg_win / avg_loss  = 0.293402 / 0.391472 = 0.749484
+  E       = p*b - (1-p)         = 0.230769*0.749484 - 0.769231 = -0.596273
+  p*      = 1/(1+b)             = 1/(1+0.749484) = 0.571597
+  b*      = (1-p)/p             = 0.769231/0.230769 = 3.333333
+
+  ALGEBRAIC CROSS-CHECK OF E. The raw-R expectancy per trade is
+    p*avg_win - (1-p)*avg_loss
+    = 0.230769*0.293402 - 0.769231*0.391472 = -0.233424
+  and E = p*b - (1-p) divides that by the average loss:
+    raw_E / avg_loss = -0.233424 / 0.391472 = -0.596273
+  which equals E = -0.596273 to 1.11e-16. So E is in AVERAGE-LOSS UNITS,
+  not raw R, and the two formulations are algebraically identical.
+
+  STUDY.PY REPORTED (per-year.csv):
+    n_trades = 13   p = 0.230769   b = 0.749484   E = -0.596273
+
+  HAND COMPUTED:
+    n_trades = 13   p = 0.230769   b = 0.749484   E = -0.596273
+
+  MATCH: the script and the hand computation agree to 6 dp.
+========================================================================================
+HAND CHECK -- SPY S1, calendar year 2007 (trades grouped by EXIT date)
+========================================================================================
+
+  raw trades read from tradelogs\SPY_S1.csv
+
+  trade_id   open         close                   pnl           risk     R = pnl/risk
+  ------------------------------------------------------------------------------------
+  S1_0051    2006-08-16   2007-08-06         11514.07        2175.12         5.293543
+  S1_0052    2007-08-07   2007-08-13           383.72        4210.97         0.091124
+  S1_0053    2007-08-23   2007-08-29         -2015.75        5032.49        -0.400547
+  S1_0054    2007-08-30   2007-09-10           735.65        4294.46         0.171302
+  S1_0055    2007-09-12   2007-11-08           475.27        3066.84         0.154969
+  S1_0056    2007-12-03   2007-12-04         -1032.46        4101.87        -0.251704
+  S1_0057    2007-12-06   2007-12-12          1634.93        3651.44         0.447750
+  S1_0058    2007-12-13   2007-12-17         -1152.92        3713.98        -0.310427
+  S1_0059    2007-12-26   2007-12-28           -74.00        3168.52        -0.023355
+
+  (R is recomputed from entry_px / stop_px / exit_px, the same way
+   study.py does it. pnl/risk is the same number rounded to 2 dp.)
+
+  R multiples: 5.293543, 0.091124, -0.400547, 0.171302, 0.154969, -0.251704, 0.447750, -0.310427, -0.023355
+  n total        = 9
+  wins (R>0)     = 5   ['5.293543', '0.091124', '0.171302', '0.154969', '0.447750']
+  losses (R<0)   = 4   ['0.400547', '0.251704', '0.310427', '0.023355']
+  breakeven(R=0) = 0  (excluded from the win-rate denominator)
+  decided        = 9
+
+  p       = wins / decided      = 5 / 9 = 0.555556
+  avg_win = sum(wins) / n_wins  = 6.158687 / 5 = 1.231737
+  avg_loss= sum(loss) / n_loss  = 0.986033 / 4 = 0.246508
+  b       = avg_win / avg_loss  = 1.231737 / 0.246508 = 4.996741
+  E       = p*b - (1-p)         = 0.555556*4.996741 - 0.444444 = 2.331523
+  p*      = 1/(1+b)             = 1/(1+4.996741) = 0.166757
+  b*      = (1-p)/p             = 0.444444/0.555556 = 0.800000
+
+  ALGEBRAIC CROSS-CHECK OF E. The raw-R expectancy per trade is
+    p*avg_win - (1-p)*avg_loss
+    = 0.555556*1.231737 - 0.444444*0.246508 = 0.574739
+  and E = p*b - (1-p) divides that by the average loss:
+    raw_E / avg_loss = 0.574739 / 0.246508 = 2.331523
+  which equals E = 2.331523 to 4.44e-16. So E is in AVERAGE-LOSS UNITS,
+  not raw R, and the two formulations are algebraically identical.
+
+  STUDY.PY REPORTED (per-year.csv):
+    n_trades = 9   p = 0.555556   b = 4.996741   E = 2.331523
+
+  HAND COMPUTED:
+    n_trades = 9   p = 0.555556   b = 4.996741   E = 2.331523
+
+  MATCH: the script and the hand computation agree to 6 dp.
+========================================================================================
+HAND CHECK -- QQQ S1, calendar year 2000 (trades grouped by EXIT date)
+========================================================================================
+
+  raw trades read from tradelogs\QQQ_S1.csv
+
+  trade_id   open         close                   pnl           risk     R = pnl/risk
+  ------------------------------------------------------------------------------------
+  S1_0001    1999-12-22   2000-01-05         -5235.76        5235.76        -1.000000
+  S1_0002    2000-01-06   2000-01-06         -7737.67        7737.67        -1.000000
+  S1_0003    2000-01-07   2000-04-12         -9095.44        9095.44        -1.000000
+  S1_0004    2000-04-13   2000-05-11        -10841.75       19151.03        -0.566118
+  S1_0005    2000-05-12   2000-05-22         -4392.39       11971.87        -0.366892
+  S1_0006    2000-05-31   2000-06-01           850.91       12805.88         0.066447
+  S1_0007    2000-06-02   2000-07-31         -5398.11       11377.00        -0.474476
+  S1_0008    2000-08-04   2000-08-07         -1222.83        8540.37        -0.143182
+  S1_0009    2000-08-08   2000-08-11         -3054.99        8752.79        -0.349031
+  S1_0010    2000-08-15   2000-09-12           808.63        8033.31         0.100659
+  S1_0011    2000-09-21   2000-09-22         -6533.33        7507.14        -0.870282
+
+  (R is recomputed from entry_px / stop_px / exit_px, the same way
+   study.py does it. pnl/risk is the same number rounded to 2 dp.)
+
+  R multiples: -1.000000, -1.000000, -1.000000, -0.566118, -0.366892, 0.066447, -0.474476, -0.143182, -0.349031, 0.100659, -0.870282
+  n total        = 11
+  wins (R>0)     = 2   ['0.066447', '0.100659']
+  losses (R<0)   = 9   ['1.000000', '1.000000', '1.000000', '0.566118', '0.366892', '0.474476', '0.143182', '0.349031', '0.870282']
+  breakeven(R=0) = 0  (excluded from the win-rate denominator)
+  decided        = 11
+
+  p       = wins / decided      = 2 / 11 = 0.181818
+  avg_win = sum(wins) / n_wins  = 0.167106 / 2 = 0.083553
+  avg_loss= sum(loss) / n_loss  = 5.769981 / 9 = 0.641109
+  b       = avg_win / avg_loss  = 0.083553 / 0.641109 = 0.130325
+  E       = p*b - (1-p)         = 0.181818*0.130325 - 0.818182 = -0.794486
+  p*      = 1/(1+b)             = 1/(1+0.130325) = 0.884701
+  b*      = (1-p)/p             = 0.818182/0.181818 = 4.500000
+
+  ALGEBRAIC CROSS-CHECK OF E. The raw-R expectancy per trade is
+    p*avg_win - (1-p)*avg_loss
+    = 0.181818*0.083553 - 0.818182*0.641109 = -0.509352
+  and E = p*b - (1-p) divides that by the average loss:
+    raw_E / avg_loss = -0.509352 / 0.641109 = -0.794486
+  which equals E = -0.794486 to 1.11e-16. So E is in AVERAGE-LOSS UNITS,
+  not raw R, and the two formulations are algebraically identical.
+
+  STUDY.PY REPORTED (per-year.csv):
+    n_trades = 11   p = 0.181818   b = 0.130325   E = -0.794486
+
+  HAND COMPUTED:
+    n_trades = 11   p = 0.181818   b = 0.130325   E = -0.794486
+
+  MATCH: the script and the hand computation agree to 6 dp.
+========================================================================================
+LOSING-STREAK CHECK -- is the pre-registered L formula in the right ballpark?
+========================================================================================
+
+  L_pred  = ln(N)/ln(1/(1-p)), the pre-registered expected longest
+            losing streak, computed from the trade log
+  L_actual= the longest run of consecutive non-winning trades actually
+            recorded (a breakeven trade counts as ending a run)
+
+  inst  strat  n_trades       p  L_pred  L_actual  L_pred/L_actual
+  ----------------------------------------------------------------
+  GLD   S1           83  0.2771   13.62         8             1.70
+  GLD   S2          137  0.3285   12.36        11             1.12
+  QQQ   S1           92  0.2717   14.26        10             1.43
+  QQQ   S2          178  0.2809   15.71        14             1.12
+  SPY   S1          114  0.3333   11.68        10             1.17
+  SPY   S2          248  0.3496   12.82        15             0.85
+  TLT   S1          121  0.2167   19.64        15             1.31
+  TLT   S2          136  0.3556   11.18         7             1.60
+
+  Ratio range: 0.85 to 1.70. The formula is an order-of-magnitude guide,
+  not a bound: on SPY S2 the realised worst run (15) exceeded the
+  prediction (12.82). Plan for the streak the formula names, and do not
+  treat it as a ceiling -- that is exactly how a live account gets
+  surprised by a sample that looked fine in backtest.

@@ -1,0 +1,51 @@
+============================================================================================
+verify_sources.py -- does the CSV on disk agree with the vendor?
+============================================================================================
+  comparison window : the last six sessions in every series, 2026-10-07 .. 2026-10-14
+  the call re-issued for each series:
+    mcp__tradingview__mcp-tv-get-ohlcv(symbol='AMEX:EEM', interval="1D", count=6, format="columns")
+    mcp__tradingview__mcp-tv-get-ohlcv(symbol='AMEX:GLD', interval="1D", count=6, format="columns")
+    mcp__tradingview__mcp-tv-get-ohlcv(symbol='AMEX:SPY', interval="1D", count=6, format="columns")
+    mcp__tradingview__mcp-tv-get-ohlcv(symbol='NASDAQ:TLT', interval="1D", count=6, format="columns")
+    mcp__tradingview__mcp-tv-get-ohlcv(symbol='TVC:VIX', interval="1D", count=6, format="columns")
+
+  AMEX:EEM    -> data/EEM_1d.csv
+    2026-10-07  csv    67.370000   vendor        67.37   |diff| 0.000000
+    2026-10-08  csv    66.100000   vendor        66.10   |diff| 0.000000
+    2026-10-09  csv    66.800000   vendor        66.80   |diff| 0.000000
+    2026-10-12  csv    66.150000   vendor        66.15   |diff| 0.000000
+    2026-10-13  csv    65.740000   vendor        65.74   |diff| 0.000000
+    2026-10-14  csv    64.390000   vendor        64.39   |diff| 0.000000
+  AMEX:GLD    -> data/GLD_1d.csv
+    2026-10-07  csv   375.880000   vendor       375.88   |diff| 0.000000
+    2026-10-08  csv   378.620000   vendor       378.62   |diff| 0.000000
+    2026-10-09  csv   384.580000   vendor       384.58   |diff| 0.000000
+    2026-10-12  csv   382.150000   vendor       382.15   |diff| 0.000000
+    2026-10-13  csv   381.670000   vendor       381.67   |diff| 0.000000
+    2026-10-14  csv   375.990000   vendor       375.99   |diff| 0.000000
+  AMEX:SPY    -> data/SPY_1d.csv
+    2026-10-07  csv   777.220000   vendor       777.22   |diff| 0.000000
+    2026-10-08  csv   773.930000   vendor       773.93   |diff| 0.000000
+    2026-10-09  csv   778.570000   vendor       778.57   |diff| 0.000000
+    2026-10-12  csv   778.100000   vendor       778.10   |diff| 0.000000
+    2026-10-13  csv   778.010000   vendor       778.01   |diff| 0.000000
+    2026-10-14  csv   769.600000   vendor       769.60   |diff| 0.000000
+  NASDAQ:TLT  -> data/TLT_1d.csv
+    2026-10-07  csv    77.145000   vendor       77.145   |diff| 0.000000
+    2026-10-08  csv    77.870000   vendor        77.87   |diff| 0.000000
+    2026-10-09  csv    77.980000   vendor        77.98   |diff| 0.000000
+    2026-10-12  csv    78.050000   vendor        78.05   |diff| 0.000000
+    2026-10-13  csv    78.370000   vendor        78.37   |diff| 0.000000
+    2026-10-14  csv    78.890000   vendor        78.89   |diff| 0.000000
+  TVC:VIX     -> data/VIX_1d.csv
+    2026-10-07  csv    15.070000   vendor        15.07   |diff| 0.000000
+    2026-10-08  csv    15.400000   vendor        15.40   |diff| 0.000000
+    2026-10-09  csv    14.850000   vendor        14.85   |diff| 0.000000
+    2026-10-12  csv    15.200000   vendor        15.20   |diff| 0.000000
+    2026-10-13  csv    15.280000   vendor        15.28   |diff| 0.000000
+    2026-10-14  csv    16.860000   vendor        16.86   |diff| 0.000000
+
+  WORST |diff| over 30 bars: 0.000000
+  A difference above 1e-6 on a close is a real disagreement. Note the
+  vendor's notice: the last bar is still forming and may change.
+============================================================================================

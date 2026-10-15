@@ -1,0 +1,111 @@
+  SKIP (unmapped symbol 'NASDAQ:AAPL') mcp__tradingview__mcp-tv-get-ohlcv-call_s5dqs68h-800b30dc-c8ce-4955-85c2-9f9302279a60.txt
+  SKIP (unmapped symbol 'NASDAQ:MSFT') mcp__tradingview__mcp-tv-get-ohlcv-call_vds5cvxx-22955045-4082-46c5-a37b-6f8e2ef4a72a.txt
+  SKIP (unmapped symbol 'NASDAQ:NVDA') mcp__tradingview__mcp-tv-get-ohlcv-call_y773yvib-7b845952-26d1-4b31-9ea2-b50575119a85.txt
+  SKIP (unmapped symbol 'NASDAQ:AMZN') mcp__tradingview__mcp-tv-get-ohlcv-call_g0tgtl5r-f2855aaa-6e7e-4851-b675-498ca264b9d3.txt
+  SKIP (unmapped symbol 'NASDAQ:GOOGL') mcp__tradingview__mcp-tv-get-ohlcv-call_lm2zfyp1-6381c399-e2be-42a3-9443-39d3dc8b0e49.txt
+  SKIP (unmapped symbol 'NASDAQ:META') mcp__tradingview__mcp-tv-get-ohlcv-call_f13v1abp-042e93f7-89f6-44e4-9871-992da77ed352.txt
+  SKIP (unmapped symbol 'NASDAQ:TSLA') mcp__tradingview__mcp-tv-get-ohlcv-call_diqfr9p3-ab9255fc-bcc8-4679-a089-a91acce3b965.txt
+  SKIP (unmapped symbol 'NASDAQ:AVGO') mcp__tradingview__mcp-tv-get-ohlcv-call_rgu9qqd6-e2a18179-416c-4106-a38e-59d30267d596.txt
+  SKIP (unmapped symbol 'NYSE:JPM') mcp__tradingview__mcp-tv-get-ohlcv-call_phzk8mni-06829a3d-c600-4f2c-8e60-9f8afa6ae5ee.txt
+  SKIP (unmapped symbol 'NYSE:JNJ') mcp__tradingview__mcp-tv-get-ohlcv-call_trer4eq5-c0726c6e-4bd5-42ea-8ea5-7d32dc650ecc.txt
+  SKIP (unmapped symbol 'NYSE:XOM') mcp__tradingview__mcp-tv-get-ohlcv-call_yqn5lq92-a600a3b0-4c94-42da-93c3-8aa97286da33.txt
+  SKIP (unmapped symbol 'NYSE:UNH') mcp__tradingview__mcp-tv-get-ohlcv-call_zmh0ic6f-cf1f0b80-9eea-4054-b80c-82768b87bc5f.txt
+  SKIP (unmapped symbol 'NYSE:V') mcp__tradingview__mcp-tv-get-ohlcv-call_9ucndcvc-1654f13b-c219-4a81-a10e-e6e91f7f4d62.txt
+  SKIP (unmapped symbol 'NASDAQ:WMT') mcp__tradingview__mcp-tv-get-ohlcv-call_pdiqo7pq-a20cfbe8-b856-48f3-8e96-14fa0078bb7e.txt
+  SKIP (unmapped symbol 'NASDAQ:AAPL') mcp__tradingview__mcp-tv-get-ohlcv-call_4sgbt6m3-b0edfa1c-cd82-4887-a8c6-1f856d726ccf.txt
+  SKIP (unmapped symbol 'NASDAQ:MSFT') mcp__tradingview__mcp-tv-get-ohlcv-call_bqjtldkh-e2d973f0-c933-4a47-a9fe-728469cb682a.txt
+  SKIP (unmapped symbol 'NASDAQ:NVDA') mcp__tradingview__mcp-tv-get-ohlcv-call_hylgrf45-da898eb8-499f-498a-b50a-de3bb6a7425e.txt
+  SKIP (unmapped symbol 'NASDAQ:AMZN') mcp__tradingview__mcp-tv-get-ohlcv-call_n9cnk5d3-950594fb-4b8e-4357-bedf-e690bbce97e3.txt
+  SKIP (unmapped symbol 'NASDAQ:GOOGL') mcp__tradingview__mcp-tv-get-ohlcv-call_uel5ftwh-807634e8-281b-4cc1-a7a2-db23e6fed1e2.txt
+  SKIP (unmapped symbol 'NYSE:JPM') mcp__tradingview__mcp-tv-get-ohlcv-call_65er9hb6-cbf47628-0c95-42cc-9cf3-b2945cb2d034.txt
+  SKIP (unmapped symbol 'NYSE:JNJ') mcp__tradingview__mcp-tv-get-ohlcv-call_8mhvd7nc-52a62353-2799-492f-80d1-6ba9e2189474.txt
+  SKIP (unmapped symbol 'NASDAQ:WMT') mcp__tradingview__mcp-tv-get-ohlcv-call_719ysqgn-a7510ddb-9ab8-42dc-8905-23d1731d25c6.txt
+  SKIP (unmapped symbol 'NYSE:XOM') mcp__tradingview__mcp-tv-get-ohlcv-call_dqfl5o3n-930015a2-5b87-4316-bde9-73396582f8cf.txt
+  SKIP (unmapped symbol 'NYSE:UNH') mcp__tradingview__mcp-tv-get-ohlcv-call_vaqwhguz-801a2a5a-241c-417a-999c-fbab0b9b95d5.txt
+  SKIP (unmapped symbol 'NYSE:V') mcp__tradingview__mcp-tv-get-ohlcv-call_2ve5gy50-f1b24ed2-0eb4-4688-b825-5bae71d775f7.txt
+  SKIP (unmapped symbol 'NASDAQ:AVGO') mcp__tradingview__mcp-tv-get-ohlcv-call_th1yn86z-3cb613c8-11d1-411e-aba3-eb5ca0522ff6.txt
+  files read (after de-duplication by content): 78
+
+PAYLOADS FOUND
+  AMEX:BIL     1 page(s)
+  AMEX:DBC     1 page(s)
+  AMEX:DIA     1 page(s)
+  AMEX:EDV     1 page(s)
+  AMEX:EEM     2 page(s)
+  AMEX:EFA     1 page(s)
+  AMEX:EWJ     1 page(s)
+  AMEX:EWZ     1 page(s)
+  AMEX:FXI     1 page(s)
+  AMEX:GDX     1 page(s)
+  AMEX:GLD     2 page(s)
+  AMEX:HYG     1 page(s)
+  AMEX:ILF     1 page(s)
+  AMEX:IWM     2 page(s)
+  AMEX:LQD     1 page(s)
+  AMEX:MDY     1 page(s)
+  AMEX:SLV     1 page(s)
+  AMEX:SPY     3 page(s)
+  AMEX:TIP     1 page(s)
+  AMEX:TLH     1 page(s)
+  AMEX:UUP     1 page(s)
+  AMEX:VNQ     1 page(s)
+  AMEX:XLE     1 page(s)
+  AMEX:XLK     1 page(s)
+  AMEX:XLP     1 page(s)
+  AMEX:XLU     1 page(s)
+  AMEX:XLV     1 page(s)
+  NASDAQ:EMB   1 page(s)
+  NASDAQ:IEF   2 page(s)
+  NASDAQ:QQQ   3 page(s)
+  NASDAQ:SHY   1 page(s)
+  NASDAQ:TLT   2 page(s)
+  TVC:DXY      1 page(s)
+  TVC:US02Y    1 page(s)
+  TVC:US03M    3 page(s)
+  TVC:US10Y    1 page(s)
+  TVC:US30Y    1 page(s)
+  TVC:VIX      4 page(s)
+
+MERGE + WRITE
+  BIL    -> BIL_1d.csv     rows=4876   2007-05-30 .. 2026-10-14
+  DBC    -> DBC_1d.csv     rows=5206   2006-02-03 .. 2026-10-14
+  DIA    -> DIA_1d.csv     rows=7229   1998-01-20 .. 2026-10-14
+  EDV    -> EDV_1d.csv     rows=4717   2007-12-13 .. 2026-10-14
+  EEM    -> EEM_1d.csv     rows=5915   2003-04-11 .. 2026-10-14
+  EFA    -> EFA_1d.csv     rows=6326   2001-08-17 .. 2026-10-14
+  EWJ    -> EWJ_1d.csv     rows=7694   1996-03-18 .. 2026-10-14
+  EWZ    -> EWZ_1d.csv     rows=6569   2000-07-14 .. 2026-10-14
+  FXI    -> FXI_1d.csv     rows=5539   2004-10-08 .. 2026-10-14
+  GDX    -> GDX_1d.csv     rows=5132   2006-05-22 .. 2026-10-14
+  GLD    -> GLD_1d.csv     rows=5510   2004-11-18 .. 2026-10-14
+  HYG    -> HYG_1d.csv     rows=4910   2007-04-11 .. 2026-10-14
+  ILF    -> ILF_1d.csv     rows=6243   2001-10-26 .. 2026-10-14
+  IWM    -> IWM_1d.csv     rows=6635   2000-05-26 .. 2026-10-14
+  LQD    -> LQD_1d.csv     rows=6094   2002-07-26 .. 2026-10-14
+  MDY    -> MDY_1d.csv     rows=7908   1995-05-12 .. 2026-10-14
+  SLV    -> SLV_1d.csv     rows=5148   2006-04-28 .. 2026-10-14
+  SPY    -> SPY_1d.csv     rows=8000   1994-12-30 .. 2026-10-14
+  TIP    -> TIP_1d.csv     rows=5750   2003-12-05 .. 2026-10-14
+  TLH    -> TLH_1d.csv     rows=4971   2007-01-11 .. 2026-10-14
+  UUP    -> UUP_1d.csv     rows=4944   2007-02-20 .. 2026-10-14
+  VNQ    -> VNQ_1d.csv     rows=5546   2004-09-29 .. 2026-10-14
+  XLE    -> XLE_1d.csv     rows=6995   1998-12-22 .. 2026-10-14
+  XLK    -> XLK_1d.csv     rows=6995   1998-12-22 .. 2026-10-14
+  XLP    -> XLP_1d.csv     rows=6995   1998-12-22 .. 2026-10-14
+  XLU    -> XLU_1d.csv     rows=6995   1998-12-22 .. 2026-10-14
+  XLV    -> XLV_1d.csv     rows=6995   1998-12-22 .. 2026-10-14
+  EMB    -> EMB_1d.csv     rows=4733   2007-12-19 .. 2026-10-14
+  IEF    -> IEF_1d.csv     rows=6094   2002-07-26 .. 2026-10-14
+  QQQ    -> QQQ_1d.csv     rows=6943   1999-03-10 .. 2026-10-14
+  SHY    -> SHY_1d.csv     rows=6094   2002-07-26 .. 2026-10-14
+  TLT    -> TLT_1d.csv     rows=6094   2002-07-26 .. 2026-10-14
+  DXY    -> DXY_1d.csv     rows=8000   1995-03-21 .. 2026-10-14
+  US02Y  -> US02Y_1d.csv   rows=7342   1994-08-22 .. 2026-10-14
+  US03M  -> US03M_1d.csv   rows=18197  1954-01-04 .. 2026-10-14
+  US10Y  -> US10Y_1d.csv   rows=7662   1992-07-08 .. 2026-10-14
+  US30Y  -> US30Y_1d.csv   rows=7439   1993-06-16 .. 2026-10-14
+  VIX    -> VIX_1d.csv     rows=9283   1990-01-03 .. 2026-10-14
+
+REQUESTED BUT NO PAYLOAD ON DISK (failed to resolve, or the response was small enough to stay inline):
+
+DONE: 38 file(s)

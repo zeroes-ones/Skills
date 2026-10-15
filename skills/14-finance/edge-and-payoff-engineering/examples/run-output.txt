@@ -1,0 +1,496 @@
+================================================================================
+EDGE AND PAYOFF ENGINEERING -- examples/run-output.txt
+================================================================================
+This file is the engine's VERBATIM stdout. It was captured by running the two
+commands below and redirecting, not written by hand. Nothing here is edited.
+
+EVERY LOG IN THIS DIRECTORY IS SYNTHETIC AND ILLUSTRATIVE. None of it is market
+data, a backtest, or a result. The engine echoes each log's own PROVENANCE
+lines, so the word SYNTHETIC travels with the numbers.
+
+Working directory: skills/14-finance/edge-and-payoff-engineering
+Interpreter:       py -3  (Python 3.10.11 on this host; python3 is not on PATH)
+Captured:          2026-10-14
+
+================================================================================
+RUN 1 of 2
+$ py -3 scripts/edge_engine.py --csv examples/logs/hand-check-synthetic.csv
+================================================================================
+
+==============================================================================
+EDGE AND PAYOFF ENGINEERING  --  edge_engine.py 1.0.0
+==============================================================================
+PROVENANCE
+  input file      : examples/logs/hand-check-synthetic.csv
+  trade rows      : 10
+  comment lines   : 107
+  declared        : SYNTHETIC / ILLUSTRATIVE -- hand-check fixture. Not market data, not a backtest, not a result. Invented by the skill author so that a reader can verify the engine's arithmetic on paper.
+  declared        : ten invented trades, close dates 2026-01-09 .. 2026-03-13, all inside one calendar quarter (2026-Q1), half (2026-H1) and year (2026).
+  declared        : pnl is invented currency, not dollars earned by anyone. risk=100 on every row, so the R-multiple of every row is its pnl divided by 100 and every number below is checkable in your head.
+  declared        : NO `cost` column, deliberately. The engine's zero-cost warning is expected to fire on this log, and every figure below is therefore GROSS.
+
+UNITS MODE
+  R MODE -- every row is divided by that row's `risk`, so every
+  figure below is in R units. One R = one planned unit of risk, and
+  the mean planned risk in this ledger is 100.00 in currency.
+  WHY THIS MATTERS: in currency, a bigger position makes a trade
+  look better and the payoff ratio silently measures position
+  size instead of the strategy. In R it cannot.
+  optional columns present: risk
+
+COST INPUT
+  rows carrying a `cost` value : 0 of 10
+  mean cost per trade          : 0.00
+  cost drag c_R                : 0.0000 (of one R)
+
+  *** COST IS ZERO IN THIS RUN ***  No `cost` column was supplied (or every row carried 0). Every expectancy figure below is therefore GROSS. Real commissions, exchange and regulatory fees, and half the bid-ask spread are not free; on a short-dated option a realistic round trip is a meaningful fraction of one R. A gross number is a flattering number. Supply `cost` and re-run before acting on anything here.
+
+SETTINGS
+  capital          : 100,000.00
+  D_tolerance      : 20,000.00  (20% of capital unless overridden)
+  safety multiple  : 1.50
+  cohort min n     : 30
+  streak sim seed  : 20261014 (fixed -- byte-identical reruns)
+
+------------------------------------------------------------------------------
+CENTRAL CLAIM -- no amount of position management, trimming, rolling or hedging creates edge. Those manage risk. Expectancy comes from only four levers: raise p, raise b, cut cost, and trade enough times to know which of the first three you actually have. The sharpest consequence: most negative traders have a GOOD win rate and a BAD payoff -- b below (1-p)/p -- which is the disposition effect, not bad luck.
+------------------------------------------------------------------------------
+
+==============================================================================
+1. POOLED PANEL
+==============================================================================
+  trades (n)                         10
+  decision mix                       6 wins / 4 losses / 0 break-even
+  win rate p = wins/(wins+losses)    0.600000
+  avg win (in unit)                  1.666667
+  avg loss (in unit)                 1.000000
+  payoff ratio b                     1.666667   = avg_win / avg_loss
+
+  expectancy E                       0.600000   = mean of the per-trade values
+  E (closed form)                    0.600000   = p*b-(1-p); equal to E when avg loss = 1 unit
+  E (closed form x avg_loss)         0.600000   = that closed form x avg_loss: the same number as E
+  cost drag c_R                      0.000000
+  net expectancy E_net               0.600000   <-- THE NUMBER TO ACT ON
+
+  break-even win rate p*             0.375000   = 1/(1+b); the win rate you must beat
+  break-even payoff b*               0.666667   = (1-p)/p; the payoff you must beat
+  edge in win-rate terms             0.225000   = p - p*
+  Kelly fraction f*                  0.360000   = (p*b-(1-p))/b
+  half Kelly                         0.180000
+
+  sd_R                               1.505545   = sample sd of the per-trade values
+  n_req (2-sigma)                    25.19   = 4*(sd_R/|E|)^2
+  trades per year (observed)         57.98
+  years_at_current_pace              0.43   = n_req / trades_per_year
+  expected longest losing streak L   2.513   = ln(N)/ln(1/(1-p)), N = 10 (approximation)
+    same L, simulated                2.178   (20000 seeded trials -- sanity check on the formula)
+
+  R_max (survival-derived risk/trade) 0.061211 of capital = 6,121.12
+    derivation                       D_tolerance 20,000.00 / (L 2.178 x safety 1.50)
+
+  VERDICT: INSUFFICIENT SAMPLE (< n_req trades)
+           net expectancy is +0.6000 per trade, but 10 trades is short of the 25 needed for the edge to be 2 standard errors from zero. The sign is promising; it is not yet a finding.
+
+  Read the verdict with the trap in mind: p and b are POOLED. A good
+  cohort can hide a fatal one, and one outlier win can manufacture a
+  payoff ratio. Panel 2 is where that gets tested.
+
+==============================================================================
+2. COHORT ATTRIBUTION  (sorted by E_net, worst last)
+==============================================================================
+  dimension  cohort   n  p       b       E       E_net   t_stat  verdict
+  ----------------------------------------------------------------------------------
+  month      2026-03  2  0.5000  1.0000  0.0000  0.0000  0.000   INSUFFICIENT (n<30)
+  month      2026-02  4  0.5000  2.0000  0.5000  0.5000  0.522   INSUFFICIENT (n<30)
+  month      2026-01  4  0.7500  1.6667  1.0000  1.0000  1.414   INSUFFICIENT (n<30)
+
+  Verdict rule (this is the rule; argue with it if you disagree):
+    INSUFFICIENT (n<30)  : n < 30, whatever the sign
+    KILL (E_net<=0 with n>=30) : n >= 30 and E_net <= 0
+    KEEP                 : n >= 30 and E_net > 0
+
+  KILL LIST (0 cohort(s) with n>=30 and E_net<=0):
+    (none)
+
+  COHORT MIX: 10 trades across 3 tested cohorts, mean cohort size
+  3.3. Any cohort far above that mean is a small sample wearing
+  a confident verdict.
+
+==============================================================================
+3. MULTIPLE-TESTING GUARD
+==============================================================================
+  cohorts tested (m)            : 3
+  family-wise alpha             : 0.0500
+  Bonferroni-adjusted alpha     : 0.01666667
+  adjusted two-sided |t| bar z  : 2.3940
+  cohorts clearing ADJUSTED bar : 0 of 3
+  cohorts clearing a naive 1.96 : 0 of 3
+
+  Naive bar 1.96 corresponds to a two-sided 5% test. At m = 3
+  tests, the family-wise false-positive rate at that bar is about
+  14.3% -- which is to say the screen finds something about that
+  often whether or not any edge exists.
+
+  cohorts clearing the ADJUSTED bar, with their n:
+    (none -- no cohort's |t| exceeds the adjusted bar)
+
+  MULTIPLE TESTING -- every cohort below is a hypothesis test run on the same ledger. Testing m hypotheses at a two-sided alpha of 0.05 means the probability that AT LEAST ONE clears the bar by chance alone is roughly 1-(1-0.05)^m. A single significant slice out of 20 is EXPECTED BY CHANCE. The bar is therefore Bonferroni-adjusted to 0.05/m, and the count of cohorts that clear the ADJUSTED bar is the only count worth acting on.
+
+==============================================================================
+4. PAYOFF-ENGINEERING PANEL  (the actionable table)
+==============================================================================
+  Observed p = 0.6000, observed b = 1.6667, b* = 0.6667, c_R = 0.0000
+
+  (4a) At the OBSERVED p, the payoff you would need:
+
+  E target     b needed       p* at that b   b net of cost    rule of thumb
+  +0.20R       1.0000         0.5000         1.0000           b_needed = (E_target + 1 - p) / p
+  +0.30R       1.1667         0.4615         1.1667           b_needed = (E_target + 1 - p) / p
+  +0.50R       1.5000         0.4000         1.5000           b_needed = (E_target + 1 - p) / p
+
+  (4b) At the trader's ACTUAL b and at a ladder of b:
+
+  b            E              E_net          note
+  1.0000       0.2000         0.2000
+  1.5000       0.5000         0.5000
+  1.6667       0.6000         0.6000         ACTUAL b
+  2.0000       0.8000         0.8000
+  3.0000       1.4000         1.4000
+
+  b = 1.6667 is at or above b* = 0.6667, so the payoff is not the
+  binding constraint.
+  Both clear on this sample, so the binding constraint
+  is whichever of p, b or cost moves most -- see panel 5.
+
+  This table converts 'make more money' into 'raise b from X to Y'.
+  It is the only form of that instruction a trader can execute.
+
+==============================================================================
+5. LEVER SENSITIVITY  (ranked by effect on E_net, largest first)
+==============================================================================
+  lever                  delta E_net      detail
+  (b) +0.25 on b         +0.1500          b 1.6667 -> 1.9167; dE = +0.25 x p = +0.1500 before cost
+  (a) +5pp on p          +0.1333          p 0.6000 -> 0.6500; dE = +0.05 x (b+1) = +0.1333 before cost
+  (c) -25% on cost       +0.0000          cost drag is 0 in this run, so there is nothing to cut (see the cost warning)
+  (d) +50% on n          +0.0000          per-trade expectancy is UNCHANGED (delta = 0 by construction). n_req coverage goes from 39.7% to 59.6% of the required sample
+
+  LEVER NOTE -- (d) 'more trades' changes nothing per trade. Expectancy per trade is a property of p, b and cost, not of n. n changes only whether the edge you have is DISTINGUISHABLE from zero, which is the n_req row.
+
+==============================================================================
+6. WHAT THE ENGINE CANNOT TELL YOU
+==============================================================================
+  * It cannot tell you WHY a cohort is negative. It can only tell you
+    that it is, on this sample.
+  * It cannot see an open position, an assignment, or a roll that has
+    not been booked as a closed trade. Unrealised P&L is invisible here.
+  * It cannot detect a regime change. b* and n_req are properties of the
+    sample you handed it; a strategy that stopped working yesterday is
+    still summarised as it worked.
+  * It cannot tell a normal losing streak from a broken edge -- that is
+    exactly why L is reported: a streak of length L is EXPECTED, and a
+    streak materially longer than L is the first real evidence.
+  * It has no idea whether your `risk` column is honest. A risk that was
+    never enforced at entry makes every R in this report a fiction.
+  * The streak formula is an approximation and the simulation is seeded.
+    Both are estimates of an expectation, not a forecast of your next N
+    trades.
+
+==============================================================================
+COHORT TABLE (CSV)
+==============================================================================
+dimension,cohort,n,p,b,E,E_net,sd_R,t_stat,clears_adjusted_bar,verdict
+month,2026-01,4,0.750000,1.666667,1.000000,1.000000,1.414214,1.4142,no,INSUFFICIENT
+month,2026-02,4,0.500000,2.000000,0.500000,0.500000,1.914854,0.5222,no,INSUFFICIENT
+month,2026-03,2,0.500000,1.000000,0.000000,0.000000,1.414214,0.0000,no,INSUFFICIENT
+
+------------------------------------------------------------------------------
+STREAK FORMULA -- L ~= ln(N) / ln(1/(1-p)). This is an APPROXIMATION: it is the expected longest run of losses in N independent Bernoulli(p) trades, the standard asymptotic estimate, and it is biased LOW because it ignores the tendency of losses to cluster. It is reported beside a seeded simulation of the same quantity so the two can be compared.
+------------------------------------------------------------------------------
+
+exit code: 0
+
+================================================================================
+RUN 2 of 2
+$ py -3 scripts/edge_engine.py --csv examples/logs/illustrative-cohorts-synthetic.csv
+================================================================================
+
+==============================================================================
+EDGE AND PAYOFF ENGINEERING  --  edge_engine.py 1.0.0
+==============================================================================
+PROVENANCE
+  input file      : examples/logs/illustrative-cohorts-synthetic.csv
+  trade rows      : 200
+  comment lines   : 12
+  declared        : SYNTHETIC / ILLUSTRATIVE -- invented trade ledger. NOT market data. NOT a backtest. NOT a result. It carries no market information whatsoever and must never be quoted as a finding about any instrument, strategy or period.
+  declared        : generated by examples/logs/generate_synthetic.py at fixed seed SEED=20261014, stdlib only, byte-identical on every run.
+  declared        : 200 invented closed trades, close dates 2025-05-01 .. 2026-08-06, five invented symbols, four invented setup tags.
+  declared        : pnl is invented currency in units of an invented risk unit ($150..$250 per trade); it is not dollars earned by anyone.
+  declared        : `cost` is an invented per-trade round-trip cost ($4.00..$8.00), so cost drag is non-zero and E_net differs from E.
+  declared        : the four setups are constructed, not discovered -- one positive, one negative, one marginal with n<30, and one deliberate DISPOSITION-EFFECT TRAP (high win rate, payoff below (1-p)/p).
+
+UNITS MODE
+  R MODE -- every row is divided by that row's `risk`, so every
+  figure below is in R units. One R = one planned unit of risk, and
+  the mean planned risk in this ledger is 200.75 in currency.
+  WHY THIS MATTERS: in currency, a bigger position makes a trade
+  look better and the payoff ratio silently measures position
+  size instead of the strategy. In R it cannot.
+  optional columns present: risk, cost, setup, symbol, dte, iv_rank, side
+
+COST INPUT
+  rows carrying a `cost` value : 200 of 200
+  mean cost per trade          : 6.00
+  cost drag c_R                : 0.0299 (of one R)
+  Cost is non-zero, so E_net below is the number to act on.
+  c_R is expressed in the same unit as E, so `E - c_R` is a
+  like-for-like subtraction and never a currency-vs-R mistake.
+
+SETTINGS
+  capital          : 100,000.00
+  D_tolerance      : 20,000.00  (20% of capital unless overridden)
+  safety multiple  : 1.50
+  cohort min n     : 30
+  streak sim seed  : 20261014 (fixed -- byte-identical reruns)
+
+------------------------------------------------------------------------------
+CENTRAL CLAIM -- no amount of position management, trimming, rolling or hedging creates edge. Those manage risk. Expectancy comes from only four levers: raise p, raise b, cut cost, and trade enough times to know which of the first three you actually have. The sharpest consequence: most negative traders have a GOOD win rate and a BAD payoff -- b below (1-p)/p -- which is the disposition effect, not bad luck.
+------------------------------------------------------------------------------
+
+==============================================================================
+1. POOLED PANEL
+==============================================================================
+  trades (n)                         200
+  decision mix                       102 wins / 98 losses / 0 break-even
+  win rate p = wins/(wins+losses)    0.510000
+  avg win (in unit)                  1.001614
+  avg loss (in unit)                 1.040577
+  payoff ratio b                     0.962557   = avg_win / avg_loss
+
+  expectancy E                       0.000941   = mean of the per-trade values
+  E (closed form)                    0.000904   = p*b-(1-p); equal to E when avg loss = 1 unit
+  E (closed form x avg_loss)         0.000941   = that closed form x avg_loss: the same number as E
+  cost drag c_R                      0.029875
+  net expectancy E_net               -0.028935   <-- THE NUMBER TO ACT ON
+
+  break-even win rate p*             0.509539   = 1/(1+b); the win rate you must beat
+  break-even payoff b*               0.960784   = (1-p)/p; the payoff you must beat
+  edge in win-rate terms             0.000461   = p - p*
+  Kelly fraction f*                  0.000939   = (p*b-(1-p))/b
+  half Kelly                         0.000470
+
+  sd_R                               1.072301   = sample sd of the per-trade values
+  n_req (2-sigma)                    5199305.93   = 4*(sd_R/|E|)^2
+  trades per year (observed)         158.12
+  years_at_current_pace              32882.67   = n_req / trades_per_year
+  expected longest losing streak L   7.427   = ln(N)/ln(1/(1-p)), N = 200 (approximation)
+    same L, simulated                6.810   (20000 seeded trials -- sanity check on the formula)
+
+  R_max (survival-derived risk/trade) 0.019580 of capital = 1,958.03
+    derivation                       D_tolerance 20,000.00 / (L 6.810 x safety 1.50)
+
+  VERDICT: NEGATIVE EDGE
+           net expectancy is -0.0289 per trade. No sample size fixes this: more trades of a negative-expectancy process lose more money, more reliably.
+
+  Read the verdict with the trap in mind: p and b are POOLED. A good
+  cohort can hide a fatal one, and one outlier win can manufacture a
+  payoff ratio. Panel 2 is where that gets tested.
+
+==============================================================================
+2. COHORT ATTRIBUTION  (sorted by E_net, worst last)
+==============================================================================
+  dimension  cohort        n    p       b       E        E_net    t_stat   verdict
+  ---------------------------------------------------------------------------------------------------
+  month      2026-08       2    0.0000  0.0000  -1.0547  -1.0846  -61.637  INSUFFICIENT (n<30)
+  month      2026-01       14   0.2857  1.2196  -0.3817  -0.4116  -1.287   INSUFFICIENT (n<30)
+  iv_rank    IVR 25-50     54   0.3889  0.8805  -0.2772  -0.3071  -2.054   KILL (E_net<=0 with n>=30)
+  dte        DTE 0-7       23   0.3913  0.9273  -0.2658  -0.2957  -1.224   INSUFFICIENT (n<30)
+  setup      SETUP-FADE    60   0.4167  0.8974  -0.2229  -0.2527  -1.717   KILL (E_net<=0 with n>=30)
+  month      2026-02       12   0.5000  0.6082  -0.2120  -0.2419  -0.788   INSUFFICIENT (n<30)
+  month      2026-07       15   0.4667  0.7347  -0.1976  -0.2275  -0.807   INSUFFICIENT (n<30)
+  symbol     SYN-B         40   0.4000  1.0392  -0.1894  -0.2193  -1.115   KILL (E_net<=0 with n>=30)
+  month      2025-05       14   0.4286  0.9103  -0.1855  -0.2154  -0.674   INSUFFICIENT (n<30)
+  month      2025-10       14   0.4286  0.9215  -0.1769  -0.2068  -0.641   INSUFFICIENT (n<30)
+  month      2025-11       13   0.5385  0.6700  -0.1061  -0.1360  -0.413   INSUFFICIENT (n<30)
+  side       short         105  0.5048  0.8360  -0.0755  -0.1054  -0.781   KILL (E_net<=0 with n>=30)
+  setup      SETUP-CREDIT  55   0.6182  0.4956  -0.0750  -0.1048  -0.758   KILL (E_net<=0 with n>=30)
+  month      2025-09       14   0.4286  1.1762  -0.0710  -0.1009  -0.221   INSUFFICIENT (n<30)
+  symbol     SYN-D         40   0.4750  0.9678  -0.0692  -0.0991  -0.402   KILL (E_net<=0 with n>=30)
+  dte        DTE 8-21      39   0.4615  1.0298  -0.0661  -0.0960  -0.381   KILL (E_net<=0 with n>=30)
+  symbol     SYN-C         42   0.5000  0.9307  -0.0363  -0.0662  -0.221   KILL (E_net<=0 with n>=30)
+  iv_rank    IVR 75-100    41   0.5122  0.9140  -0.0203  -0.0501  -0.124   KILL (E_net<=0 with n>=30)
+  dte        DTE 46-90     57   0.5263  0.9025  0.0014   -0.0285  0.010    KILL (E_net<=0 with n>=30)
+  month      2025-12       14   0.5714  0.7702  0.0120   -0.0179  0.045    INSUFFICIENT (n<30)
+  setup      SETUP-EVENT   23   0.5217  0.9678  0.0285   -0.0013  0.127    INSUFFICIENT (n<30)
+  side       long          95   0.5158  1.0964  0.0855   0.0556   0.721    KEEP
+  dte        DTE 22-45     81   0.5556  0.9889  0.1087   0.0788   0.898    KEEP
+  iv_rank    IVR 0-25      42   0.5714  0.9330  0.1118   0.0819   0.657    KEEP
+  symbol     SYN-E         36   0.5556  1.0255  0.1294   0.0995   0.707    KEEP
+  month      2025-06       13   0.5385  1.1006  0.1341   0.1042   0.417    INSUFFICIENT (n<30)
+  month      2026-06       14   0.6429  0.7557  0.1418   0.1119   0.526    INSUFFICIENT (n<30)
+  symbol     SYN-A         42   0.6190  0.8910  0.1762   0.1463   1.089    KEEP
+  iv_rank    IVR 50-75     63   0.5714  1.0517  0.1793   0.1494   1.283    KEEP
+  month      2025-08       12   0.5833  1.0334  0.1958   0.1659   0.580    INSUFFICIENT (n<30)
+  month      2025-07       13   0.6154  1.0487  0.2653   0.2354   0.831    INSUFFICIENT (n<30)
+  setup      SETUP-TREND   62   0.5000  1.5304  0.2746   0.2447   1.635    KEEP
+  month      2026-04       11   0.5455  1.3272  0.2778   0.2479   0.713    INSUFFICIENT (n<30)
+  month      2026-05       11   0.6364  0.9998  0.2829   0.2530   0.844    INSUFFICIENT (n<30)
+  month      2026-03       14   0.5714  1.3288  0.3382   0.3083   1.016    INSUFFICIENT (n<30)
+
+  Verdict rule (this is the rule; argue with it if you disagree):
+    INSUFFICIENT (n<30)  : n < 30, whatever the sign
+    KILL (E_net<=0 with n>=30) : n >= 30 and E_net <= 0
+    KEEP                 : n >= 30 and E_net > 0
+
+  KILL LIST (10 cohort(s) with n>=30 and E_net<=0):
+    iv_rank  IVR 25-50      n=54   p=0.3889 b=0.8805 E_net=-0.3071
+    setup    SETUP-FADE     n=60   p=0.4167 b=0.8974 E_net=-0.2527
+    symbol   SYN-B          n=40   p=0.4000 b=1.0392 E_net=-0.2193
+    side     short          n=105  p=0.5048 b=0.8360 E_net=-0.1054
+    setup    SETUP-CREDIT   n=55   p=0.6182 b=0.4956 E_net=-0.1048
+    symbol   SYN-D          n=40   p=0.4750 b=0.9678 E_net=-0.0991
+    dte      DTE 8-21       n=39   p=0.4615 b=1.0298 E_net=-0.0960
+    symbol   SYN-C          n=42   p=0.5000 b=0.9307 E_net=-0.0662
+    iv_rank  IVR 75-100     n=41   p=0.5122 b=0.9140 E_net=-0.0501
+    dte      DTE 46-90      n=57   p=0.5263 b=0.9025 E_net=-0.0285
+
+  A KILL is evidence that THIS SLICE is negative over a
+  sample big enough to say so. It is not proof the slice can
+  never work -- only that you have no evidence it does today.
+  Stopping a slice is the cheapest lever in this entire skill.
+
+  COHORT MIX: 200 trades across 35 tested cohorts, mean cohort size
+  5.7. Any cohort far above that mean is a small sample wearing
+  a confident verdict.
+
+==============================================================================
+3. MULTIPLE-TESTING GUARD
+==============================================================================
+  cohorts tested (m)            : 35
+  family-wise alpha             : 0.0500
+  Bonferroni-adjusted alpha     : 0.00142857
+  adjusted two-sided |t| bar z  : 3.1888
+  cohorts clearing ADJUSTED bar : 1 of 35
+  cohorts clearing a naive 1.96 : 2 of 35
+
+  Naive bar 1.96 corresponds to a two-sided 5% test. At m = 35
+  tests, the family-wise false-positive rate at that bar is about
+  83.4% -- which is to say the screen finds something about that
+  often whether or not any edge exists.
+
+  cohorts clearing the ADJUSTED bar, with their n:
+    month    2026-08        n=2    t=-61.637
+
+  READ n NEXT TO t. A cohort with a handful of observations can
+  post an enormous |t| -- two losses out of two trades gives a t
+  of tens -- and the Bonferroni bar does not repair a cohort with
+  almost no data in it. The bar answers 'how many slices did I
+  test?'. It does not answer 'was this slice big enough to test?'.
+
+  MULTIPLE TESTING -- every cohort below is a hypothesis test run on the same ledger. Testing m hypotheses at a two-sided alpha of 0.05 means the probability that AT LEAST ONE clears the bar by chance alone is roughly 1-(1-0.05)^m. A single significant slice out of 20 is EXPECTED BY CHANCE. The bar is therefore Bonferroni-adjusted to 0.05/m, and the count of cohorts that clear the ADJUSTED bar is the only count worth acting on.
+
+==============================================================================
+4. PAYOFF-ENGINEERING PANEL  (the actionable table)
+==============================================================================
+  Observed p = 0.5100, observed b = 0.9626, b* = 0.9608, c_R = 0.0299
+
+  (4a) At the OBSERVED p, the payoff you would need:
+
+  E target     b needed       p* at that b   b net of cost    rule of thumb
+  +0.20R       1.3529         0.4250         1.4115           b_needed = (E_target + 1 - p) / p
+  +0.30R       1.5490         0.3923         1.6076           b_needed = (E_target + 1 - p) / p
+  +0.50R       1.9412         0.3400         1.9998           b_needed = (E_target + 1 - p) / p
+
+  (4b) At the trader's ACTUAL b and at a ladder of b:
+
+  b            E              E_net          note
+  0.9626       0.0009         -0.0290        ACTUAL b
+  1.0000       0.0200         -0.0099
+  1.5000       0.2750         0.2451
+  2.0000       0.5300         0.5001
+  3.0000       1.0400         1.0101
+
+  b = 0.9626 is at or above b* = 0.9608, so the payoff is not the
+  binding constraint.
+  *** COST IS THE BINDING CONSTRAINT: gross E = 0.0009 is
+      smaller than c_R = 0.0299, so the book pays more to
+      trade than it earns before costs. It does not have
+      an edge; it has a rounding error and a bill. ***
+
+  This table converts 'make more money' into 'raise b from X to Y'.
+  It is the only form of that instruction a trader can execute.
+
+==============================================================================
+5. LEVER SENSITIVITY  (ranked by effect on E_net, largest first)
+==============================================================================
+  lever                  delta E_net      detail
+  (b) +0.25 on b         +0.1275          b 0.9626 -> 1.2126; dE = +0.25 x p = +0.1275 before cost
+  (a) +5pp on p          +0.0981          p 0.5100 -> 0.5600; dE = +0.05 x (b+1) = +0.0981 before cost
+  (c) -25% on cost       +0.0075          c_R 0.0299 -> 0.0224; +0.0075 to E_net per trade
+  (d) +50% on n          +0.0000          per-trade expectancy is UNCHANGED (delta = 0 by construction). n_req coverage goes from 0.0% to 0.0% of the required sample
+
+  LEVER NOTE -- (d) 'more trades' changes nothing per trade. Expectancy per trade is a property of p, b and cost, not of n. n changes only whether the edge you have is DISTINGUISHABLE from zero, which is the n_req row.
+
+==============================================================================
+6. WHAT THE ENGINE CANNOT TELL YOU
+==============================================================================
+  * It cannot tell you WHY a cohort is negative. It can only tell you
+    that it is, on this sample.
+  * It cannot see an open position, an assignment, or a roll that has
+    not been booked as a closed trade. Unrealised P&L is invisible here.
+  * It cannot detect a regime change. b* and n_req are properties of the
+    sample you handed it; a strategy that stopped working yesterday is
+    still summarised as it worked.
+  * It cannot tell a normal losing streak from a broken edge -- that is
+    exactly why L is reported: a streak of length L is EXPECTED, and a
+    streak materially longer than L is the first real evidence.
+  * It has no idea whether your `risk` column is honest. A risk that was
+    never enforced at entry makes every R in this report a fiction.
+  * The streak formula is an approximation and the simulation is seeded.
+    Both are estimates of an expectation, not a forecast of your next N
+    trades.
+
+==============================================================================
+COHORT TABLE (CSV)
+==============================================================================
+dimension,cohort,n,p,b,E,E_net,sd_R,t_stat,clears_adjusted_bar,verdict
+setup,SETUP-CREDIT,55,0.618182,0.495589,-0.074962,-0.104837,0.733648,-0.7578,no,KILL
+setup,SETUP-EVENT,23,0.521739,0.967799,0.028541,-0.001335,1.075884,0.1272,no,INSUFFICIENT
+setup,SETUP-FADE,60,0.416667,0.897394,-0.222864,-0.252740,1.005148,-1.7175,no,KILL
+setup,SETUP-TREND,62,0.500000,1.530445,0.274620,0.244744,1.322522,1.6350,no,KEEP
+symbol,SYN-A,42,0.619048,0.890974,0.176211,0.146335,1.048710,1.0889,no,KEEP
+symbol,SYN-B,40,0.400000,1.039236,-0.189405,-0.219280,1.074557,-1.1148,no,KILL
+symbol,SYN-C,42,0.500000,0.930706,-0.036290,-0.066165,1.065935,-0.2206,no,KILL
+symbol,SYN-D,40,0.475000,0.967824,-0.069230,-0.099105,1.090415,-0.4015,no,KILL
+symbol,SYN-E,36,0.555556,1.025490,0.129356,0.099480,1.097372,0.7073,no,KEEP
+dte,DTE 0-7,23,0.391304,0.927294,-0.265804,-0.295680,1.041395,-1.2241,no,INSUFFICIENT
+dte,DTE 22-45,81,0.555556,0.988859,0.108681,0.078806,1.089320,0.8979,no,KEEP
+dte,DTE 46-90,57,0.526316,0.902540,0.001365,-0.028511,1.057044,0.0097,no,KILL
+dte,DTE 8-21,39,0.461538,1.029832,-0.066137,-0.096013,1.084631,-0.3808,no,KILL
+iv_rank,IVR 0-25,42,0.571429,0.933025,0.111793,0.081917,1.102077,0.6574,no,KEEP
+iv_rank,IVR 25-50,54,0.388889,0.880516,-0.277220,-0.307096,0.991592,-2.0544,no,KILL
+iv_rank,IVR 50-75,63,0.571429,1.051708,0.179264,0.149389,1.108590,1.2835,no,KEEP
+iv_rank,IVR 75-100,41,0.512195,0.913991,-0.020267,-0.050142,1.048734,-0.1237,no,KILL
+side,long,95,0.515789,1.096438,0.085477,0.055602,1.154821,0.7214,no,KEEP
+side,short,105,0.504762,0.836004,-0.075545,-0.105420,0.991130,-0.7810,no,KILL
+month,2025-05,14,0.428571,0.910257,-0.185491,-0.215366,1.029704,-0.6740,no,INSUFFICIENT
+month,2025-06,13,0.538462,1.100577,0.134107,0.104232,1.158318,0.4174,no,INSUFFICIENT
+month,2025-07,13,0.615385,1.048683,0.265291,0.235415,1.151716,0.8305,no,INSUFFICIENT
+month,2025-08,12,0.583333,1.033403,0.195784,0.165908,1.168993,0.5802,no,INSUFFICIENT
+month,2025-09,14,0.428571,1.176229,-0.070976,-0.100851,1.200289,-0.2213,no,INSUFFICIENT
+month,2025-10,14,0.428571,0.921484,-0.176884,-0.206759,1.033056,-0.6407,no,INSUFFICIENT
+month,2025-11,13,0.538462,0.670016,-0.106083,-0.135959,0.927073,-0.4126,no,INSUFFICIENT
+month,2025-12,14,0.571429,0.770182,0.012017,-0.017858,0.988948,0.0455,no,INSUFFICIENT
+month,2026-01,14,0.285714,1.219627,-0.381719,-0.411594,1.110145,-1.2866,no,INSUFFICIENT
+month,2026-02,12,0.500000,0.608170,-0.212048,-0.241924,0.932236,-0.7880,no,INSUFFICIENT
+month,2026-03,14,0.571429,1.328807,0.338161,0.308285,1.245765,1.0157,no,INSUFFICIENT
+month,2026-04,11,0.545455,1.327180,0.277776,0.247901,1.291399,0.7134,no,INSUFFICIENT
+month,2026-05,11,0.636364,0.999782,0.282913,0.253038,1.111961,0.8438,no,INSUFFICIENT
+month,2026-06,14,0.642857,0.755682,0.141763,0.111888,1.007638,0.5264,no,INSUFFICIENT
+month,2026-07,15,0.466667,0.734653,-0.197612,-0.227488,0.948886,-0.8066,no,INSUFFICIENT
+month,2026-08,2,0.000000,0.000000,-1.054712,-1.084587,0.024200,-61.6366,yes,INSUFFICIENT
+
+------------------------------------------------------------------------------
+STREAK FORMULA -- L ~= ln(N) / ln(1/(1-p)). This is an APPROXIMATION: it is the expected longest run of losses in N independent Bernoulli(p) trades, the standard asymptotic estimate, and it is biased LOW because it ignores the tendency of losses to cluster. It is reported beside a seeded simulation of the same quantity so the two can be compared.
+------------------------------------------------------------------------------
+
+exit code: 0

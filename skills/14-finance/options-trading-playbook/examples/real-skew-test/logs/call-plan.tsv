@@ -1,0 +1,123 @@
+n	panel	underlying	sample_date	note	spot_close	expiry	dte	type	target_pct	target_strike	moneyness_target	mcp_tool	mcp_chain_symbol	mcp_expiration_dates	mcp_type	mcp_strike_price	mcp_state	key
+1	ladder	SPY	2017-10-02	H2-2017 calm	252.32	2017-11-10	39	put	0.03	245	-0.029011	get_option_instruments	SPY	2017-11-10		245.0000	expired	SPY_2017-10-02_2017-11-10_put_245
+2	ladder	SPY	2017-10-02	H2-2017 calm	252.32	2017-11-10	39	put	0.06	237	-0.060717	get_option_instruments	SPY	2017-11-10		237.0000	expired	SPY_2017-10-02_2017-11-10_put_237
+3	ladder	SPY	2017-10-02	H2-2017 calm	252.32	2017-11-10	39	put	0.10	227	-0.100349	get_option_instruments	SPY	2017-11-10		227.0000	expired	SPY_2017-10-02_2017-11-10_put_227
+4	ladder	SPY	2017-10-02	H2-2017 calm	252.32	2017-11-10	39	put	0.15	214	-0.151871	get_option_instruments	SPY	2017-11-10		214.0000	expired	SPY_2017-10-02_2017-11-10_put_214
+5	ladder	SPY	2017-10-02	H2-2017 calm	252.32	2017-11-10	39	call	0.03	260	0.030438	get_option_instruments	SPY	2017-11-10		260.0000	expired	SPY_2017-10-02_2017-11-10_call_260
+6	ladder	SPY	2017-10-02	H2-2017 calm	252.32	2017-11-10	39	call	0.06	267	0.058180	get_option_instruments	SPY	2017-11-10		267.0000	expired	SPY_2017-10-02_2017-11-10_call_267
+7	ladder	SPY	2018-04-02	H1-2018 volmageddon aftermath	257.47	2018-05-11	39	put	0.03	250	-0.029013	get_option_instruments	SPY	2018-05-11		250.0000	expired	SPY_2018-04-02_2018-05-11_put_250
+8	ladder	SPY	2018-04-02	H1-2018 volmageddon aftermath	257.47	2018-05-11	39	put	0.06	242	-0.060085	get_option_instruments	SPY	2018-05-11		242.0000	expired	SPY_2018-04-02_2018-05-11_put_242
+9	ladder	SPY	2018-04-02	H1-2018 volmageddon aftermath	257.47	2018-05-11	39	put	0.10	232	-0.098924	get_option_instruments	SPY	2018-05-11		232.0000	expired	SPY_2018-04-02_2018-05-11_put_232
+10	ladder	SPY	2018-04-02	H1-2018 volmageddon aftermath	257.47	2018-05-11	39	put	0.15	219	-0.149415	get_option_instruments	SPY	2018-05-11		219.0000	expired	SPY_2018-04-02_2018-05-11_put_219
+11	ladder	SPY	2018-04-02	H1-2018 volmageddon aftermath	257.47	2018-05-11	39	call	0.03	265	0.029246	get_option_instruments	SPY	2018-05-11		265.0000	expired	SPY_2018-04-02_2018-05-11_call_265
+12	ladder	SPY	2018-04-02	H1-2018 volmageddon aftermath	257.47	2018-05-11	39	call	0.06	273	0.060318	get_option_instruments	SPY	2018-05-11		273.0000	expired	SPY_2018-04-02_2018-05-11_call_273
+13	ladder	SPY	2018-10-01	H2-2018 pre-Q4 selloff	291.73	2018-11-09	39	put	0.03	283	-0.029925	get_option_instruments	SPY	2018-11-09		283.0000	expired	SPY_2018-10-01_2018-11-09_put_283
+14	ladder	SPY	2018-10-01	H2-2018 pre-Q4 selloff	291.73	2018-11-09	39	put	0.06	274	-0.060775	get_option_instruments	SPY	2018-11-09		274.0000	expired	SPY_2018-10-01_2018-11-09_put_274
+15	ladder	SPY	2018-10-01	H2-2018 pre-Q4 selloff	291.73	2018-11-09	39	put	0.10	263	-0.098481	get_option_instruments	SPY	2018-11-09		263.0000	expired	SPY_2018-10-01_2018-11-09_put_263
+16	ladder	SPY	2018-10-01	H2-2018 pre-Q4 selloff	291.73	2018-11-09	39	put	0.15	248	-0.149899	get_option_instruments	SPY	2018-11-09		248.0000	expired	SPY_2018-10-01_2018-11-09_put_248
+17	ladder	SPY	2018-10-01	H2-2018 pre-Q4 selloff	291.73	2018-11-09	39	call	0.03	300	0.028348	get_option_instruments	SPY	2018-11-09		300.0000	expired	SPY_2018-10-01_2018-11-09_call_300
+18	ladder	SPY	2018-10-01	H2-2018 pre-Q4 selloff	291.73	2018-11-09	39	call	0.06	309	0.059199	get_option_instruments	SPY	2018-11-09		309.0000	expired	SPY_2018-10-01_2018-11-09_call_309
+19	ladder	SPY	2019-04-01	H1-2019 calm	285.83	2019-05-10	39	put	0.03	277	-0.030892	get_option_instruments	SPY	2019-05-10		277.0000	expired	SPY_2019-04-01_2019-05-10_put_277
+20	ladder	SPY	2019-04-01	H1-2019 calm	285.83	2019-05-10	39	put	0.06	269	-0.058881	get_option_instruments	SPY	2019-05-10		269.0000	expired	SPY_2019-04-01_2019-05-10_put_269
+21	ladder	SPY	2019-04-01	H1-2019 calm	285.83	2019-05-10	39	put	0.10	257	-0.100864	get_option_instruments	SPY	2019-05-10		257.0000	expired	SPY_2019-04-01_2019-05-10_put_257
+22	ladder	SPY	2019-04-01	H1-2019 calm	285.83	2019-05-10	39	put	0.15	243	-0.149844	get_option_instruments	SPY	2019-05-10		243.0000	expired	SPY_2019-04-01_2019-05-10_put_243
+23	ladder	SPY	2019-04-01	H1-2019 calm	285.83	2019-05-10	39	call	0.03	294	0.028583	get_option_instruments	SPY	2019-05-10		294.0000	expired	SPY_2019-04-01_2019-05-10_call_294
+24	ladder	SPY	2019-04-01	H1-2019 calm	285.83	2019-05-10	39	call	0.06	303	0.060071	get_option_instruments	SPY	2019-05-10		303.0000	expired	SPY_2019-04-01_2019-05-10_call_303
+25	ladder	SPY	2019-10-01	H2-2019 calm	293.24	2019-11-08	38	put	0.03	284	-0.031510	get_option_instruments	SPY	2019-11-08		284.0000	expired	SPY_2019-10-01_2019-11-08_put_284
+26	ladder	SPY	2019-10-01	H2-2019 calm	293.24	2019-11-08	38	put	0.06	276	-0.058791	get_option_instruments	SPY	2019-11-08		276.0000	expired	SPY_2019-10-01_2019-11-08_put_276
+27	ladder	SPY	2019-10-01	H2-2019 calm	293.24	2019-11-08	38	put	0.10	264	-0.099714	get_option_instruments	SPY	2019-11-08		264.0000	expired	SPY_2019-10-01_2019-11-08_put_264
+28	ladder	SPY	2019-10-01	H2-2019 calm	293.24	2019-11-08	38	put	0.15	249	-0.150866	get_option_instruments	SPY	2019-11-08		249.0000	expired	SPY_2019-10-01_2019-11-08_put_249
+29	ladder	SPY	2019-10-01	H2-2019 calm	293.24	2019-11-08	38	call	0.03	302	0.029873	get_option_instruments	SPY	2019-11-08		302.0000	expired	SPY_2019-10-01_2019-11-08_call_302
+30	ladder	SPY	2019-10-01	H2-2019 calm	293.24	2019-11-08	38	call	0.06	311	0.060565	get_option_instruments	SPY	2019-11-08		311.0000	expired	SPY_2019-10-01_2019-11-08_call_311
+31	ladder	SPY	2020-02-24	STRESS: COVID selloff onset	322.42	2020-04-03	39	put	0.03	313	-0.029217	get_option_instruments	SPY	2020-04-03		313.0000	expired	SPY_2020-02-24_2020-04-03_put_313
+32	ladder	SPY	2020-02-24	STRESS: COVID selloff onset	322.42	2020-04-03	39	put	0.06	303	-0.060232	get_option_instruments	SPY	2020-04-03		303.0000	expired	SPY_2020-02-24_2020-04-03_put_303
+33	ladder	SPY	2020-02-24	STRESS: COVID selloff onset	322.42	2020-04-03	39	put	0.10	290	-0.100552	get_option_instruments	SPY	2020-04-03		290.0000	expired	SPY_2020-02-24_2020-04-03_put_290
+34	ladder	SPY	2020-02-24	STRESS: COVID selloff onset	322.42	2020-04-03	39	put	0.15	274	-0.150177	get_option_instruments	SPY	2020-04-03		274.0000	expired	SPY_2020-02-24_2020-04-03_put_274
+35	ladder	SPY	2020-02-24	STRESS: COVID selloff onset	322.42	2020-04-03	39	call	0.03	332	0.029713	get_option_instruments	SPY	2020-04-03		332.0000	expired	SPY_2020-02-24_2020-04-03_call_332
+36	ladder	SPY	2020-02-24	STRESS: COVID selloff onset	322.42	2020-04-03	39	call	0.06	342	0.060728	get_option_instruments	SPY	2020-04-03		342.0000	expired	SPY_2020-02-24_2020-04-03_call_342
+37	ladder	SPY	2020-03-02	STRESS: COVID crash	309.09	2020-04-17	46	put	0.03	300	-0.029409	get_option_instruments	SPY	2020-04-17		300.0000	expired	SPY_2020-03-02_2020-04-17_put_300
+38	ladder	SPY	2020-03-02	STRESS: COVID crash	309.09	2020-04-17	46	put	0.06	291	-0.058527	get_option_instruments	SPY	2020-04-17		291.0000	expired	SPY_2020-03-02_2020-04-17_put_291
+39	ladder	SPY	2020-03-02	STRESS: COVID crash	309.09	2020-04-17	46	put	0.10	278	-0.100586	get_option_instruments	SPY	2020-04-17		278.0000	expired	SPY_2020-03-02_2020-04-17_put_278
+40	ladder	SPY	2020-03-02	STRESS: COVID crash	309.09	2020-04-17	46	put	0.15	263	-0.149115	get_option_instruments	SPY	2020-04-17		263.0000	expired	SPY_2020-03-02_2020-04-17_put_263
+41	ladder	SPY	2020-03-02	STRESS: COVID crash	309.09	2020-04-17	46	call	0.03	318	0.028827	get_option_instruments	SPY	2020-04-17		318.0000	expired	SPY_2020-03-02_2020-04-17_call_318
+42	ladder	SPY	2020-03-02	STRESS: COVID crash	309.09	2020-04-17	46	call	0.06	328	0.061180	get_option_instruments	SPY	2020-04-17		328.0000	expired	SPY_2020-03-02_2020-04-17_call_328
+43	ladder	SPY	2020-04-01	STRESS: COVID window	246.15	2020-05-08	37	put	0.03	239	-0.029047	get_option_instruments	SPY	2020-05-08		239.0000	expired	SPY_2020-04-01_2020-05-08_put_239
+44	ladder	SPY	2020-04-01	STRESS: COVID window	246.15	2020-05-08	37	put	0.06	231	-0.061548	get_option_instruments	SPY	2020-05-08		231.0000	expired	SPY_2020-04-01_2020-05-08_put_231
+45	ladder	SPY	2020-04-01	STRESS: COVID window	246.15	2020-05-08	37	put	0.10	222	-0.098111	get_option_instruments	SPY	2020-05-08		222.0000	expired	SPY_2020-04-01_2020-05-08_put_222
+46	ladder	SPY	2020-04-01	STRESS: COVID window	246.15	2020-05-08	37	put	0.15	209	-0.150924	get_option_instruments	SPY	2020-05-08		209.0000	expired	SPY_2020-04-01_2020-05-08_put_209
+47	ladder	SPY	2020-04-01	STRESS: COVID window	246.15	2020-05-08	37	call	0.03	254	0.031891	get_option_instruments	SPY	2020-05-08		254.0000	expired	SPY_2020-04-01_2020-05-08_call_254
+48	ladder	SPY	2020-04-01	STRESS: COVID window	246.15	2020-05-08	37	call	0.06	261	0.060329	get_option_instruments	SPY	2020-05-08		261.0000	expired	SPY_2020-04-01_2020-05-08_call_261
+49	ladder	SPY	2020-10-01	H2-2020 recovery	337.04	2020-11-06	36	put	0.03	327	-0.029789	get_option_instruments	SPY	2020-11-06		327.0000	expired	SPY_2020-10-01_2020-11-06_put_327
+50	ladder	SPY	2020-10-01	H2-2020 recovery	337.04	2020-11-06	36	put	0.06	317	-0.059459	get_option_instruments	SPY	2020-11-06		317.0000	expired	SPY_2020-10-01_2020-11-06_put_317
+51	ladder	SPY	2020-10-01	H2-2020 recovery	337.04	2020-11-06	36	put	0.10	303	-0.100997	get_option_instruments	SPY	2020-11-06		303.0000	expired	SPY_2020-10-01_2020-11-06_put_303
+52	ladder	SPY	2020-10-01	H2-2020 recovery	337.04	2020-11-06	36	put	0.15	286	-0.151436	get_option_instruments	SPY	2020-11-06		286.0000	expired	SPY_2020-10-01_2020-11-06_put_286
+53	ladder	SPY	2020-10-01	H2-2020 recovery	337.04	2020-11-06	36	call	0.03	347	0.029551	get_option_instruments	SPY	2020-11-06		347.0000	expired	SPY_2020-10-01_2020-11-06_call_347
+54	ladder	SPY	2020-10-01	H2-2020 recovery	337.04	2020-11-06	36	call	0.06	357	0.059221	get_option_instruments	SPY	2020-11-06		357.0000	expired	SPY_2020-10-01_2020-11-06_call_357
+55	ladder	SPY	2021-04-01	H1-2021 calm	400.61	2021-05-07	36	put	0.03	389	-0.028981	get_option_instruments	SPY	2021-05-07		389.0000	expired	SPY_2021-04-01_2021-05-07_put_389
+56	ladder	SPY	2021-04-01	H1-2021 calm	400.61	2021-05-07	36	put	0.06	377	-0.058935	get_option_instruments	SPY	2021-05-07		377.0000	expired	SPY_2021-04-01_2021-05-07_put_377
+57	ladder	SPY	2021-04-01	H1-2021 calm	400.61	2021-05-07	36	put	0.10	361	-0.098874	get_option_instruments	SPY	2021-05-07		361.0000	expired	SPY_2021-04-01_2021-05-07_put_361
+58	ladder	SPY	2021-04-01	H1-2021 calm	400.61	2021-05-07	36	put	0.15	341	-0.148798	get_option_instruments	SPY	2021-05-07		341.0000	expired	SPY_2021-04-01_2021-05-07_put_341
+59	ladder	SPY	2021-04-01	H1-2021 calm	400.61	2021-05-07	36	call	0.03	413	0.030928	get_option_instruments	SPY	2021-05-07		413.0000	expired	SPY_2021-04-01_2021-05-07_call_413
+60	ladder	SPY	2021-04-01	H1-2021 calm	400.61	2021-05-07	36	call	0.06	425	0.060882	get_option_instruments	SPY	2021-05-07		425.0000	expired	SPY_2021-04-01_2021-05-07_call_425
+61	ladder	SPY	2021-10-01	H2-2021 calm	434.24	2021-11-05	35	put	0.03	421	-0.030490	get_option_instruments	SPY	2021-11-05		421.0000	expired	SPY_2021-10-01_2021-11-05_put_421
+62	ladder	SPY	2021-10-01	H2-2021 calm	434.24	2021-11-05	35	put	0.06	408	-0.060427	get_option_instruments	SPY	2021-11-05		408.0000	expired	SPY_2021-10-01_2021-11-05_put_408
+63	ladder	SPY	2021-10-01	H2-2021 calm	434.24	2021-11-05	35	put	0.10	391	-0.099576	get_option_instruments	SPY	2021-11-05		391.0000	expired	SPY_2021-10-01_2021-11-05_put_391
+64	ladder	SPY	2021-10-01	H2-2021 calm	434.24	2021-11-05	35	put	0.15	369	-0.150239	get_option_instruments	SPY	2021-11-05		369.0000	expired	SPY_2021-10-01_2021-11-05_put_369
+65	ladder	SPY	2021-10-01	H2-2021 calm	434.24	2021-11-05	35	call	0.03	447	0.029385	get_option_instruments	SPY	2021-11-05		447.0000	expired	SPY_2021-10-01_2021-11-05_call_447
+66	ladder	SPY	2021-10-01	H2-2021 calm	434.24	2021-11-05	35	call	0.06	460	0.059322	get_option_instruments	SPY	2021-11-05		460.0000	expired	SPY_2021-10-01_2021-11-05_call_460
+67	ladder	SPY	2022-04-01	STRESS: 2022 drawdown	452.92	2022-05-06	35	put	0.03	439	-0.030734	get_option_instruments	SPY	2022-05-06		439.0000	expired	SPY_2022-04-01_2022-05-06_put_439
+68	ladder	SPY	2022-04-01	STRESS: 2022 drawdown	452.92	2022-05-06	35	put	0.06	426	-0.059437	get_option_instruments	SPY	2022-05-06		426.0000	expired	SPY_2022-04-01_2022-05-06_put_426
+69	ladder	SPY	2022-04-01	STRESS: 2022 drawdown	452.92	2022-05-06	35	put	0.10	408	-0.099179	get_option_instruments	SPY	2022-05-06		408.0000	expired	SPY_2022-04-01_2022-05-06_put_408
+70	ladder	SPY	2022-04-01	STRESS: 2022 drawdown	452.92	2022-05-06	35	put	0.15	385	-0.149960	get_option_instruments	SPY	2022-05-06		385.0000	expired	SPY_2022-04-01_2022-05-06_put_385
+71	ladder	SPY	2022-04-01	STRESS: 2022 drawdown	452.92	2022-05-06	35	call	0.03	467	0.031087	get_option_instruments	SPY	2022-05-06		467.0000	expired	SPY_2022-04-01_2022-05-06_call_467
+72	ladder	SPY	2022-04-01	STRESS: 2022 drawdown	452.92	2022-05-06	35	call	0.06	480	0.059790	get_option_instruments	SPY	2022-05-06		480.0000	expired	SPY_2022-04-01_2022-05-06_call_480
+73	ladder	SPY	2022-10-03	STRESS: 2022 drawdown trough	366.61	2022-11-11	39	put	0.03	356	-0.028941	get_option_instruments	SPY	2022-11-11		356.0000	expired	SPY_2022-10-03_2022-11-11_put_356
+74	ladder	SPY	2022-10-03	STRESS: 2022 drawdown trough	366.61	2022-11-11	39	put	0.06	345	-0.058945	get_option_instruments	SPY	2022-11-11		345.0000	expired	SPY_2022-10-03_2022-11-11_put_345
+75	ladder	SPY	2022-10-03	STRESS: 2022 drawdown trough	366.61	2022-11-11	39	put	0.10	330	-0.099861	get_option_instruments	SPY	2022-11-11		330.0000	expired	SPY_2022-10-03_2022-11-11_put_330
+76	ladder	SPY	2022-10-03	STRESS: 2022 drawdown trough	366.61	2022-11-11	39	put	0.15	312	-0.148959	get_option_instruments	SPY	2022-11-11		312.0000	expired	SPY_2022-10-03_2022-11-11_put_312
+77	ladder	SPY	2022-10-03	STRESS: 2022 drawdown trough	366.61	2022-11-11	39	call	0.03	378	0.031068	get_option_instruments	SPY	2022-11-11		378.0000	expired	SPY_2022-10-03_2022-11-11_call_378
+78	ladder	SPY	2022-10-03	STRESS: 2022 drawdown trough	366.61	2022-11-11	39	call	0.06	389	0.061073	get_option_instruments	SPY	2022-11-11		389.0000	expired	SPY_2022-10-03_2022-11-11_call_389
+79	ladder	SPY	2023-04-03	H1-2023	410.95	2023-05-12	39	put	0.03	399	-0.029079	get_option_instruments	SPY	2023-05-12		399.0000	expired	SPY_2023-04-03_2023-05-12_put_399
+80	ladder	SPY	2023-04-03	H1-2023	410.95	2023-05-12	39	put	0.06	386	-0.060713	get_option_instruments	SPY	2023-05-12		386.0000	expired	SPY_2023-04-03_2023-05-12_put_386
+81	ladder	SPY	2023-04-03	H1-2023	410.95	2023-05-12	39	put	0.10	370	-0.099647	get_option_instruments	SPY	2023-05-12		370.0000	expired	SPY_2023-04-03_2023-05-12_put_370
+82	ladder	SPY	2023-04-03	H1-2023	410.95	2023-05-12	39	put	0.15	349	-0.150748	get_option_instruments	SPY	2023-05-12		349.0000	expired	SPY_2023-04-03_2023-05-12_put_349
+83	ladder	SPY	2023-04-03	H1-2023	410.95	2023-05-12	39	call	0.03	423	0.029322	get_option_instruments	SPY	2023-05-12		423.0000	expired	SPY_2023-04-03_2023-05-12_call_423
+84	ladder	SPY	2023-04-03	H1-2023	410.95	2023-05-12	39	call	0.06	436	0.060956	get_option_instruments	SPY	2023-05-12		436.0000	expired	SPY_2023-04-03_2023-05-12_call_436
+85	ladder	SPY	2023-10-02	H2-2023 rate shock	427.31	2023-11-10	39	put	0.03	414	-0.031148	get_option_instruments	SPY	2023-11-10		414.0000	expired	SPY_2023-10-02_2023-11-10_put_414
+86	ladder	SPY	2023-10-02	H2-2023 rate shock	427.31	2023-11-10	39	put	0.06	402	-0.059231	get_option_instruments	SPY	2023-11-10		402.0000	expired	SPY_2023-10-02_2023-11-10_put_402
+87	ladder	SPY	2023-10-02	H2-2023 rate shock	427.31	2023-11-10	39	put	0.10	385	-0.099015	get_option_instruments	SPY	2023-11-10		385.0000	expired	SPY_2023-10-02_2023-11-10_put_385
+88	ladder	SPY	2023-10-02	H2-2023 rate shock	427.31	2023-11-10	39	put	0.15	363	-0.150500	get_option_instruments	SPY	2023-11-10		363.0000	expired	SPY_2023-10-02_2023-11-10_put_363
+89	ladder	SPY	2023-10-02	H2-2023 rate shock	427.31	2023-11-10	39	call	0.03	440	0.029697	get_option_instruments	SPY	2023-11-10		440.0000	expired	SPY_2023-10-02_2023-11-10_call_440
+90	ladder	SPY	2023-10-02	H2-2023 rate shock	427.31	2023-11-10	39	call	0.06	453	0.060120	get_option_instruments	SPY	2023-11-10		453.0000	expired	SPY_2023-10-02_2023-11-10_call_453
+91	ladder	SPY	2024-04-01	H1-2024	522.16	2024-05-10	39	put	0.03	506	-0.030948	get_option_instruments	SPY	2024-05-10		506.0000	expired	SPY_2024-04-01_2024-05-10_put_506
+92	ladder	SPY	2024-04-01	H1-2024	522.16	2024-05-10	39	put	0.06	491	-0.059675	get_option_instruments	SPY	2024-05-10		491.0000	expired	SPY_2024-04-01_2024-05-10_put_491
+93	ladder	SPY	2024-04-01	H1-2024	522.16	2024-05-10	39	put	0.10	470	-0.099893	get_option_instruments	SPY	2024-05-10		470.0000	expired	SPY_2024-04-01_2024-05-10_put_470
+94	ladder	SPY	2024-04-01	H1-2024	522.16	2024-05-10	39	put	0.15	444	-0.149686	get_option_instruments	SPY	2024-05-10		444.0000	expired	SPY_2024-04-01_2024-05-10_put_444
+95	ladder	SPY	2024-04-01	H1-2024	522.16	2024-05-10	39	call	0.03	538	0.030336	get_option_instruments	SPY	2024-05-10		538.0000	expired	SPY_2024-04-01_2024-05-10_call_538
+96	ladder	SPY	2024-04-01	H1-2024	522.16	2024-05-10	39	call	0.06	553	0.059062	get_option_instruments	SPY	2024-05-10		553.0000	expired	SPY_2024-04-01_2024-05-10_call_553
+97	ladder	SPY	2024-10-01	H2-2024	568.62	2024-11-08	38	put	0.03	552	-0.029229	get_option_instruments	SPY	2024-11-08		552.0000	expired	SPY_2024-10-01_2024-11-08_put_552
+98	ladder	SPY	2024-10-01	H2-2024	568.62	2024-11-08	38	put	0.06	535	-0.059126	get_option_instruments	SPY	2024-11-08		535.0000	expired	SPY_2024-10-01_2024-11-08_put_535
+99	ladder	SPY	2024-10-01	H2-2024	568.62	2024-11-08	38	put	0.10	512	-0.099574	get_option_instruments	SPY	2024-11-08		512.0000	expired	SPY_2024-10-01_2024-11-08_put_512
+100	ladder	SPY	2024-10-01	H2-2024	568.62	2024-11-08	38	put	0.15	483	-0.150575	get_option_instruments	SPY	2024-11-08		483.0000	expired	SPY_2024-10-01_2024-11-08_put_483
+101	ladder	SPY	2024-10-01	H2-2024	568.62	2024-11-08	38	call	0.03	586	0.030565	get_option_instruments	SPY	2024-11-08		586.0000	expired	SPY_2024-10-01_2024-11-08_call_586
+102	ladder	SPY	2024-10-01	H2-2024	568.62	2024-11-08	38	call	0.06	603	0.060462	get_option_instruments	SPY	2024-11-08		603.0000	expired	SPY_2024-10-01_2024-11-08_call_603
+103	ladder	SPY	2025-04-01	H1-2025	560.97	2025-05-09	38	put	0.03	544	-0.030251	get_option_instruments	SPY	2025-05-09		544.0000	expired	SPY_2025-04-01_2025-05-09_put_544
+104	ladder	SPY	2025-04-01	H1-2025	560.97	2025-05-09	38	put	0.06	527	-0.060556	get_option_instruments	SPY	2025-05-09		527.0000	expired	SPY_2025-04-01_2025-05-09_put_527
+105	ladder	SPY	2025-04-01	H1-2025	560.97	2025-05-09	38	put	0.10	505	-0.099774	get_option_instruments	SPY	2025-05-09		505.0000	expired	SPY_2025-04-01_2025-05-09_put_505
+106	ladder	SPY	2025-04-01	H1-2025	560.97	2025-05-09	38	put	0.15	477	-0.149687	get_option_instruments	SPY	2025-05-09		477.0000	expired	SPY_2025-04-01_2025-05-09_put_477
+107	ladder	SPY	2025-04-01	H1-2025	560.97	2025-05-09	38	call	0.03	578	0.030358	get_option_instruments	SPY	2025-05-09		578.0000	expired	SPY_2025-04-01_2025-05-09_call_578
+108	ladder	SPY	2025-04-01	H1-2025	560.97	2025-05-09	38	call	0.06	595	0.060663	get_option_instruments	SPY	2025-05-09		595.0000	expired	SPY_2025-04-01_2025-05-09_call_595
+109	ladder	SPY	2025-10-01	H2-2025	668.45	2025-11-07	37	put	0.03	648	-0.030593	get_option_instruments	SPY	2025-11-07		648.0000	expired	SPY_2025-10-01_2025-11-07_put_648
+110	ladder	SPY	2025-10-01	H2-2025	668.45	2025-11-07	37	put	0.06	628	-0.060513	get_option_instruments	SPY	2025-11-07		628.0000	expired	SPY_2025-10-01_2025-11-07_put_628
+111	ladder	SPY	2025-10-01	H2-2025	668.45	2025-11-07	37	put	0.10	602	-0.099409	get_option_instruments	SPY	2025-11-07		602.0000	expired	SPY_2025-10-01_2025-11-07_put_602
+112	ladder	SPY	2025-10-01	H2-2025	668.45	2025-11-07	37	put	0.15	568	-0.150273	get_option_instruments	SPY	2025-11-07		568.0000	expired	SPY_2025-10-01_2025-11-07_put_568
+113	ladder	SPY	2025-10-01	H2-2025	668.45	2025-11-07	37	call	0.03	689	0.030743	get_option_instruments	SPY	2025-11-07		689.0000	expired	SPY_2025-10-01_2025-11-07_call_689
+114	ladder	SPY	2025-10-01	H2-2025	668.45	2025-11-07	37	call	0.06	709	0.060663	get_option_instruments	SPY	2025-11-07		709.0000	expired	SPY_2025-10-01_2025-11-07_call_709
+115	ladder	SPY	2026-04-01	H1-2026	655.24	2026-05-08	37	put	0.03	636	-0.029363	get_option_instruments	SPY	2026-05-08		636.0000	expired	SPY_2026-04-01_2026-05-08_put_636
+116	ladder	SPY	2026-04-01	H1-2026	655.24	2026-05-08	37	put	0.06	616	-0.059886	get_option_instruments	SPY	2026-05-08		616.0000	expired	SPY_2026-04-01_2026-05-08_put_616
+117	ladder	SPY	2026-04-01	H1-2026	655.24	2026-05-08	37	put	0.10	590	-0.099567	get_option_instruments	SPY	2026-05-08		590.0000	expired	SPY_2026-04-01_2026-05-08_put_590
+118	ladder	SPY	2026-04-01	H1-2026	655.24	2026-05-08	37	put	0.15	557	-0.149930	get_option_instruments	SPY	2026-05-08		557.0000	expired	SPY_2026-04-01_2026-05-08_put_557
+119	ladder	SPY	2026-04-01	H1-2026	655.24	2026-05-08	37	call	0.03	675	0.030157	get_option_instruments	SPY	2026-05-08		675.0000	expired	SPY_2026-04-01_2026-05-08_call_675
+120	ladder	SPY	2026-04-01	H1-2026	655.24	2026-05-08	37	call	0.06	695	0.060680	get_option_instruments	SPY	2026-05-08		695.0000	expired	SPY_2026-04-01_2026-05-08_call_695
+121	parity	SPY	2020-04-01	parity check (ITM put at a call strike)	246.15	2020-05-08	37	put		254	0.031891	get_option_instruments	SPY	2020-05-08		254.0000	expired	SPY_2020-04-01_2020-05-08_put_254x
+122	parity	SPY	2020-04-01	parity check (ITM put at a call strike)	246.15	2020-05-08	37	put		261	0.060329	get_option_instruments	SPY	2020-05-08		261.0000	expired	SPY_2020-04-01_2020-05-08_put_261x

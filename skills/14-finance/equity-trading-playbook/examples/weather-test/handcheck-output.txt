@@ -1,0 +1,91 @@
+INDEPENDENT RE-DERIVATION (no import of study.py)
+  book window re-derived from prices: 2005-09-02 .. 2026-10-14  (5311 days)
+
+CHECK 1 -- day-by-day book equity against out/book_daily.csv
+    days compared            : 5311
+    worst absolute difference: 4.999e-11   (2025-04-11)
+    verdict                  : MATCH
+
+CHECK 2 -- BOOK_5 yearly returns, three ways
+
+  year   independent_daily  study.py_output  by_hand_monthly  daily-vs-study  byhand-vs-study
+  2005   +0.7812%  +0.7812%  n/a  4.27e-07  n/a   partial
+  2006   -6.3737%  -6.3737%  -6.3737%  -2.13e-07  -2.13e-07
+  2007   +7.3232%  +7.3232%  +7.3232%  -2.37e-08  -2.37e-08
+  2008   -0.7221%  -0.7221%  -0.7221%  2.97e-07  2.97e-07
+  2009   -3.9224%  -3.9224%  -3.9224%  2.40e-08  2.40e-08
+  2010   -3.7060%  -3.7060%  -3.7060%  -7.15e-08  -7.16e-08
+  2011   -1.5359%  -1.5359%  -1.5359%  -3.18e-08  -3.19e-08
+  2012   -13.4105%  -13.4105%  -13.4105%  -7.39e-08  -7.40e-08
+  2013   -25.2651%  -25.2651%  -25.2651%  -4.71e-07  -4.71e-07
+  2014   -14.0179%  -14.0179%  -14.0179%  3.89e-07  3.89e-07
+  2015   -16.7846%  -16.7846%  -16.7846%  3.97e-07  3.97e-07
+  2016   -2.4508%  -2.4508%  -2.4508%  -2.09e-07  -2.09e-07
+  2017   -18.5666%  -18.5666%  -18.5666%  -2.95e-07  -2.95e-07
+  2018   -4.7944%  -4.7944%  -4.7944%  -3.11e-07  -3.11e-07
+  2019   -11.7617%  -11.7617%  -11.7617%  2.82e-07  2.82e-07
+  2020   +22.4856%  +22.4856%  +22.4856%  2.61e-07  2.61e-07
+  2021   -21.1573%  -21.1573%  -21.1573%  3.85e-08  3.86e-08
+  2022   -13.6751%  -13.6751%  -13.6751%  -1.59e-07  -1.59e-07
+  2023   -12.5668%  -12.5668%  -12.5668%  4.56e-07  4.56e-07
+  2024   -16.5949%  -16.5949%  -16.5949%  8.72e-08  8.71e-08
+  2025   +6.0246%  +6.0246%  +6.0246%  4.14e-07  4.14e-07
+  2026   -9.0213%  -9.0213%  n/a  4.50e-07  n/a   partial
+
+  worst |independent_daily - study.py_output| across all years: 4.706e-07
+  verdict: MATCH  (tolerance 1e-6 -- out/portfolio_yearly.csv is written
+  with 6 decimals, so its own rounding is a ~5e-7 floor on this test)
+
+  The by_hand_monthly column is a THIRD estimator, and it is an exact
+  closed form rather than a copy. Rebalancing to 20% of the books at each
+  month start and then holding each sleeve's own dollars for the month
+  gives a book monthly return of exactly
+      0.20*rA_month + 0.20*rB_month + 0.20*rC_month + 0.20*rD_month
+      + 0.20*rE_month
+  because the book value at month end is sum_c 0.20*B*(1+R_c)
+  = B*(1 + 0.20*sum_c R_c). So it MUST agree with the study, and the
+  residual below is only the 10-decimal rounding of out/sleeve_monthly.csv.
+  largest such gap: 2013, -25.2651% vs -25.2651% (-4.706e-07)
+  worst by_hand gap across all years: 4.706e-07
+  verdict: MATCH  (tolerance 1e-5, i.e. the CSV's own rounding)
+
+CHECK 3 -- the year chosen for the hand computation: 2013
+    month      rA         rB         rC         rD         rE         book
+    2013-01    +5.1190%   +0.0000%   -2.6780%   -0.3044%   -18.5350%  -3.2797%
+    2013-02    +1.2759%   +0.0000%   -1.0839%   -2.2843%   -23.9601%  -5.2105%
+    2013-03    +3.3375%   +0.0000%   +0.0000%   -1.0068%   -27.4036%  -5.0146%
+    2013-04    +1.9212%   -1.4039%   +0.0000%   -1.3209%   -31.8165%  -6.5240%
+    2013-05    +2.3579%   -1.6909%   +0.0000%   -3.6082%   +10.6192%  +1.5356%
+    2013-06    -1.8508%   +0.0000%   +0.0000%   +0.0000%   +3.4356%   +0.3170%
+    2013-07    +5.1677%   +0.0000%   +0.0000%   +0.0000%   -11.6845%  -1.3034%
+    2013-08    -2.9992%   +0.0000%   +0.0000%   +0.0000%   +5.0589%   +0.4119%
+    2013-09    +2.6642%   +0.0000%   +0.0000%   -5.1023%   -18.3694%  -4.1615%
+    2013-10    +4.6307%   +0.0000%   +0.0000%   -0.2907%   -11.3855%  -1.4091%
+    2013-11    +2.9638%   +0.0000%   +0.0000%   -0.7406%   +0.0000%   +0.4446%
+    2013-12    +2.0387%   +0.0000%   +0.0000%   -6.5226%   -16.3630%  -4.1694%
+
+    BY HAND: equal weights 0.20 each; the book return in month m is
+      0.20*rA + 0.20*rB + 0.20*rC + 0.20*rD + 0.20*rE
+    compounding 2013-01 .. 2013-12 gives -25.2651%
+    study.py's BOOK_5 for 2013      : -25.2651%
+    independent daily book for 2013 : -25.2651%
+
+    Worked example, the worst month of 2013:
+      2013-04 : 0.20*+1.9212% + 0.20*-1.4039% + 0.20*+0.0000% + 0.20*-1.3209% + 0.20*-31.8165%
+      = -6.5240%   <- hand sum
+      script's book return for that month: -6.5240%
+
+CHECK 4 -- correlation matrix symmetry and unit diagonal
+    labels                  : A,B,C,D,E,G
+    worst |r(a,b)-r(b,a)|   : 0.000e+00  (0 pairs out of tolerance)
+    worst |r(a,a)-1|        : 0.000e+00
+    verdict                 : SYMMETRIC WITH UNIT DIAGONAL
+
+CHECK 5 -- one sleeve-year from prices, no reuse: sleeve A, 2013
+    from prices, close 2012-12-31 -> 2013-12-31, long when close > SMA(200):
+      +29.6889%
+    out/sleeve_yearly.csv sleeve A 2013 : +29.6889%
+    verdict: MATCH
+
+========================================================================
+HAND-CHECK PASSED: all five checks agree.

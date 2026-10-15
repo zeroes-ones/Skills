@@ -13,7 +13,9 @@ Rule: Max 30% of theta in any single expiration cycle [COMMON-PRACTICE].
 
 ### Sector Correlation Within Options
 
-Mega-cap tech correlations [VERIFIED from rolling 90-day correlations]:
+Mega-cap tech correlations [ESTIMATED ±0.10 — an illustrative snapshot, not a measured series. The tag
+is only upgraded to [VERIFIED] once a named vendor (e.g. Bloomberg / Refinitiv) and the exact window
+and as-of date are printed beside it. Correlations decay within weeks; re-pull before use.]:
 
 | Pair | Correlation | Interpretation |
 |------|------------|----------------|
@@ -26,15 +28,27 @@ If you sell options on AAPL, MSFT, and NVDA, you have 3 contracts of the same be
 
 ### Effective N Formula
 
-For a portfolio of N positions with weights w_i and pairwise correlations ρ_ij [COMPUTED]:
+The effective number of independent bets in a portfolio of N positions with weights `w_i` and
+pairwise correlations `ρ_ij` is the inverse of the correlation-weighted concentration [COMPUTED]:
+
 ```
-N_eff = (Σw_i)² / Σ(w_i² × ρ_ij)
+N_eff = (Σ w_i)² / Σ_i Σ_j ( w_i · w_j · ρ_ij )        with ρ_ii = 1
 ```
 
+For **equal weights** (`w_i = 1/N`) the denominator collapses to `(1/N)·(1 + (N−1)·ρ̄)` whatever the
+individual off-diagonal values, so the formula reduces exactly to the familiar form:
+
+```
+N_eff = N / ( 1 + (N − 1) · ρ̄ )        ρ̄ = mean of the N(N−1)/2 pairwise correlations
+```
+
+*(An earlier edition of this file printed the denominator as `Σ(w_i² · ρ_ij)`, which drops the
+cross-weights, and reported 1.18 and 1.37 from it. Both were wrong. The correct values are below.)*
+
 Example: 5 equal-weighted positions, each 20% of portfolio:
-- If all ρ_ij = 0 (uncorrelated): N_eff = 5 real independent bets
-- If all ρ_ij = 0.85 (mega-cap tech): N_eff = 1.18 — barely more than 1 bet
-- If all ρ_ij = 1.00 (identical): N_eff = 1 — one position
+- If all ρ_ij = 0 (uncorrelated): N_eff = 5 / (1 + 4×0) = **5** real independent bets
+- If all ρ_ij = 0.85 (mega-cap tech): N_eff = 5 / (1 + 4×0.85) = 5 / 4.40 = **1.136** — barely more than 1 bet
+- If all ρ_ij = 1.00 (identical): N_eff = 5 / (1 + 4) = **1** — one position
 
 This quantifies what traders sense intuitively: "My 5 positions move together."
 
@@ -49,7 +63,10 @@ This quantifies what traders sense intuitively: "My 5 positions move together."
 
 Pairwise correlations: SPY-QQQ (0.88), SPY-IWM (0.80), SPY-DIA (0.85), SPY-XLF (0.72), QQQ-IWM (0.72), QQQ-DIA (0.77), QQQ-XLF (0.65), IWM-DIA (0.78), IWM-XLF (0.70), DIA-XLF (0.75).
 
-N_eff = 1.37 — five positions behave like 1.37 independent bets. A single market move hits all of them [COMPUTED].
+N_eff = 5 / (1 + 4 × 0.762) = 5 / 4.048 = **1.235** — five positions behave like 1.24 independent
+bets (ρ̄ = 0.762 is the mean of the ten pairwise correlations above). A single market move hits all of
+them [COMPUTED]. *(The 1.37 printed in an earlier edition came from the broken denominator formula —
+see the Effective N Formula section.)*
 
 ## Crash Correlation: All Correlations → 1
 
@@ -93,9 +110,14 @@ Your position must be ≤ 5% of open interest. Beyond 10% OI, you become the mar
 
 ## Real-World Concentration Failure
 
-March 2020 COVID crash: A trader holding short puts on SPY, QQQ, IWM, DIA, and XLF — "diversified across 5 indices." All 5 dropped 30-40% simultaneously. All short puts went deep ITM simultaneously. Portfolio loss: 10× max planned loss because the 5 positions were effectively one [VERIFIED — representative scenario].
+The N_eff calculation would have shown N_eff ≈ 1.24 at the pairwise correlations above (5 positions,
+ρ̄ = 0.762). The trader thought they had 5 independent bets. They had 1. The math would have warned them.
 
-The N_eff calculation would have shown N_eff ≈ 1.2. The trader thought they had 5 independent bets. They had 1. The math would have warned them.
+March 2020 COVID crash: a trader holding short puts on SPY, QQQ, IWM, DIA and XLF — "diversified across
+5 indices". All 5 dropped 30–40% simultaneously; all the short puts went deep ITM together.
+[ESTIMATED ±25% — this is a **constructed illustration** of the correlation point, not a measured
+account; the "30–40% decline" is the actual index move, the portfolio outcome is the worked
+consequence.]
 
 ## Same-Underlying Concentration: Multiple Strikes
 

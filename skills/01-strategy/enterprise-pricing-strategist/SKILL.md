@@ -26,7 +26,6 @@ tags:
   - deal-desk
   - contract-negotiation
 author: Sandeep Kumar Penchala
-token_budget: 3000
 chain:
   consumes_from:
     - business-strategist

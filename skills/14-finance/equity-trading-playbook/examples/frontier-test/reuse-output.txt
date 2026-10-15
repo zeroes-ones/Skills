@@ -1,0 +1,10 @@
+VERIFY OVERLAP
+  sibling ..\regime-study\data\SPY_1d.csv: 8485 rows, 1993-01-29 .. 2026-10-14
+  this study data\SPY_1d.csv: 8000 rows, 1994-12-30 .. 2026-10-14
+  overlapping rows:   8000
+  identical rows:     7999
+  last-bar exceptions:1
+      2026-10-14 volume differs (sibling 55591868 vs this study 55687118) -- the final bar is still forming
+  rows only in the sibling file: 485 (1993-01-29 .. 1994-12-29)
+
+WROTE data\SPY_1d.csv  rows=8485  1993-01-29 .. 2026-10-14

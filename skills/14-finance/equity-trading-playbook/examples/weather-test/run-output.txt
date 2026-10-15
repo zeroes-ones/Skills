@@ -1,0 +1,609 @@
+
+===== SECTION: 0 · METHOD AND PROVENANCE =====
+  PRICE-ONLY DATA. No dividends, no distributions. Every series is a
+  price series, not a total-return series. Any always-long sleeve is
+  therefore understated relative to a total-return version, and the
+  always-long comparison sleeve G most of all.
+
+  Sharpe convention: daily simple returns, full sample, Rf = 0, x sqrt(252).
+  CAGR: compounded end/start, annualised over calendar time (365.25 d/yr).
+  Max drawdown (headline): COMPOUNDED peak-to-trough of the equity curve,
+    as a negative fraction -- the sibling regime study's definition, so the
+    two studies' drawdown columns compare directly.
+  Max drawdown (additive): the sibling engine's max_drawdown() on the daily
+    return series -- peak-to-trough of the cumulated returns, in return units.
+    Quoted for the book only, and only to show the two measures differ.
+  Execution: signal on close of day i, position held through day i+1.
+  Warm-up: a sleeve is FLAT until its moving average exists.
+  Rebalance: monthly, to the pre-registered weights; weights drift in between.
+  Costs: OFF here; on in section 11.
+
+  Engine imported, not re-implemented: C:\Users\sande\Documents\Projects\Skills\skills\14-finance\timeframe-performance-statistics\scripts\timeframe_stats.py
+    used: bucket_key(), aggregate_bucket(), sample_sd(), max_drawdown(),
+          lag1_autocorr(), n_effective()
+===== END SECTION =====
+
+===== SECTION: 1 · DATA INTEGRITY =====
+  Files under C:\Users\sande\Documents\Projects\Skills\skills\14-finance\equity-trading-playbook\examples\weather-test\data
+
+  symbol  rows  first       last        weekend_dates  ordering             series_type
+  ------  ----  ----------  ----------  -------------  -------------------  -----------
+  SPY     8485  1993-01-29  2026-10-14  0              strictly increasing  price-only
+  TLT     6094  2002-07-26  2026-10-14  0              strictly increasing  price-only
+  GLD     5510  2004-11-18  2026-10-14  0              strictly increasing  price-only
+  EEM     5915  2003-04-11  2026-10-14  0              strictly increasing  price-only
+  VIX     9283  1990-01-03  2026-10-14  0              strictly increasing  price-only
+
+  No duplicate dates, no weekend dates, no OHLC-invariant violations:
+    checked all 35287 bars across 5 series -- all invariants hold
+
+  PROVENANCE HEADERS AS WRITTEN (verbatim, one series as an example):
+    # PROVENANCE: source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # PROVENANCE: symbol=TVC:VIX  interval=1D  fields=OHLCV
+    # PROVENANCE: pulled=2026-10-14 (UTC date of the pull)
+    # PROVENANCE: split-adjusted, regular session only
+    # PROVENANCE: pages_merged=2  rows=9283  first=1990-01-03  last=2026-10-14
+    # PROVENANCE: rows_available_per_page_as_reported_by_source=8000,1283
+    # PROVENANCE: date is the exchange session date, rendered as the UTC calendar date of the bar timestamp
+    # PROVENANCE: volume is as reported by the source, in shares (unadjusted for splits)
+    # PROVENANCE: PRICE-ONLY series. No dividends or distributions. Not a total-return series.
+    # PROVENANCE: raw_bars_seen_across_pages=8000,1283
+    # PROVENANCE: pages_had_more=True,False
+    # PROVENANCE: duplicate_session_dates_removed=0
+
+  Book window = first date on which EVERY sleeve's rule is computable.
+    sleeve warm-up completes on:
+      A  SPY      SMA(200) first available 1993-11-11
+      B  TLT      SMA(200) first available 2003-05-12
+      C  GLD      SMA(200) first available 2005-09-02
+      D  EEM      SMA(200) first available 2004-01-27
+      E  VIX      SMA(50) first available 1990-03-14
+    -> BOOK WINDOW 2005-09-02 .. 2026-10-14   (5311 trading days)
+    dates present in all five series inside the window: 5311 of 5311
+    dropped for calendar mismatch: 0
+
+  CALENDAR ALIGNMENT -- the equity instruments and the VIX index do not
+  share an identical calendar (CBOE trades on Good Friday, NYSE does not):
+    SPY  0 of 5311 window dates have no bar of its own; 0 of its own dates are outside the equity calendar
+    TLT  0 of 5311 window dates have no bar of its own; 0 of its own dates are outside the equity calendar
+    GLD  0 of 5311 window dates have no bar of its own; 0 of its own dates are outside the equity calendar
+    EEM  0 of 5311 window dates have no bar of its own; 0 of its own dates are outside the equity calendar
+    VIX  0 of 5311 window dates have no bar of its own; 22 of its own dates are outside the equity calendar
+
+  VIX's 22 extra dates (CBOE open, NYSE shut) are excluded from the book
+  calendar -- the book cannot be traded on a day the equity instruments do
+  not trade. Their price move is not lost: sleeve E's return is always
+  measured from its own last available bar, so the move across the gap is
+  carried by the next book day. Sample of the extra dates:
+    2022-05-30, 2023-01-16, 2023-02-20, 2023-05-29, 2023-06-19, 2023-07-04, 2023-09-04, 2023-11-23 ...
+===== END SECTION =====
+
+===== SECTION: 2 · SLEEVE DEFINITIONS (pre-registered; not searched) =====
+  id  sleeve                                      instrument       rule               weight
+  --  ------------------------------------------  ---------------  -----------------  --------
+  A   equity trend                                SPY              close > SMA(200)   20%
+  B   bond trend                                  TLT              close > SMA(200)   20%
+  C   gold trend                                  GLD              close > SMA(200)   20%
+  D   ex-US equity trend                          EEM              close > SMA(200)   20%
+  E   long-volatility (VIX signal, NOT tradable)  VIX              close > SMA(50)    20%
+  F   four trend sleeves, no vol sleeve           SPY/TLT/GLD/EEM  same rules as A-D  25% each
+  G   buy & hold SPY (comparison)                 SPY              always long        100%
+
+  Sleeve E models the VIX INDEX LEVEL change, not a tradable instrument.
+  No long-vol futures or ETN is modelled; roll cost is absent, so E is
+  an upper bound on the signal's return and is flagged throughout.
+===== END SECTION =====
+
+===== SECTION: 3 · PER-SLEEVE TABLE (all on the same book window, gross of costs) =====
+  Sleeve F and portfolio rows are in section 8. Sleeve E is an upper bound
+  (VIX index proxy, not tradable) -- see section 2.
+
+  sleeve  CAGR     max_dd    Sharpe  worst_year      losing_years  days_long  n_days
+  ------  -------  --------  ------  --------------  ------------  ---------  ------
+  A       +6.48%   -20.96%   0.611   2022 (-15.40%)  6             77.8%      5311
+  B       -0.60%   -39.26%   -0.003  2009 (-15.74%)  13            47.1%      5311
+  C       +8.25%   -33.52%   0.599   2021 (-13.92%)  8             68.2%      5311
+  D       +2.64%   -42.66%   0.241   2013 (-19.47%)  11            62.1%      5311
+  E       -55.16%  -100.00%  -0.312  2013 (-80.31%)  19            39.5%      5311
+  G       +9.10%   -56.47%   0.552   2008 (-38.28%)  5             100.0%     5311
+
+  Sharpe convention: daily simple returns, 2005-09-02 .. 2026-10-14, Rf = 0, x sqrt(252).
+  worst_year / losing_years count only COMPLETE calendar years 2006-2025;
+  2005 and 2026 are partial and are shown separately in section 5.
+
+  For reference, the same two rows on their FULL available history
+  (not comparable to the table above -- different window, and this is
+   where the 1993-2026 coverage that the brief mentions lives):
+
+  sleeve  what                first       last        CAGR    max_dd   Sharpe  worst_year      losing_years
+  ------  ------------------  ----------  ----------  ------  -------  ------  --------------  ------------
+  A       equity trend (SPY)  1993-01-29  2026-10-14  +6.49%  -28.13%  0.596   2000 (-20.50%)  10
+  G       buy & hold SPY      1993-01-29  2026-10-14  +8.87%  -56.47%  0.551   2008 (-38.28%)  9
+
+  WHY EACH SLEEVE MAKES OR LOSES MONEY -- the return earned on the days the
+  rule is long, compounded and annualised. Flat days return exactly 0.0 by
+  construction, so this IS the sleeve's whole edge.
+
+  Compounded, not arithmetic: the arithmetic mean of daily returns is
+  meaningless on a series this volatile. The VIX index rose over this
+  window while its arithmetic mean daily change was NEGATIVE -- a large up
+  day followed by a large down day contributes a large negative amount to an
+  arithmetic mean and exactly 0 to a compounded one.
+
+  sleeve  days_long  pct_days_long  total_return_on_long_days  annualised_on_long_days
+  ------  ---------  -------------  -------------------------  -----------------------
+  A       4130       77.8%          +276.76%                   +8.43%
+  B       2503       47.1%          -11.98%                    -1.28%
+  C       3623       68.2%          +432.72%                   +12.34%
+  D       3297       62.1%          +73.36%                    +4.30%
+  E       2100       39.5%          -100.00%                   -86.90%
+
+  Compare the last column with section 3's CAGR. They differ because the
+  sleeve's capital is rebalanced monthly against the other sleeves and
+  because a book-level drawdown changes what a sleeve's own return is worth
+  to the book; they are two different numbers about the same rule and both
+  are printed rather than reconciled away.
+
+  The VIX index itself over the book window:
+    first close 13.57 on 2005-09-02, last close 16.86 on 2026-10-14 -> +24.24%
+    the index ROSE over the window, and sleeve E still lost -55.16% a year.
+    The rule is long when the index is ABOVE its own 50-day average, i.e.
+    it buys after the spikes -- and the VIX mean-reverts. The loss is the
+    reversion, not the level.
+===== END SECTION =====
+
+===== SECTION: 4 · PER-SLEEVE YEARLY RETURNS (book window; compounded within the year) =====
+  year  A        B        C        D        E        G        note
+  ----  -------  -------  -------  -------  -------  -------  -------
+  2005  +1.41%   -5.12%   +16.56%  +10.45%  -20.94%  +1.83%   partial
+  2006  +9.32%   -0.30%   +16.17%  +9.66%   -53.89%  +13.74%
+  2007  -5.22%   +0.25%   +25.62%  +27.61%  -21.89%  +3.24%
+  2008  -0.81%   +17.45%  -10.98%  -16.92%  -18.36%  -38.28%
+  2009  +13.86%  -15.74%  +20.66%  +46.08%  -57.61%  +23.49%
+  2010  +0.81%   -1.45%   +29.27%  -1.53%   -45.69%  +12.84%
+  2011  -9.86%   +19.89%  +10.21%  -10.11%  -29.62%  -0.20%
+  2012  +10.04%  -10.87%  +0.11%   -1.55%   -56.54%  +13.47%
+  2013  +29.69%  -3.07%   -3.73%   -19.47%  -80.31%  +29.69%
+  2014  +9.26%   +15.54%  -12.89%  -6.20%   -63.18%  +11.29%
+  2015  -8.89%   -5.28%   -4.39%   -4.26%   -65.27%  -0.81%
+  2016  +8.29%   +5.35%   +7.92%   -2.04%   -37.71%  +9.64%
+  2017  +19.38%  -3.05%   -2.50%   +32.99%  -79.33%  +19.38%
+  2018  -9.32%   -3.41%   -0.87%   -7.28%   -27.04%  -6.35%
+  2019  +13.58%  +10.63%  +17.86%  -5.25%   -67.91%  +28.79%
+  2020  +4.13%   +16.91%  +18.35%  +8.02%   +7.60%   +16.16%
+  2021  +27.04%  -5.07%   -13.92%  +0.14%   -78.56%  +27.04%
+  2022  -15.40%  -2.63%   -7.78%   +0.00%   -47.80%  -19.48%
+  2023  +9.68%   -13.82%  +7.80%   -15.80%  -44.84%  +24.29%
+  2024  +23.30%  -12.45%  +26.66%  +2.11%   -77.86%  +23.30%
+  2025  +10.81%  -3.44%   +63.68%  +17.04%  -41.48%  +16.35%
+  2026  +10.15%  -2.31%   -1.21%   +17.69%  -58.69%  +12.86%  partial
+
+  2005 is partial (book begins 2005-09-02). 2026 is partial (2026-10-14, the last bar).
+  Complete calendar years in the window: 2006-2025 (20 years).
+===== END SECTION =====
+
+===== SECTION: 5 · YEAR-TO-YEAR AGREEMENT BETWEEN SLEEVES (the key output) =====
+  Pearson correlation of YEARLY returns, complete years 2006-2025 only.
+  The prior regime study found its four sleeves' six pairwise yearly
+  correlations all positive, between 0.666 and 0.887. This is the same
+  measurement applied to this book's sleeves.
+
+  years used (n=20): 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025
+
+     A       B       C       D       E       G
+  -  ------  ------  ------  ------  ------  ------
+  A  1.000   -0.314  0.047   0.110   -0.629  0.762
+  B  -0.314  1.000   -0.154  -0.319  0.492   -0.389
+  C  0.047   -0.154  1.000   0.415   0.218   0.306
+  D  0.110   -0.319  0.415   1.000   -0.033  0.239
+  E  -0.629  0.492   0.218   -0.033  1.000   -0.516
+  G  0.762   -0.389  0.306   0.239   -0.516  1.000
+
+  CHECKS: matrix symmetric: YES (all 15 off-diagonal pairs verified
+          equal in both directions to 1e-12)
+          unit diagonal: YES
+
+  pairwise yearly correlations, all 15 pairs: -0.629 .. 0.762
+
+  pairs involving the vol sleeve E (the ones the book was built around):
+    corr(A,E) = -0.629
+    corr(E,G) = -0.516
+    corr(D,E) = -0.033
+    corr(C,E) = +0.218
+    corr(B,E) = +0.492
+
+  lowest five pairs overall:
+    corr(A,E) = -0.629
+    corr(E,G) = -0.516
+    corr(B,G) = -0.389
+    corr(B,D) = -0.319
+    corr(A,B) = -0.314
+  highest five pairs overall:
+    corr(A,G) = +0.762
+    corr(B,E) = +0.492
+    corr(C,D) = +0.415
+    corr(C,G) = +0.306
+    corr(D,G) = +0.239
+
+  the six trend-sleeve pairs among A-D only: -0.319 .. 0.415
+  the five pairs against the vol sleeve E: -0.629 .. 0.492
+===== END SECTION =====
+
+===== SECTION: 6 · ENGINE CROSS-CHECK ON THE YEARLY SERIES (aggregate_bucket, bucket='Y') =====
+  The sibling engine is fed one pseudo-trade per book day per sleeve:
+  close_date = the day, pnl = that day's sleeve return. Its `net_pnl` is
+  therefore the ADDITIVE sum of daily returns in the year, not the
+  compounded return of section 4 -- the two agree closely in small years
+  and diverge in large ones. Its t_stat tests whether the mean yearly P&L
+  is distinguishable from zero across the years; its lag1/n_eff say how
+  much independent information the yearly series actually carries.
+
+  sleeve  n_years  mean_yr_pnl  sd_yr_pnl  t_stat  lag1_autocorr  n_eff  beyond +/-2
+  ------  -------  -----------  ---------  ------  -------------  -----  -----------
+  A       22       0.06651      0.11478    2.718   -0.227         35.0   yes
+  B       22       -0.00032     0.10411    -0.014  -0.110         27.4   no
+  C       22       0.08716      0.16028    2.550   0.234          13.6   yes
+  D       22       0.03813      0.15913    1.124   -0.136         28.9   no
+  E       22       -0.30605     0.58062    -2.472  -0.339         44.5   yes
+  G       22       0.10115      0.15904    2.983   -0.190         32.3   yes
+
+  t_stat beyond the engine's own +/-2.0 noise band means the sleeve's
+  yearly mean is large relative to its year-to-year scatter. n_eff below
+  n_years means the yearly series is positively autocorrelated and the
+  evidence is thinner than the year count suggests.
+===== END SECTION =====
+
+===== SECTION: 7 · PORTFOLIO RESULTS =====
+  BOOK_5 = pre-registered A-E at 20% each, monthly rebalance (THE BOOK).
+  F      = A-D at 25% each, no vol sleeve.
+  G      = 100% buy & hold SPY on the same window.
+
+  portfolio                CAGR    max_dd   Sharpe  worst_roll_12m  worst_roll_36m  worst_year      losing_years  n_days
+  -----------------------  ------  -------  ------  --------------  --------------  --------------  ------------  ------
+  BOOK_5 (pre-registered)  -8.15%  -86.08%  -0.276  -32.91%         -51.86%         2013 (-25.27%)  17            5311
+  F (four trend sleeves)   +4.67%  -14.83%  0.604   -10.33%         -12.90%         2022 (-6.51%)   7             5311
+  G (buy & hold SPY)       +9.10%  -56.47%  0.552   -48.59%         -46.78%         2008 (-38.28%)  5             5311
+
+  Rolling windows are trailing TRADING-DAY windows (252 and 756 book days),
+  measured on the compounded equity curve, over every window ending on a
+  book day.
+
+  BOOK_5 additive max drawdown (engine max_drawdown() on daily returns):
+    -1.6121 in return units -- compare with the compounded -86.08% above, the two
+    measures are different quantities and are NOT interchangeable.
+
+  BOOK_5 turnover: 1326 position flips across the five sleeves and 253 monthly
+  rebalances over 21.1 years -> 12.6 flips/sleeve/year, one-way rebalance
+  turnover 0.32 x book value per year (sum of one-way turnover / years).
+  flips by sleeve: A=137, B=216, C=162, D=211, E=600
+===== END SECTION =====
+
+===== SECTION: 8 · PORTFOLIO YEARLY RETURNS, LOSING YEARS, AND WHO CAUSED THEM =====
+
+  BOOK_5 (pre-registered)
+  year  return   note
+  ----  -------  -------
+  2005  +0.78%   partial
+  2006  -6.37%
+  2007  +7.32%
+  2008  -0.72%
+  2009  -3.92%
+  2010  -3.71%
+  2011  -1.54%
+  2012  -13.41%
+  2013  -25.27%
+  2014  -14.02%
+  2015  -16.78%
+  2016  -2.45%
+  2017  -18.57%
+  2018  -4.79%
+  2019  -11.76%
+  2020  +22.49%
+  2021  -21.16%
+  2022  -13.68%
+  2023  -12.57%
+  2024  -16.59%
+  2025  +6.02%
+  2026  -9.02%   partial
+
+    complete years 2006-2025: 17 of 20 were LOSING.
+      2006  -6.37%
+      2008  -0.72%
+      2009  -3.92%
+      2010  -3.71%
+      2011  -1.54%
+      2012  -13.41%
+      2013  -25.27%
+      2014  -14.02%
+      2015  -16.78%
+      2016  -2.45%
+      2017  -18.57%
+      2018  -4.79%
+      2019  -11.76%
+      2021  -21.16%
+      2022  -13.68%
+      2023  -12.57%
+      2024  -16.59%
+
+  F (four trend sleeves)
+  year  return   note
+  ----  -------  -------
+  2005  +5.67%   partial
+  2006  +9.20%
+  2007  +11.81%
+  2008  -2.76%
+  2009  +15.01%
+  2010  +6.93%
+  2011  +2.84%
+  2012  -0.33%
+  2013  -0.39%
+  2014  +1.01%
+  2015  -5.44%
+  2016  +5.18%
+  2017  +10.87%
+  2018  -4.99%
+  2019  +9.46%
+  2020  +12.65%
+  2021  +1.26%
+  2022  -6.51%
+  2023  -3.33%
+  2024  +9.10%
+  2025  +20.21%
+  2026  +6.34%   partial
+
+    complete years 2006-2025: 7 of 20 were LOSING.
+      2008  -2.76%
+      2012  -0.33%
+      2013  -0.39%
+      2015  -5.44%
+      2018  -4.99%
+      2022  -6.51%
+      2023  -3.33%
+
+  G (buy & hold SPY)
+  year  return   note
+  ----  -------  -------
+  2005  +1.83%   partial
+  2006  +13.74%
+  2007  +3.24%
+  2008  -38.28%
+  2009  +23.49%
+  2010  +12.84%
+  2011  -0.20%
+  2012  +13.47%
+  2013  +29.69%
+  2014  +11.29%
+  2015  -0.81%
+  2016  +9.64%
+  2017  +19.38%
+  2018  -6.35%
+  2019  +28.79%
+  2020  +16.16%
+  2021  +27.04%
+  2022  -19.48%
+  2023  +24.29%
+  2024  +23.30%
+  2025  +16.35%
+  2026  +12.86%  partial
+
+    complete years 2006-2025: 5 of 20 were LOSING.
+      2008  -38.28%
+      2011  -0.20%
+      2015  -0.81%
+      2018  -6.35%
+      2022  -19.48%
+
+  WHICH SLEEVES WERE NEGATIVE IN EVERY BOOK_5 YEAR, worst return first:
+
+  year  BOOK_5         sleeves_negative  sleeves_positive  per-sleeve return
+  ----  -------  ----  ----------------  ----------------  -----------------------------------------------------
+  2013  -25.27%  LOSS  B,C,D,E           A                 A +29.69%  B -3.07%  C -3.73%  D -19.47%  E -80.31%
+  2021  -21.16%  LOSS  B,C,E             A,D               A +27.04%  B -5.07%  C -13.92%  D +0.14%  E -78.56%
+  2017  -18.57%  LOSS  B,C,E             A,D               A +19.38%  B -3.05%  C -2.50%  D +32.99%  E -79.33%
+  2015  -16.78%  LOSS  A,B,C,D,E         -                 A -8.89%  B -5.28%  C -4.39%  D -4.26%  E -65.27%
+  2024  -16.59%  LOSS  B,E               A,C,D             A +23.30%  B -12.45%  C +26.66%  D +2.11%  E -77.86%
+  2014  -14.02%  LOSS  C,D,E             A,B               A +9.26%  B +15.54%  C -12.89%  D -6.20%  E -63.18%
+  2022  -13.68%  LOSS  A,B,C,E           D                 A -15.40%  B -2.63%  C -7.78%  D +0.00%  E -47.80%
+  2012  -13.41%  LOSS  B,D,E             A,C               A +10.04%  B -10.87%  C +0.11%  D -1.55%  E -56.54%
+  2023  -12.57%  LOSS  B,D,E             A,C               A +9.68%  B -13.82%  C +7.80%  D -15.80%  E -44.84%
+  2019  -11.76%  LOSS  D,E               A,B,C             A +13.58%  B +10.63%  C +17.86%  D -5.25%  E -67.91%
+  2006  -6.37%   LOSS  B,E               A,C,D             A +9.32%  B -0.30%  C +16.17%  D +9.66%  E -53.89%
+  2018  -4.79%   LOSS  A,B,C,D,E         -                 A -9.32%  B -3.41%  C -0.87%  D -7.28%  E -27.04%
+  2009  -3.92%   LOSS  B,E               A,C,D             A +13.86%  B -15.74%  C +20.66%  D +46.08%  E -57.61%
+  2010  -3.71%   LOSS  B,D,E             A,C               A +0.81%  B -1.45%  C +29.27%  D -1.53%  E -45.69%
+  2016  -2.45%   LOSS  D,E               A,B,C             A +8.29%  B +5.35%  C +7.92%  D -2.04%  E -37.71%
+  2011  -1.54%   LOSS  A,D,E             B,C               A -9.86%  B +19.89%  C +10.21%  D -10.11%  E -29.62%
+  2008  -0.72%   LOSS  A,C,D,E           B                 A -0.81%  B +17.45%  C -10.98%  D -16.92%  E -18.36%
+  2025  +6.02%         B,E               A,C,D             A +10.81%  B -3.44%  C +63.68%  D +17.04%  E -41.48%
+  2007  +7.32%         A,E               B,C,D             A -5.22%  B +0.25%  C +25.62%  D +27.61%  E -21.89%
+  2020  +22.49%        -                 A,B,C,D,E         A +4.13%  B +16.91%  C +18.35%  D +8.02%  E +7.60%
+
+  years in which ALL FIVE sleeves lost: 2015, 2018
+  years in which sleeve E lost            : 19 of 20 complete years
+  BOOK_5 losing years in which E lost     : 17 of 17
+  BOOK_5 losing years in which E did not lose: none
+===== END SECTION =====
+
+===== SECTION: 9 · ALL-WEATHER VERDICT -- THE CLOSEST STANDARD THE DATA SUPPORTS =====
+  Question 1: is the book profitable in EVERY year?
+    Complete calendar years tested: 20 (2006-2025).
+    Losing years: 17 -> 2006 -6.37%, 2008 -0.72%, 2009 -3.92%, 2010 -3.71%, 2011 -1.54%, 2012 -13.41%, 2013 -25.27%, 2014 -14.02%, 2015 -16.78%, 2016 -2.45%, 2017 -18.57%, 2018 -4.79%, 2019 -11.76%, 2021 -21.16%, 2022 -13.68%, 2023 -12.57%, 2024 -16.59%
+    ANSWER: NO. The book is not profitable in every year.
+
+  Question 2: what IS the closest standard the data supports? Every
+  rolling N-year window on the compounded equity curve:
+
+  window  windows_tested  worst_window  mean_window  windows_positive
+  ------  --------------  ------------  -----------  ----------------
+  1y      5060            -32.91%       -7.55%       22.9%
+  2y      4808            -42.39%       -15.18%      15.6%
+  3y      4556            -51.86%       -22.43%      7.8%
+  5y      4052            -60.47%       -36.56%      2.6%
+  7y      3548            -71.89%       -49.31%      0.0%
+  10y     2792            -74.83%       -64.08%      0.0%
+
+  Same for the comparison portfolios:
+
+  portfolio                1y       2y       3y       5y       7y       10y
+  -----------------------  -------  -------  -------  -------  -------  -------
+  BOOK_5 (pre-registered)  -32.91%  -42.39%  -51.86%  -60.47%  -71.89%  -74.83%
+  F (four trend sleeves)   -10.33%  -12.80%  -12.90%  -4.45%   +0.63%   +14.37%
+  G (buy & hold SPY)       -48.59%  -51.61%  -46.78%  -17.40%  +9.65%   +44.27%
+
+  Fraction of rolling windows with a POSITIVE return (BOOK_5):
+
+  window  windows_positive
+  ------  ----------------
+  1y      22.94%
+  2y      15.56%
+  3y      7.79%
+  5y      2.62%
+  7y      0.00%
+  10y     0.00%
+
+  Worst drawdown of BOOK_5 over the whole window: -86.08%
+  Worst drawdown of G (buy & hold SPY):          -56.47%
+===== END SECTION =====
+
+===== SECTION: 10 · COSTS =====
+  Round-trip rate c bps means each side of a trade costs c/2 bps of the
+  notional traded. Charged on: every position flip (flat<->long), and every
+  monthly rebalance on its one-way turnover. Sleeve E's flips are charged
+  like any other sleeve even though E is not tradable -- see section 2.
+
+  round_trip_bps  CAGR    max_dd   Sharpe  CAGR_drag  maxdd_change  Sharpe_delta  losing_years
+  --------------  ------  -------  ------  ---------  ------------  ------------  ------------
+  0.0             -8.15%  -86.08%  -0.276  +0.00bp    +0.00bp       0.0000        17
+  5.0             -8.43%  -86.74%  -0.290  -28.01bp   -65.71bp      -0.0138       17
+  20.0            -9.27%  -88.61%  -0.331  -111.53bp  -253.52bp     -0.0551       17
+
+  The same for the comparison portfolios at 20 bps:
+
+  portfolio                    CAGR@0bps  CAGR@20bps  CAGR_drag  max_dd@0bps  max_dd@20bps
+  ---------------------------  ---------  ----------  ---------  -----------  ------------
+  BOOK_5                       -8.15%     -9.27%      -111.53bp  -86.08%      -88.61%
+  F                            +4.67%     +3.78%      -89.33bp   -14.83%      -17.84%
+  G (SPY buy&hold, one entry)  +9.10%     +9.10%      -0.51bp    -56.47%      -56.47%
+
+  Neither sibling study charged any cost. Section 12's optimisation grid
+  is run GROSS, like both sibling studies.
+===== END SECTION =====
+
+===== SECTION: 11 · PRE-REGISTRATION COMPARISON -- fixed weights vs fitted weights =====
+  PART 1 is the pre-registered book. PART 2 is a separate, clearly labelled
+  fitted exercise shown ONLY so the difference between a designed book and
+  a fitted one is visible. The fitted weights are NOT the recommendation and
+  are not used anywhere else in this study.
+
+  PART 1 -- PRE-REGISTERED, FIXED AT 20% EACH (no search of any kind)
+
+  book    weights (%)     CAGR    max_dd   Sharpe  losing_years
+  ------  --------------  ------  -------  ------  ------------
+  BOOK_5  20/20/20/20/20  -8.15%  -86.08%  -0.276  17
+
+  PART 2 -- FITTED ON THE FIRST 70% OF THE WINDOW (10% weight steps,
+  every 5-vector summing to 100%; objective = in-sample Sharpe, gross
+  of costs). 1001 books are evaluated. The last 30% of the window is
+  held out. A zero weight simply drops that sleeve for that book.
+
+  in-sample  2005-09-02 .. 2020-06-10  (3717 days)
+  out-sample 2020-06-11 .. 2026-10-14  (1594 days)
+
+  In-sample Sharpe across the 1001 books: best 0.719, median -0.126, worst -0.307
+  In-sample Sharpe of the PRE-REGISTERED equal-weight book: -0.204
+  In-sample Sharpe rank of the pre-registered book: 598 of 1001
+  books that beat equal weight IN SAMPLE: 597 of 1001 (60%)
+
+  The in-sample-optimal weight vector, and how it did out of sample,
+  beside the pre-registered book measured the same way:
+
+  book                              weights A/B/C/D/E  IS CAGR  IS max_dd  IS Sharpe  OOS CAGR  OOS max_dd  OOS Sharpe  Sharpe decay
+  --------------------------------  -----------------  -------  ---------  ---------  --------  ----------  ----------  ------------
+  FITTED BEST (IS-optimal)          40/20/40/0/0       +5.53%   -14.27%    0.719      +8.18%    -11.58%     0.960       -0.241
+  PRE-REGISTERED equal weight       20/20/20/20/20     -6.94%   -76.16%    -0.204     -10.63%   -55.15%     -0.445      0.241
+  pre-registered F (no vol sleeve)  25/25/25/25/0      +4.36%   -11.63%    0.569      +5.83%    -14.83%     0.737       -0.169
+  median-IS-Sharpe book             30/20/0/40/10      -2.29%   -48.17%    -0.126     -2.77%    -36.74%     -0.196      0.070
+
+  'Sharpe decay' = IS Sharpe minus OOS Sharpe. A large decay would be
+  the signature of a fitted book whose in-sample number was luck. NOTE
+  WHAT ACTUALLY HAPPENED HERE: the fitted best did NOT decay. Its Sharpe
+  went UP out of sample. The decay is negative. That is reported as it
+  is, and the reason is diagnosed immediately below rather than dressed
+  up as a validation of fitting.
+
+  DIAGNOSIS -- how much of the fitted result is just 'get out of E'?
+
+    books with E = 0  : 286,  mean in-sample Sharpe 0.482
+    books with E > 0  : 715,  mean in-sample Sharpe -0.173
+    every one of the top 10 has E = 0 : yes
+    every one of the top 10 has D = 0 : yes
+    the best book that still HOLDS E:
+      0/0/90/0/10  IS Sharpe 0.165  OOS Sharpe 0.170
+
+  The fitted optimum is not a subtle reweighting: it is 'drop the
+  volatility sleeve and the ex-US sleeve'. The vol sleeve's negative
+  edge is STRUCTURAL (a rule that buys VIX after its spikes on a series
+  that mean-reverts), not sampling noise, which is why removing it
+  helps out of sample instead of hurting. Choosing to remove it in
+  advance required knowing that -- which is exactly the hindsight this
+  study refuses to sell as a result. It is shown here so the owner can
+  see the difference, and it is NOT the recommendation.
+
+  Top 10 weight vectors by IN-SAMPLE Sharpe, with their OUT-OF-SAMPLE
+  numbers beside them:
+
+  weights A/B/C/D/E  IS Sharpe  IS CAGR  OOS Sharpe  OOS CAGR  OOS max_dd  Sharpe decay
+  -----------------  ---------  -------  ----------  --------  ----------  ------------
+  40/20/40/0/0       0.719      +5.53%   0.960       +8.18%    -11.58%     -0.241
+  50/20/30/0/0       0.718      +5.22%   1.023       +8.37%    -12.37%     -0.305
+  40/30/30/0/0       0.716      +5.03%   0.861       +6.31%    -12.42%     -0.145
+  50/10/40/0/0       0.706      +5.70%   1.096       +10.26%   -13.16%     -0.391
+  50/30/20/0/0       0.697      +4.70%   0.899       +6.48%    -13.44%     -0.202
+  30/30/40/0/0       0.697      +5.33%   0.779       +6.11%    -13.39%     -0.082
+  40/10/50/0/0       0.697      +6.00%   1.020       +10.05%   -12.44%     -0.323
+  30/20/50/0/0       0.691      +5.81%   0.867       +7.95%    -13.48%     -0.176
+  60/10/30/0/0       0.685      +5.37%   1.136       +10.44%   -13.94%     -0.451
+  60/20/20/0/0       0.679      +4.87%   1.036       +8.52%    -13.56%     -0.358
+
+  Of the 597 books that beat equal weight IN SAMPLE, 518 (87%) also
+  beat it OUT OF SAMPLE. A coin would give about half.
+
+  full grid written to out/optimised_weights.csv
+===== END SECTION =====
+
+===== SECTION: 12 · WHAT WAS NOT DONE, AND WHAT REMAINS UNTESTED =====
+  Stated as limitations, not as caveats to be skipped.
+
+  1. SLEEVE E IS NOT TRADABLE. The VIX index cannot be bought. Its return
+     here is the index level change while the rule is long; a real long-vol
+     position is a VIX futures or futures-ETN position, which bleeds on roll
+     in contango. No roll cost, no ETN fee, no borrow is modelled. Every E
+     number is an UPPER BOUND on the signal and is not an achievable return.
+     Drop E and the book is portfolio F, whose row is above.
+  2. PRICE-ONLY. No dividends or distributions anywhere. TLT's price
+     multiple over 2002-2026 is 0.9561 in the sibling study, i.e. TLT's
+     price is BELOW its start -- so sleeve B's always-long component, and
+     the bond leg generally, is understated versus a total-return version.
+     SPY/GLD/EEM pay distributions too. Buy & hold G is understated most.
+  3. LONG ONLY, NO LEVERAGE, NO SHORTS. The book cannot short a downtrend;
+     it can only stand aside. That is a design choice, not a finding.
+  4. ONE PARAMETER SET. SMA(200) for A-D and SMA(50) for E were fixed
+     before the run. This study does NOT establish that 200 beats 150, nor
+     that 50 beats 20, and does not rule either out. Parameter sensitivity
+     is untested.
+  5. FIVE SLEEVES, ALL TREND-SHAPED except E. A-D are the same rule on four
+     different instruments. Section 5 measures how much that actually
+     diversifies; it is the honest answer to 'is this four bets or one'.
+  6. ONE WINDOW. The book needs all five series, so it starts when gold's
+     SMA(200) exists. It therefore does not cover 1993-2004 at all. Sleeve A
+     and G are also shown on full history for that reason. The window is
+     dominated by the post-2009 bull market, which flatters every long-only
+     sleeve and the always-long comparison most.
+  7. NO REGIME TEST here. The sibling regime study did that; this study only
+     reports years and drawdowns.
+  8. THE LAST BAR WAS STILL FORMING at pull time and may revise.
+===== END SECTION =====
+
+ARTEFACTS WRITTEN to out/: sleeve_headline.csv, sleeve_yearly.csv,
+corr_matrix.csv, portfolio_headline.csv, portfolio_yearly.csv,
+rolling_windows.csv, costs.csv, book_daily.csv, sleeve_monthly.csv

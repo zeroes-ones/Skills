@@ -1,0 +1,161 @@
+instrument,grid,regime,strategy,n_days,mean_daily_return,sd_daily_return,annualised_if_persisted,annualised_contribution,n_trades_entered,p,b,E,n_req
+GLD,2x3 (trend x vol tercile),above|vol-high,S1,1275,0.000142,0.014757,0.035677,0.008241,0,,,,
+GLD,2x3 (trend x vol tercile),above|vol-high,S2,1275,-0.000070,0.012122,-0.017677,-0.004083,38,0.236842,0.365655,-0.676555,1.945173
+GLD,2x3 (trend x vol tercile),above|vol-high,S3,1275,0.000129,0.014846,0.032395,0.007483,0,,,,
+GLD,2x3 (trend x vol tercile),above|vol-high,S4,1275,0.000110,0.010749,0.027603,0.006376,0,,,,
+GLD,2x3 (trend x vol tercile),above|vol-low,S1,1065,0.000528,0.008133,0.133055,0.025673,1,0.000000,,,
+GLD,2x3 (trend x vol tercile),above|vol-low,S2,1065,0.000591,0.006645,0.148993,0.028748,40,0.350000,4.030661,0.760731,51.388275
+GLD,2x3 (trend x vol tercile),above|vol-low,S3,1065,0.000568,0.008149,0.143080,0.027608,0,,,,
+GLD,2x3 (trend x vol tercile),above|vol-low,S4,1065,0.000830,0.010811,0.209206,0.040367,0,,,,
+GLD,2x3 (trend x vol tercile),above|vol-mid,S1,1283,0.000893,0.010207,0.225157,0.052337,1,1.000000,,,
+GLD,2x3 (trend x vol tercile),above|vol-mid,S2,1283,0.000540,0.008949,0.135960,0.031604,51,0.392157,6.877071,2.089047,17.452900
+GLD,2x3 (trend x vol tercile),above|vol-mid,S3,1283,0.000895,0.010241,0.225653,0.052453,0,,,,
+GLD,2x3 (trend x vol tercile),above|vol-mid,S4,1283,0.000748,0.010748,0.188394,0.043792,0,,,,
+GLD,2x3 (trend x vol tercile),below|vol-high,S1,553,-0.000083,0.002273,-0.020863,-0.002090,18,0.277778,8.525172,1.645881,21.329609
+GLD,2x3 (trend x vol tercile),below|vol-high,S2,553,-0.000029,0.000705,-0.007385,-0.000740,2,0.000000,,,
+GLD,2x3 (trend x vol tercile),below|vol-high,S3,553,0.000782,0.016526,0.197109,0.019748,0,,,,
+GLD,2x3 (trend x vol tercile),below|vol-high,S4,553,0.000506,0.013615,0.127591,0.012783,0,,,,
+GLD,2x3 (trend x vol tercile),below|vol-low,S1,612,0.000074,0.001267,0.018665,0.002070,31,0.258065,13.164299,2.655303,65.000104
+GLD,2x3 (trend x vol tercile),below|vol-low,S2,612,0.000006,0.000136,0.001388,0.000154,2,0.500000,0.287570,-0.356215,1.942108
+GLD,2x3 (trend x vol tercile),below|vol-low,S3,612,-0.000333,0.007915,-0.083881,-0.009301,0,,,,
+GLD,2x3 (trend x vol tercile),below|vol-low,S4,612,-0.000397,0.011506,-0.099923,-0.011079,0,,,,
+GLD,2x3 (trend x vol tercile),below|vol-mid,S1,522,0.000067,0.001144,0.016758,0.001585,31,0.258065,4.973666,0.541591,61.879810
+GLD,2x3 (trend x vol tercile),below|vol-mid,S2,522,0.000009,0.000495,0.002205,0.000209,3,0.000000,,,
+GLD,2x3 (trend x vol tercile),below|vol-mid,S3,522,0.000679,0.009099,0.171005,0.016173,0,,,,
+GLD,2x3 (trend x vol tercile),below|vol-mid,S4,522,0.000505,0.010027,0.127306,0.012040,0,,,,
+GLD,2x2 (trend x slope),above|slope-down,S1,464,0.000283,0.009391,0.071319,0.005995,2,0.500000,0.020360,-0.489820,10.198480
+GLD,2x2 (trend x slope),above|slope-down,S2,464,0.000103,0.004668,0.025947,0.002181,18,0.333333,1.159371,-0.280210,32.269431
+GLD,2x2 (trend x slope),above|slope-down,S3,464,0.000316,0.009430,0.079600,0.006692,0,,,,
+GLD,2x2 (trend x slope),above|slope-down,S4,464,0.000182,0.009771,0.045902,0.003859,0,,,,
+GLD,2x2 (trend x slope),above|slope-up,S1,3139,0.000546,0.011835,0.137528,0.078214,0,,,,
+GLD,2x2 (trend x slope),above|slope-up,S2,3139,0.000363,0.010188,0.091514,0.052045,111,0.333333,5.284568,1.094856,39.339501
+GLD,2x2 (trend x slope),above|slope-up,S3,3139,0.000549,0.011891,0.138268,0.078634,0,,,,
+GLD,2x2 (trend x slope),above|slope-up,S4,3139,0.000585,0.010914,0.147441,0.083851,0,,,,
+GLD,2x2 (trend x slope),below|slope-down,S1,1237,-0.000003,0.001105,-0.000860,-0.000193,41,0.243902,5.003609,0.464295,174.667769
+GLD,2x2 (trend x slope),below|slope-down,S2,1237,0.000008,0.000265,0.001899,0.000426,2,0.000000,,,
+GLD,2x2 (trend x slope),below|slope-down,S3,1237,0.000681,0.011391,0.171614,0.038461,0,,,,
+GLD,2x2 (trend x slope),below|slope-down,S4,1237,0.000419,0.012304,0.105647,0.023677,0,,,,
+GLD,2x2 (trend x slope),below|slope-up,S1,450,0.000086,0.002589,0.021551,0.001757,39,0.282051,16.021823,3.801027,25.095728
+GLD,2x2 (trend x slope),below|slope-up,S2,450,-0.000039,0.000852,-0.009849,-0.000803,5,0.200000,0.963329,-0.607334,0.070636
+GLD,2x2 (trend x slope),below|slope-up,S3,450,-0.000576,0.012639,-0.145235,-0.011841,0,,,,
+GLD,2x2 (trend x slope),below|slope-up,S4,450,-0.000483,0.010396,-0.121836,-0.009933,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-high,S1,775,-0.000003,0.021908,-0.000807,-0.000090,3,0.000000,,,
+QQQ,2x3 (trend x vol tercile),above|vol-high,S2,775,0.000606,0.014621,0.152667,0.017013,31,0.161290,4.676662,-0.084409,652.123359
+QQQ,2x3 (trend x vol tercile),above|vol-high,S3,775,0.000206,0.020781,0.051833,0.005776,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-high,S4,775,0.000141,0.011287,0.035515,0.003958,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-low,S1,2220,0.000357,0.008654,0.089979,0.028723,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-low,S2,2220,0.000228,0.007806,0.057462,0.018343,52,0.250000,4.116206,0.279051,178.633417
+QQQ,2x3 (trend x vol tercile),above|vol-low,S3,2220,0.000354,0.008690,0.089102,0.028443,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-low,S4,2220,0.000376,0.011977,0.094811,0.030265,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-mid,S1,1949,0.000738,0.011452,0.185939,0.052109,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-mid,S2,1949,0.000167,0.008810,0.041979,0.011765,84,0.309524,3.316387,0.336025,65.466248
+QQQ,2x3 (trend x vol tercile),above|vol-mid,S3,1949,0.000744,0.011477,0.187600,0.052574,0,,,,
+QQQ,2x3 (trend x vol tercile),above|vol-mid,S4,1949,0.000623,0.010496,0.156961,0.043988,0,,,,
+QQQ,2x3 (trend x vol tercile),below|vol-high,S1,1363,-0.000020,0.003485,-0.005131,-0.001006,39,0.179487,6.124413,0.278741,185.151571
+QQQ,2x3 (trend x vol tercile),below|vol-high,S2,1363,0.000000,0.000011,0.000075,0.000015,3,0.666667,3.851171,2.234114,3.335364
+QQQ,2x3 (trend x vol tercile),below|vol-high,S3,1363,0.000082,0.028041,0.020749,0.004067,0,,,,
+QQQ,2x3 (trend x vol tercile),below|vol-high,S4,1363,0.000110,0.011092,0.027758,0.005440,0,,,,
+QQQ,2x3 (trend x vol tercile),below|vol-low,S1,88,0.000131,0.002371,0.033070,0.000418,13,0.230769,3.971934,0.147369,785.056665
+QQQ,2x3 (trend x vol tercile),below|vol-low,S2,88,-0.000108,0.001011,-0.027171,-0.000344,3,0.000000,,,
+QQQ,2x3 (trend x vol tercile),below|vol-low,S3,88,0.001178,0.010177,0.296762,0.003755,0,,,,
+QQQ,2x3 (trend x vol tercile),below|vol-low,S4,88,0.000861,0.011603,0.216900,0.002745,0,,,,
+QQQ,2x3 (trend x vol tercile),below|vol-mid,S1,348,-0.000362,0.007490,-0.091304,-0.004569,36,0.416667,8.869073,3.112114,9.486170
+QQQ,2x3 (trend x vol tercile),below|vol-mid,S2,348,-0.000027,0.000922,-0.006777,-0.000339,4,1.000000,,,
+QQQ,2x3 (trend x vol tercile),below|vol-mid,S3,348,0.001285,0.013939,0.323872,0.016206,0,,,,
+QQQ,2x3 (trend x vol tercile),below|vol-mid,S4,348,0.000993,0.010712,0.250305,0.012525,0,,,,
+QQQ,2x2 (trend x slope),above|slope-down,S1,340,0.000261,0.012634,0.065666,0.003210,0,,,,
+QQQ,2x2 (trend x slope),above|slope-down,S2,340,0.000548,0.007869,0.138180,0.006755,8,0.375000,2.805613,0.427105,80.081959
+QQQ,2x2 (trend x slope),above|slope-down,S3,340,0.000106,0.012944,0.026801,0.001310,0,,,,
+QQQ,2x2 (trend x slope),above|slope-down,S4,340,0.000384,0.009384,0.096702,0.004728,0,,,,
+QQQ,2x2 (trend x slope),above|slope-up,S1,4584,0.000462,0.012462,0.116488,0.076781,1,0.000000,,,
+QQQ,2x2 (trend x slope),above|slope-up,S2,4584,0.000238,0.009381,0.060101,0.039615,157,0.254777,3.802313,0.223519,170.654750
+QQQ,2x2 (trend x slope),above|slope-up,S3,4584,0.000495,0.012115,0.124825,0.082276,0,,,,
+QQQ,2x2 (trend x slope),above|slope-up,S4,4584,0.000439,0.011372,0.110565,0.072877,0,,,,
+QQQ,2x2 (trend x slope),below|slope-down,S1,1284,0.000056,0.001309,0.014040,0.002592,34,0.352941,8.504201,2.354424,9.008037
+QQQ,2x2 (trend x slope),below|slope-down,S2,1284,0.000000,0.000011,0.000080,0.000015,6,0.666667,8.688912,5.459275,1.223089
+QQQ,2x2 (trend x slope),below|slope-down,S3,1284,0.000115,0.026237,0.029019,0.005358,0,,,,
+QQQ,2x2 (trend x slope),below|slope-down,S4,1284,0.000210,0.009911,0.052913,0.009769,0,,,,
+QQQ,2x2 (trend x slope),below|slope-up,S1,515,-0.000415,0.008163,-0.104629,-0.007748,54,0.240741,7.473303,1.039869,43.894444
+QQQ,2x2 (trend x slope),below|slope-up,S2,515,-0.000037,0.000865,-0.009222,-0.000683,4,0.500000,2.056765,0.528383,82.165513
+QQQ,2x2 (trend x slope),below|slope-up,S3,515,0.001000,0.022677,0.252122,0.018670,0,,,,
+QQQ,2x2 (trend x slope),below|slope-up,S4,515,0.000586,0.013472,0.147741,0.010940,0,,,,
+SPY,2x3 (trend x vol tercile),above|vol-high,S1,1218,0.000652,0.012109,0.164218,0.023549,1,0.000000,,,
+SPY,2x3 (trend x vol tercile),above|vol-high,S2,1218,0.000146,0.007704,0.036677,0.005259,68,0.338235,2.377908,0.142528,237.747786
+SPY,2x3 (trend x vol tercile),above|vol-high,S3,1218,0.000632,0.012053,0.159150,0.022822,0,,,,
+SPY,2x3 (trend x vol tercile),above|vol-high,S4,1218,0.000526,0.011043,0.132663,0.019024,0,,,,
+SPY,2x3 (trend x vol tercile),above|vol-low,S1,2634,0.000278,0.006506,0.070044,0.021721,0,,,,
+SPY,2x3 (trend x vol tercile),above|vol-low,S2,2634,0.000148,0.005972,0.037282,0.011561,71,0.366197,4.339086,0.955158,31.209878
+SPY,2x3 (trend x vol tercile),above|vol-low,S3,2634,0.000280,0.006508,0.070440,0.021844,0,,,,
+SPY,2x3 (trend x vol tercile),above|vol-low,S4,2634,0.000402,0.011601,0.101184,0.031378,0,,,,
+SPY,2x3 (trend x vol tercile),above|vol-mid,S1,2363,0.000361,0.008567,0.090954,0.025303,1,0.000000,,,
+SPY,2x3 (trend x vol tercile),above|vol-mid,S2,2363,0.000231,0.006675,0.058245,0.016204,102,0.350000,2.502465,0.225863,101.416030
+SPY,2x3 (trend x vol tercile),above|vol-mid,S3,2363,0.000358,0.008577,0.090140,0.025077,0,,,,
+SPY,2x3 (trend x vol tercile),above|vol-mid,S4,2363,0.000344,0.010764,0.086626,0.024100,0,,,,
+SPY,2x3 (trend x vol tercile),below|vol-high,S1,1603,0.000012,0.002155,0.003001,0.000566,69,0.304348,5.751819,1.054901,24.351139
+SPY,2x3 (trend x vol tercile),below|vol-high,S2,1603,-0.000011,0.000812,-0.002647,-0.000499,5,0.400000,2.654570,0.461828,45.854936
+SPY,2x3 (trend x vol tercile),below|vol-high,S3,1603,0.000666,0.019892,0.167744,0.031658,0,,,,
+SPY,2x3 (trend x vol tercile),below|vol-high,S4,1603,0.000389,0.011991,0.098028,0.018500,0,,,,
+SPY,2x3 (trend x vol tercile),below|vol-low,S1,71,0.000080,0.001117,0.020075,0.000168,9,0.333333,10.366861,2.788954,38.884361
+SPY,2x3 (trend x vol tercile),below|vol-low,S2,71,0.000000,0.000000,0.000000,0.000000,0,,,,
+SPY,2x3 (trend x vol tercile),below|vol-low,S3,71,0.000894,0.007423,0.225258,0.001883,0,,,,
+SPY,2x3 (trend x vol tercile),below|vol-low,S4,71,0.001417,0.011130,0.357152,0.002985,0,,,,
+SPY,2x3 (trend x vol tercile),below|vol-mid,S1,396,-0.000180,0.002215,-0.045393,-0.002116,33,0.424242,4.983952,1.538646,19.497244
+SPY,2x3 (trend x vol tercile),below|vol-mid,S2,396,-0.000042,0.000605,-0.010459,-0.000488,1,0.000000,,,
+SPY,2x3 (trend x vol tercile),below|vol-mid,S3,396,-0.000243,0.011210,-0.061326,-0.002859,0,,,,
+SPY,2x3 (trend x vol tercile),below|vol-mid,S4,396,0.000308,0.012658,0.077576,0.003617,0,,,,
+SPY,2x2 (trend x slope),above|slope-down,S1,335,0.000134,0.008842,0.033759,0.001331,1,0.000000,,,
+SPY,2x2 (trend x slope),above|slope-down,S2,335,-0.000097,0.005263,-0.024554,-0.000968,21,0.333333,6.368058,1.456019,35.835414
+SPY,2x2 (trend x slope),above|slope-down,S3,335,0.000095,0.008757,0.023884,0.000942,0,,,,
+SPY,2x2 (trend x slope),above|slope-down,S4,335,0.000457,0.008501,0.115083,0.004539,0,,,,
+SPY,2x2 (trend x slope),above|slope-up,S1,5860,0.000398,0.008636,0.100243,0.069159,1,0.000000,,,
+SPY,2x2 (trend x slope),above|slope-up,S2,5860,0.000198,0.006686,0.049818,0.034370,218,0.351852,2.723918,0.310267,62.454488
+SPY,2x2 (trend x slope),above|slope-up,S3,5860,0.000395,0.008629,0.099516,0.068658,0,,,,
+SPY,2x2 (trend x slope),above|slope-up,S4,5860,0.000403,0.011323,0.101448,0.069990,0,,,,
+SPY,2x2 (trend x slope),below|slope-down,S1,1502,-0.000024,0.001207,-0.006089,-0.001077,37,0.297297,6.617508,1.264665,49.026594
+SPY,2x2 (trend x slope),below|slope-down,S2,1502,-0.000017,0.000452,-0.004337,-0.000767,3,0.000000,,,
+SPY,2x2 (trend x slope),below|slope-down,S3,1502,0.000339,0.018230,0.085328,0.015089,0,,,,
+SPY,2x2 (trend x slope),below|slope-down,S4,1502,0.000168,0.010304,0.042396,0.007497,0,,,,
+SPY,2x2 (trend x slope),below|slope-up,S1,568,-0.000018,0.003586,-0.004568,-0.000305,74,0.364865,6.082340,1.584097,16.791772
+SPY,2x2 (trend x slope),below|slope-up,S2,568,-0.000013,0.001257,-0.003293,-0.000220,3,0.666667,7.838033,4.892022,0.376228
+SPY,2x2 (trend x slope),below|slope-up,S3,568,0.000925,0.018245,0.233168,0.015592,0,,,,
+SPY,2x2 (trend x slope),below|slope-up,S4,568,0.001045,0.015865,0.263270,0.017605,0,,,,
+TLT,2x3 (trend x vol tercile),above|vol-high,S1,965,0.000132,0.012603,0.033311,0.005267,1,1.000000,,,
+TLT,2x3 (trend x vol tercile),above|vol-high,S2,965,-0.000023,0.010471,-0.005790,-0.000915,49,0.326531,2.625708,0.183905,231.467787
+TLT,2x3 (trend x vol tercile),above|vol-high,S3,965,0.000129,0.012707,0.032448,0.005130,0,,,,
+TLT,2x3 (trend x vol tercile),above|vol-high,S4,965,0.000157,0.011477,0.039514,0.006248,0,,,,
+TLT,2x3 (trend x vol tercile),above|vol-low,S1,1043,0.000126,0.006486,0.031843,0.005442,2,0.000000,,,
+TLT,2x3 (trend x vol tercile),above|vol-low,S2,1043,0.000196,0.005129,0.049479,0.008456,45,0.363636,1.855367,0.038315,9844.707943
+TLT,2x3 (trend x vol tercile),above|vol-low,S3,1043,0.000100,0.006490,0.025152,0.004298,0,,,,
+TLT,2x3 (trend x vol tercile),above|vol-low,S4,1043,0.000375,0.010473,0.094503,0.016150,0,,,,
+TLT,2x3 (trend x vol tercile),above|vol-mid,S1,859,-0.000210,0.007917,-0.052832,-0.007436,0,,,,
+TLT,2x3 (trend x vol tercile),above|vol-mid,S2,859,-0.000091,0.005996,-0.022974,-0.003233,39,0.358974,1.538405,-0.088778,852.488751
+TLT,2x3 (trend x vol tercile),above|vol-mid,S3,859,-0.000287,0.008169,-0.072234,-0.010167,0,,,,
+TLT,2x3 (trend x vol tercile),above|vol-mid,S4,859,-0.000212,0.010036,-0.053483,-0.007527,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-high,S1,1038,-0.000001,0.001188,-0.000176,-0.000030,28,0.214286,1.605842,-0.441605,7.980487
+TLT,2x3 (trend x vol tercile),below|vol-high,S2,1038,0.000000,0.000000,0.000000,0.000000,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-high,S3,1038,-0.000256,0.010927,-0.064456,-0.010962,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-high,S4,1038,-0.000077,0.009703,-0.019512,-0.003319,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-low,S1,928,-0.000022,0.001056,-0.005462,-0.000830,52,0.176471,6.344266,0.296047,558.465922
+TLT,2x3 (trend x vol tercile),below|vol-low,S2,928,-0.000004,0.000110,-0.000912,-0.000139,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-low,S3,928,0.000240,0.006680,0.060355,0.009177,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-low,S4,928,0.000663,0.011045,0.167102,0.025408,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-mid,S1,1061,-0.000014,0.001114,-0.003463,-0.000602,37,0.270270,2.845925,0.039439,6708.871132
+TLT,2x3 (trend x vol tercile),below|vol-mid,S2,1061,0.000014,0.000456,0.003529,0.000613,2,0.500000,0.792204,-0.103898,171.006332
+TLT,2x3 (trend x vol tercile),below|vol-mid,S3,1061,0.000149,0.007546,0.037507,0.006520,0,,,,
+TLT,2x3 (trend x vol tercile),below|vol-mid,S4,1061,0.000437,0.009370,0.110143,0.019148,0,,,,
+TLT,2x2 (trend x slope),above|slope-down,S1,629,0.000016,0.008357,0.003995,0.000412,3,0.333333,0.165597,-0.611468,4.183233
+TLT,2x2 (trend x slope),above|slope-down,S2,629,0.000143,0.005867,0.036124,0.003723,34,0.352941,1.671969,-0.056952,2656.624200
+TLT,2x2 (trend x slope),above|slope-down,S3,629,-0.000183,0.008771,-0.046235,-0.004765,0,,,,
+TLT,2x2 (trend x slope),above|slope-down,S4,629,-0.000021,0.011202,-0.005311,-0.000547,0,,,,
+TLT,2x2 (trend x slope),above|slope-up,S1,2218,0.000007,0.009626,0.001703,0.000619,0,,,,
+TLT,2x2 (trend x slope),above|slope-up,S2,2218,-0.000018,0.007971,-0.004563,-0.001658,99,0.346939,2.117546,0.081597,1507.631027
+TLT,2x2 (trend x slope),above|slope-up,S3,2218,0.000021,0.009665,0.005225,0.001899,0,,,,
+TLT,2x2 (trend x slope),above|slope-up,S4,2218,0.000124,0.010513,0.031365,0.011399,0,,,,
+TLT,2x2 (trend x slope),below|slope-down,S1,2416,-0.000029,0.000962,-0.007187,-0.002845,76,0.213333,2.694108,-0.211924,248.655490
+TLT,2x2 (trend x slope),below|slope-down,S2,2416,0.000005,0.000310,0.001199,0.000475,2,0.500000,0.792204,-0.103898,171.006332
+TLT,2x2 (trend x slope),below|slope-down,S3,2416,0.000136,0.008588,0.034299,0.013578,0,,,,
+TLT,2x2 (trend x slope),below|slope-down,S4,2416,0.000493,0.009845,0.124269,0.049193,0,,,,
+TLT,2x2 (trend x slope),below|slope-up,S1,611,0.000055,0.001607,0.013811,0.001383,41,0.219512,7.359174,0.834941,73.910292
+TLT,2x2 (trend x slope),below|slope-up,S2,611,0.000000,0.000000,0.000000,0.000000,0,,,,
+TLT,2x2 (trend x slope),below|slope-up,S3,611,-0.000351,0.008820,-0.088327,-0.008843,0,,,,
+TLT,2x2 (trend x slope),below|slope-up,S4,611,-0.000315,0.010687,-0.079466,-0.007955,0,,,,

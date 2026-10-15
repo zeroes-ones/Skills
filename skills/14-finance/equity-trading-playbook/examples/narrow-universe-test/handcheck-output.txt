@@ -1,0 +1,232 @@
+HANDCHECK -- independent re-derivation, no import of study.py
+==============================================================================
+
+--- window ---
+  W14 rebuilt independently : 2013-03-07 .. 2026-10-14  (3422 days)
+
+--- level statistics: study.py (from out/*.csv) vs rebuilt here ---
+  book             statistic       study.py    handcheck          gap
+  W14_N3_TREND     CAGR            0.098582     0.098582    -0.000000
+  W14_N3_TREND     maxDD          -0.197204    -0.197204    -0.000000
+  W14_N3_TREND     Sharpe          0.828044     0.828044     0.000000
+  W14_N3_TREND     n_days              3422         3422     0.000000
+  W14_C4_TREND     CAGR            0.037268     0.037268     0.000000
+  W14_C4_TREND     maxDD          -0.148291    -0.148291    -0.000000
+  W14_C4_TREND     Sharpe          0.556087     0.556087    -0.000000
+  W14_C4_TREND     n_days              3422         3422     0.000000
+  W14_BH_SPY       CAGR            0.125126     0.125126    -0.000000
+  W14_BH_SPY       maxDD          -0.341047    -0.341047     0.000000
+  W14_BH_SPY       Sharpe          0.785216     0.785216     0.000000
+  W14_BH_SPY       n_days              3422         3422     0.000000
+  W14_C14_EW_TREND CAGR            0.185635     0.185635     0.000000
+  W14_C14_EW_TREND maxDD          -0.255780    -0.255780     0.000000
+  W14_C14_EW_TREND Sharpe          1.356501     1.356501    -0.000000
+  W14_C14_EW_TREND n_days              3422         3422     0.000000
+  cash             CAGR            0.018706
+
+--- positivity: study.py (positivity_by_horizon.csv) vs rebuilt ---
+  W14_N3_TREND     Y       study   0.750000  (9/12 vs 0.750000)
+  W14_N3_TREND     M       study   0.586420  (95/162 vs 0.586420)
+  W14_N3_TREND     W       study   0.502116  (356/709 vs 0.502116)
+  W14_C4_TREND     Y       study   0.666667  (8/12 vs 0.666667)
+  W14_C4_TREND     M       study   0.555556  (90/162 vs 0.555556)
+  W14_C4_TREND     W       study   0.509168  (361/709 vs 0.509168)
+  W14_BH_SPY       Y       study   0.750000  (9/12 vs 0.750000)
+  W14_BH_SPY       M       study   0.666667  (108/162 vs 0.666667)
+  W14_BH_SPY       W       study   0.583921  (414/709 vs 0.583921)
+  W14_C14_EW_TREND Y       study   0.833333  (10/12 vs 0.833333)
+  W14_C14_EW_TREND M       study   0.666667  (108/162 vs 0.666667)
+  W14_C14_EW_TREND W       study   0.588152  (417/709 vs 0.588152)
+
+--- losing years: study.py (yearly_returns.csv) vs rebuilt ---
+  W14_N3_TREND     study=2015,2018,2022  handcheck=2015,2018,2022  same
+                   largest per-year return gap: 0.00000000
+  W14_C4_TREND     study=2015,2018,2022,2023  handcheck=2015,2018,2022,2023  same
+                   largest per-year return gap: 0.00000000
+  W14_BH_SPY       study=2015,2018,2022  handcheck=2015,2018,2022  same
+                   largest per-year return gap: 0.00000000
+  W14_C14_EW_TREND study=2018,2022  handcheck=2018,2022  same
+                   largest per-year return gap: 0.00000000
+
+--- correlations: study.py (pairwise_correlations.csv) vs rebuilt ---
+  SPY  QQQ  daily   study= 0.849869 handcheck= 0.849869 gap=-0.000000
+  SPY  QQQ  yearly  study= 0.917245 handcheck= 0.917245 gap=-0.000000
+  SPY  IWM  daily   study= 0.884284 handcheck= 0.884284 gap=-0.000000
+  SPY  IWM  yearly  study= 0.892334 handcheck= 0.892334 gap=0.000000
+  QQQ  IWM  daily   study= 0.780272 handcheck= 0.780272 gap=-0.000000
+  QQQ  IWM  yearly  study= 0.814349 handcheck= 0.814349 gap=0.000000
+
+--- max lambda for 100% positive YEARS ---
+  N3_TREND         lambda=0.021  exposure= 2.10%  CAGR there=0.020481  excess over cash=0.001775
+  C4_TREND         lambda=0.008  exposure= 0.80%  CAGR there=0.018874  excess over cash=0.000167
+  BH_SPY           lambda=0.097  exposure= 9.70%  CAGR there=0.029856  excess over cash=0.011150
+  C14_EW_TREND     lambda=0.154  exposure=15.40%  CAGR there=0.043990  excess over cash=0.025283
+
+--- spreads: study.py (spreads.csv) vs rebuilt from cost-quotes.csv ---
+  17 symbols; largest gap in quoted spread bp: 0.0000000050
+
+==============================================================================
+BY-HAND CHECK 1: equal-weight 14-name basket return for ONE month
+==============================================================================
+  Month 2022-06.  Book dates used: 2022-06-01 (first) and 2022-06-30 (last), because
+  the calendar is the intersection, not the raw calendar.
+  Returns are measured from the close of 2022-05-31, the book day BEFORE the
+  month, because that is where the book's first June return starts.
+
+  sym         c@prev      c@last     raw ret  long  sleeve ret
+  AAPL      148.8400    136.7200   -0.081430     0    0.000000
+  MSFT      271.8700    256.8300   -0.055321     0    0.000000
+  NVDA       18.6720     15.1590   -0.188143     0    0.000000
+  AMZN      120.2095    106.2100   -0.116459     0    0.000000
+  GOOGL     113.7620    108.9630   -0.042185     0    0.000000
+  META      193.6400    161.2500   -0.167269     0    0.000000
+  TSLA      252.7531    224.4731   -0.111888     0    0.000000
+  JPM       132.2300    112.6100   -0.148378     0    0.000000
+  JNJ       179.5300    177.5100   -0.011252    19   -0.041795
+  WMT        42.8766     40.5266   -0.054808     0    0.000000
+  XOM        96.0000     85.6400   -0.107917    21   -0.107917
+  UNH       496.7800    513.6300    0.033918    16    0.011058
+  V         212.1700    196.8900   -0.072018     0    0.000000
+  AVGO       58.0130     48.5810   -0.162584     4   -0.041907
+
+  (a) plain equal-weight basket, no trend overlay, by hand:
+      sum of the 14 raw returns      = -1.2857316028
+      divided by 14                  = -0.0918379716
+  (b) the TREND book's sleeve returns for the MONTH, by hand:
+      sum of the 14 sleeve returns   = -0.1805596260
+      divided by 14                  = -0.0128971161
+  Those two are the ARITHMETIC answers.  Neither is the book's return,
+  because the book holds DRIFTING weights between monthly rebalances.
+  The exact by-hand recursion is therefore carried out below, with the
+  weights printed at both ends so a human can follow it.
+
+  weights on 2022-06-01 (the rebalance day):
+      AAPL=0.071429  MSFT=0.071429  NVDA=0.071429  AMZN=0.071429  GOOGL=0.071429  META=0.071429  TSLA=0.071429
+      JPM=0.071429  JNJ=0.071429  WMT=0.071429  XOM=0.071429  UNH=0.071429  V=0.071429  AVGO=0.071429
+
+  date            gross trend    gross plain
+  2022-06-01    -0.0007648124  -0.0083742956
+  2022-06-02    -0.0000068441   0.0224593981
+  2022-06-03    -0.0018438127  -0.0253637991
+  2022-06-06     0.0004643334   0.0053931429
+  2022-06-07     0.0051484454   0.0091052762
+  2022-06-08    -0.0009480626  -0.0048221053
+  2022-06-09    -0.0036839349  -0.0255944230
+  2022-06-10    -0.0025472685  -0.0314592244
+  2022-06-13    -0.0062954593  -0.0431307742
+  2022-06-14    -0.0008654520   0.0001227964
+  2022-06-15    -0.0009106097   0.0210799121
+  2022-06-16    -0.0026005286  -0.0342836056
+  2022-06-17    -0.0042277373   0.0011809772
+  2022-06-21     0.0040651650   0.0326165527
+  2022-06-22    -0.0003297178  -0.0047405220
+  2022-06-23     0.0009790169   0.0095372501
+  2022-06-24     0.0017096831   0.0311188053
+  2022-06-27     0.0029656296  -0.0040570262
+  2022-06-28     0.0002336744  -0.0253470065
+  2022-06-29    -0.0014875224  -0.0017348280
+  2022-06-30    -0.0019586628  -0.0152376076
+
+  weights on 2022-06-30 (after the month's drift):
+      AAPL=0.072362  MSFT=0.072362  NVDA=0.072362  AMZN=0.072362  GOOGL=0.072362  META=0.072362  TSLA=0.072362
+      JPM=0.072362  JNJ=0.069337  WMT=0.072362  XOM=0.064553  UNH=0.073162  V=0.072362  AVGO=0.069329
+
+  compounded product of the two daily columns above:
+      trend : -0.0128971161
+      plain : -0.0918379716
+  handcheck's own compounding of the BOOK, same days : -0.0128971161
+  exact agreement (should be ~1e-16): -2.220e-16
+
+  THE EXACT IDENTITY, stated so it can be checked by eye:
+      A portfolio held with DRIFTING weights from the start of a period
+      earns the START-WEIGHTED AVERAGE of its legs' period returns --
+      no rebalancing inside the period means each leg compounds alone.
+      So   book month return  ==  sum_i w_i0 * (leg i month return).
+      trend : -0.0128971161  vs  -0.0128971161   (gap -5.2e-16)
+      plain : -0.0918379716  vs  -0.0918379716   (gap 2.1e-16)
+
+  WHAT WOULD HAVE BEEN WRONG: compounding the daily returns with the
+  weights RE-SET to 1/14 every day instead of left to drift gives
+  -0.0124796377 for the trend book, out by 4.2e-04 against the book.
+  That is the difference between a DAILY-rebalanced portfolio and the
+  MONTHLY-rebalanced one this study actually simulates, and it is the
+  single easiest way to get this arithmetic wrong.
+
+==============================================================================
+BY-HAND CHECK 2: correlation of two series for ONE calendar year
+==============================================================================
+  SPY vs QQQ, calendar 2024, 250 daily return pairs on the BOOK calendar
+  mean(SPY)=0.0008924436   mean(QQQ)=0.0010202169
+  sum dx*dy = 0.0212712441
+  sum dx^2  = 0.0158033821
+  sum dy^2  = 0.0320041909
+  r = sum dx*dy / sqrt(sum dx^2 * sum dy^2) = 0.9458329617
+  independent routine, same calendar        = 0.9458329617
+  agreement: 0.000e+00
+
+  CALENDAR SENSITIVITY, reported rather than hidden:
+  the same year on the raw SPY+QQQ intersection calendar gives
+  r = 0.9449452197, i.e. a difference of -8.877e-04 in the 4th decimal.
+  Which calendar you intersect on therefore matters at the 1e-4 level
+  for a one-year window, and is why this study fixes ONE window per
+  question instead of letting each statistic choose its own.
+
+==============================================================================
+GAP TABLE -- study.py value vs independent re-derivation
+==============================================================================
+  statistic                                 study.py               handcheck               gap
+  ----------------------------------------  ---------------------  ----------------------  ---------
+  W14_N3_TREND.cagr                         0.09858229             0.09858228858950824     -0.000000
+  W14_N3_TREND.max_dd                       -0.19720383            -0.19720383108799477    -0.000000
+  W14_N3_TREND.sharpe                       0.828044               0.828044401504543       0.000000
+  W14_N3_TREND.days                         3422.0                 3422.0                  0.000000
+  W14_C4_TREND.cagr                         0.03726841             0.037268412230231585    0.000000
+  W14_C4_TREND.max_dd                       -0.14829084            -0.14829084046655483    -0.000000
+  W14_C4_TREND.sharpe                       0.556087               0.5560869973478836      -0.000000
+  W14_C4_TREND.days                         3422.0                 3422.0                  0.000000
+  W14_BH_SPY.cagr                           0.12512626             0.1251262599315126      -0.000000
+  W14_BH_SPY.max_dd                         -0.34104747            -0.34104746704498445    0.000000
+  W14_BH_SPY.sharpe                         0.785216               0.7852164299627252      0.000000
+  W14_BH_SPY.days                           3422.0                 3422.0                  0.000000
+  W14_C14_EW_TREND.cagr                     0.18563517             0.18563517270922514     0.000000
+  W14_C14_EW_TREND.max_dd                   -0.25577956            -0.2557795553312847     0.000000
+  W14_C14_EW_TREND.sharpe                   1.356501               1.3565009385308449      -0.000000
+  W14_C14_EW_TREND.days                     3422.0                 3422.0                  0.000000
+  W14_N3_TREND.Y.frac                       0.75                   0.75                    0.000000
+  W14_N3_TREND.M.frac                       0.58642                0.5864197530864198      -0.000000
+  W14_N3_TREND.W.frac                       0.502116               0.5021156558533145      -0.000000
+  W14_C4_TREND.Y.frac                       0.666667               0.6666666666666666      -0.000000
+  W14_C4_TREND.M.frac                       0.555556               0.5555555555555556      -0.000000
+  W14_C4_TREND.W.frac                       0.509168               0.5091678420310296      -0.000000
+  W14_BH_SPY.Y.frac                         0.75                   0.75                    0.000000
+  W14_BH_SPY.M.frac                         0.666667               0.6666666666666666      -0.000000
+  W14_BH_SPY.W.frac                         0.583921               0.5839210155148096      0.000000
+  W14_C14_EW_TREND.Y.frac                   0.833333               0.8333333333333334      0.000000
+  W14_C14_EW_TREND.M.frac                   0.666667               0.6666666666666666      -0.000000
+  W14_C14_EW_TREND.W.frac                   0.588152               0.5881523272214386      0.000000
+  W14_N3_TREND.losing_years                 2015,2018,2022         2015,2018,2022          same
+  W14_N3_TREND.max_year_gap                 0.0                    4.775349331243017e-09   0.000000
+  W14_C4_TREND.losing_years                 2015,2018,2022,2023    2015,2018,2022,2023     same
+  W14_C4_TREND.max_year_gap                 0.0                    4.8965506094234e-09     0.000000
+  W14_BH_SPY.losing_years                   2015,2018,2022         2015,2018,2022          same
+  W14_BH_SPY.max_year_gap                   0.0                    4.4225880457826605e-09  0.000000
+  W14_C14_EW_TREND.losing_years             2018,2022              2018,2022               same
+  W14_C14_EW_TREND.max_year_gap             0.0                    4.664188923975132e-09   0.000000
+  SPY-QQQ.daily                             0.849869               0.8498687603132326      -0.000000
+  SPY-QQQ.yearly                            0.917245               0.9172449707925436      -0.000000
+  SPY-IWM.daily                             0.884284               0.8842837921465534      -0.000000
+  SPY-IWM.yearly                            0.892334               0.8923341474181741      0.000000
+  QQQ-IWM.daily                             0.780272               0.7802719918798927      -0.000000
+  QQQ-IWM.yearly                            0.814349               0.8143494766329532      0.000000
+  W14_N3_TREND.max_lambda                   0.021                  0.021                   0.000000
+  W14_C4_TREND.max_lambda                   0.008                  0.008                   0.000000
+  W14_BH_SPY.max_lambda                     0.097                  0.097                   0.000000
+  W14_C14_EW_TREND.max_lambda               0.154                  0.154                   0.000000
+  spreads.max_gap_bp                        0.0                    4.960272192988668e-09   0.000000
+  byhand.ew_trend_book_1m_exact             -0.012897116143659182  -0.012897116143659404   -0.000000
+  byhand.ew_trend_book_1m_start_weighted    -0.012897116143658889  -0.012897116143659404   -0.000000
+  byhand.ew_plain_basket_1m_start_weighted  -0.09183797162668071   -0.0918379716266805     0.000000
+  byhand.corr_spy_qqq_2024                  0.9458329616793312     0.9458329616793312      0.000000
+
+  gaps larger than 1e-6: 0
+  VERDICT: AGREES -- the two implementations reproduce the same numbers.

@@ -1,0 +1,183 @@
+HANDCHECK -- independent re-derivation for real-skew-test
+erf: Abramowitz & Stegun 7.1.26 (NOT math.erf)
+IV : bracket expansion from sigma=0.20, then bisection
+OLS: normal equations solved in closed form
+
+==============================================================================
+A. IMPLIED VOL FROM REAL PRICES, WITH EVERY INTERMEDIATE SHOWN
+==============================================================================
+
+  ---- SPY 2020-03-02  expiry 2020-04-17  PUT strike 300 ----
+    bar_date        2020-03-02   (bar lag 0 days)
+    real print      $10.08   OHLC 10.08/16.37/8.78/10.08
+    spot S          309.09
+    strike K        300.00
+    days to expiry  46
+    T = DTE/365     0.1260273973
+    r (US03M, t-3)  1.515000%  on session 2020-02-26
+    log(S/K)        +0.0298500220
+    sqrt(T)         0.3550033764
+    -> sigma        0.334360  (33.44%)
+    BS intermediates at that sigma:
+      sigma*sqrt(T) 0.1186988665
+      d1            +0.3269116937
+      d2            +0.2082128272
+      N(d1)         0.6281325934
+      N(d2)         0.5824685725
+      N(-d1)        0.3718674066
+      N(-d2)        0.4175314275
+      K*exp(-rT)    299.4277519542
+      BS price      $10.0800000000  (vs print $10.08)
+
+  ---- SPY 2017-10-02  expiry 2017-11-10  PUT strike 245 ----
+    bar_date        2017-10-02   (bar lag 0 days)
+    real print      $0.89   OHLC 0.89/0.89/0.89/0.89
+    spot S          252.32
+    strike K        245.00
+    days to expiry  39
+    T = DTE/365     0.1068493151
+    r (US03M, t-3)  1.057200%  on session 2017-09-27
+    log(S/K)        +0.0294399127
+    sqrt(T)         0.3268781349
+    -> sigma        0.105858  (10.59%)
+    BS intermediates at that sigma:
+      sigma*sqrt(T) 0.0346027983
+      d1            +0.9007421938
+      d2            +0.8661393955
+      N(d1)         0.8161373245
+      N(d2)         0.8067931796
+      N(-d1)        0.1838626755
+      N(-d2)        0.1932068204
+      K*exp(-rT)    244.7234015688
+      BS price      $0.8900000000  (vs print $0.89)
+
+  ---- SPY 2018-04-02  expiry 2018-05-11  CALL strike 265 ----
+    bar_date        2018-04-02   (bar lag 0 days)
+    real print      $3.12   OHLC 3.12/5.25/2.51/3.12
+    spot S          257.47
+    strike K        265.00
+    days to expiry  39
+    T = DTE/365     0.1068493151
+    r (US03M, t-3)  1.720800%  on session 2018-03-27
+    log(S/K)        -0.0288266175
+    sqrt(T)         0.3268781349
+    -> sigma        0.176176  (17.62%)
+    BS intermediates at that sigma:
+      sigma*sqrt(T) 0.0575879553
+      d1            -0.4398448965
+      d2            -0.4974328517
+      N(d1)         0.3300247546
+      N(d2)         0.3094419219
+      N(-d1)        0.6699752454
+      N(-d2)        0.6905580781
+      K*exp(-rT)    264.5132019673
+      BS price      $3.1200000000  (vs print $3.12)
+
+  ---- SPY 2022-10-03  expiry 2022-11-11  PUT strike 330 ----
+    bar_date        2022-10-03   (bar lag 0 days)
+    real print      $3.22   OHLC 4.15/4.90/2.97/3.22
+    spot S          366.61
+    strike K        330.00
+    days to expiry  39
+    T = DTE/365     0.1068493151
+    r (US03M, t-3)  3.330001%  on session 2022-09-28
+    log(S/K)        +0.1052059583
+    sqrt(T)         0.3268781349
+    -> sigma        0.335521  (33.55%)
+    BS intermediates at that sigma:
+      sigma*sqrt(T) 0.1096743922
+      d1            +1.0465367106
+      d2            +0.9368623184
+      N(d1)         0.8523433204
+      N(d2)         0.8255853228
+      N(-d1)        0.1476566796
+      N(-d2)        0.1744146772
+      K*exp(-rT)    328.8279189416
+      BS price      $3.2200000000  (vs print $3.22)
+
+  ---- SPY 2026-04-01  expiry 2026-05-08  CALL strike 695 ----
+    bar_date        2026-04-01   (bar lag 0 days)
+    real print      $1.80   OHLC 1.77/1.98/1.63/1.8
+    spot S          655.24
+    strike K        695.00
+    days to expiry  37
+    T = DTE/365     0.1013698630
+    r (US03M, t-3)  3.691999%  on session 2026-03-26
+    log(S/K)        -0.0589102648
+    sqrt(T)         0.3183863424
+    -> sigma        0.145897  (14.59%)
+    BS intermediates at that sigma:
+      sigma*sqrt(T) 0.0464517109
+      d1            -1.1644094196
+      d2            -1.2108611306
+      N(d1)         0.1221291255
+      N(d2)         0.1129743819
+      N(-d1)        0.8778708745
+      N(-d2)        0.8870256181
+      K*exp(-rT)    692.4037721598
+      BS price      $1.8000000000  (vs print $1.80)
+
+==============================================================================
+B. ONE LADDER'S SKEW SLOPE, BY HAND  (SPY 2020-03-02, 4 put prints)
+==============================================================================
+
+  spot 309.09   T 0.1260273973   r 1.515000%
+
+  strike  price$   d=-ln(K/S)   IV%
+  ------  -------  -----------  ------
+     263     2.96  +0.16147846   42.1215
+     278     5.04  +0.10601138   38.9818
+     291     7.68  +0.06030923   35.8863
+     300    10.08  +0.02985002   33.4360
+
+  normal equations: n=4  sum(x)=0.35764910  sum(y)=150.4256
+                    sum(x^2)=0.04184193  sum(xy)=14.09657278
+  slope b         = 65.561119 vol pts per unit of d
+  IV at d=0       = 31.7444%
+  ln(1/0.90)      = 0.10536052
+  slope per 10% OTM = b * ln(1/0.90) = 6.9076 vol points
+
+==============================================================================
+C. SETTLE ONE MEASURED SPREAD AGAINST THE REAL PATH
+==============================================================================
+  SPY 2020-03-02, short the 6%-OTM put, long the wing $5 lower,
+  both priced from the MEASURED put ladder by linear interpolation
+  in d = -ln(K/S), then settled at intrinsic on the expiry close.
+
+  K_short 291   d 0.06030923   IV 35.8863%
+  K_wing  286   d 0.07764069   IV 37.0602%
+  BS put 291      $7.680000
+  BS put 286      $6.534425
+  credit (gross)  $114.5575
+  cost (LOW)      $6.3000
+  credit (net)    $108.2575
+  REAL SPY close on the expiry session 2020-04-17: 286.64
+  intrinsic loss  $436.0000
+  pnl (gross)     $-321.4425
+  max loss        $385.4425  (= width*100 - credit)
+  R               -0.833957
+
+==============================================================================
+D. GAP AGAINST study.py
+==============================================================================
+  ladder slope, SPY 2020-03-02
+    handcheck.py   6.9076 vol pts per 10% OTM
+    study.py       6.9100
+    GAP            0.002447 vol pts
+  spread settlement, SPY 2020-03-02 short 291 / long 286
+    handcheck.py   R = -0.8340
+    study.py       R = -0.83
+    GAP            0.003957 R  -- study.py's re-run TABLE prints
+                   R to 2 decimals, so this gap is rounding,
+                   not disagreement: both give -0.833957
+
+  implied vols, section 1 of study.py vs here:
+    date        type  strike   study.py IV   handcheck IV   gap
+    2017-10-02  put      245    10.5900       10.5858      0.0042
+    2018-04-02  call     265    17.6200       17.6176      0.0024
+    2020-03-02  put      300    33.4400       33.4360      0.0040
+    2022-10-03  put      330    33.5500       33.5521      0.0021
+    2026-04-01  call     695    14.5900       14.5897      0.0003
+
+==============================================================================
+END

@@ -1,0 +1,33 @@
+section	tool	calls	basis
+DISCOVERY	get_option_chains	1	SPY: chain id + upcoming expiries
+DISCOVERY	get_option_instruments	1	SPY 2018-02-09 state=expired with NO strike filter -> paged listing of 180 instruments on page 1. Proves the whole strike grid is listable, but at ~75 KB/page it is too large to repeat per date; the study therefore uses the strike filter with retries.
+DISCOVERY	get_option_instruments	2	SPY 2018-02-09 strike 242.5 / 261 (known-present flakiness test; both ok on the first attempt here)
+RESOLUTION	get_option_instruments	161	sum of the attempts column in instrument-ids.tsv for the 120 declared contracts (20 dates x 6). Includes every exact-strike retry and every declared neighbour probe.
+RESOLUTION	get_option_instruments	2	supplementary ITM-put rows for 2020-04-01 (put_254x, put_261x) -- captured in error, kept as a put-call parity check
+LIVE CHECK	get_option_instruments	4	2027-01-15 P750, P700, C800; 2026-12-18 C760
+BARS	get_option_historicals	29	see logs/bar-log.tsv; 29 batches covering the 20 sample dates, 3 corrected re-pulls, 3 diagnostics, and the live check
+LIVE CHECK	get_option_quotes	1	4 live ids: official prior-session close
+TOTAL		201
+
+PER-DATE RESOLUTION CALLS (from instrument-ids.tsv attempts column)
+sample_date	expiry	contracts	resolution_calls	notes
+2017-10-02	2017-11-10	6	16	put_227 needed 8 probes (225 used); put_214 needed 4 (215 used)
+2018-04-02	2018-05-11	6	7	put_219 -> 220 on attempt 2
+2018-10-01	2018-11-09	6	8	call_309 -> 310 on attempt 3
+2019-04-01	2019-05-10	6	10	put_257 -> 255 (3); put_243 -> 245 (3)
+2019-10-01	2019-11-08	6	12	put_264 -> 265 (4); put_249 -> 250 (4)
+2020-02-24	2020-04-03	6	6	all first attempt
+2020-03-02	2020-04-10 -> 2020-04-17	6	12	2020-04-10 is Good Friday (market closed): 6 empty calls, then 6 ok on the substitute expiry
+2020-04-01	2020-05-08	6	7	put_209 never resolved (2)
+2020-10-01	2020-11-06	6	9	put_286 never resolved (4)
+2021-04-01	2021-05-07	6	10	put_361, put_341 never resolved (3 each)
+2021-10-01	2021-11-05	6	6	put_369 never resolved (1)
+2022-04-01	2022-05-06	6	6	all first attempt
+2022-10-03	2022-11-11	6	7	put_312 never resolved (2)
+2023-04-03	2023-05-12	6	6	all first attempt
+2023-10-02	2023-11-10	6	6	all first attempt
+2024-04-01	2024-05-10	6	6	put_444, call_553 never resolved (1 each)
+2024-10-01	2024-11-08	6	7	put_512 (2), put_483 (1) never resolved
+2025-04-01	2025-05-09	6	6	all first attempt
+2025-10-01	2025-11-07	6	8	put_628 (2), put_602 (2), put_568 (1) never resolved
+2026-04-01	2026-05-08	6	6	put_557 never resolved (1)

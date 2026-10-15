@@ -22,7 +22,7 @@ chain:
   - skills/14-finance/trade-performance-analyst/examples/backtest
   type: symmetric
   consumes_from: [portfolio-signal-manager, algorithmic-trader, intraday-options-trader, swing-options-trader, options-automation-engineer]
-  feeds_into: [portfolio-signal-manager, quantitative-analyst]
+  feeds_into: [portfolio-signal-manager, quantitative-analyst, timeframe-performance-statistics, edge-and-payoff-engineering]
 portability: spec-level
 
 ---

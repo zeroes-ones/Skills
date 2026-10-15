@@ -1,0 +1,56 @@
+CHECK 1 - primary (Yahoo) vs audit trail (moomoo OpenD), DAILY RETURNS
+  SPY close: 4993 pairs (20 skipped non-adjacent) | median diff 0.0000 pp | p95 0.0283 pp | worst 2.555 pp on 2011-08-02 | 55 over 0.30 pp
+      big diff 2011-08-02: 2.555 pp
+      big diff 2011-08-04: 1.932 pp
+      big diff 2015-08-24: 1.149 pp
+      big diff 2015-08-25: 1.094 pp
+      big diff 2009-07-17: 1.085 pp
+      stale bars: yahoo=62 (over 8485 sessions) moomoo=16 (over 5017 sessions)
+        yahoo repeated close 3 sessions 1995-02-07 .. 1995-02-09
+        yahoo repeated close 3 sessions 1993-04-14 .. 1993-04-16
+        moomoo repeated close 3 sessions 2011-08-01 .. 2011-08-03
+        moomoo repeated close 2 sessions 2023-07-20 .. 2023-07-21
+  QQQ close: 5039 pairs (0 skipped non-adjacent) | median diff 0.0027 pp | p95 0.0491 pp | worst 0.534 pp on 2012-12-21 | 12 over 0.30 pp
+      big diff 2012-12-21: 0.534 pp
+      big diff 2014-02-27: 0.422 pp
+      big diff 2007-05-01: 0.419 pp
+      big diff 2007-05-02: 0.404 pp
+      big diff 2010-11-29: 0.381 pp
+      stale bars: yahoo=38 (over 6943 sessions) moomoo=20 (over 5040 sessions)
+        yahoo repeated close 3 sessions 2012-08-27 .. 2012-08-29
+        yahoo repeated close 2 sessions 2021-07-12 .. 2021-07-13
+        moomoo repeated close 3 sessions 2012-08-27 .. 2012-08-29
+        moomoo repeated close 2 sessions 2021-07-12 .. 2021-07-13
+  IWM close: 5031 pairs (4 skipped non-adjacent) | median diff 0.0000 pp | p95 0.0512 pp | worst 1.310 pp on 2007-07-10 | 42 over 0.30 pp
+      big diff 2007-07-10: 1.310 pp
+      big diff 2007-07-09: 1.203 pp
+      big diff 2015-08-25: 0.731 pp
+      big diff 2015-08-24: 0.695 pp
+      big diff 2007-03-08: 0.598 pp
+      stale bars: yahoo=20 (over 6635 sessions) moomoo=9 (over 5036 sessions)
+        yahoo repeated close 2 sessions 2020-09-23 .. 2020-09-24
+        yahoo repeated close 2 sessions 2020-01-29 .. 2020-01-30
+        moomoo repeated close 2 sessions 2020-09-23 .. 2020-09-24
+        moomoo repeated close 2 sessions 2020-01-29 .. 2020-01-30
+  EEM close: 5033 pairs (3 skipped non-adjacent) | median diff 0.0001 pp | p95 0.0261 pp | worst 4.663 pp on 2008-10-28 | 35 over 0.30 pp
+      big diff 2008-10-28: 4.663 pp
+      big diff 2008-10-29: 3.595 pp
+      big diff 2023-12-20: 1.823 pp
+      big diff 2024-12-17: 1.657 pp
+      big diff 2015-12-21: 1.546 pp
+      stale bars: yahoo=40 (over 5914 sessions) moomoo=32 (over 5037 sessions)
+        yahoo repeated close 3 sessions 2003-06-18 .. 2003-06-20
+        yahoo repeated close 2 sessions 2024-11-14 .. 2024-11-15
+        moomoo repeated close 2 sessions 2024-11-14 .. 2024-11-15
+        moomoo repeated close 2 sessions 2024-06-21 .. 2024-06-24
+  interpretation: this is a diagnosis of the second feed.  Absolute levels
+  differ by construction (dividend convention); returns are the fair test,
+  and repeated identical closes mark a feed defect.
+
+CHECK 2 - primary VIX (Yahoo ^VIX) vs TradingView TVC:VIX fixture
+  VIX close: 30 common dates, worst |diff| = 0.0100 on 2026-09-10 (tol 0.05) -> OK
+
+CHECK 3 - primary SPY (Yahoo, split-adjusted) vs TradingView AMEX:SPY fixture
+  SPY close: 10 common dates, worst |diff| = 0.0000 on None (tol 0.05) -> OK
+
+PRIMARY SERIES CERTIFIED by TradingView (checks 2 and 3)

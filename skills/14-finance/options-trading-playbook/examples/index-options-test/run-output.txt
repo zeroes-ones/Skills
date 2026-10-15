@@ -1,0 +1,694 @@
+
+==============================================================================
+INDEX-OPTIONS TEST -- SPY / QQQ / IWM underlying AND options
+==============================================================================
+Pre-registered.  Deterministic.  No RNG, no clock, no network.
+
+READ THIS BEFORE ANY NUMBER: every option price below is [MODELED].
+Historical option quotes are not available from the sources used.
+Legs are priced with Black-Scholes on a VIX-derived implied vol and
+settled against the REAL index close on the expiry session.  The
+model has: no quote spread, no skew, one vol for all strikes, no term
+structure in the primary run, no early exercise or assignment, no pin
+risk, no dividends, no margin, no liquidity limit, European settlement.
+A flat per-contract spread IS charged as a cost; the QUOTE is still a
+mid.  Index options on these ETFs are American and physically settled,
+so European pricing is an approximation.
+
+==============================================================================
+0. DATA -- provenance echoed verbatim from data/*.csv
+==============================================================================
+  SPY    rows=8485   first=1993-01-29 last=2026-10-14
+  QQQ    rows=6943   first=1999-03-10 last=2026-10-14
+  IWM    rows=6635   first=2000-05-26 last=2026-10-14
+  VIX    rows=9283   first=1990-01-03 last=2026-10-14
+  US03M  rows=18197  first=1954-01-04 last=2026-10-14
+
+  Provenance of SPY (the others are in data/*.csv and RESULTS.md):
+    source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    symbol=AMEX:SPY  interval=1D  fields=OHLCV
+    pulled=2026-10-14 (UTC date of the sibling pull)
+    CARRIED from ../frontier-test/data/SPY_1d.csv -- same tool, same pull date
+    carried_by=pull_data.py  carried=2026-10-15
+    VERIFIED before carry: the sibling header's own rows/first/last claims were re-checked against its body and matched
+    sha256(body of the carried file)=e104ae01aefea7444b25011c2aedd558793d24f7659f703ec54dfee5390149af
+    rows=8485  first=1993-01-29  last=2026-10-14
+    date is the exchange session date, rendered as the UTC calendar date of the bar timestamp
+    split-adjusted, regular session only
+    volume is as reported by the source, in shares (unadjusted for splits)
+    PRICE-ONLY series. No dividends or distributions. Not a total-return series.
+
+  PRIMARY BOOK CALENDAR (SPY, QQQ, IWM, VIX intersection, from the
+  first session every SMA(200) is live):
+    sessions = 6436   first = 2001-03-13   last = 2026-10-14
+    complete D  periods = 6436  (2001-03-13 .. 2026-10-14)
+    complete W  periods = 1334  (2001-W12 .. 2026-W41)
+    complete 2W periods = 668  (2001-2W07 (from 2001-03-26) .. 2026-2W20 (from 2026-09-21))
+    complete M  periods = 306  (2001-04 .. 2026-09)
+    complete Q  periods = 102  (2001-Q2 .. 2026-Q3)
+    complete H  periods = 50  (2001-H2 .. 2026-H1)
+    complete Y  periods = 24  (2002 .. 2025)
+    cash series: TVC:US03M lagged one book date, floored at 0. 20 of 6436 sessions have a non-positive accrual.
+
+==============================================================================
+1. PRE-REGISTERED CONFIGURATION (echoed BEFORE any result)
+==============================================================================
+  S1  Trend on the underlying (long iff close > SMA200, flat below)
+  S2  Systematic premium selling, defined risk (30-DTE $5-wide put spread, ~16-delta short)
+  S3  Buy-write / covered call (long underlying, short 30-DTE ~30-delta call)
+  S4  Tail-hedged premium (S2 + long ~5%-OTM 60-DTE put, rolled monthly)
+  S5  Trend + premium overlay (0.75 x S1 book + 0.25 x S2 book)
+  S6  Buy & hold (the control)
+
+  Underlying rule   : long iff close > SMA(200), flat below
+  Entry convention  : signal at a close, position established at the
+                      NEXT session's OPEN
+  Risk unit R       : S1/S3/S6  R = 2.0 x ATR(14) at entry, per share
+                      S2        R = width - gross credit (max loss)
+                      S4        R = the structure's max loss
+  Option tenor      : 30 calendar days to expiry, all monthly
+  S2 short leg      : 0.16-delta put
+  S2 width          : $5.0 (DOLLARS, as pre-registered)
+  S3 short leg      : 0.30-delta call
+  S4 hedge          : long put, 5% OTM, 60 calendar days, rolled
+                      monthly at the next entry (mark-to-model)
+  S2/S4 sleeve size : capital = 10 x one max-loss spread, i.e. a
+                      worst-case month costs -10% of the sleeve. FIXED.
+  S5 blend          : 75% S1 book + 25% S2 book. FIXED, not tuned.
+  Implied vol       : IV = VIX(t-3 sessions)/100 x kappa(index) x stress
+                      kappa = clip(RV60(index)/RV60(SPY), 0.60, 2.00)
+                      term structure exponent alpha = 0.00 (0 = flat: one vol for 30-DTE and 60-DTE)
+                      NOTE: reading the brief's sqrt(30/21) factor as
+                      the same rule at a 21-day tenor gives 1.195x;
+                      our legs are 30 and 60 DTE, so the rule gives
+                      1.000x and 0.707x.  Both settings are reported.
+  IV stress         : 80%, 100%, 120%
+  Costs             : FREE fee=$0.00/contract/side half_spread=$0.000/share/side etf=0bps | LOW fee=$0.65/contract/side half_spread=$0.025/share/side etf=5bps | HIGH fee=$0.65/contract/side half_spread=$0.050/share/side etf=20bps
+  HEADLINE COST     : LOW
+
+  PRE-REGISTERED SUCCESS BAR -- a book is 'all-weather enough' iff
+    (a) positive in >= 80% of complete YEARS
+    (b) positive in >= 70% of complete QUARTERS
+    (c) CAGR above the cash rate over the same window
+    (d) max drawdown survivable -- REPORTED, not thresholded after
+        seeing the result
+  Selection rule for 'best book', declared up front: the strategy with
+  the highest fraction of positive complete YEARS; ties broken by CAGR.
+
+==============================================================================
+2. WHAT THE PRE-REGISTERED STRUCTURES ACTUALLY LOOK LIKE
+==============================================================================
+  The brief fixes the S2 width at FIVE DOLLARS.  On a $770 ETF that
+  is ~0.65% of spot; on a $271 ETF it is ~1.8%.  The same dollar width
+  is therefore a DIFFERENT structure on each index, and the long leg
+  lands at a very different delta.  First trade of each index, from the
+  model:
+
+  sym  entry       S       short K  long K  width/spot  credit  credit/width  IV      short OTM%  short delta  long delta
+  ---  ----------  ------  -------  ------  ----------  ------  ------------  ------  ----------  -----------  ----------
+  SPY  2001-04-02  116.30  108.97   103.97  4.3%        0.606   12.1%         0.2704  6.3%        -0.182       -0.063
+  QQQ  2001-04-02  39.17   34.22    29.22   12.8%       0.481   9.6%          0.5408  12.6%       -0.164       -0.021
+  IWM  2001-04-02  44.77   41.67    36.67   11.2%       0.308   6.2%          0.2858  6.9%        -0.172       -0.005
+
+  A literal $5 width on a high-priced ETF buys a long leg only a couple
+  of deltas further out than the short leg; on a low-priced ETF the same
+  $5 is a genuinely different, wider tail.  The pre-registered width is
+  kept as specified and the consequence is reported, not repaired.
+
+  Over the whole window, per index:
+  sym  trades  mean spot  mean width/spot  mean credit  mean credit/width  mean IV
+  ---  ------  ---------  ---------------  -----------  -----------------  -------
+  SPY  306     244.5      2.92%            0.550        11.0%              0.1948
+  QQQ  306     161.9      7.35%            0.445        8.9%               0.2549
+  IWM  306     118.6      5.63%            0.480        9.6%               0.2602
+  wrote out/s2_structure.csv (1836 rows)
+
+==============================================================================
+3. TRADE-LEVEL STATISTICS (pooled across the three index sleeves)
+==============================================================================
+  p = win rate, b = avg win / |avg loss|, E = p*b-(1-p), E_R = mean R,
+  p* = 1/(1+b), b* = (1-p)/p, n_req = 4(sd/|E_R|)^2,
+  L = ln(N)/ln(1/(1-p)) and the ACTUAL longest losing streak.
+
+  strat  n     p       b      E        E_R      sd     p*      b*      n_req  L_exp  L_act
+  -----  ----  ------  -----  -------  -------  -----  ------  ------  -----  -----  -----
+  S1     275   0.2982  6.437  1.2177   0.5991   2.818  0.1345  2.3537  88.5   15.86  10
+  S2     918   0.8976  0.181  0.0599   0.0321   0.235  0.8469  0.1141  214.1  2.99   2
+  S3     918   0.6950  0.951  0.3556   0.4533   1.377  0.5127  0.4389  36.9   5.75   6
+  S4     918   0.2963  1.401  -0.2886  -0.1865  0.941  0.4165  2.3750  101.7  19.41  10
+  S5     1193  0.7594  0.740  0.3214   0.1628   1.388  0.5747  0.3168  290.5  4.97   10
+  S6     0     n/a     n/a    n/a      n/a      n/a    n/a     n/a     n/a    n/a    n/a
+
+  STRUCTURE CHECK -- model-priced maximum loss of the S2 spread
+  (must equal width - credit; a mismatch would mean the payoff grid
+  and the credit do not agree):
+  entry       credit  width-credit  grid max loss  gap
+  ----------  ------  ------------  -------------  --------
+  2001-04-02  0.6061  4.3939        4.3939         0.000000
+  2001-05-01  0.5790  4.4210        4.4210         0.000000
+  2001-06-01  0.4713  4.5287        4.5287         0.000000
+
+==============================================================================
+4. HEADLINE BOOK METRICS (LOW costs, IV stress x1.0, VIX lag 3)
+==============================================================================
+  Sharpe: daily returns, full window, annualised by sqrt(252).  Both a
+  raw figure and an excess-over-cash figure are given; Rf is the
+  TVC:US03M cash series lagged one book date.
+
+  strat  CAGR     maxDD    Sharpe  Sharpe_Rf  pos years    pos Q         pos M          worst yr  worst yr ret
+  -----  -------  -------  ------  ---------  -----------  ------------  -------------  --------  ------------
+  S1     +7.07%   -21.83%  0.61    0.47       18/24 (75%)  54/102 (53%)  159/306 (52%)  2022      -14.49%
+  S2     +2.97%   -26.75%  0.41    0.18       19/24 (79%)  81/102 (79%)  271/306 (89%)  2022      -22.22%
+  S3     +10.53%  -28.74%  0.90    0.75       20/24 (83%)  77/102 (75%)  214/306 (70%)  2008      -16.95%
+  S4     -14.84%  -98.45%  -0.46   -0.53      3/24 (12%)   25/102 (25%)  93/306 (30%)   2021      -46.92%
+  S5     +6.16%   -18.84%  0.63    0.46       17/24 (71%)  60/102 (59%)  194/306 (63%)  2022      -16.33%
+  S6     +9.23%   -56.30%  0.52    0.44       19/24 (79%)  70/102 (69%)  190/306 (62%)  2008      -38.04%
+
+  cash reference: CAGR +1.80%  maxDD -0.00%  pos years 24/24
+
+==============================================================================
+5. THE PRE-REGISTERED SUCCESS BAR -- verdict
+==============================================================================
+  Bar: (a) >= 80% positive years  (b) >= 70% positive quarters
+       (c) CAGR > cash CAGR  (d) max drawdown survivable (reported)
+
+  strat  (a) posY>=80%  (b) posQ>=70%  (c) CAGR>cash  (d) maxDD  verdict
+  -----  -------------  -------------  -------------  ---------  -------
+  S1     no             no             YES            -21.83%    fails
+  S2     no             YES            YES            -26.75%    fails
+  S3     YES            YES            YES            -28.74%    CLEARS
+  S4     no             no             no             -98.45%    fails
+  S5     no             no             YES            -18.84%    fails
+  S6     no             no             YES            -56.30%    fails
+
+  CLEARS THE BAR: S3
+
+  BEST BOOK by the declared rule (highest positive-year fraction, ties
+  by CAGR): S3  with 83% positive years and CAGR +10.53%.
+
+==============================================================================
+6. THE CORRELATION OF THE THREE INDICES
+==============================================================================
+  A three-index book is nearly ONE BET.  Measured here, not assumed.
+  complete calendar years in the window: 24 (2002 .. 2025)
+
+  pair_a  pair_b  yearly corr  daily corr  R^2 yearly  n years
+  ------  ------  -----------  ----------  ----------  -------
+  SPY     QQQ     0.917        0.884       0.841       24
+  SPY     IWM     0.895        0.887       0.801       24
+  QQQ     IWM     0.840        0.793       0.705       24
+
+  Every pairwise YEARLY correlation is 0.84 or higher, and every
+  pairwise DAILY correlation is 0.79 or higher.  A three-index book of
+  SPY/QQQ/IWM is not three bets; it is ONE broad-market bet taken at
+  three slightly different tilts.  Adding QQQ and IWM to SPY buys
+  almost no diversification -- it buys a slightly different beta.
+  The mean pairwise yearly correlation is 0.884.
+
+==============================================================================
+7. POSITIVITY BY HORIZON FOR THE BEST BOOK (S3) -- the direct answer
+==============================================================================
+  Complete periods only.  'positive' is STRICT (a flat period counts
+  against); the >=0 reading is in out/positivity_by_horizon.csv.
+
+  strat  D      W      2W     M      Q      H      Y
+  -----  -----  -----  -----  -----  -----  -----  -----
+  S3     59.6%  64.1%  67.1%  69.9%  75.5%  78.0%  83.3%
+  S1     45.5%  46.3%  49.0%  52.0%  52.9%  64.0%  75.0%
+  S2     65.9%  70.4%  72.2%  88.6%  79.4%  78.0%  79.2%
+  S4     42.5%  36.8%  34.9%  30.4%  24.5%  12.0%  12.5%
+  S5     56.5%  57.4%  58.7%  63.4%  58.8%  66.0%  70.8%
+  S6     54.1%  56.6%  59.0%  62.1%  68.6%  74.0%  79.2%
+
+  Same table, cash reference for comparison:
+  cash   D      W      2W      M       Q       H       Y
+  -----  -----  -----  ------  ------  ------  ------  -
+  99.7%  99.9%  99.9%  100.0%  100.0%  100.0%  100.0%
+
+==============================================================================
+8. THE FRONTIER FOR THE BEST BOOK (S3) -- lambda vs the cash series
+==============================================================================
+  r(lam) = lam * risky + (1-lam) * cash.  At lam=0 the return IS the
+  cash rate, term by term.  The frontier's endpoint is found by a 0.05
+  grid scan then a 0.001 bisection.
+
+  lambda  CAGR     maxDD    D      W      2W     M       Q       H       Y
+  ------  -------  -------  -----  -----  -----  ------  ------  ------  ------
+  0.00    +1.80%   -0.00%   99.7%  99.9%  99.9%  100.0%  100.0%  100.0%  100.0%
+  0.05    +2.25%   -1.34%   68.9%  76.8%  78.4%  82.4%   87.3%   92.0%   100.0%
+  0.10    +2.71%   -2.84%   65.0%  71.9%  73.7%  78.8%   84.3%   90.0%   91.7%
+  0.15    +3.16%   -4.33%   63.5%  69.6%  71.4%  75.8%   84.3%   88.0%   91.7%
+  0.20    +3.61%   -5.80%   62.4%  68.4%  70.1%  73.9%   82.4%   86.0%   87.5%
+  0.25    +4.05%   -7.25%   61.8%  67.2%  69.2%  73.9%   81.4%   84.0%   87.5%
+  0.30    +4.50%   -8.70%   61.3%  66.9%  68.4%  73.2%   79.4%   82.0%   87.5%
+  0.35    +4.94%   -10.19%  61.0%  66.6%  68.3%  72.2%   79.4%   82.0%   87.5%
+  0.40    +5.39%   -11.66%  60.7%  66.1%  68.0%  71.9%   78.4%   80.0%   87.5%
+  0.45    +5.83%   -13.12%  60.6%  65.4%  67.8%  71.6%   78.4%   80.0%   87.5%
+  0.50    +6.27%   -14.56%  60.4%  65.3%  67.7%  71.6%   77.5%   80.0%   87.5%
+  0.55    +6.70%   -15.98%  60.2%  65.1%  67.7%  70.9%   77.5%   80.0%   87.5%
+  0.60    +7.14%   -17.39%  60.1%  65.0%  67.7%  70.6%   75.5%   80.0%   87.5%
+  0.65    +7.57%   -18.79%  59.9%  64.8%  67.7%  70.6%   75.5%   78.0%   87.5%
+  0.70    +8.00%   -20.23%  59.9%  64.7%  67.4%  70.6%   75.5%   78.0%   87.5%
+  0.75    +8.43%   -21.68%  59.8%  64.7%  67.4%  70.3%   75.5%   78.0%   83.3%
+  0.80    +8.85%   -23.12%  59.8%  64.6%  67.4%  69.9%   75.5%   78.0%   83.3%
+  0.85    +9.28%   -24.54%  59.7%  64.5%  67.2%  69.9%   75.5%   78.0%   83.3%
+  0.90    +9.70%   -25.94%  59.6%  64.5%  67.1%  69.9%   75.5%   78.0%   83.3%
+  0.95    +10.12%  -27.32%  59.6%  64.2%  67.1%  69.9%   75.5%   78.0%   83.3%
+  1.00    +10.53%  -28.74%  59.6%  64.1%  67.1%  69.9%   75.5%   78.0%   83.3%
+
+  WHERE THE FRONTIER ENDS -- largest lambda with 100% of periods
+  positive (strict), then the CAGR there:
+
+  horizon  largest lambda 100% positive  CAGR there  cash CAGR  excess
+  -------  ----------------------------  ----------  ---------  ------
+  Y        0.0773                        +2.50%      +1.80%     +0.70%
+  Q        0.0008                        +1.80%      +1.80%     +0.01%
+  M        0.0000                        +1.80%      +1.80%     +0.00%
+
+  D/W/2W cannot be made 100% positive even at lam=0 only if the cash
+  accrual itself prints <= 0; the measured count of non-positive cash
+  sessions is reported in section 0 above.
+
+==============================================================================
+9. STRESS CELLS -- 2008 and 2020, where premium selling is supposed to break
+==============================================================================
+
+  --- 2008 GFC  (2008-01-01 .. 2009-03-31) ---
+  strat  window total  window maxDD  worst month  worst month (key)
+  -----  ------------  ------------  -----------  ------------------
+  S1     -9.21%        -9.21%        -4.60%       (2008, 9) -4.60%
+  S2     -11.97%       -21.36%       -7.47%       (2008, 10) -7.47%
+  S3     -19.01%       -28.08%       -10.56%      (2008, 10) -10.56%
+  S4     +9.59%        -16.95%       -4.50%       (2008, 12) -4.50%
+  S5     -9.74%        -12.24%       -5.04%       (2008, 9) -5.04%
+  S6     -43.82%       -52.89%       -18.22%      (2008, 10) -18.22%
+
+  modelled OPTION P&L in this window (3 sleeves, dollars):
+  strat  trades  losing  sum P&L   worst trade  worst trade R  worst entry  book P&L (3x base)
+  -----  ------  ------  --------  -----------  -------------  -----------  ------------------
+  S2     45      12      -1776.49  -468.89      -1.01          2008-09-02   -1796.21
+  S4     45      24      +1954.44  -446.12      -0.76          2008-12-01   +1438.46
+
+  S4 hedge debit as a multiple of the spread credit, in this
+  window: mean = 4.36x  (1.00x would mean the premium exactly
+  pays for the hedge).
+
+  --- 2020 COVID  (2020-01-01 .. 2020-12-31) ---
+  strat  window total  window maxDD  worst month  worst month (key)
+  -----  ------------  ------------  -----------  ------------------
+  S1     +20.08%       -18.48%       -6.80%       (2020, 2) -6.80%
+  S2     -1.09%        -15.87%       -7.67%       (2020, 2) -7.67%
+  S3     +23.42%       -20.13%       -7.49%       (2020, 3) -7.49%
+  S4     -36.24%       -69.26%       -17.03%      (2020, 11) -17.03%
+  S5     +14.68%       -17.59%       -6.98%       (2020, 2) -6.98%
+  S6     +30.45%       -33.41%       -13.23%      (2020, 3) -13.23%
+
+  modelled OPTION P&L in this window (3 sleeves, dollars):
+  strat  trades  losing  sum P&L   worst trade  worst trade R  worst entry  book P&L (3x base)
+  -----  ------  ------  --------  -----------  -------------  -----------  ------------------
+  S2     36      5       +94.60    -463.77      -1.01          2020-02-03   -163.53
+  S4     36      23      -3402.28  -1691.35     -0.99          2020-04-01   -5436.75
+
+  S4 hedge debit as a multiple of the spread credit, in this
+  window: mean = 9.06x  (1.00x would mean the premium exactly
+  pays for the hedge).
+
+  OVER THE WHOLE WINDOW: the S4 hedge costs 4.66x the S2 credit on
+  average (median 3.65x, min 0.34x, max 24.92x), so 'paid for by the
+  premium' is FALSE -- the modelled tail put costs more than the
+  credit it is supposed to be financed from.
+
+==============================================================================
+10. DID THE HEDGE REPAIR THE HOLE?  S2 vs S4 vs S4c
+==============================================================================
+  S4  = the literal pre-registration: ONE long 5%-OTM 60-DTE put per
+        spread, rolled monthly, its debit paid out of the same sleeve.
+  S4c = the 'paid for by the premium' reading: the long put's quantity
+        is set so its debit EQUALS the spread credit (fractional
+        contracts -- a stated model simplification).
+
+  HEDGE ECONOMICS, FULL sizing, whole window (915 trades):
+    the tail put costs 4.66x the spread credit on average
+    (median 3.65x, min 0.34x, max 24.92x).
+    Monthly net CASH FLOW of the structure, mean = -214.27 per spread
+    (negative = the sleeve pays out more than it collects, every
+     month, on average)
+    Sleeve risk budget = 10 x width x 100 = $5000
+    => the hedge alone costs 5.27% of the sleeve per month.
+
+  STRUCTURE OF THE 'TAIL' HEDGE: in 584 of 915 months (64%) the
+  5%-OTM 60-DTE put strikes ABOVE the spread's short strike, i.e.
+  the hedge is INSIDE the spread, not below it.  When that happens
+  the structure stops being a credit spread plus a tail hedge and
+  becomes a NET LONG PUT position: its maximum loss is just the net
+  debit.  The mean hedge strike is -1.08% of spot away from the
+  spread's short strike (negative = the hedge is closer to the
+  money).  This is a property of the pre-registered parameters, not
+  a bug: a 16-delta 30-DTE put on these indices is usually FURTHER
+  out than 5%.
+
+  'PAID FOR BY THE PREMIUM' IS FALSE, BY ABOUT A FACTOR OF 4.7.
+  A 16-delta, $5-wide, 30-DTE put spread does not collect enough
+  premium to buy a 5%-OTM 60-DTE put.  S4 is therefore not a
+  premium-selling strategy: it is a large NET-DEBIT long-tail
+  position, and that is what the numbers below show.
+
+
+  strat  CAGR     maxDD    posY  posM  E_R      2008 maxDD  2020 maxDD
+  -----  -------  -------  ----  ----  -------  ----------  ----------
+  S2     +2.97%   -26.75%  79%   89%   0.0321   -21.36%     -15.87%
+  S4     -14.84%  -98.45%  12%   30%   -0.1865  -16.95%     -69.26%
+  S4c    +0.25%   -25.56%  75%   56%   0.0050   -13.36%     -6.62%
+
+  Same table, the OPTION SLEEVES ONLY (book P&L in dollars per sleeve,
+  and the worst month), which is where the hedge has to earn its keep:
+  strat  window      P&L (3 sleeves)  budget     return on budget
+  -----  ----------  ---------------  ---------  ----------------
+  S2     2008 GFC    -1796.21         +15000.00  -11.97%
+  S2     2020 COVID  -163.53          +15000.00  -1.09%
+  S4     2008 GFC    +1438.46         +15000.00  9.59%
+  S4     2020 COVID  -5436.75         +15000.00  -36.24%
+  S4c    2008 GFC    -845.22          +15000.00  -5.63%
+  S4c    2020 COVID  +10.13           +15000.00  0.07%
+
+  Worst single trade of each variant in each stress window:
+    S2   2008 GFC     worst trade entered 2008-10-01  R=-1.015  dollars=-435.95
+    S2   2020 COVID   worst trade entered 2020-03-02  R=-1.015  dollars=-440.00
+    S4   2008 GFC     worst trade entered 2008-05-01  R=-1.103  dollars=-61.56
+    S4   2020 COVID   worst trade entered 2020-11-02  R=-1.021  dollars=-580.45
+    S4c  2008 GFC     worst trade entered 2008-09-02  R=-0.867  dollars=-324.99
+    S4c  2020 COVID   worst trade entered 2020-02-03  R=-0.853  dollars=-316.37
+
+==============================================================================
+11. THE VRP WE MEASURE HERE vs THE SIBLING STUDY'S FINDING
+==============================================================================
+  Same arithmetic as ../regime-study (options-trading-playbook):
+    collected   = VIX / sqrt(252) * sqrt(21)          (vol points)
+    realised    = |close[d+21]/close[d] - 1| * 100    (vol points)
+    fwd_rv      = annualised sd of the 21 log returns
+    VRP         = VIX - fwd_rv
+    fair strike = collected * sqrt(2/pi), which removes the
+                  guaranteed ~+20% artifact of collecting the 1-sigma
+                  move and paying the realised ABSOLUTE move.
+
+  FULL SPY HISTORY 1990-2026 (the sibling's series, reproduced):
+    n=8463  mean VRP = +3.64 vol points  share VIX > forward realised = 83.0%
+    fair-strike E_R = +0.1160R  total = +981.4R
+
+  PER-YEAR, the years the sibling flagged:
+  year  n    mean VRP  share VIX>RV  mean E_R_fair  total R
+  ----  ---  --------  ------------  -------------  -------
+  2008  253  -2.33     60%           +0.0577        +14.6
+  2020  253  +2.60     75%           -0.0289        -7.3
+
+  Sibling's published finding, for comparison:
+    full history: mean VRP +3.62 vol points, VIX above the following
+    21-day realised in 82.9% of windows, NEGATIVE in exactly one year
+    (2008, -2.33 vol points); fair-strike E_R = +0.1158R with 2020 the
+    one losing year (-7.3R) and a worst window of R = -3.98 starting
+    2020-02-20.
+
+  THIS STUDY's worst single window on the same arithmetic:
+    2020-02-20  VIX=15.6  collected=4.49  realised_abs=32.10  R=-3.07  R_fair=-3.98
+
+==============================================================================
+12. COST DISCIPLINE -- re-run at FREE / LOW / HIGH
+==============================================================================
+  A premium-selling edge that dies inside the spread is a finding.
+
+  cost  strat  CAGR     maxDD    posY  posQ  E_R
+  ----  -----  -------  -------  ----  ----  -------
+  FREE  S1     +7.25%   -21.64%  75%   53%   0.5991
+  FREE  S2     +4.54%   -25.07%  83%   80%   0.0461
+  FREE  S3     +10.59%  -27.85%  83%   75%   0.4640
+  FREE  S4     -12.24%  -96.87%  21%   33%   -0.0871
+  FREE  S5     +6.69%   -18.21%  71%   60%   0.1736
+  FREE  S6     +9.23%   -56.30%  79%   69%   n/a
+  LOW   S1     +7.07%   -21.83%  75%   53%   0.5991
+  LOW   S2     +2.97%   -26.75%  79%   79%   0.0321
+  LOW   S3     +10.53%  -28.74%  83%   75%   0.4533
+  LOW   S4     -14.84%  -98.45%  12%   25%   -0.1865
+  LOW   S5     +6.16%   -18.84%  71%   59%   0.1628
+  LOW   S6     +9.23%   -56.30%  79%   69%   n/a
+  HIGH  S1     +6.54%   -22.39%  75%   52%   0.5991
+  HIGH  S2     +1.74%   -29.75%  75%   78%   0.0210
+  HIGH  S3     +10.49%  -29.53%  83%   75%   0.4448
+  HIGH  S4     -16.86%  -99.15%  8%    20%   -0.2654
+  HIGH  S5     +5.44%   -19.85%  71%   58%   0.1543
+  HIGH  S6     +9.23%   -56.30%  79%   69%   n/a
+
+  COST DRAG on each strategy, LOW minus FREE (and HIGH minus FREE):
+  strat  CAGR drag LOW  CAGR drag HIGH  posY FREE -> LOW
+  -----  -------------  --------------  ----------------
+  S1     -0.18%         -0.71%          75% -> 75%
+  S2     -1.56%         -2.79%          83% -> 79%
+  S3     -0.06%         -0.10%          83% -> 83%
+  S4     -2.61%         -4.62%          21% -> 12%
+  S5     -0.53%         -1.24%          71% -> 71%
+  S6     +0.00%         +0.00%          79% -> 79%
+
+==============================================================================
+13. IV STRESS -- headline re-run at IV x 0.8 / 1.0 / 1.2
+==============================================================================
+  Also reported: the sqrt(30/D) term-structure variant (alpha = 0.5),
+  and the NO-HAIRCUT variant (VIX lag 0), so the lookahead bias in the
+  modelled option P&L is visible rather than hidden.
+
+  variant          strat  CAGR     maxDD    posY  posQ
+  ---------------  -----  -------  -------  ----  ----
+  IV x0.8          S1     +7.07%   -21.83%  75%   53%
+  IV x0.8          S2     -1.46%   -47.28%  67%   71%
+  IV x0.8          S3     +8.89%   -39.25%  79%   73%
+  IV x0.8          S4     -8.91%   -91.26%  12%   27%
+  IV x0.8          S5     +5.00%   -20.70%  71%   56%
+  IV x0.8          S6     +9.23%   -56.30%  79%   69%
+  IV x1.0          S1     +7.07%   -21.83%  75%   53%
+  IV x1.0          S2     +2.97%   -26.75%  79%   79%
+  IV x1.0          S3     +10.53%  -28.74%  83%   75%
+  IV x1.0          S4     -14.84%  -98.45%  12%   25%
+  IV x1.0          S5     +6.16%   -18.84%  71%   59%
+  IV x1.0          S6     +9.23%   -56.30%  79%   69%
+  IV x1.2          S1     +7.07%   -21.83%  75%   53%
+  IV x1.2          S2     +6.96%   -21.24%  88%   87%
+  IV x1.2          S3     +11.66%  -24.31%  88%   77%
+  IV x1.2          S4     -20.29%  -99.72%  12%   23%
+  IV x1.2          S5     +7.17%   -17.25%  71%   62%
+  IV x1.2          S6     +9.23%   -56.30%  79%   69%
+  term sqrt(30/D)  S1     +7.07%   -21.83%  75%   53%
+  term sqrt(30/D)  S2     +2.97%   -25.92%  79%   79%
+  term sqrt(30/D)  S3     +10.53%  -28.74%  83%   75%
+  term sqrt(30/D)  S4     +15.91%  -52.11%  100%  76%
+  term sqrt(30/D)  S5     +6.15%   -18.74%  71%   59%
+  term sqrt(30/D)  S6     +9.23%   -56.30%  79%   69%
+  NO VIX haircut   S1     +7.07%   -21.83%  75%   53%
+  NO VIX haircut   S2     +2.94%   -28.08%  79%   79%
+  NO VIX haircut   S3     +10.57%  -28.05%  83%   76%
+  NO VIX haircut   S4     -17.36%  -99.28%  12%   23%
+  NO VIX haircut   S5     +6.14%   -19.23%  71%   59%
+  NO VIX haircut   S6     +9.23%   -56.30%  79%   69%
+
+  VERDICT FLIP CHECK -- does any IV setting move the bar verdict?
+  variant          strat  verdict
+  ---------------  -----  -------
+  IV x1.0          S3     CLEARS
+  IV x1.2          S2     CLEARS
+  IV x1.2          S3     CLEARS
+  term sqrt(30/D)  S3     CLEARS
+  term sqrt(30/D)  S4     CLEARS
+  NO VIX haircut   S3     CLEARS
+
+  The no-haircut row is the honest bias estimate: it prices every option
+  with the VIX print of its own session, information a trader does not
+  have at the open.  The gap between it and the VIX lag-3 row is the
+  size of the lookahead gift the model would otherwise be taking.
+
+==============================================================================
+13b. DIVIDEND SENSITIVITY -- sizing the one bias in the model that
+==============================================================================
+  has a KNOWN direction.
+  The price series carries no dividends, so with q = 0 the modelled call
+  is TOO EXPENSIVE and the modelled put is TOO CHEAP.  That flatters
+  every sold call (S2's long wing is a bought put, so it is flattered
+  there too, but less) and flatters S3 outright.  Published round
+  average yields: IWM 1.3%, QQQ 0.6%, SPY 1.8%.
+  They are held CONSTANT over the whole window, so this is a bias
+  estimate, not a dividend model.
+
+  dividend setting     strat  CAGR     maxDD    posY  posQ  E_R
+  -------------------  -----  -------  -------  ----  ----  -------
+  q = 0 (primary run)  S1     +7.07%   -21.83%  75%   53%   0.5991
+  q = 0 (primary run)  S2     +2.97%   -26.75%  79%   79%   0.0321
+  q = 0 (primary run)  S3     +10.53%  -28.74%  83%   75%   0.4533
+  q = 0 (primary run)  S4     -14.84%  -98.45%  12%   25%   -0.1865
+  q = 0 (primary run)  S5     +6.16%   -18.84%  71%   59%   0.1628
+  q = 0 (primary run)  S6     +9.23%   -56.30%  79%   69%   n/a
+  q = published avg    S1     +7.07%   -21.83%  75%   53%   0.5991
+  q = published avg    S2     +3.23%   -26.56%  79%   79%   0.0345
+  q = published avg    S3     +10.45%  -29.09%  83%   75%   0.4414
+  q = published avg    S4     -15.66%  -98.79%  12%   24%   -0.1988
+  q = published avg    S5     +6.22%   -18.60%  71%   59%   0.1646
+  q = published avg    S6     +9.23%   -56.30%  79%   69%   n/a
+
+  THE BIAS, as a CAGR difference (published-average q minus q = 0):
+  strat  CAGR difference  posY        posQ
+  -----  ---------------  ----------  ----------
+  S1     +0.00%           75% -> 75%  53% -> 53%
+  S2     +0.26%           79% -> 79%  79% -> 79%
+  S3     -0.08%           83% -> 83%  75% -> 75%
+  S4     -0.82%           12% -> 12%  25% -> 24%
+  S5     +0.07%           71% -> 71%  59% -> 59%
+  S6     +0.00%           79% -> 79%  69% -> 69%
+
+  A NEGATIVE CAGR difference means the primary run's headline was
+  inflated by the missing dividends.  Whether the bar verdict survives
+  that correction is the thing to read in section 5's terms.
+
+==============================================================================
+13c. SKEW SENSITIVITY -- sizing the LARGEST known bias in the model
+==============================================================================
+  The model has NO skew: one implied vol prices every strike.  A real
+  seller of an out-of-the-money option collects LESS than the flat-vol
+  Black-Scholes value.  Here the SOLD leg only is priced at
+  VIX minus a stated number of vol points; the bought legs keep VIX.
+  Strikes are NOT moved -- this isolates the price effect.
+
+  Why this matters, before the table: a 30-delta 30-DTE call has vega
+  of roughly S * pdf(d1) * sqrt(T) * 100 dollars per vol point.  At
+  SPY = 244, IV = 19.5%, that is about $24 per vol point per contract.
+  1.5 vol points of skew is therefore about $36 per contract per
+  month -- roughly 1.8 percentage points of annual return on a single
+  covered-call sleeve.  That is the same order as the whole edge.
+
+  sold-leg IV          strat  CAGR     maxDD    posY  posQ  posM  E_R
+  -------------------  -----  -------  -------  ----  ----  ----  -------
+  haircut 0.0 vol pts  S1     +7.07%   -21.83%  75%   53%   52%   0.5991
+  haircut 0.0 vol pts  S2     +2.97%   -26.75%  79%   79%   89%   0.0321
+  haircut 0.0 vol pts  S3     +10.53%  -28.74%  83%   75%   70%   0.4533
+  haircut 0.0 vol pts  S4     -14.84%  -98.45%  12%   25%   30%   -0.1865
+  haircut 0.0 vol pts  S5     +6.16%   -18.84%  71%   59%   63%   0.1628
+  haircut 0.0 vol pts  S6     +9.23%   -56.30%  79%   69%   62%   n/a
+  haircut 1.5 vol pts  S1     +7.07%   -21.83%  75%   53%   52%   0.5991
+  haircut 1.5 vol pts  S2     -0.87%   -45.72%  67%   75%   85%   -0.0057
+  haircut 1.5 vol pts  S3     +10.11%  -31.87%  83%   75%   70%   0.3994
+  haircut 1.5 vol pts  S4     -17.55%  -99.32%  12%   20%   29%   -0.2407
+  haircut 1.5 vol pts  S5     +5.16%   -20.34%  71%   56%   62%   0.1337
+  haircut 1.5 vol pts  S6     +9.23%   -56.30%  79%   69%   62%   n/a
+  haircut 3.0 vol pts  S1     +7.07%   -21.83%  75%   53%   52%   0.5991
+  haircut 3.0 vol pts  S2     -4.03%   -65.79%  54%   64%   76%   -0.0362
+  haircut 3.0 vol pts  S3     +9.65%   -35.41%  79%   74%   69%   0.3471
+  haircut 3.0 vol pts  S4     -19.84%  -99.67%  4%    15%   26%   -0.2829
+  haircut 3.0 vol pts  S5     +4.32%   -21.74%  71%   55%   60%   0.1103
+  haircut 3.0 vol pts  S6     +9.23%   -56.30%  79%   69%   62%   n/a
+
+  VERDICT FLIP CHECK under skew:
+  sold-leg IV          strat  verdict
+  -------------------  -----  -------
+  haircut 0.0 vol pts  S1     fails
+  haircut 0.0 vol pts  S2     fails
+  haircut 0.0 vol pts  S3     CLEARS
+  haircut 0.0 vol pts  S4     fails
+  haircut 0.0 vol pts  S5     fails
+  haircut 0.0 vol pts  S6     fails
+  haircut 1.5 vol pts  S1     fails
+  haircut 1.5 vol pts  S2     fails
+  haircut 1.5 vol pts  S3     CLEARS
+  haircut 1.5 vol pts  S4     fails
+  haircut 1.5 vol pts  S5     fails
+  haircut 1.5 vol pts  S6     fails
+  haircut 3.0 vol pts  S1     fails
+  haircut 3.0 vol pts  S2     fails
+  haircut 3.0 vol pts  S3     fails
+  haircut 3.0 vol pts  S4     fails
+  haircut 3.0 vol pts  S5     fails
+  haircut 3.0 vol pts  S6     fails
+
+==============================================================================
+15. THE DIRECT ANSWER TO THE OWNER'S QUESTION
+==============================================================================
+  Question: restrict to SPY/QQQ/IWM, trade BOTH the underlying and
+  options on it -- can a combination reach 'profitable in most
+  conditions', and what does it cost?
+
+  1. POSITIVITY BY HORIZON, best book (the buy-write, S3):
+     D 59.6%   W 64.1%   2W 67.1%   M 69.9%   Q 75.5%   H 78.0%   Y 83.3%
+
+  2. THE FRONTIER, best book vs the cross-asset trend book already
+     measured by the sibling frontier study:
+
+     Y  largest lambda with 100% positive = 0.0773  ->  CAGR +2.50%  vs cash +1.80%  (excess +0.70%)
+     Q  largest lambda with 100% positive = 0.0008  ->  CAGR +1.80%  vs cash +1.80%  (excess +0.01%)
+     M  largest lambda with 100% positive = 0.0000  ->  CAGR +1.80%  vs cash +1.80%  (excess +0.00%)
+
+     sibling study, four-sleeve cross-asset TREND book (2005-2026):
+       Y 0.008 -> +0.03%/yr over cash;  Q 0.001 -> +0.00%;  M 0.000
+     This study's best book, three-index BUY-WRITE (2002-2025):
+       Y 0.0773;  Q 0.0008;  M 0.0000
+
+  3. WHAT IT COSTS -- the verdict re-run under every stated assumption.
+     Read from the sensitivity tables just written to out/*.csv, so this
+     matrix cannot disagree with them.  'CLEARS' = >=80% positive years
+     AND >=70% positive quarters AND CAGR above cash (1.80%/yr).
+     cash CAGR over this window = 1.80%/yr.
+
+  family            setting              strat  CAGR     posY  posQ  verdict
+  ----------------  -------------------  -----  -------  ----  ----  -------
+  cost              FREE                 S2     +4.54%   83%   80%   CLEARS
+  cost              FREE                 S3     +10.59%  83%   75%   CLEARS
+  cost              LOW                  S2     +2.97%   79%   79%   fails
+  cost              LOW                  S3     +10.53%  83%   75%   CLEARS
+  cost              HIGH                 S2     +1.74%   75%   78%   fails
+  cost              HIGH                 S3     +10.49%  83%   75%   CLEARS
+  variant           IV x0.8              S2     -1.46%   67%   71%   fails
+  variant           IV x0.8              S3     +8.89%   79%   73%   fails
+  variant           IV x1.0              S2     +2.97%   79%   79%   fails
+  variant           IV x1.0              S3     +10.53%  83%   75%   CLEARS
+  variant           IV x1.2              S2     +6.96%   88%   87%   CLEARS
+  variant           IV x1.2              S3     +11.66%  88%   77%   CLEARS
+  variant           term sqrt(30/D)      S2     +2.97%   79%   79%   fails
+  variant           term sqrt(30/D)      S3     +10.53%  83%   75%   CLEARS
+  variant           NO VIX haircut       S2     +2.94%   79%   79%   fails
+  variant           NO VIX haircut       S3     +10.57%  83%   76%   CLEARS
+  sold_leg_iv       haircut 0.0 vol pts  S2     +2.97%   79%   79%   fails
+  sold_leg_iv       haircut 0.0 vol pts  S3     +10.53%  83%   75%   CLEARS
+  sold_leg_iv       haircut 1.5 vol pts  S2     -0.87%   67%   75%   fails
+  sold_leg_iv       haircut 1.5 vol pts  S3     +10.11%  83%   75%   CLEARS
+  sold_leg_iv       haircut 3.0 vol pts  S2     -4.03%   54%   64%   fails
+  sold_leg_iv       haircut 3.0 vol pts  S3     +9.65%   79%   74%   fails
+  dividend_setting  q = 0 (primary run)  S2     +2.97%   79%   79%   fails
+  dividend_setting  q = 0 (primary run)  S3     +10.53%  83%   75%   CLEARS
+  dividend_setting  q = published avg    S2     +3.23%   79%   79%   fails
+  dividend_setting  q = published avg    S3     +10.45%  83%   75%   CLEARS
+
+     Read the matrix this way: S3 stops clearing when the sold leg loses
+     3 vol points to skew, and S2 never clears once a real spread is
+     charged or the sold leg loses 1.5 vol points.  The answer to the
+     owner's question therefore depends on three MODELLED inputs -- the
+     cost level, the IV level, and the skew -- and not only on the
+     market.  That is the honest summary.
+
+  4. WHAT THE MODEL CANNOT SEE is listed in full at the top of this run
+     and in README.md.  The largest single item is the absence of skew.
+
+  Nothing here is a recommendation.  Every options number is MODELED.
+
+==============================================================================
+14. THE LONGEST WINDOW -- SPY ONLY, 1994-2026 (one index, not three)
+==============================================================================
+  sessions = 8285  first = 1993-11-11  last = 2026-10-14
+
+  strat  CAGR     maxDD    Sharpe  pos years    pos Q  pos M
+  -----  -------  -------  ------  -----------  -----  -----
+  S1     +6.86%   -28.15%  0.62    21/32 (66%)  60%    53%
+  S2     +2.82%   -32.57%  0.35    26/32 (81%)  81%    91%
+  S3     +10.12%  -23.72%  1.06    26/32 (81%)  76%    70%
+  S4     -14.46%  -99.44%  -0.34   6/32 (19%)   27%    30%
+  S5     +5.97%   -23.33%  0.63    22/32 (69%)  66%    66%
+  S6     +8.91%   -56.47%  0.55    23/32 (72%)  71%    63%
+
+  cash CAGR over the same window: +2.52%
+
+==============================================================================
+DONE
+==============================================================================
+  out/*.csv holds every table above in machine-readable form.
+  Every options-derived number is [MODELED]. See README.md.

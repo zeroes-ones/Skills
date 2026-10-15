@@ -1,12 +1,12 @@
 ---
 name: trade-sizing-recovery
-description: "Use when sizing any options order, deciding contract counts, setting TP/SL levels, triaging a losing position, or planning how to win after a loss. Handles per-trade risk sizing across setup classes and DTE buckets, anti-martingale size ladders, loss-band triage (CUT / RESTRUCTURE / WRITE-OFF / HOLD-WITH-TP), recovery protocols, expectancy math, scale-out ladders, and weekly edge reviews. Do NOT use for strategy selection (options-strategist), portfolio-level Greeks or pin risk (options-risk-engineer), or order execution itself."
+description: "Use when the question is a NUMBER: how many contracts to put on, how much to risk per trade, what take profit and stop loss level to set, which size ladder applies after a loss, or the triage band for a losing position. Triggers: 'how many contracts', 'how much can I put on', 'two losses in a row — what size now', 'what maximum loss before I cut', 'I cut a name last week — can I get back in?'. Handles per-trade risk sizing across setup classes and DTE buckets, anti-martingale and drawdown-linked size ladders by MIN, winner-add sizing, the exit-threshold table and its precedence, loss-band triage (CUT / RESTRUCTURE / WRITE-OFF / HOLD-WITH-TP) on iron condors, spreads and butterflies alike, recovery and re-entry protocols, expectancy math, and weekly edge reviews. Do NOT use for the ORDER in which exits fire on an open position (options-position-lifecycle), strategy selection (options-strategist), portfolio Greeks, buying power or margin (options-risk-engineer), or leg surgery (options-leg-management)."
 license: MIT
 author: "Sandeep Kumar Penchala"
 type: finance
 status: experimental
-version: "1.1.0"
-updated: 2026-10-10
+version: "1.2.0"
+updated: 2026-10-14
 tags:
   - position-sizing
   - risk-management
@@ -17,10 +17,23 @@ tags:
   - anti-martingale
   - take-profit
   - stop-loss
-token_budget: 4000
+  - drawdown
+  - threshold-precedence
+  - contract-count
+  - risk-per-trade
+  - size-ladder
+  - loss-band
+  - maximum-loss
+  - re-entry
+  - credit-spread
+  - iron-condor
+token_budget: 6000
 chain:
   consumes_from: []
-  feeds_into: []
+  feeds_into:
+    - options-position-lifecycle
+    - options-leg-management
+    - options-trading-playbook
 dependencies:
   tools: []
   packages: []
@@ -32,7 +45,7 @@ output:
 
 > **Portability target:** Spec-level. This skill encodes sizing and recovery discipline, not broker-specific commands.
 
-<!-- QUICK: 30s — memorize the three tables: Sizing Matrix (Decision Tree 1), Loss Triage Matrix (Decision Tree 2), Ladder (Decision Tree 3). Everything else is supporting detail. -->
+<!-- QUICK: 30s — memorize four artifacts: the Sizing Matrix (Decision Tree 1), the Loss Triage Matrix (Decision Tree 2), the TWO size ladders (Decision Trees 3 and 5, combined by MIN), and the Canonical Threshold Table with its precedence rule. The exit ORDER belongs to `options-position-lifecycle`; the numbers belong to the table. Everything else is supporting detail. -->
 
 ---
 
@@ -44,6 +57,8 @@ output:
 | "This position is down — what now" | Route to this skill → Loss Triage Matrix |
 | "How do I make it back / win next / recover" | Route to this skill → Win-Next Protocol (Decision Tree 3) |
 | "Where do I put my TP / stop" | Route here for levels; pair with `options-strategist` for structure choice |
+| "Which TP/SL applies — mine or the other skill's?" | Route to this skill → Canonical Threshold Table (the tie-breaker); the exit ORDER is `options-position-lifecycle`'s |
+| "How big after a drawdown / after a bad month" | Route to this skill → Drawdown-Linked Size Ladder (MIN with the streak ladder) |
 | Portfolio Greeks, pin risk, margin stress | Use `options-risk-engineer` instead |
 
 **Intent Route questions:**
@@ -55,7 +70,7 @@ output:
 
 ## Anti-Rationalization **(QUICK)**
 
-**No excuses — the five rationalizations that fund losing accounts:**
+**No excuses — the seven rationalizations that fund losing accounts:**
 
 **AR-01 "It's a small position":** You CANNOT skip computing max loss × contracts before entry. A $120 "small" loss repeated ten times is a $1,200 portfolio leak — the size of the leak is the size of the habit.
 
@@ -66,6 +81,10 @@ output:
 **AR-04 "One more add will fix the average":** You CANNOT average down outside a defined-debit restructure approved in advance. Averaging down turns a triage problem into a solvency problem.
 
 **AR-05 "The TP is too far, I'll just hold and decide later":** You CANNOT carry an open position without a TP order or a documented deliberate no-TP status. "Decide later" is the most expensive position in the book.
+
+**AR-06 "The rule says 50% but I'm at 45%":** You CANNOT widen a rung to stay in. A pre-committed level is a level; "almost there" is the sentence that precedes every round-trip. When two skills quote different numbers, convert both into the family's unit and apply the Canonical Threshold Table — never split the difference.
+
+**AR-07 "I'm at a fresh high, so I can size up now":** You CANNOT release a drawdown cut with a good day. The cut is released only by its restart condition — sessions above the level *and* closed trades at the reduced size. One win is not a restart, and a fresh high does not erase a streak.
 
 ---
 
@@ -79,6 +98,9 @@ output:
 | R4 | **Anti-martingale**: step up only after 2 consecutive wins; step down (half-size) after 2 consecutive losses | Ladder check before each new order | Force base size |
 | R5 | **Dead lots get no TP and no attention** (mark < 5% of cost) | Position scan | Mark "no-TP by construction"; stop monitoring |
 | R6 | Any position ≤ −40% gets a **triage disposition + lesson** recorded | Every scan / review | Disposition missing = position frozen: no adds, no new risk until logged |
+| R7 | **One canonical threshold set**, and one ranked order for it — highest that applies wins: **desk circuit breaker → calendar/expiry force → plan override declared AT ENTRY → the Canonical Threshold Table's family row** | Two sources quote different TP/SL numbers for one position | Convert both into the family's unit, then apply the highest-ranked rule that applies. Never average two rules, never carry two, never widen a rung to "almost there" |
+| R8 | **Size is the MIN of the two ladders** (streak ladder, drawdown ladder) and never rises while a new equity low is being printed | Sizing check before any new order | Take the smaller size; if the drawdown row is 0.00×, the order does not exist |
+| R9 | **A winner-add is ≤ ⅓ of the original risk unit R**, re-runged before the fill, and blocked if the combined risk leaves the per-idea band | Any add to an open winner | No add — re-issue the rungs against the blended basis, or exit at the rung that already exists |
 
 ---
 
@@ -260,6 +282,168 @@ Cooldown: after cutting a specific name, no re-entry in that name for 5 sessions
 NEW gate-passed setup prints. Recovery = next A+ setup at base size — never "the same trade, bigger".
 ```
 
+### Decision Tree 4: Which exit rule binds? (threshold arbitration)
+
+```
+Exit decision on an open position
+├─ 1. Desk circuit breaker tripped? → MANAGE-ONLY: closest liquid exit, not the rung
+│   ├─ Drawdown row, margin breach, reserve floor, closed event gate
+│   └─ This outranks everything below — in that state the exit is "closest liquid exit"
+├─ 2. Expiry force present? (the clock belongs to options-risk-engineer)
+│   ├─ Short premium at DTE ≤ 21 → CLOSE 100% — outranks an entry-time override
+│   ├─ Long premium at DTE ≤ 15  → CUT on any bounce (theta wall)
+│   ├─ LEAPS leg at DTE ≤ 90     → roll-or-close decision (needs IV rank < 40)
+│   └─ Expiring leg, pin or assignment window → de-risk that leg first
+├─ 3. Was an override declared AT ENTRY on the ticket?
+│   ├─ YES → the declared rung binds — but never looser than the table's LOSS CUT
+│   └─ NO  → the family row of the Canonical Threshold Table binds
+└─ 4. Two sources still disagree (% of max credit vs % of wing width)?
+    └─ → convert both into the family's unit; the TABLE's row wins. Show the conversion.
+```
+
+### Decision Tree 5: What size does the book allow? (two ladders, one answer)
+
+```
+Sizing a new order — read the BOOK before the setup
+├─ Drawdown from equity peak (closed P&L + open marks, deposit-adjusted)
+│   ├─ 0 to −5%         → 1.00× multiplier; ≤ 5 concurrent short-dated ideas
+│   ├─ −5 to −10%       → 0.75×; ≤ 4 concurrent
+│   ├─ −10 to −15%      → 0.50×; ≤ 3 concurrent
+│   ├─ −15 to −25%      → 0.25×; ≤ 2 concurrent
+│   └─ worse than −25%  → 0.00×: manage-only, zero new risk
+├─ Streak ladder (Decision Tree 3) → base / +1 lot (cap 3) / half size
+└─ COMBINE: effective size = MIN(streak lots, base lots × drawdown multiplier)
+    ├─ new equity low this session → the multiplier may only move DOWN; one win never restores size
+    └─ climb one row only on its restart condition: sessions above the level AND closed trades at the lower size
+```
+
+### Decision Tree 6: Is an add to a winner legal, and how big?
+
+```
+Open winner, an add is proposed
+├─ 1. LEGALITY — options-position-lifecycle owns this call, not this skill
+│   ├─ Thesis intact + invalidation held + lifecycle window open → continue
+│   ├─ Thesis broke or the stop already fired → FORBIDDEN (that is averaging down)
+│   └─ The position is short premium → FORBIDDEN (a worse-credit add is a new position)
+├─ 2. SIZE — this skill owns this
+│   ├─ this add, added to every earlier add on this same position, ≤ ⅓ × R (the aggregate budget)
+│   │   └─ past it → FORBIDDEN: R_max (1.5%) + ⅓R (0.5%) = 2.0% = the hard per-idea ceiling
+│   ├─ R + all adds inside the per-idea ceiling and the book within 10%? → NO → shrink the ADD
+│   └─ Add's quote spread ≤ the entry fill's spread? → NO → SKIP: that is a tax, not an edge
+├─ 3. RECOMPUTE and show: blended basis, strike-weighted break-even, cushion vs 1 ATR-proxy
+│   └─ an add NEVER improves the break-even; it buys delta per new dollar
+└─ 4. RE-ISSUE the rungs against the NEW blended basis BEFORE the fill
+    └─ rungs not re-issued → the position is UNMANAGED → block the add
+```
+
+---
+
+## Canonical Thresholds, Ladders & Adds **(STANDARD)**
+
+### Canonical Threshold Table — structure × exit level, with precedence
+
+**This skill owns the NUMBERS; the ORDER of exit events on a live position belongs to `options-position-lifecycle`; the clock belongs to `options-risk-engineer`.** Five sources in this library state exit conventions, and they conflict in two different ways — one of them is not a numeric conflict at all:
+
+| # | Source | What it contributes | How it conflicts |
+|---|---|---|---|
+| 1 | `trade-sizing-recovery` (this skill) | A rung level per structure family, in that family's unit | It is the only source that states a number per family |
+| 2 | `options-strategist` (`references/profit-taking-and-trimming.md`, `references/adjustment-and-exit-rules.md`) | 50% of max credit, 25% of max credit (condor), 50%/75% of max profit, 2× credit, the 21-DTE rule | Agrees in the same unit on credit families; states the condor in % of max credit where source 3 states it in % of wing width |
+| 3 | `swing-options-trader` | 50% of max profit, 25% of **wing width**, the 40%-of-debit long-option cut | **Unit conflict** — "% of wing width" is a different number, not a different opinion (worked 5× gap below) |
+| 4 | `leaps-strategist` | Δ ≥ 0.95, DTE < 90, extrinsic-above-threshold, 2+ PMCC debit rolls | **Not a numeric conflict** — a *trigger-type* conflict: its exits are stated in delta / DTE / extrinsic, not as a price rung, so there is no number here for the table to overrule |
+| 5 | `options-position-lifecycle` (`references/tp-sl-precedence-and-arbitration.md`) | **A precedence order only** (breaker → calendar → plan rung → family threshold → discretionary); it deliberately restates no rung numbers | **Order conflict** — a rank order over the same live position is a second arbitration scheme, and by default it would outrank this table's row |
+
+None of the five was written as the arbiter. The table below is — and the precedence rule underneath it states which scheme governs when a rank order and a number disagree. Every level is the **pre-committed** order level, not a review point.
+
+| Structure family (unit) | TP rung 1 | TP rung 2 | Runner rule | Loss cut (hard) | Time / DTE force | Why this number |
+|---|---|---|---|---|---|---|
+| **Long call/put** — directional single (multiple of debit paid) | **+80% of debit** (1.8× cost) → sell the first third | **+150%** (2.5×) → sell the second third | Last third trailed at 50% of peak gain | Underlying-close level rule fires first; premium backstop **−40% of debit** | Close on a bounce at **DTE ≤ 15** (theta wall) — never roll decayed theta into more theta | A −0.4R backstop against a +0.8R/+1.5R rung pair breaks even at a 33% win rate [COMPUTED: 0.4R ÷ (0.8R + 0.4R)] — below the honest 0.35–0.45 band |
+| **Debit vertical** (bull call / bear put) (% of max profit) | **50% of max profit** → sell half | **75% of max profit** → close the rest | Trail at 50% of peak profit when DTE > 30 | Level rule first; premium backstop **−40% of debit**. 100% of debit is the structural worst case — NOT an actionable stop | Close at **21 DTE**; pre-earnings for gap-exposed names | The last 25% of a debit vertical needs ~half the remaining duration for a third of the profit — negative expectancy after spreads |
+| **Credit vertical** (bull put / bear call) (% of max credit) | **50% of max credit** → close the whole position | — (no rung 2 by design) | None — a third of a short-premium position is a tail-risk stub, not a position | **2× credit received** (GTC debit-to-close bracket) | Close at **21 DTE** regardless of P&L; if 25% arrives inside 7 days, close 100% | The corpus's most-repeated number, and both `options-strategist` and `swing-options-trader` state it in the same unit and the same direction |
+| **Iron condor / iron butterfly** (% of max credit) | **25% of max credit** (condor) / **30%** (iron butterfly) → close the whole position | — | None — a rung-2 trim concentrates gamma on the tested side | **2× total credit**, OR a short strike tested and held two consecutive closes | Close at **21 DTE**; the 7-day fast rule above applies | Four legs carry four exits; the last 10% of the credit is where the wings are cheapest to breach and dearest to leave |
+| **Calendar / diagonal** (% of debit paid) | **+25% of debit** → sell half | **+50% of debit** → close the rest | None | **−25% of debit** (vega flip), or the theta crossover where net theta turns negative (≈ ±1σ from the short strike) | Close at **50% of max duration** if not profitable, and at **21 DTE** | Max profit is not well defined on a two-expiry structure, so the rung has to be stated in debit, not in "% of max" |
+| **LEAPS / PMCC** (delta, DTE, extrinsic) | **+50% of debit** (1.5×) → trim a third | **Δ ≥ 0.95** → take profit or roll up to reset delta | Long leg rides to the DTE force | Extrinsic above the acceptable threshold → close; **2+ PMCC debit-roll cycles → close**; thesis invalidated | **DTE < 90** → roll-or-close decision (rolling needs IV rank < 40 and trend > 40); DTE < 180 with the thesis unmaterialized → time exit | A LEAP is a capital-efficiency instrument; at Δ ≥ 0.95 it has become the stock with none of the stock's advantages |
+| **CSP / covered call** (% of premium) | **50% of premium** → close or roll | **80% of premium** while DTE > 14 | None | CSP: **3× credit**, or an underlying daily close below the 200-SMA. CC: assignment acceptable, else roll up-and-out for net credit ≥ $0.05 | Close or roll at **21 DTE**; exit undefined-risk legs before earnings | The last 20% of an income premium does not pay for assignment risk; the 3× CSP stop reflects undefined downside |
+
+- **Units are not interchangeable — convert before comparing.** `% of wing width = % of max credit × (credit ÷ width)` [COMPUTED]. The same condor reads "25% of max credit" in one source and "25% of wing width" in another; those differ by 5× and one of the two can never fire (worked below). The same trap sits in **"sell in thirds"**: thirds presuppose a 3-lot position (`references/05-scale-out-ladders.md` gives the 1-lot and 2-lot variants). On a 1-lot position rung 1 is a full exit; on short premium rung 1 is always a full close.
+- **The triage bands are review triggers, not exits.** HOLD-WITH-TP is the rescue disposition for a position that reached a band with no pre-committed row. Once a row above is on the ticket, the row **is** the plan, and Tree 2's HOLD-WITH-TP is unavailable above that row's loss cut. A level-based invalidation also outranks a premium stop on long-premium and debit structures — thin books gap through stop orders.
+
+**Precedence rule — the highest-ranked rule that applies wins (one order, stated once):**
+
+1. **A desk-level circuit breaker** — the drawdown row, a margin breach, the reserve floor, a closed event gate. In that state the exit is "closest liquid exit", not the rung. Nothing below it may be applied while it is tripped.
+2. **A calendar / expiry force** — DTE ≤ 21 on short premium, DTE ≤ 15 on long premium, DTE ≤ 90 on LEAPS, expiring-leg pin and assignment windows. `options-risk-engineer` owns the clock; this table does not argue with it, and a rung declared at entry cannot buy an extension of the calendar.
+3. **A plan-level override declared AT ENTRY** — a rung written on the order ticket *before* the fill. It may be tighter or looser than the family row, within the limit stated next. An override invented after entry is a moving goalpost, not an override.
+4. **The family row of the Canonical Threshold Table** — the default, and the binding rule whenever none of 1–3 applies.
+
+**When the table and an entry-time override disagree, the override wins — inside two hard limits.** (a) **Timing:** it must have been declared before the fill. A number chosen after entry is not an override; the table's row governs it, and the correct response is to close and re-enter as a new, separately-sized idea. (b) **The loss cut:** the override may be tighter than the row on every level, and it may be *looser* than the row on the TP rungs and the time stop — but it may **never** be looser than the row's **LOSS CUT**. The loss cut is the row's floor, not a default. So the resolution is mechanical: tighter override → the override binds; looser override on a rung or a time stop → the override binds; looser override on the loss cut → the row's loss cut binds and the override is amended on the ticket before the fill. Anything still disagreeing after (a) and (b) is a unit error — convert both into the family's unit, re-read, and if they still differ the **higher-ranked** of the two binds. Never average them and never carry both on one position.
+
+> `options-position-lifecycle` ranks a post-entry discretionary override *last* (`references/tp-sl-precedence-and-arbitration.md`, rank 5). This skill does not recognise that case as an override at all: a number invented on an open position is a new plan, and a plan is not re-written on a position that is already losing. If the family row is genuinely the wrong band, the remedy is to close and re-enter, not to re-price in place.
+
+**The other skills' numbers are entry-time defaults only.** `options-strategist`'s 50%-of-max and 2×-credit, `swing-options-trader`'s 50% / 25%-of-wing-width / 40%-long-option, and `leaps-strategist`'s DTE-90 and Δ-0.95 triggers are the defaults to use when no row above governs the structure — subject to the four-rank order just stated. Where they disagree with a row, or with each other, **this table is the tie-breaker**; the ordering of the resulting exit events is `options-position-lifecycle`'s. Whether a row is reachable at all is a vol-regime question: the IV-rank crossover at roughly 40–50 — below it, a premium-selling rung is not reachable on the credit it can collect — is set out in `options-strategist`'s `pattern-recognition-engine` reference.
+
+**Worked [COMPUTED] — two rules, one position, a 5× gap.** A 10-lot condor with $10-wide wings collected $2.00 of credit → **$2,000 credit**, $8,000 max loss. At 30 DTE it marks at $1.50, i.e. $500 of profit = 25% of max credit.
+
+| Rule in force | Target in dollars | Fires? |
+|---|---|---|
+| This table (precedence level 1): 25% of **max credit** | 0.25 × $2,000 = **$500 profit** [COMPUTED] | YES — full close, booked |
+| `swing-options-trader`: 25% of **wing width** | 0.25 × ($10 × 100 × 10) = **$2,500 profit** [COMPUTED] | NO — that is 125% of the position's maximum profit, so the target can never fire |
+
+Conversion that settles it: `% of wing width = 25% × ($2.00 ÷ $10.00) = 5% of wing width` [COMPUTED]. The table's unit — % of max credit — scales with what the position actually collected, so it is the unit that binds and the $500 is booked, not "almost". Full derivations of every level above: `references/08-canonical-thresholds-and-precedence.md`.
+
+### Drawdown-Linked Size Ladder (alongside the streak ladder)
+
+<!-- STANDARD: 3min — the streak ladder keys on the last two closed trades; this ladder keys on the book's peak-to-trough drawdown. Two cuts on the same size, and both apply. -->
+
+**Failure mode this exists to catch.** The streak ladder is blind to the open book: two wins reset it to base while an unclosed position sits at −20% of cost — the account is in drawdown and the size says "fresh hand". This ladder reads the book *including open marks*, so the two ladders can never disagree about the account's actual state.
+
+| Book drawdown (peak-to-trough, closed P&L + open marks, deposit-adjusted) | Size multiplier on base | Max concurrent short-dated (≤45d) ideas | Restart condition — climb back ONE row, and only when all of it is true |
+|---|---|---|---|
+| 0 to −5% | 1.00× | 5 | — normal operation |
+| −5% to −10% | 0.75× | 4 | 5 sessions with no new equity low AND ≥2 closed trades at 0.75× |
+| −10% to −15% | 0.50× | 3 | 10 sessions above the −10% level AND ≥3 closed trades at 0.50× |
+| −15% to −25% | 0.25× | 2 | 15 sessions with no new low AND ≥5 closed trades at 0.25× |
+| worse than −25% | 0.00× — manage-only, zero new risk | 0 | 20 sessions of manage-only with zero rule violations, then resume at 0.25× |
+
+**Why these breakpoints — data-backed, not taste.** At the 1.5% band this skill's own streak arithmetic gives `drawdown after k consecutive losses = 1 − 0.985^k` [COMPUTED]: −5% ≈ 3.4 losses, −10% ≈ 7 losses, −14.0% = 10 losses (the 1-in-400 streak already tabulated in `references/02-expectancy-math.md`), −15% ≈ 11 losses, and −25% ≈ 19 straight losses. A 19-loss streak at a 45% win rate has probability 0.55^19 ≈ 1 in 86,000 [COMPUTED] — so a −25% book at disciplined sizing is **not luck**: it is a broken rule, hidden correlation, or a gap, and the correct response is zero new risk until the cause is named.
+
+**Combining the two ladders.** Effective size = **MIN(streak-ladder size, base size × drawdown multiplier)** — and **never size up into a drawdown**: while a new equity low is being printed this session, the multiplier may only move down. A streak step-up is never restored by a fresh equity high, and a fresh high never lifts a drawdown cut: two wins with the book −12% from peak is still 0.50×, and a new high after two losses is still half size. The climb back is earned in sessions *and* closed trades at the reduced size — never by one win, and never by one gap-up. A 0.75× or 0.25× row on a 1-lot base cannot be expressed in whole contracts: implement the cut with a **cheaper structure of the same class** (narrower width, closer strike, shorter DTE), never by rounding the size back up. One edge case: peak equity is adjusted for cash flow — a $5,000 deposit [ESTIMATED: the invariant is proportionality, not the figure] raises peak and current equity equally and so does not erase the drawdown; counting a deposit as recovery is the failure mode that quietly switches the ladder off. **Which row binds is a regime question:** a bull-market uptrend rarely engages this ladder at all, a 5–10% correction typically parks a 1.5%-sized book in the 0.75× row, a bear market can hold it in the 0.50× and 0.25× rows for weeks, and a crash can cross three rows in a single session — which is exactly what the 0.00× row exists for. The restart conditions are written in sessions for that reason: a crash is not "over" because one bounce printed.
+
+**Worst case — the recovery plan fights the reserve floor.** `options-risk-engineer` owns the reserve floor (the untouchable maintenance-margin buffer plus the book open-risk budget); this skill does not restate it, shrink it, or re-derive it. If the ladder permits new risk but funding the plan would draw on the floor, **the floor wins**: the plan does not run and the book stays in manage-only mode until margin headroom is rebuilt. The known limitation of any recovery ladder is exactly this — it can size a recovery correctly and still be unable to fund it. If the restart condition cannot be met because the book keeps printing new lows, the method rather than the size is broken: escalate at the third failed recovery attempt (Error Recovery's hard boundary).
+
+### Winner-Add Sizing (size only — legality belongs to options-position-lifecycle)
+
+**Scope split.** Whether an add is *allowed at all* — is this a scale-in, a roll, or a re-entry? — is a lifecycle question and belongs to `options-position-lifecycle`. **This skill owns only the SIZE.** Ask for the legality verdict; do not derive it here. (This is the DEEP subsection of the skill: read it fully before sizing your first add.)
+
+```
+add ≤ 1/3 × R      R = the ORIGINAL risk unit (max loss as sized at entry)
+WHY: the top of the per-idea band is 1.5%; the hard per-idea ceiling is 2.0%.
+     R(1.5%) + 1/3 R(0.5%) = 2.0% — 1/3 is the largest fraction that can never push a
+     max-band idea through the ceiling. 1/2 R would be 1.5% + 0.75% = 2.25% — outside it.
+BUDGET: 1/3 R is the position's TOTAL added risk, not the size of one add.
+```
+
+1. **The add budget is ⅓ × R per position, in total — not ⅓ × R per add.** One add at the cap exhausts the budget. A second (rung-2) add is admissible **only** while the *cumulative* risk added to that position — every add since entry, summed — stays ≤ ⅓R; the moment a second add would push the cumulative total past ⅓R it is refused, and the correct action is to let the rungs that already exist work. There are no pyramiding ladders on options. (The pyramid gate in `algorithmic-trader` is an equity/code gate; this one is options-shaped and strictly size-capped.)
+   > **Change required in `options-position-lifecycle`** (reported, not edited here): `references/add-to-winner-pyramiding.md:17` currently entitles a rung-2 position to "a *second* ADD, subject to the same five preconditions plus a band check on the enlarged position". That is admissible only if the two adds *together* stay inside ⅓R. The row needs one added clause: "…subject to the same five preconditions, to a band check on the enlarged position, and to the aggregate add budget — the *sum* of all adds on this position must stay within ⅓ × the original risk unit (`trade-sizing-recovery`, Winner-Add Sizing). The budget is not refreshed by each rung."
+2. **Combined risk stays inside the band** — after the add, R + add ≤ the per-idea ceiling (2.0% / the $ cap) and the book stays ≤ 10% open risk. If it does not fit, shrink the ADD, never the structure's definition. Corollary: **a position already at the 2.0% long-dated-single ceiling has no admissible add at any fraction.**
+3. **Blended basis and blended break-even are recomputed and SHOWN on the ticket** — `blended basis = (Σ nᵢ·pᵢ) ÷ Σ nᵢ`, `strike-weighted break-even = (Σ nᵢ·Kᵢ) ÷ Σ nᵢ + blended basis` [COMPUTED]. An add **never improves the break-even**; it buys delta per new dollar. If the ticket claims a better break-even, the arithmetic is wrong.
+4. **The mechanics are re-issued, never inherited** — the new break-even must sit at least 1 ATR-proxy below spot; the invalidation line is re-issued **tighter or equal, never wider**; the add's quote spread must be ≤ the spread the original filled at; and the rungs are re-issued against the NEW blended basis before the fill (rung 1 = +80% of the new total debit, rung 2 = +150%, runner trailed at 50% of peak). A position whose rungs still reference the pre-add basis is unmanaged: block the add.
+
+- **The forbidden version of the same trade is any add made *after a loss*** — that is averaging down; R3 and AR-04 close this door. The only legal way to put money into a loser is a defined-debit restructure approved in advance.
+- Adding to a structure whose **thesis broke**, adding **past the ⅓R aggregate budget** (including a second add that would push the cumulative added risk past it), or adding after the lifecycle window closes — the invalidation line is the reason there is no add.
+- Adding **past the band** — if R + add exceeds the per-idea ceiling, the answer is "no add", not "a smaller structure".
+- Adding on a **wider spread than the entry filled at** — a 6% quote on an entry that filled at 2% is a 4% toll to own the same idea twice.
+- Adding to **short premium** because it is winning — a worse-credit add is a new position with worse odds wearing the winner's P&L.
+
+**Worked [COMPUTED] — an add that passes, and the check that rejects most of them.** Book: $60,000 trading capital. Original entry: **2 lots of an XYZ 200-strike call at $4.00** with XYZ at $202 and 45 DTE → R = 2 × $4.00 × 100 = **$800 risk** (1.33% of the book). Later: XYZ is $212, 28 DTE, and `options-position-lifecycle` has cleared the add window.
+
+| Step | Arithmetic | Result |
+|---|---|---|
+| Add cap, and the candidate | ⅓ × R = ⅓ × $800 = $266.67; 1 lot XYZ 215 strike at $2.50 = $250 | **$250 cost** — inside the **$266.67** cap ✓ |
+| Combined risk and blended basis | $800 + $250 = $1,050, ÷ 3 contracts = $350 per contract | **$1,050 risk** = 1.75% of $60,000 ≤ the 2.0% ceiling ($1,200) ✓; basis **$3.50** per share |
+| Strike-weighted break-even | (2 × $200 + 1 × $215) ÷ 3 + $3.50 = $205.00 + $3.50 | **$208.50**, against $204.00 before the add — the add moved the break-even **$4.50 higher**, which is what an add costs |
+| Cushion test, then re-issued rungs on the new basis | spot $212 − $208.50 = $3.50 vs an ATR-proxy of $3.00; rung 1 = +80% of $1,050 → **$840 profit** on 3 contracts | 1.17 ATR ≥ 1.0 → passes, barely — place the GTC sell-to-close before the add fills |
+
+**The check that rejects most adds.** A *same-strike* add on a winner usually fails on size alone: one more lot of the original 200 strike now marks ~$12.60 → **$1,260 cost**, which is 4.7× the ⅓R cap, so the add is illegal before any break-even math is done. And had the ATR-proxy been $5.00, the cushion (0.7 ATR) would fail the second test — an add with no room underneath is a coin-flip on one session. When either test fails, let the existing runner ride and book the rung that already exists. "The trade is working, so buy more" is a conviction statement; this add is a size statement.
+
 ---
 
 ## Core Workflow **(STANDARD)**
@@ -403,6 +587,9 @@ NEW gate-passed setup prints. Recovery = next A+ setup at base size — never "t
 - [ ] **CR10: Triage current** — **Complete when** every position ≤ −40% has a disposition + lesson and zero remain untriaged.
 - [ ] **CR11: Dead lots marked** — **Complete when** every mark < 5% of cost is flagged "no-TP by construction" and removed from the attention set.
 - [ ] **CR12: Weekly expectancy table updated** — **Complete when** hit rate + avg win/loss by setup class are refreshed and the worst class has a prune/halve decision.
+- [ ] **CR13: One threshold set, in the family's unit** — **Complete when** the structure's row in the Canonical Threshold Table is applied, or an override declared at entry is quoted; two different TP/SL numbers are never carried for one position.
+- [ ] **CR14: Drawdown ladder read and applied** — **Complete when** the book's deposit-adjusted peak-to-trough drawdown is computed including open marks, its row is named, and the effective size is the MIN of the streak ladder and the drawdown multiplier.
+- [ ] **CR15: Winner-add arithmetic shown** — **Complete when** any add to an open winner displays add ≤ ⅓R, the combined risk against the per-idea ceiling, the blended basis and strike-weighted break-even, and the re-issued rungs — or the add is refused.
 
 ---
 
@@ -452,6 +639,8 @@ A well-sized book reads like a portfolio of contracts: every position states its
 
 ## References **(QUICK)**
 
+- `references/08-canonical-thresholds-and-precedence.md` — the derivations behind the Canonical Threshold Table: the four-convention reconciliation, unit conversions, the ⅓R add cap, the drawdown breakpoints, the failure-mode register, and the precedence arbitrations worked end to end.
+- `references/01-sizing-bands.md` … `references/07-ladder-tracking-template.md` — band tables, expectancy math, loss-triage cases, the recovery playbook, scale-out ladders, session/venue rules, and the weekly tracking template.
 - `references/additional-resources.md` — expectancy math, worked triage cases, and the recovery playbook appendix.
 
 ---
@@ -467,4 +656,4 @@ A well-sized book reads like a portfolio of contracts: every position states its
 - **Funding is the theta of perps.** Holding cost accrues every session and spikes in cascades - check funding before "just holding," and treat it like decay when deciding HOLD-WITH-TP vs CUT.
 - **Close-basis levels still rule.** Daily-close invalidation, wicks are grabs; on 24/7 venues the "RTH close" maps to the daily close, and cascade classification (BTC/ETH-led dump + funding flip) replaces the session clock.
 
-> **Skill version:** 1.1.0 | **Token budget:** 4000 | **Generated:** 2026-10-10
+> **Skill version:** 1.2.0 | **Token budget:** 6000 | **Generated:** 2026-10-14

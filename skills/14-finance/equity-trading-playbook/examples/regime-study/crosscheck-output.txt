@@ -1,0 +1,48 @@
+wire.jsonl: scanned 1073 events, found 4 Robinhood bar payload(s)
+wrote C:\Users\sande\Documents\Projects\Skills\skills\14-finance\equity-trading-playbook\examples\regime-study\data\crosscheck-robinhood.csv (120 rows)
+
+================================================================================================
+CROSS-CHECK: TradingView closes vs Robinhood closes on common dates
+================================================================================================
+
+  sym  common_days  from        to          max_abs_diff  max_rel_diff
+  --------------------------------------------------------------------
+  GLD           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+  QQQ           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+  SPY           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+  TLT           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+
+  Sampled closes, side by side:
+
+  sym  date        TradingView  Robinhood     diff  diff_bp
+  ---------------------------------------------------------
+  GLD  2026-09-01     396.7500   396.7500  +0.0000  0.00 bp
+  GLD  2026-09-10     396.3600   396.3600  +0.0000  0.00 bp
+  GLD  2026-09-18     401.1700   401.1700  +0.0000  0.00 bp
+  GLD  2026-09-28     377.9100   377.9100  +0.0000  0.00 bp
+  GLD  2026-10-06     382.2700   382.2700  +0.0000  0.00 bp
+  QQQ  2026-09-01     707.6400   707.6400  +0.0000  0.00 bp
+  QQQ  2026-09-10     708.6900   708.6900  +0.0000  0.00 bp
+  QQQ  2026-09-18     721.4500   721.4500  +0.0000  0.00 bp
+  QQQ  2026-09-28     736.5300   736.5300  +0.0000  0.00 bp
+  QQQ  2026-10-06     759.6600   759.6600  +0.0000  0.00 bp
+  SPY  2026-09-01     761.7800   761.7800  +0.0000  0.00 bp
+  SPY  2026-09-10     757.8300   757.8300  +0.0000  0.00 bp
+  SPY  2026-09-18     761.6900   761.6900  +0.0000  0.00 bp
+  SPY  2026-09-28     765.6100   765.6100  +0.0000  0.00 bp
+  SPY  2026-10-06     779.0900   779.0900  +0.0000  0.00 bp
+  TLT  2026-09-01      81.8700    81.8700  +0.0000  0.00 bp
+  TLT  2026-09-10      80.7800    80.7800  +0.0000  0.00 bp
+  TLT  2026-09-18      81.2500    81.2500  +0.0000  0.00 bp
+  TLT  2026-09-28      78.6200    78.6200  +0.0000  0.00 bp
+  TLT  2026-10-06      77.2800    77.2800  +0.0000  0.00 bp
+
+  WORST relative disagreement across all instruments sampled: 0.00 bp (0.000000%)
+
+  Every overlapping close agrees to better than 10 bp of price. On a
+  $700 instrument that is inside a single cent. The two feeds are not
+  disagreeing about the price history this study used.
+
+  NOT CHECKED: the pre-2004 TradingView history. Robinhood was asked for
+  a recent window only, so nothing older than that window has a second
+  source in this study.

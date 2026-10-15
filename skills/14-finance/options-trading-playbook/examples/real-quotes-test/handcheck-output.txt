@@ -1,0 +1,96 @@
+HANDCHECK -- independent re-derivation of the measured IVs and skew.
+This file does NOT import study.py.  Its erf is a different
+implementation (A&S 7.1.26 series vs math.erf), its bisection uses
+bracket expansion, and its OLS solves the normal equations by
+Cramer's rule.  Agreement is therefore not by construction.
+
+reference tables parsed from logs/study-output.txt: 27 IV rows, 4 skew rows
+
+==============================================================================
+A. FULL BLACK-SCHOLES INTERMEDIATES FOR ONE REAL PRICE (by hand)
+==============================================================================
+  contract      : SPY 2020-03-02 put 300
+  expiry / DTE  : 2020-04-17 / 46 calendar days
+  real close    : $10.08
+  underlying S  : 309.09  (real close, spot column)
+  strike    K   : 300.00
+  r (US03M)     : 0.012110  (= 1.2110% / 100)
+  T             : 46 / 365 = 0.1260273973
+
+  Evaluating BS(put) at sigma = 0.3344:
+    sqrt(T)        = 0.3550033764
+    ln(S/K)        = 0.0298500220
+    (r+0.5*sig^2)T = 0.0085725953
+    d1             = 0.3236593758
+    d2             = 0.2049462467
+    N(-d1)         = 0.3730980337
+    N(-d2)         = 0.4188070896
+    K*exp(-rT)     = 299.5424916773
+    S*N(-d1)       = 115.3208712309
+    BS(put)        = 10.1296479324
+  Real close was 10.08, so sigma = 0.3344 is TOO HIGH.
+
+  Bisecting for sigma over [0.000001, 5.000000] -> sigma = 0.3332047053  (33.320471%)
+  Checking back: BS at that sigma = 10.0800000000  vs real 10.08
+
+  study.py printed IV_real% = 33.44 for this contract.
+
+==============================================================================
+B. INDEPENDENT IV FOR EVERY MEASURED CONTRACT, AND THE GAP
+==============================================================================
+  NOTE on the expected gap: study.py discounts at the rate at t-3
+  sessions (the sibling study's no-lookahead convention); this file
+  discounts at the SAMPLE DATE's own rate.  The two therefore differ
+  on purpose, and the gap below is the size of that difference, not an
+  implementation disagreement.  It is largest on 2020-03-02, where the
+  3-month bill was falling fastest.
+
+  und  date        type  strike  price    IV_hand%   IV_study%  gap (vol pts)
+  ---  ----------  ----  ------  -------  ---------  ---------  -------------
+  IWM  2018-01-02  put   149.00  1.0500   15.008678  15.0200    -0.011322    
+  QQQ  2018-01-02  call  163.00  0.6600   10.425719  10.4200    0.005719     
+  QQQ  2018-01-02  put   154.00  1.3000   15.447929  15.4600    -0.012071    
+  SPY  2018-01-02  call  285.00  0.0200   7.483585   7.4800     0.003585     
+  SPY  2018-01-02  put   242.50  0.2600   18.669243  18.6800    -0.010757    
+  SPY  2018-01-02  put   261.00  1.0200   11.082127  11.0900    -0.007873    
+  SPY  2020-01-02  call  335.00  0.5600   8.269505   8.2600     0.009505     
+  SPY  2020-01-02  call  344.00  0.0800   8.886304   8.8800     0.006304     
+  SPY  2020-01-02  put   275.00  0.1600   25.627895  25.6300    -0.002105    
+  SPY  2020-01-02  put   305.00  0.9400   17.095361  17.1000    -0.004639    
+  SPY  2020-01-02  put   315.00  1.9000   14.039631  14.0500    -0.010369    
+  SPY  2020-03-02  call  318.00  5.0200   19.347610  19.2500    0.097610     
+  SPY  2020-03-02  call  328.00  1.6400   16.683468  16.6100    0.073468     
+  SPY  2020-03-02  call  328.00  0.4600   18.619875  18.5800    0.039875     
+  SPY  2020-03-02  call  340.00  0.3600   15.839767  15.7900    0.049767     
+  SPY  2020-03-02  put   247.00  1.6200   45.365397  45.4300    -0.064603    
+  SPY  2020-03-02  put   263.00  2.9600   42.051376  42.1200    -0.068624    
+  SPY  2020-03-02  put   278.00  5.0400   38.898721  38.9800    -0.081279    
+  SPY  2020-03-02  put   278.00  2.7800   49.135191  49.1800    -0.044809    
+  SPY  2020-03-02  put   291.00  7.6800   35.786914  35.8900    -0.103086    
+  SPY  2020-03-02  put   300.00  10.0800  33.320471  33.4400    -0.119529    
+  SPY  2020-03-02  put   300.00  6.9300   40.597989  40.6700    -0.072011    
+  SPY  2022-06-01  call  422.00  5.6900   20.090513  20.1100    -0.019487    
+  SPY  2022-06-01  call  434.00  2.2700   18.658523  18.6700    -0.011477    
+  SPY  2022-06-01  put   369.00  2.6000   30.292856  30.2800    0.012856     
+  SPY  2022-06-01  put   385.00  5.0400   28.130697  28.1200    0.010697     
+  SPY  2022-06-01  put   397.00  8.0000   26.448535  26.4300    0.018535     
+
+  largest absolute gap across all 27 contracts: 0.119529 vol points
+
+==============================================================================
+C. INDEPENDENT SKEW SLOPE PER DATE, AND THE GAP
+==============================================================================
+  slope_per_10pct_OTM = b * ln(1/0.90), b from OLS of IV%% on
+  d = -ln(K/S), puts only.  Own solver: normal equations.
+
+  und  date        n_puts  slope_hand  slope_study  gap      
+  ---  ----------  ------  ----------  -----------  ---------
+  SPY  2018-01-02  2       10.873186   10.8700      0.003186 
+  SPY  2020-01-02  3       8.915360    8.9100       0.005360 
+  SPY  2020-03-02  7       4.885735    4.8700       0.015735 
+  SPY  2022-06-01  3       5.527353    5.5400       -0.012647
+  QQQ  2018-01-02  1       n/a         n/a          n/a      
+  IWM  2018-01-02  1       n/a         n/a          n/a      
+
+  A gap of 0.000000 on every row means the two implementations agree
+  to the printed precision.

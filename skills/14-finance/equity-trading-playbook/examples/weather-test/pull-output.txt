@@ -1,0 +1,9 @@
+PAYLOADS FOUND
+  AMEX:EEM   1 page(s)
+  TVC:VIX    2 page(s)
+
+MERGE + WRITE
+  EEM        -> EEM_1d.csv  rows=5915  2003-04-11 .. 2026-10-14
+  VIX        -> VIX_1d.csv  rows=9283  1990-01-03 .. 2026-10-14
+
+DONE: 2 file(s)

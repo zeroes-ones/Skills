@@ -18,14 +18,14 @@ Theta decay is non-linear. Gamma risk is non-linear. Both accelerate near expira
 
 ### 7 DTE: Aggressive Close
 - **Action**: Close all short gamma positions regardless of P&L unless part of a defined-risk spread at max profit
-- **Rationale**: Gamma is extreme. ATM gamma at 7 DTE is ~3x 21-DTE gamma and ~10x 45-DTE gamma [VERIFIED]
-- **Example**: 25-delta SPY put at 7 DTE: gamma ~0.035. A $5 SPY move shifts delta by 0.175 per contract. On 20 contracts, that's 350 shares of delta appearing from a routine intraday move [COMPUTED]
+- **Rationale**: Gamma is extreme, and its scaling is fixed: ATM gamma obeys **Γ ∝ 1/√T**, so at 7 DTE it is √(21/7) = **1.73×** its 21-DTE value and √(45/7) = **2.54×** its 45-DTE value [COMPUTED]. (The "~3× vs 21-DTE and ~10× vs 45-DTE" figures printed in earlier editions were wrong; they imply ∝ 1/T, which contradicts the Black–Scholes identity `Θ ≈ −½·Γ·S²σ²` stated in `portfolio-greeks-aggregation.md`.)
+- **Example**: a 25-delta SPY put at 7 DTE carries gamma ≈ 0.023 per share (Γ = φ(d1)/(Sσ√T) with S = $500, σ = 20%, K ≈ $549): a $5 SPY move shifts delta by 2.30 Δshares per $1 per contract, i.e. 11.5 shares on one contract. On 20 contracts that is ~230 shares of delta appearing from a routine intraday move [COMPUTED]
 - **Exception**: Defined-risk spreads (iron condors, verticals) approaching max profit can be held. Max loss is capped. Pin risk still applies — see pin-risk-detection reference
 
 ### 0 DTE: Pre-Close Deadline
-- **Action**: Close all positions by 3:00 PM ET
-- **Rationale**: Broker auto-liquidation windows begin at 3:00-3:45 PM ET. You want to close on YOUR terms, not the broker's [BROKER-VERIFIED]
-- **0 DTE gamma**: ATM gamma at 0 DTE morning is 5-10x 7-DTE gamma. Delta moves from 0 to 1.00 on a sub-$1 price move. This is gambling, not trading — unless part of a defined, size-limited strategy [VERIFIED]
+- **Action**: Close all positions by **2:45 PM ET (14:45)**, with a **3:00 PM ET (15:00) hard stop** — the same clock `intraday-options-trader` publishes for 0DTE
+- **Rationale**: Broker auto-liquidation windows begin at 3:00-3:45 PM ET, and a 0DTE position cannot be worked after its close. You want to close on YOUR terms, not the broker's [BROKER-VERIFIED — broker-specific and subject to change; re-read your own broker's rule]
+- **0 DTE gamma**: Γ ∝ 1/√T, and the reduced form diverges as T → 0, so the multiple depends entirely on how much of the *session* is left rather than on a fixed number of days: with half a session remaining it is √(7/0.5) ≈ **3.7×** the 7-DTE value, and it keeps rising as the session shortens. That is exactly why the 0DTE bucket is managed by the **clock** (14:45 close / 15:00 hard stop) and not by a gamma multiple. Delta moves from 0 to 1.00 on a sub-$1 price move. This is gambling, not trading — unless part of a defined, size-limited strategy [COMPUTED]
 
 ## Cash-Settled vs Physical Delivery
 
@@ -69,31 +69,40 @@ All times Eastern [VERIFIED]:
 
 ## Weekend Gap Risk by Product
 
-| Product | Avg Weekend Gap (±%) | Max 5-Year Gap | Implication |
+| Product (reference price) | Avg weekend gap (±1σ) | Max 5-year weekend gap | Exposure on 10 contracts (1,000 shares) |
 |---------|---------------------|----------------|-------------|
 | SPX | N/A (cash-settled) | N/A | No gap risk from SPX options themselves |
-| SPY | ±0.4% | -4.1% | $4.10/share × 1000 shares = $4,100 on 10 contracts |
-| QQQ | ±0.9% | -5.8% | $24/share × 1000 shares = $24,000 on 10 contracts |
-| AAPL | ±1.1% | -12.9% | $24/share × 1000 shares = $24,000 on 10 contracts |
-| TSLA | ±2.3% | -21.3% | $53/share × 1000 shares = $53,000 on 10 contracts |
-| NVDA | ±1.8% | -18.5% | $23/share × 1000 shares = $23,000 on 10 contracts |
+| SPY ($500) | ±0.5% | −4.1% (Mar 2020) | 4.1% × $500 = $20.50/share × 1,000 = **$20,500** |
+| QQQ ($415) | ±1.0% | −5.8% (Mar 2020) | $24.07/share × 1,000 = $24,070 |
+| AAPL ($186) | ±1.2% | −12.9% (Mar 2020) | $24.00/share × 1,000 = $24,000 |
+| TSLA ($249) | ±2.5% | −21.3% (Mar 2020) | $53.04/share × 1,000 = $53,040 |
+| NVDA ($124) | ±1.8% | −18.5% (Mar 2020) | $22.94/share × 1,000 = $22,940 |
 
-[COMPUTED from historical data]
+[ESTIMATED ±30% — the ±1σ column is a desk estimate of the *typical* weekend gap, not a fitted
+distribution; the max-gap column names the episode it is drawn from. The two tables that state this
+band (`pin-risk-detection.md` and here) are the same numbers by construction: change one, change
+both. Re-measure from your own venue's data before sizing off either.]
 
-Cost of closing pin-risk options Friday ($3-5/contract) vs potential Monday gap loss (table above): The insurance is virtually always worth it.
+Cost of closing pin-risk options Friday ($3-5/contract [ESTIMATED ±40%]) vs potential Monday gap loss (table above): The insurance is virtually always worth it.
 
 ## 0DTE Gamma Risk Quantification
 
-Gamma of ATM 0DTE options vs same-strike longer-dated [VERIFIED]:
+ATM gamma scales as **Γ ∝ 1/√T**; the tabulated levels below are illustrative desk values
+[ESTIMATED ±30%] for a ~$500 underlying at ~20% IV, anchored at 0.012 at 30 DTE, with the *scaling*
+between rows computed from that rule:
 
-| DTE | ATM Gamma (SPY) | Delta Change per $1 Move |
+| DTE | ATM Γ (per share, per $1) | Δdelta-shares per $1, per contract |
 |-----|-----------------|--------------------------|
-| 30 DTE | ~0.012 | 0.012 delta shift per $1 |
-| 7 DTE | ~0.035 | 0.035 delta shift per $1 |
-| 0 DTE (AM) | ~0.080 | 0.080 delta shift per $1 |
-| 0 DTE (PM, final hour) | ~0.250+ | 0.250 delta shift per $1 |
+| 30 DTE | 0.012 | 1.2 |
+| 7 DTE | 0.025 | 2.5 |
+| 0 DTE (AM, ~half a session left) | 0.093 | 9.3 |
+| 0 DTE (PM, final hour) | 0.237 | 23.7 |
 
-At 0DTE final hour, a $0.50 SPY move shifts an ATM option from 0.50 delta to ~0.63 delta — 13 deltas per contract from a routine tick. On 100 contracts, that's 1,300 shares of additional delta exposure that appeared in minutes [COMPUTED]. This is what blows up accounts.
+At 0DTE final hour, a $0.50 SPY move shifts an ATM option from 0.50 delta to ~0.62 delta — ~12 delta
+shares per contract from a routine tick. On 100 contracts, that's ~1,200 shares of additional delta
+exposure that appeared in minutes [COMPUTED]. This is what blows up accounts. (The earlier edition's
+rows — 0.035 at 7 DTE and 0.080 at 0DTE — were inconsistent with Γ ∝ 1/√T; the ratios there implied
+Γ ∝ 1/T. If you re-anchor the table, re-scale every row by √(old anchor / new anchor).)
 
 ## Pre-Expiration Checklist
 

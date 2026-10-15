@@ -49,3 +49,13 @@ reasonix.toml
 _gen.py
 _write_skill.py
 _gen_skills.py
+
+# Real-data study evidence: raw pulled market data and per-run dumps are NOT versioned.
+# They are reproducible from the documented pull scripts in each study's own README
+# (TradingView / Robinhood MCP pulls; the pull date is recorded in every CSV header).
+# Versioned instead: the study code, README/RESULTS/FINDINGS, the provenance logs,
+# and the small hand-check fixtures under examples/logs/.
+skills/*/*/examples/*/data/
+skills/*/*/examples/*/out/
+skills/*/*/examples/*/tradelogs/
+skills/*/*/examples/*/engine-output/

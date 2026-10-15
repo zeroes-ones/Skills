@@ -1,0 +1,53 @@
+# PROVENANCE: SYNTHETIC / ILLUSTRATIVE -- hand-check fixture. Not market data, not a backtest, not a result. Invented by the skill author so that a reader can verify the engine's arithmetic on paper.
+# PROVENANCE: six invented trades, close dates 2025-01-10 .. 2025-02-21, all in one calendar quarter (2025-Q1), half (2025-H1) and year (2025).
+# PROVENANCE: pnl is invented currency, not dollars earned. risk=100 on every row so R-multiples are trivial to derive by hand.
+# This is the paper-checkable fixture. Every expected value a reader needs is written out below,
+# and scripts/verify-skill.sh asserts the engine reproduces them.
+#
+# EXPECTED M BUCKET (the only bucket with 2 fully-populated periods; hand-check against these)
+#   period 2025-01: T001,T002,T003 -> n=3 gross_profit=250 gross_loss=100 net=150 wins=1 losses=1 be=1
+#                   win_rate=1/2=0.500000 avg_win=250 avg_loss=100 payoff=2.5 P_factor=2.5
+#                   expectancy=150/3=50 be_wr=1/3.5=0.285714 edge=0.500000-0.285714=0.214286
+#   period 2025-02: T004,T005,T006 -> n=3 gross_profit=375 gross_loss=150 net=225 wins=2 losses=1 be=0
+#                   win_rate=2/3=0.666667 avg_win=187.5 avg_loss=150 payoff=1.25 P_factor=2.5
+#                   expectancy=225/3=75 be_wr=1/2.25=0.444444 edge=0.666667-0.444444=0.222222
+#   across: n_periods=2 mean=187.5 median=187.5 sd=53.033009 t_stat=187.5/(53.033009/1.414214)=5.000000
+#           period_sharpe=187.5/53.033009=3.535534 trades_per_period=3 periods_per_year=12
+#           cumulative_pnl=375 max_drawdown=0.00 lag1_autocorrelation=n/a (fewer than 3 periods)
+#   pooled: wins=3 losses=2 be=1 win_rate=3/5=0.600000 avg_win=625/3=208.333333 avg_loss=125
+#           payoff=1.666667 be_wr=1/2.666667=0.375000 edge=0.600000-0.375000=0.225000
+#           P_factor=625/250=2.5 se_win_rate=sqrt(0.6*0.4/5)=sqrt(0.048)=0.219089
+#           2*se=0.438178 -> edge 0.225 < 0.438178 -> edge_test=FAIL
+#
+# EXPECTED D BUCKET (6 periods, one trade each): net series 250,-100,0,300,-150,75
+#   mean=375/6=62.5  median=37.5  sd(sample)=sqrt(167187.5/5)=182.859235
+#   t=62.5/(182.859235/2.449490)=0.837218  period_sharpe=62.5/182.859235=0.341793
+#   cumulative=375  max_drawdown=-150.00
+#   lag1_autocorrelation=-0.614264  n_eff_raw=25.109 -> n_eff_capped=6 (raw exceeds the 6 trades)
+#   work: cum series 250,150,150,450,300,375; running peak 250,250,250,450,450,450;
+#         worst fall = 300-450 = -150.00
+#
+# EXPECTED W BUCKET (6 ISO weeks 2025-W02,W03,W04,W06,W07,W08, one trade each):
+#   identical across-period values to D, because it is the same one-trade-per-period series.
+#
+# EXPECTED 2W BUCKET (4 paired periods: 2024-12-30, 2025-W03 pair, 2025-W05 pair, 2025-W07 pair)
+#   net series 250,-100,300,-75 -> mean=93.750 median=87.500
+#   sd(sample)=sqrt(132968.75/3)=210.530085
+#   t=93.750/(210.530085/2)=0.890609  period_sharpe=93.750/210.530085=0.445305
+#   cumulative=375  max_drawdown=-100.00
+#   lag1_autocorrelation=-96250/sqrt(95000*100416.667)=-0.985453
+#   n_eff_raw=545.952 -> n_eff_capped=6 (raw is far past what 4 periods and 6 trades can mean)
+#
+# EXPECTED Q / H / Y BUCKETS (one period each): n_periods=1 -> sd, t_stat, period_sharpe = n/a.
+#   Q 2025-Q1 pooled: net=375 wins=3 losses=2 be=1 win_rate=0.6 avg_win=625/3=208.333333
+#                     avg_loss=250/2=125 payoff=1.666667 P_factor=2.5
+#                     be_wr=1/2.666667=0.375000 edge=0.225000 se_wr=0.219089 -> edge_test=FAIL
+#
+# EXPECTED VERDICT on this log: INSUFFICIENT DATA -- no bucket has n_periods >= 12.
+trade_id,open_date,close_date,pnl,risk,symbol
+T001,2025-01-06,2025-01-10,250,100,SYN-A
+T002,2025-01-13,2025-01-17,-100,100,SYN-A
+T003,2025-01-20,2025-01-24,0,100,SYN-B
+T004,2025-02-03,2025-02-07,300,100,SYN-B
+T005,2025-02-10,2025-02-14,-150,100,SYN-C
+T006,2025-02-17,2025-02-21,75,100,SYN-C

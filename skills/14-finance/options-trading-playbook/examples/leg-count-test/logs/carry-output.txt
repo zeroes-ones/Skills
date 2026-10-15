@@ -1,0 +1,24 @@
+==============================================================================
+CARRY DATA -- leg-count test
+==============================================================================
+source dir  : C:\Users\sande\Documents\Projects\Skills\skills\14-finance\options-trading-playbook\examples\index-options-test\data
+source pull : 2026-10-14 (TradingView MCP, interval 1D)
+carry date  : 2026-10-15
+
+  SPY    rows=8485   first=1993-01-29 last=2026-10-14  sha256(body)=8c9fd9d9cc75fc74...
+  QQQ    rows=6943   first=1999-03-10 last=2026-10-14  sha256(body)=cf7f99b968c1f4f0...
+  IWM    rows=6635   first=2000-05-26 last=2026-10-14  sha256(body)=6ecc33741ba8c7d9...
+  VIX    rows=9283   first=1990-01-03 last=2026-10-14  sha256(body)=1f90c132dd486ed2...
+  US03M  rows=18197  first=1954-01-04 last=2026-10-14  sha256(body)=4bd463622931b4b8...
+
+VALIDATION FIXTURES (fresh 2026-10-15 pull by the sibling study, re-checked here)
+  series fresh rows      overlap OHLC mismatch
+  SPY          1500         1500            0
+  QQQ          1500         1500            0
+  IWM          1500         1500            0
+  VIX          1500         1500            0
+  TOTAL                     6000            0
+
+  6000 overlapping sessions, 0 OHLC mismatches.
+
+Files written to C:\Users\sande\Documents\Projects\Skills\skills\14-finance\options-trading-playbook\examples\leg-count-test\data

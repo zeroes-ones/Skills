@@ -234,7 +234,7 @@ else
 fi
 
 # Check 42: verify-skill.sh is executable
-if [ -x "$SKILL_DIR/verify-skill.sh" ]; then
+if [ -x "$SKILL_DIR/scripts/verify-skill.sh" ]; then
   echo "  [PASS] verify-skill.sh is executable"
 else
   echo "  [FAIL] verify-skill.sh is NOT executable"

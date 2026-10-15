@@ -143,9 +143,13 @@ function collectSkills(dir) {
 
       if (fs.existsSync(skillPath)) {
         const content = fs.readFileSync(skillPath, 'utf-8');
-        const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+        // Tolerate CRLF frontmatter. On a Windows checkout with core.autocrlf=true the
+        // delimiters are `---\r\n`, so an LF-only pattern silently indexes only the handful
+        // of LF files. The frontmatter is then normalised to LF so every downstream parser
+        // sees the same bytes it would on an LF checkout.
+        const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
         if (fmMatch) {
-          const fm = fmMatch[1];
+          const fm = fmMatch[1].replace(/\r\n/g, '\n');
           const nameMatch = fm.match(/^name:\s*(.+)$/m);
           const desc = parseYamlMultiline(fm, 'description');
 
@@ -204,6 +208,7 @@ function stem(word) {
     }
     return s;
   }
+  if (w.endsWith('sses')) return w.slice(0, -2); // losses -> loss, classes -> class
   if (w.endsWith('s') && !/(ss|us|is)$/.test(w)) return w.slice(0, -1);
   return w;
 }

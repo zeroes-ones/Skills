@@ -1,0 +1,67 @@
+==============================================================================
+SIBLING: frontier-test  (C:\Users\sande\Documents\Projects\Skills\skills\14-finance\equity-trading-playbook\examples\frontier-test\data)
+==============================================================================
+  SPY    mine=8485  1993-01-29..2026-10-14 | sibling=8485  1993-01-29..2026-10-14 | shared=8485  identical=8484  vol-only-warn=1    OK
+  QQQ    mine=6943  1999-03-10..2026-10-14 | sibling=6943  1999-03-10..2026-10-14 | shared=6943  identical=6942  vol-only-warn=1    OK
+  IWM    mine=6635  2000-05-26..2026-10-14 | sibling=6635  2000-05-26..2026-10-14 | shared=6635  identical=6635  vol-only-warn=0    OK
+  TLT    mine=6094  2002-07-26..2026-10-14 | sibling=6094  2002-07-26..2026-10-14 | shared=6094  identical=6093  vol-only-warn=1    OK
+  GLD    mine=5510  2004-11-18..2026-10-14 | sibling=5510  2004-11-18..2026-10-14 | shared=5510  identical=5509  vol-only-warn=1    OK
+  EEM    mine=5915  2003-04-11..2026-10-14 | sibling=5915  2003-04-11..2026-10-14 | shared=5915  identical=5914  vol-only-warn=1    OK
+  IEF    mine=6094  2002-07-26..2026-10-14 | sibling=6094  2002-07-26..2026-10-14 | shared=6094  identical=6094  vol-only-warn=0    OK
+  HYG    mine=4910  2007-04-11..2026-10-14 | sibling=4910  2007-04-11..2026-10-14 | shared=4910  identical=4910  vol-only-warn=0    OK
+  DBC    mine=5206  2006-02-03..2026-10-14 | sibling=5206  2006-02-03..2026-10-14 | shared=5206  identical=5206  vol-only-warn=0    OK
+  VNQ    mine=5546  2004-09-29..2026-10-14 | sibling=5546  2004-09-29..2026-10-14 | shared=5546  identical=5546  vol-only-warn=0    OK
+  EFA    mine=6326  2001-08-17..2026-10-14 | sibling=6326  2001-08-17..2026-10-14 | shared=6326  identical=6326  vol-only-warn=0    OK
+  BIL    mine=4876  2007-05-30..2026-10-14 | sibling=4876  2007-05-30..2026-10-14 | shared=4876  identical=4876  vol-only-warn=0    OK
+  US03M  mine=18197 1954-01-04..2026-10-14 | sibling=18197 1954-01-04..2026-10-14 | shared=18197 identical=18197 vol-only-warn=0    OK
+  VIX    mine=9283  1990-01-03..2026-10-14 | sibling=9283  1990-01-03..2026-10-14 | shared=9283  identical=9283  vol-only-warn=0    OK
+
+==============================================================================
+SIBLING: narrow-universe-test  (C:\Users\sande\Documents\Projects\Skills\skills\14-finance\equity-trading-playbook\examples\narrow-universe-test\data)
+==============================================================================
+  SPY    mine=8485  1993-01-29..2026-10-14 | sibling=8485  1993-01-29..2026-10-14 | shared=8485  identical=8484  vol-only-warn=1    OK
+  QQQ    mine=6943  1999-03-10..2026-10-14 | sibling=6943  1999-03-10..2026-10-14 | shared=6943  identical=6942  vol-only-warn=1    OK
+  IWM    mine=6635  2000-05-26..2026-10-14 | sibling=6635  2000-05-26..2026-10-14 | shared=6635  identical=6635  vol-only-warn=0    OK
+  TLT    mine=6094  2002-07-26..2026-10-14 | sibling=6094  2002-07-26..2026-10-14 | shared=6094  identical=6093  vol-only-warn=1    OK
+  GLD    mine=5510  2004-11-18..2026-10-14 | sibling=5510  2004-11-18..2026-10-14 | shared=5510  identical=5509  vol-only-warn=1    OK
+  EEM    mine=5915  2003-04-11..2026-10-14 | sibling=5915  2003-04-11..2026-10-14 | shared=5915  identical=5914  vol-only-warn=1    OK
+  BIL    mine=4876  2007-05-30..2026-10-14 | sibling=4876  2007-05-30..2026-10-14 | shared=4876  identical=4876  vol-only-warn=0    OK
+  US03M  mine=18197 1954-01-04..2026-10-14 | sibling=18197 1954-01-04..2026-10-14 | shared=18197 identical=18197 vol-only-warn=0    OK
+  VIX    mine=9283  1990-01-03..2026-10-14 | sibling=9283  1990-01-03..2026-10-14 | shared=9283  identical=9283  vol-only-warn=0    OK
+
+==============================================================================
+SIBLING: regime-study  (C:\Users\sande\Documents\Projects\Skills\skills\14-finance\equity-trading-playbook\examples\regime-study\data)
+==============================================================================
+  SPY    mine=8485  1993-01-29..2026-10-14 | sibling=8485  1993-01-29..2026-10-14 | shared=8485  identical=8485  vol-only-warn=0    OK
+  QQQ    mine=6943  1999-03-10..2026-10-14 | sibling=6943  1999-03-10..2026-10-14 | shared=6943  identical=6943  vol-only-warn=0    OK
+  TLT    mine=6094  2002-07-26..2026-10-14 | sibling=6094  2002-07-26..2026-10-14 | shared=6094  identical=6094  vol-only-warn=0    OK
+  GLD    mine=5510  2004-11-18..2026-10-14 | sibling=5510  2004-11-18..2026-10-14 | shared=5510  identical=5510  vol-only-warn=0    OK
+
+==============================================================================
+SIBLING: sweep-test  (C:\Users\sande\Documents\Projects\Skills\skills\14-finance\equity-trading-playbook\examples\sweep-test\data)
+==============================================================================
+  SPY    mine=8485  1993-01-29..2026-10-14 | sibling=8485  1993-01-29..2026-10-14 | shared=8485  identical=8485  vol-only-warn=0    OK
+  QQQ    mine=6943  1999-03-10..2026-10-14 | sibling=6943  1999-03-10..2026-10-14 | shared=6943  identical=6942  vol-only-warn=1    OK
+  IWM    mine=6635  2000-05-26..2026-10-14 | sibling=6635  2000-05-26..2026-10-14 | shared=6635  identical=6635  vol-only-warn=0    OK
+  TLT    mine=6094  2002-07-26..2026-10-14 | sibling=6094  2002-07-26..2026-10-14 | shared=6094  identical=6094  vol-only-warn=0    OK
+  GLD    mine=5510  2004-11-18..2026-10-14 | sibling=5510  2004-11-18..2026-10-14 | shared=5510  identical=5510  vol-only-warn=0    OK
+  EEM    mine=5915  2003-04-11..2026-10-14 | sibling=5915  2003-04-11..2026-10-14 | shared=5915  identical=5896  vol-only-warn=19   OK
+  IEF    mine=6094  2002-07-26..2026-10-14 | sibling=6094  2002-07-26..2026-10-14 | shared=6094  identical=6094  vol-only-warn=0    OK
+  HYG    mine=4910  2007-04-11..2026-10-14 | sibling=4910  2007-04-11..2026-10-14 | shared=4910  identical=4910  vol-only-warn=0    OK
+  DBC    mine=5206  2006-02-03..2026-10-14 | sibling=5206  2006-02-03..2026-10-14 | shared=5206  identical=5206  vol-only-warn=0    OK
+  VNQ    mine=5546  2004-09-29..2026-10-14 | sibling=5546  2004-09-29..2026-10-14 | shared=5546  identical=5546  vol-only-warn=0    OK
+  EFA    mine=6326  2001-08-17..2026-10-14 | sibling=6326  2001-08-17..2026-10-14 | shared=6326  identical=6326  vol-only-warn=0    OK
+  VIX    mine=9283  1990-01-03..2026-10-14 | sibling=9283  1990-01-03..2026-10-14 | shared=9283  identical=9283  vol-only-warn=0    OK
+
+==============================================================================
+SIBLING: weather-test  (C:\Users\sande\Documents\Projects\Skills\skills\14-finance\equity-trading-playbook\examples\weather-test\data)
+==============================================================================
+  SPY    mine=8485  1993-01-29..2026-10-14 | sibling=8485  1993-01-29..2026-10-14 | shared=8485  identical=8485  vol-only-warn=0    OK
+  TLT    mine=6094  2002-07-26..2026-10-14 | sibling=6094  2002-07-26..2026-10-14 | shared=6094  identical=6094  vol-only-warn=0    OK
+  GLD    mine=5510  2004-11-18..2026-10-14 | sibling=5510  2004-11-18..2026-10-14 | shared=5510  identical=5510  vol-only-warn=0    OK
+  EEM    mine=5915  2003-04-11..2026-10-14 | sibling=5915  2003-04-11..2026-10-14 | shared=5915  identical=5915  vol-only-warn=0    OK
+  VIX    mine=9283  1990-01-03..2026-10-14 | sibling=9283  1990-01-03..2026-10-14 | shared=9283  identical=9283  vol-only-warn=0    OK
+
+==============================================================================
+TOTAL: 44 file pairs compared, 311224 shared dates, 311194 identical, 0 price disagreements, 30 volume-only warnings
+==============================================================================

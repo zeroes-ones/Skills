@@ -1,0 +1,46 @@
+PAYLOADS FOUND
+  NASDAQ:AAPL      2 payload(s)
+  NASDAQ:AMZN      2 payload(s)
+  NASDAQ:AVGO      3 payload(s)
+  NASDAQ:GOOGL     2 payload(s)
+  NASDAQ:META      2 payload(s)
+  NASDAQ:MSFT      2 payload(s)
+  NASDAQ:NVDA      2 payload(s)
+  NASDAQ:TSLA      2 payload(s)
+  NASDAQ:WMT       2 payload(s)
+  NYSE:JNJ         2 payload(s)
+  NYSE:JPM         2 payload(s)
+  NYSE:UNH         2 payload(s)
+  NYSE:V           2 payload(s)
+  NYSE:XOM         2 payload(s)
+
+PAYLOADS REFUSED BY THE SOURCE (success=false)
+  (none)
+
+SYMBOLS ASKED FOR THAT DID NOT RESOLVE AS WRITTEN
+  AMEX:JPM       -> refused; NYSE:JPM resolved instead
+  AMEX:JNJ       -> refused; NYSE:JNJ resolved instead
+  AMEX:WMT       -> refused; NASDAQ:WMT resolved instead
+  AMEX:XOM       -> refused; NYSE:XOM resolved instead
+  AMEX:UNH       -> refused; NYSE:UNH resolved instead
+  AMEX:V         -> refused; NYSE:V resolved instead
+  AMEX:AVGO      -> refused; NASDAQ:AVGO resolved instead
+  NYSE:WMT       -> refused; NASDAQ:WMT resolved instead
+
+MERGE + WRITE
+  AAPL     -> AAPL_1d.csv  rows=8000   1994-12-30 .. 2026-10-14  (dup dates collapsed 5732)
+  AMZN     -> AMZN_1d.csv  rows=5732   2004-01-02 .. 2026-10-14  (dup dates collapsed 4221)
+  AVGO     -> AVGO_1d.csv  rows=4324   2009-08-06 .. 2026-10-14  (dup dates collapsed 8442)
+  GOOGL    -> GOOGL_1d.csv rows=5574   2004-08-19 .. 2026-10-14  (dup dates collapsed 4221)
+  META     -> META_1d.csv  rows=3622   2012-05-18 .. 2026-10-14  (dup dates collapsed 3622)
+  MSFT     -> MSFT_1d.csv  rows=5732   2004-01-02 .. 2026-10-14  (dup dates collapsed 4221)
+  NVDA     -> NVDA_1d.csv  rows=5732   2004-01-02 .. 2026-10-14  (dup dates collapsed 4221)
+  TSLA     -> TSLA_1d.csv  rows=4099   2010-06-29 .. 2026-10-14  (dup dates collapsed 4099)
+  WMT      -> WMT_1d.csv   rows=5732   2004-01-02 .. 2026-10-14  (dup dates collapsed 4221)
+  JNJ      -> JNJ_1d.csv   rows=5731   2004-01-02 .. 2026-10-14  (dup dates collapsed 4220)
+  JPM      -> JPM_1d.csv   rows=5732   2004-01-02 .. 2026-10-14  (dup dates collapsed 4221)
+  UNH      -> UNH_1d.csv   rows=5732   2004-01-02 .. 2026-10-14  (dup dates collapsed 4221)
+  V        -> V_1d.csv     rows=4673   2008-03-19 .. 2026-10-14  (dup dates collapsed 4221)
+  XOM      -> XOM_1d.csv   rows=5731   2004-01-02 .. 2026-10-14  (dup dates collapsed 4220)
+
+DONE: 14 file(s); 0 payload(s) skipped as unmapped

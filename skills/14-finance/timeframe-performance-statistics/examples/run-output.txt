@@ -1,0 +1,627 @@
+TIMEFRAME-PERFORMANCE-STATISTICS -- ENGINE OUTPUT, VERBATIM
+======================================================================
+This file is the actual stdout of scripts/timeframe_stats.py, captured by
+redirecting the commands below. It was NOT written by hand: if the engine
+changes, this file is stale and must be regenerated.
+
+Provenance of the DATA behind these outputs:
+  hand-check-synthetic.csv          [ILLUSTRATIVE]  6 invented trades
+  illustrative-year-synthetic.csv   [ILLUSTRATIVE]  120 invented trades,
+                                                   generated at fixed seed 20260414
+NONE of this is market data. NONE of it is a backtest. NONE of it is a
+result, a finding, or evidence about any instrument or strategy. Read the
+PROVENANCE block the engine prints for each file: the engine echoes the
+input's own provenance lines so an output can never be detached from the
+label of the data behind it.
+
+Captured 2026-10-14T22:40:35Z on Python 3.10.11
+Engine version line is printed by the engine itself, below.
+
+----------------------------------------------------------------------
+$ py -3 scripts/timeframe_stats.py --version
+----------------------------------------------------------------------
+timeframe_stats.py 1.0.0
+
+======================================================================
+RUN 1 of 2 -- the hand-checkable fixture (6 trades)
+======================================================================
+$ py -3 scripts/timeframe_stats.py --csv examples/logs/hand-check-synthetic.csv
+
+==============================================================================
+TIMEFRAME PnL STATISTICS  --  timeframe_stats.py 1.0.0
+==============================================================================
+PROVENANCE
+  input file      : examples/logs/hand-check-synthetic.csv
+  trade rows      : 6
+  comment lines   : 46
+  declared        : SYNTHETIC / ILLUSTRATIVE -- hand-check fixture. Not market data, not a backtest, not a result. Invented by the skill author so that a reader can verify the engine's arithmetic on paper.
+  declared        : six invented trades, close dates 2025-01-10 .. 2025-02-21, all in one calendar quarter (2025-Q1), half (2025-H1) and year (2025).
+  declared        : pnl is invented currency, not dollars earned. risk=100 on every row so R-multiples are trivial to derive by hand.
+
+BUCKETING CONVENTION
+  A trade belongs to the bucket containing its CLOSE date, never its
+  open date. A trade opened in March and closed in April is an April
+  trade. 2W pairs are anchored so that ODD ISO weeks start each pair.
+  Close dates in this log span 2025-01-10 to 2025-02-21.
+
+METRIC PROVENANCE
+  The definitions of Sharpe, Sortino, Calmar, maximum drawdown and
+  profit factor belong to the `trade-performance-analyst` skill. This
+  engine computes per-period versions only, in order to compare
+  timeframes. It does not redefine them, and it does NOT annualise a
+  Sharpe: the lookback period, the return frequency and the risk-free
+  rate are required inputs and none of them are guessed here.
+
+PER-BUCKET SUMMARY  (columns are timeframes; rows are every field)
+
+  field                              D              W             2W            M        Q        H       Y
+  -------------------------------------------------------------------------------------------------------
+
+  [coverage]
+  n_periods                          6              6              4            2        1        1       1
+  n_trades                           6              6              6            6        6        6       6
+  trades_per_period              1.000          1.000          1.500        3.000    6.000    6.000   6.000
+  periods_per_year             365.250         52.179         26.089       12.000    4.000    2.000   1.000
+  first_period              2025-01-10       2025-W02     2024-12-30      2025-01  2025-Q1  2025-H1    2025
+  last_period               2025-02-21       2025-W08     2025-02-10      2025-02  2025-Q1  2025-H1    2025
+
+  [trade totals]
+  gross_profit                  625.00         625.00         625.00       625.00   625.00   625.00  625.00
+  gross_loss                    250.00         250.00         250.00       250.00   250.00   250.00  250.00
+  net_pnl                       375.00         375.00         375.00       375.00   375.00   375.00  375.00
+  wins                               3              3              3            3        3        3       3
+  losses                             2              2              2            2        2        2       2
+  breakeven_trades                   1              1              1            1        1        1       1
+  win_rate                      60.00%         60.00%         60.00%       60.00%   60.00%   60.00%  60.00%
+  avg_win                       208.33         208.33         208.33       208.33   208.33   208.33  208.33
+  avg_loss                      125.00         125.00         125.00       125.00   125.00   125.00  125.00
+  payoff_ratio                   1.667          1.667          1.667        1.667    1.667    1.667   1.667
+  expectancy_per_trade           62.50          62.50          62.50        62.50    62.50    62.50   62.50
+  profit_factor                  2.500          2.500          2.500        2.500    2.500    2.500   2.500
+
+  [beat losses]
+  break_even_win_rate           37.50%         37.50%         37.50%       37.50%   37.50%   37.50%  37.50%
+  edge                          22.50%         22.50%         22.50%       22.50%   22.50%   22.50%  22.50%
+  se_win_rate                   0.2191         0.2191         0.2191       0.2191   0.2191   0.2191  0.2191
+  2 x se_win_rate               0.4382         0.4382         0.4382       0.4382   0.4382   0.4382  0.4382
+  edge > 2 x se?                  FAIL           FAIL           FAIL         FAIL     FAIL     FAIL    FAIL
+  periods_positive_edge              0              0              0            2        1        1       1
+
+  [across periods]
+  mean_period_pnl                62.50          62.50          93.75       187.50   375.00   375.00  375.00
+  median_period_pnl              37.50          37.50          87.50       187.50   375.00   375.00  375.00
+  sd_period_pnl                 182.86         182.86         210.53        53.03      n/a      n/a     n/a
+  t_stat                         0.837          0.837          0.891        5.000      n/a      n/a     n/a
+  period_sharpe                 0.3418         0.3418         0.4453       3.5355      n/a      n/a     n/a
+  cumulative_pnl                375.00         375.00         375.00       375.00   375.00   375.00  375.00
+  max_drawdown                 -150.00        -150.00        -100.00         0.00     0.00     0.00    0.00
+  lag1_autocorrelation         -0.6143        -0.6143        -0.9855          n/a      n/a      n/a     n/a
+  n_eff                         25.109         25.109        545.952          n/a      n/a      n/a     n/a
+  n_eff_capped                   6.000          6.000          6.000          n/a      n/a      n/a     n/a
+
+  [verdict inputs]
+  verdict eligible                  no             no             no           no       no       no      no
+  noise flag             NOISE (|t|<2)  NOISE (|t|<2)  NOISE (|t|<2)  beyond +/-2      n/a      n/a     n/a
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    rank buckets by descending |t_stat|, but ONLY among buckets with
+      n_periods        >= 12
+      trades_per_period >= 5
+    if no bucket qualifies: INSUFFICIENT DATA, and name the constraint
+    that failed.
+    any bucket with |t_stat| < 2.0 is marked
+      NOT DISTINGUISHABLE FROM NOISE
+
+  VERDICT: INSUFFICIENT DATA -- no bucket satisfies n_periods >= 12 AND trades_per_period >= 5
+
+  Constraint that failed, per bucket:
+    D    : n_periods=6 < 12; trades_per_period=1.00 < 5
+    W    : n_periods=6 < 12; trades_per_period=1.00 < 5
+    2W   : n_periods=4 < 12; trades_per_period=1.50 < 5
+    M    : n_periods=2 < 12; trades_per_period=3.00 < 5
+    Q    : n_periods=1 < 12; t_stat not computable
+    H    : n_periods=1 < 12; t_stat not computable
+    Y    : n_periods=1 < 12; t_stat not computable
+
+  Per-bucket noise band (|t_stat| < 2.0):
+    D    : NOT DISTINGUISHABLE FROM NOISE
+    W    : NOT DISTINGUISHABLE FROM NOISE
+    2W   : NOT DISTINGUISHABLE FROM NOISE
+    M    : beyond the +/-2 noise band
+    Q    : t_stat not computable
+    H    : t_stat not computable
+    Y    : t_stat not computable
+
+------------------------------------------------------------------------------
+DEPENDENCE CAVEAT -- these buckets are not independent tests. H literally contains the M periods, Q contains the M periods, Y contains them all; the same trades are re-aggregated, not resampled. A t-statistic computed across a bucket series is therefore a STABILITY INDICATOR for that book, not a significance test of an edge. Read n_eff next to n_periods: where the period P&L series is positively autocorrelated, the effective sample is smaller than the period count suggests, and the t-statistic above is optimistic.
+------------------------------------------------------------------------------
+
+==============================================================================
+BEAT LOSSES TEST  (win_rate vs break_even_win_rate, per bucket)
+==============================================================================
+  break_even_win_rate = 1 / (1 + payoff_ratio), with payoff_ratio =
+  avg_win / avg_loss, both pooled across every trade in the bucket.
+  win_rate is wins / (wins + losses): break-even trades are reported
+  and EXCLUDED from the denominator.
+
+  NOTE: this test is bucketing-INVARIANT by construction. Every trade
+  falls in exactly one period of every bucket, so the pooled win rate,
+  payoff ratio and edge are identical in every column below. Reviewing
+  the same book weekly instead of monthly cannot move this test. It
+  moves the t_statistic, which is a different question.
+
+  bk     win_rate      be_wr       edge      se_wr       2xse  result
+  D        60.00%     37.50%     22.50%     0.2191     0.4382  FAIL
+  W        60.00%     37.50%     22.50%     0.2191     0.4382  FAIL
+  2W       60.00%     37.50%     22.50%     0.2191     0.4382  FAIL
+  M        60.00%     37.50%     22.50%     0.2191     0.4382  FAIL
+  Q        60.00%     37.50%     22.50%     0.2191     0.4382  FAIL
+  H        60.00%     37.50%     22.50%     0.2191     0.4382  FAIL
+  Y        60.00%     37.50%     22.50%     0.2191     0.4382  FAIL
+
+  D    edge of 0.2250 is inside 2 x se_win_rate (0.4382): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  W    edge of 0.2250 is inside 2 x se_win_rate (0.4382): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  2W   edge of 0.2250 is inside 2 x se_win_rate (0.4382): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  M    edge of 0.2250 is inside 2 x se_win_rate (0.4382): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  Q    edge of 0.2250 is inside 2 x se_win_rate (0.4382): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  H    edge of 0.2250 is inside 2 x se_win_rate (0.4382): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  Y    edge of 0.2250 is inside 2 x se_win_rate (0.4382): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+
+  A 'PASS' here is about the TRADE-LEVEL win rate, and it is a
+  different question from the across-period t_statistic above. Neither
+  one certifies the strategy; both are bounds on being fooled by it.
+
+==============================================================================
+PERIOD SERIES (CSV)  --  one block per bucket
+==============================================================================
+
+# bucket=D  calendar day  (6 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+D,2025-01-10,2025-01-10,1,250.00,0.00,250.00,1,0,0,1.000000,250.00,n/a,n/a,250.00,inf,,,250.00,0.00
+D,2025-01-17,2025-01-17,1,0.00,100.00,-100.00,0,1,0,0.000000,n/a,100.00,n/a,-100.00,0.000000,,,150.00,-100.00
+D,2025-01-24,2025-01-24,1,0.00,0.00,0.00,0,0,1,,n/a,n/a,n/a,0.00,n/a,,,150.00,-100.00
+D,2025-02-07,2025-02-07,1,300.00,0.00,300.00,1,0,0,1.000000,300.00,n/a,n/a,300.00,inf,,,450.00,0.00
+D,2025-02-14,2025-02-14,1,0.00,150.00,-150.00,0,1,0,0.000000,n/a,150.00,n/a,-150.00,0.000000,,,300.00,-150.00
+D,2025-02-21,2025-02-21,1,75.00,0.00,75.00,1,0,0,1.000000,75.00,n/a,n/a,75.00,inf,,,375.00,-75.00
+
+# bucket=W  ISO week  (6 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+W,2025-W02,2025-W02,1,250.00,0.00,250.00,1,0,0,1.000000,250.00,n/a,n/a,250.00,inf,,,250.00,0.00
+W,2025-W03,2025-W03,1,0.00,100.00,-100.00,0,1,0,0.000000,n/a,100.00,n/a,-100.00,0.000000,,,150.00,-100.00
+W,2025-W04,2025-W04,1,0.00,0.00,0.00,0,0,1,,n/a,n/a,n/a,0.00,n/a,,,150.00,-100.00
+W,2025-W06,2025-W06,1,300.00,0.00,300.00,1,0,0,1.000000,300.00,n/a,n/a,300.00,inf,,,450.00,0.00
+W,2025-W07,2025-W07,1,0.00,150.00,-150.00,0,1,0,0.000000,n/a,150.00,n/a,-150.00,0.000000,,,300.00,-150.00
+W,2025-W08,2025-W08,1,75.00,0.00,75.00,1,0,0,1.000000,75.00,n/a,n/a,75.00,inf,,,375.00,-75.00
+
+# bucket=2W  paired ISO weeks (odd ISO week starts the pair)  (4 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+2W,2024-12-30,2025-2W01 (from 2024-12-30),1,250.00,0.00,250.00,1,0,0,1.000000,250.00,n/a,n/a,250.00,inf,,,250.00,0.00
+2W,2025-01-13,2025-2W02 (from 2025-01-13),2,0.00,100.00,-100.00,0,1,1,0.000000,n/a,100.00,n/a,-50.00,0.000000,,,150.00,-100.00
+2W,2025-01-27,2025-2W03 (from 2025-01-27),1,300.00,0.00,300.00,1,0,0,1.000000,300.00,n/a,n/a,300.00,inf,,,450.00,0.00
+2W,2025-02-10,2025-2W04 (from 2025-02-10),2,75.00,150.00,-75.00,1,1,0,0.500000,75.00,150.00,0.500000,-37.50,0.500000,0.666667,-0.166667,375.00,-75.00
+
+# bucket=M  calendar month  (2 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+M,2025-01,2025-01,3,250.00,100.00,150.00,1,1,1,0.500000,250.00,100.00,2.500000,50.00,2.500000,0.285714,0.214286,150.00,0.00
+M,2025-02,2025-02,3,375.00,150.00,225.00,2,1,0,0.666667,187.50,150.00,1.250000,75.00,2.500000,0.444444,0.222222,375.00,0.00
+
+# bucket=Q  calendar quarter  (1 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+Q,2025-Q1,2025-Q1,6,625.00,250.00,375.00,3,2,1,0.600000,208.33,125.00,1.666667,62.50,2.500000,0.375000,0.225000,375.00,0.00
+
+# bucket=H  calendar half-year  (1 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+H,2025-H1,2025-H1,6,625.00,250.00,375.00,3,2,1,0.600000,208.33,125.00,1.666667,62.50,2.500000,0.375000,0.225000,375.00,0.00
+
+# bucket=Y  calendar year  (1 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+Y,2025,2025,6,625.00,250.00,375.00,3,2,1,0.600000,208.33,125.00,1.666667,62.50,2.500000,0.375000,0.225000,375.00,0.00
+
+======================================================================
+RUN 2 of 2 -- the illustrative synthetic year (120 trades, ~14 months)
+======================================================================
+$ py -3 scripts/timeframe_stats.py --csv examples/logs/illustrative-year-synthetic.csv
+
+==============================================================================
+TIMEFRAME PnL STATISTICS  --  timeframe_stats.py 1.0.0
+==============================================================================
+PROVENANCE
+  input file      : examples/logs/illustrative-year-synthetic.csv
+  trade rows      : 120
+  comment lines   : 11
+  declared        : SYNTHETIC / ILLUSTRATIVE -- invented trade log. NOT market data. NOT a backtest. NOT a result. It carries no market information whatsoever and must never be quoted as a finding about any instrument, strategy or period.
+  declared        : generated by examples/logs/generate_synthetic.py at fixed seed SEED=20260414, stdlib only, byte-identical on every run.
+  declared        : 120 invented closed trades, close dates 2025-01-20 .. 2026-01-21 (366 calendar days), four invented symbols (SYN-A..SYN-B..SYN-C..SYN-D).
+  declared        : designed to be a MARGINAL book -- a pooled win rate only a few points above its break-even win rate -- with CLUSTERED losses (a two-state regime chain plus a forced risk-off window 2025-09-15..2025-10-31) so that drawdown and period autocorrelation are non-trivial.
+  declared        : pnl is invented currency in units of an invented risk unit (90..130 per trade); it is not dollars earned by anyone.
+
+BUCKETING CONVENTION
+  A trade belongs to the bucket containing its CLOSE date, never its
+  open date. A trade opened in March and closed in April is an April
+  trade. 2W pairs are anchored so that ODD ISO weeks start each pair.
+  Close dates in this log span 2025-01-20 to 2026-01-21.
+
+METRIC PROVENANCE
+  The definitions of Sharpe, Sortino, Calmar, maximum drawdown and
+  profit factor belong to the `trade-performance-analyst` skill. This
+  engine computes per-period versions only, in order to compare
+  timeframes. It does not redefine them, and it does NOT annualise a
+  Sharpe: the lookback period, the return frequency and the risk-free
+  rate are required inputs and none of them are guessed here.
+
+PER-BUCKET SUMMARY  (columns are timeframes; rows are every field)
+
+  field                              D              W             2W              M              Q              H            Y
+  --------------------------------------------------------------------------------------------------------------------------
+
+  [coverage]
+  n_periods                        120             53             27             13              5              3            2
+  n_trades                         120            120            120            120            120            120          120
+  trades_per_period              1.000          2.264          4.444          9.231         24.000         40.000       60.000
+  periods_per_year             365.250         52.179         26.089         12.000          4.000          2.000        1.000
+  first_period              2025-01-20       2025-W04     2025-01-13        2025-01        2025-Q1        2025-H1         2025
+  last_period               2026-01-21       2026-W04     2026-01-12        2026-01        2026-Q1        2026-H1         2026
+
+  [trade totals]
+  gross_profit                7,851.87       7,851.87       7,851.87       7,851.87       7,851.87       7,851.87     7,851.87
+  gross_loss                  6,143.48       6,143.48       6,143.48       6,143.48       6,143.48       6,143.48     6,143.48
+  net_pnl                     1,708.39       1,708.39       1,708.39       1,708.39       1,708.39       1,708.39     1,708.39
+  wins                              66             66             66             66             66             66           66
+  losses                            54             54             54             54             54             54           54
+  breakeven_trades                   0              0              0              0              0              0            0
+  win_rate                      55.00%         55.00%         55.00%         55.00%         55.00%         55.00%       55.00%
+  avg_win                       118.97         118.97         118.97         118.97         118.97         118.97       118.97
+  avg_loss                      113.77         113.77         113.77         113.77         113.77         113.77       113.77
+  payoff_ratio                   1.046          1.046          1.046          1.046          1.046          1.046        1.046
+  expectancy_per_trade           14.24          14.24          14.24          14.24          14.24          14.24        14.24
+  profit_factor                  1.278          1.278          1.278          1.278          1.278          1.278        1.278
+
+  [beat losses]
+  break_even_win_rate           48.88%         48.88%         48.88%         48.88%         48.88%         48.88%       48.88%
+  edge                           6.12%          6.12%          6.12%          6.12%          6.12%          6.12%        6.12%
+  se_win_rate                   0.0454         0.0454         0.0454         0.0454         0.0454         0.0454       0.0454
+  2 x se_win_rate               0.0908         0.0908         0.0908         0.0908         0.0908         0.0908       0.0908
+  edge > 2 x se?                  FAIL           FAIL           FAIL           FAIL           FAIL           FAIL         FAIL
+  periods_positive_edge              0             13             14              6              3              2            2
+
+  [across periods]
+  mean_period_pnl                14.24          32.23          63.27         131.41         341.68         569.46       854.20
+  median_period_pnl              81.30          44.59         104.80          66.36         443.33         443.33       854.20
+  sd_period_pnl                 120.65         210.91         311.41         499.89         896.30       1,718.85       581.05
+  t_stat                         1.293          1.113          1.056          0.948          0.852          0.574        2.079
+  period_sharpe                 0.1180         0.1528         0.2032         0.2629         0.3812         0.3313       1.4701
+  cumulative_pnl              1,708.39       1,708.39       1,708.39       1,708.39       1,708.39       1,708.39     1,708.39
+  max_drawdown               -2,007.03      -1,859.05      -1,853.02      -1,656.33      -1,082.85      -1,082.85         0.00
+  lag1_autocorrelation          0.2128         0.0722         0.1979         0.0933         0.0323        -1.0000          n/a
+  n_eff                         77.894         45.866         18.079         10.782          4.687            n/a          n/a
+  n_eff_capped                  77.894         45.866         18.079         10.782          4.687            n/a          n/a
+
+  [verdict inputs]
+  verdict eligible                  no             no             no            yes             no             no           no
+  noise flag             NOISE (|t|<2)  NOISE (|t|<2)  NOISE (|t|<2)  NOISE (|t|<2)  NOISE (|t|<2)  NOISE (|t|<2)  beyond +/-2
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    rank buckets by descending |t_stat|, but ONLY among buckets with
+      n_periods        >= 12
+      trades_per_period >= 5
+    if no bucket qualifies: INSUFFICIENT DATA, and name the constraint
+    that failed.
+    any bucket with |t_stat| < 2.0 is marked
+      NOT DISTINGUISHABLE FROM NOISE
+
+  VERDICT: M is the most reliable review timeframe for this book.
+           highest |t_stat| (0.948) among the 1 bucket(s) satisfying n_periods >= 12 and trades_per_period >= 5
+           t_stat = 0.948 over n_periods = 13; trades_per_period = 9.23
+           status: NOT DISTINGUISHABLE FROM NOISE
+
+  CONFIDENCE IS CAPPED BY DEPENDENCE -- n_periods = 13, n_eff = 10.78 (capped: 10.78)
+
+  Buckets that did NOT qualify:
+    D    : trades_per_period=1.00 < 5
+    W    : trades_per_period=2.26 < 5
+    2W   : trades_per_period=4.44 < 5
+    Q    : n_periods=5 < 12
+    H    : n_periods=3 < 12
+    Y    : n_periods=2 < 12
+
+  Per-bucket noise band (|t_stat| < 2.0):
+    D    : NOT DISTINGUISHABLE FROM NOISE
+    W    : NOT DISTINGUISHABLE FROM NOISE
+    2W   : NOT DISTINGUISHABLE FROM NOISE
+    M    : NOT DISTINGUISHABLE FROM NOISE
+    Q    : NOT DISTINGUISHABLE FROM NOISE
+    H    : NOT DISTINGUISHABLE FROM NOISE
+    Y    : beyond the +/-2 noise band
+
+------------------------------------------------------------------------------
+DEPENDENCE CAVEAT -- these buckets are not independent tests. H literally contains the M periods, Q contains the M periods, Y contains them all; the same trades are re-aggregated, not resampled. A t-statistic computed across a bucket series is therefore a STABILITY INDICATOR for that book, not a significance test of an edge. Read n_eff next to n_periods: where the period P&L series is positively autocorrelated, the effective sample is smaller than the period count suggests, and the t-statistic above is optimistic.
+------------------------------------------------------------------------------
+
+==============================================================================
+BEAT LOSSES TEST  (win_rate vs break_even_win_rate, per bucket)
+==============================================================================
+  break_even_win_rate = 1 / (1 + payoff_ratio), with payoff_ratio =
+  avg_win / avg_loss, both pooled across every trade in the bucket.
+  win_rate is wins / (wins + losses): break-even trades are reported
+  and EXCLUDED from the denominator.
+
+  NOTE: this test is bucketing-INVARIANT by construction. Every trade
+  falls in exactly one period of every bucket, so the pooled win rate,
+  payoff ratio and edge are identical in every column below. Reviewing
+  the same book weekly instead of monthly cannot move this test. It
+  moves the t_statistic, which is a different question.
+
+  bk     win_rate      be_wr       edge      se_wr       2xse  result
+  D        55.00%     48.88%      6.12%     0.0454     0.0908  FAIL
+  W        55.00%     48.88%      6.12%     0.0454     0.0908  FAIL
+  2W       55.00%     48.88%      6.12%     0.0454     0.0908  FAIL
+  M        55.00%     48.88%      6.12%     0.0454     0.0908  FAIL
+  Q        55.00%     48.88%      6.12%     0.0454     0.0908  FAIL
+  H        55.00%     48.88%      6.12%     0.0454     0.0908  FAIL
+  Y        55.00%     48.88%      6.12%     0.0454     0.0908  FAIL
+
+  D    edge of 0.0612 is inside 2 x se_win_rate (0.0908): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  W    edge of 0.0612 is inside 2 x se_win_rate (0.0908): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  2W   edge of 0.0612 is inside 2 x se_win_rate (0.0908): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  M    edge of 0.0612 is inside 2 x se_win_rate (0.0908): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  Q    edge of 0.0612 is inside 2 x se_win_rate (0.0908): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  H    edge of 0.0612 is inside 2 x se_win_rate (0.0908): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+  Y    edge of 0.0612 is inside 2 x se_win_rate (0.0908): the win rate is NOT distinguishable from its own break-even. More periods will not fix this; more INDEPENDENT trades will.
+
+  A 'PASS' here is about the TRADE-LEVEL win rate, and it is a
+  different question from the across-period t_statistic above. Neither
+  one certifies the strategy; both are bounds on being fooled by it.
+
+==============================================================================
+PERIOD SERIES (CSV)  --  one block per bucket
+==============================================================================
+
+# bucket=D  calendar day  (120 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+D,2025-01-20,2025-01-20,1,163.57,0.00,163.57,1,0,0,1.000000,163.57,n/a,n/a,163.57,inf,,,163.57,0.00
+D,2025-01-23,2025-01-23,1,155.85,0.00,155.85,1,0,0,1.000000,155.85,n/a,n/a,155.85,inf,,,319.42,0.00
+D,2025-01-27,2025-01-27,1,104.22,0.00,104.22,1,0,0,1.000000,104.22,n/a,n/a,104.22,inf,,,423.64,0.00
+D,2025-01-31,2025-01-31,1,126.82,0.00,126.82,1,0,0,1.000000,126.82,n/a,n/a,126.82,inf,,,550.46,0.00
+D,2025-02-03,2025-02-03,1,0.00,90.80,-90.80,0,1,0,0.000000,n/a,90.80,n/a,-90.80,0.000000,,,459.66,-90.80
+D,2025-02-05,2025-02-05,1,157.63,0.00,157.63,1,0,0,1.000000,157.63,n/a,n/a,157.63,inf,,,617.29,0.00
+D,2025-02-10,2025-02-10,1,0.00,68.90,-68.90,0,1,0,0.000000,n/a,68.90,n/a,-68.90,0.000000,,,548.39,-68.90
+D,2025-02-14,2025-02-14,1,0.00,93.47,-93.47,0,1,0,0.000000,n/a,93.47,n/a,-93.47,0.000000,,,454.92,-162.37
+D,2025-02-18,2025-02-18,1,140.00,0.00,140.00,1,0,0,1.000000,140.00,n/a,n/a,140.00,inf,,,594.92,-22.37
+D,2025-02-19,2025-02-19,1,104.19,0.00,104.19,1,0,0,1.000000,104.19,n/a,n/a,104.19,inf,,,699.11,0.00
+D,2025-02-20,2025-02-20,1,162.28,0.00,162.28,1,0,0,1.000000,162.28,n/a,n/a,162.28,inf,,,861.39,0.00
+D,2025-02-21,2025-02-21,1,0.00,72.42,-72.42,0,1,0,0.000000,n/a,72.42,n/a,-72.42,0.000000,,,788.97,-72.42
+D,2025-02-26,2025-02-26,1,0.00,92.09,-92.09,0,1,0,0.000000,n/a,92.09,n/a,-92.09,0.000000,,,696.88,-164.51
+D,2025-02-27,2025-02-27,1,0.00,84.14,-84.14,0,1,0,0.000000,n/a,84.14,n/a,-84.14,0.000000,,,612.74,-248.65
+D,2025-02-28,2025-02-28,1,0.00,99.01,-99.01,0,1,0,0.000000,n/a,99.01,n/a,-99.01,0.000000,,,513.73,-347.66
+D,2025-03-03,2025-03-03,1,112.81,0.00,112.81,1,0,0,1.000000,112.81,n/a,n/a,112.81,inf,,,626.54,-234.85
+D,2025-03-04,2025-03-04,1,79.15,0.00,79.15,1,0,0,1.000000,79.15,n/a,n/a,79.15,inf,,,705.69,-155.70
+D,2025-03-06,2025-03-06,1,86.05,0.00,86.05,1,0,0,1.000000,86.05,n/a,n/a,86.05,inf,,,791.74,-69.65
+D,2025-03-10,2025-03-10,1,0.00,119.95,-119.95,0,1,0,0.000000,n/a,119.95,n/a,-119.95,0.000000,,,671.79,-189.60
+D,2025-03-17,2025-03-17,1,0.00,70.11,-70.11,0,1,0,0.000000,n/a,70.11,n/a,-70.11,0.000000,,,601.68,-259.71
+D,2025-03-20,2025-03-20,1,118.05,0.00,118.05,1,0,0,1.000000,118.05,n/a,n/a,118.05,inf,,,719.73,-141.66
+D,2025-03-25,2025-03-25,1,165.27,0.00,165.27,1,0,0,1.000000,165.27,n/a,n/a,165.27,inf,,,885.00,0.00
+D,2025-03-31,2025-03-31,1,153.31,0.00,153.31,1,0,0,1.000000,153.31,n/a,n/a,153.31,inf,,,1,038.31,0.00
+D,2025-04-02,2025-04-02,1,0.00,81.43,-81.43,0,1,0,0.000000,n/a,81.43,n/a,-81.43,0.000000,,,956.88,-81.43
+D,2025-04-04,2025-04-04,1,0.00,132.35,-132.35,0,1,0,0.000000,n/a,132.35,n/a,-132.35,0.000000,,,824.53,-213.78
+D,2025-04-07,2025-04-07,1,0.00,119.81,-119.81,0,1,0,0.000000,n/a,119.81,n/a,-119.81,0.000000,,,704.72,-333.59
+D,2025-04-09,2025-04-09,1,0.00,97.29,-97.29,0,1,0,0.000000,n/a,97.29,n/a,-97.29,0.000000,,,607.43,-430.88
+D,2025-04-14,2025-04-14,1,0.00,89.71,-89.71,0,1,0,0.000000,n/a,89.71,n/a,-89.71,0.000000,,,517.72,-520.59
+D,2025-04-18,2025-04-18,1,0.00,63.32,-63.32,0,1,0,0.000000,n/a,63.32,n/a,-63.32,0.000000,,,454.40,-583.91
+D,2025-04-21,2025-04-21,1,153.28,0.00,153.28,1,0,0,1.000000,153.28,n/a,n/a,153.28,inf,,,607.68,-430.63
+D,2025-04-22,2025-04-22,1,115.89,0.00,115.89,1,0,0,1.000000,115.89,n/a,n/a,115.89,inf,,,723.57,-314.74
+D,2025-04-23,2025-04-23,1,106.74,0.00,106.74,1,0,0,1.000000,106.74,n/a,n/a,106.74,inf,,,830.31,-208.00
+D,2025-04-25,2025-04-25,1,0.00,83.59,-83.59,0,1,0,0.000000,n/a,83.59,n/a,-83.59,0.000000,,,746.72,-291.59
+D,2025-04-29,2025-04-29,1,103.11,0.00,103.11,1,0,0,1.000000,103.11,n/a,n/a,103.11,inf,,,849.83,-188.48
+D,2025-05-02,2025-05-02,1,0.00,63.20,-63.20,0,1,0,0.000000,n/a,63.20,n/a,-63.20,0.000000,,,786.63,-251.68
+D,2025-05-05,2025-05-05,1,86.44,0.00,86.44,1,0,0,1.000000,86.44,n/a,n/a,86.44,inf,,,873.07,-165.24
+D,2025-05-07,2025-05-07,1,107.33,0.00,107.33,1,0,0,1.000000,107.33,n/a,n/a,107.33,inf,,,980.40,-57.91
+D,2025-05-12,2025-05-12,1,0.00,78.22,-78.22,0,1,0,0.000000,n/a,78.22,n/a,-78.22,0.000000,,,902.18,-136.13
+D,2025-05-16,2025-05-16,1,86.94,0.00,86.94,1,0,0,1.000000,86.94,n/a,n/a,86.94,inf,,,989.12,-49.19
+D,2025-05-19,2025-05-19,1,156.42,0.00,156.42,1,0,0,1.000000,156.42,n/a,n/a,156.42,inf,,,1,145.54,0.00
+D,2025-05-26,2025-05-26,1,82.87,0.00,82.87,1,0,0,1.000000,82.87,n/a,n/a,82.87,inf,,,1,228.41,0.00
+D,2025-05-30,2025-05-30,1,116.76,0.00,116.76,1,0,0,1.000000,116.76,n/a,n/a,116.76,inf,,,1,345.17,0.00
+D,2025-06-02,2025-06-02,1,135.32,0.00,135.32,1,0,0,1.000000,135.32,n/a,n/a,135.32,inf,,,1,480.49,0.00
+D,2025-06-04,2025-06-04,1,141.04,0.00,141.04,1,0,0,1.000000,141.04,n/a,n/a,141.04,inf,,,1,621.53,0.00
+D,2025-06-05,2025-06-05,1,0.00,99.54,-99.54,0,1,0,0.000000,n/a,99.54,n/a,-99.54,0.000000,,,1,521.99,-99.54
+D,2025-06-06,2025-06-06,1,0.00,96.69,-96.69,0,1,0,0.000000,n/a,96.69,n/a,-96.69,0.000000,,,1,425.30,-196.23
+D,2025-06-09,2025-06-09,1,131.75,0.00,131.75,1,0,0,1.000000,131.75,n/a,n/a,131.75,inf,,,1,557.05,-64.48
+D,2025-06-13,2025-06-13,1,146.79,0.00,146.79,1,0,0,1.000000,146.79,n/a,n/a,146.79,inf,,,1,703.84,0.00
+D,2025-06-16,2025-06-16,1,79.84,0.00,79.84,1,0,0,1.000000,79.84,n/a,n/a,79.84,inf,,,1,783.68,0.00
+D,2025-06-18,2025-06-18,1,121.15,0.00,121.15,1,0,0,1.000000,121.15,n/a,n/a,121.15,inf,,,1,904.83,0.00
+D,2025-06-20,2025-06-20,1,132.12,0.00,132.12,1,0,0,1.000000,132.12,n/a,n/a,132.12,inf,,,2,036.95,0.00
+D,2025-06-23,2025-06-23,1,147.90,0.00,147.90,1,0,0,1.000000,147.90,n/a,n/a,147.90,inf,,,2,184.85,0.00
+D,2025-06-24,2025-06-24,1,148.23,0.00,148.23,1,0,0,1.000000,148.23,n/a,n/a,148.23,inf,,,2,333.08,0.00
+D,2025-06-27,2025-06-27,1,106.37,0.00,106.37,1,0,0,1.000000,106.37,n/a,n/a,106.37,inf,,,2,439.45,0.00
+D,2025-06-30,2025-06-30,1,0.00,91.54,-91.54,0,1,0,0.000000,n/a,91.54,n/a,-91.54,0.000000,,,2,347.91,-91.54
+D,2025-07-01,2025-07-01,1,162.47,0.00,162.47,1,0,0,1.000000,162.47,n/a,n/a,162.47,inf,,,2,510.38,0.00
+D,2025-07-03,2025-07-03,1,0.00,64.90,-64.90,0,1,0,0.000000,n/a,64.90,n/a,-64.90,0.000000,,,2,445.48,-64.90
+D,2025-07-07,2025-07-07,1,0.00,126.07,-126.07,0,1,0,0.000000,n/a,126.07,n/a,-126.07,0.000000,,,2,319.41,-190.97
+D,2025-07-09,2025-07-09,1,0.00,125.86,-125.86,0,1,0,0.000000,n/a,125.86,n/a,-125.86,0.000000,,,2,193.55,-316.83
+D,2025-07-10,2025-07-10,1,70.39,0.00,70.39,1,0,0,1.000000,70.39,n/a,n/a,70.39,inf,,,2,263.94,-246.44
+D,2025-07-14,2025-07-14,1,0.00,122.24,-122.24,0,1,0,0.000000,n/a,122.24,n/a,-122.24,0.000000,,,2,141.70,-368.68
+D,2025-07-17,2025-07-17,1,0.00,92.58,-92.58,0,1,0,0.000000,n/a,92.58,n/a,-92.58,0.000000,,,2,049.12,-461.26
+D,2025-07-22,2025-07-22,1,0.00,128.39,-128.39,0,1,0,0.000000,n/a,128.39,n/a,-128.39,0.000000,,,1,920.73,-589.65
+D,2025-07-24,2025-07-24,1,85.07,0.00,85.07,1,0,0,1.000000,85.07,n/a,n/a,85.07,inf,,,2,005.80,-504.58
+D,2025-07-25,2025-07-25,1,0.00,147.23,-147.23,0,1,0,0.000000,n/a,147.23,n/a,-147.23,0.000000,,,1,858.57,-651.81
+D,2025-07-28,2025-07-28,1,104.78,0.00,104.78,1,0,0,1.000000,104.78,n/a,n/a,104.78,inf,,,1,963.35,-547.03
+D,2025-08-01,2025-08-01,1,108.13,0.00,108.13,1,0,0,1.000000,108.13,n/a,n/a,108.13,inf,,,2,071.48,-438.90
+D,2025-08-04,2025-08-04,1,0.00,86.46,-86.46,0,1,0,0.000000,n/a,86.46,n/a,-86.46,0.000000,,,1,985.02,-525.36
+D,2025-08-06,2025-08-06,1,131.05,0.00,131.05,1,0,0,1.000000,131.05,n/a,n/a,131.05,inf,,,2,116.07,-394.31
+D,2025-08-11,2025-08-11,1,0.00,128.33,-128.33,0,1,0,0.000000,n/a,128.33,n/a,-128.33,0.000000,,,1,987.74,-522.64
+D,2025-08-15,2025-08-15,1,0.00,179.67,-179.67,0,1,0,0.000000,n/a,179.67,n/a,-179.67,0.000000,,,1,808.07,-702.31
+D,2025-08-18,2025-08-18,1,0.00,133.34,-133.34,0,1,0,0.000000,n/a,133.34,n/a,-133.34,0.000000,,,1,674.73,-835.65
+D,2025-08-22,2025-08-22,1,125.06,0.00,125.06,1,0,0,1.000000,125.06,n/a,n/a,125.06,inf,,,1,799.79,-710.59
+D,2025-08-25,2025-08-25,1,115.51,0.00,115.51,1,0,0,1.000000,115.51,n/a,n/a,115.51,inf,,,1,915.30,-595.08
+D,2025-08-28,2025-08-28,1,114.41,0.00,114.41,1,0,0,1.000000,114.41,n/a,n/a,114.41,inf,,,2,029.71,-480.67
+D,2025-09-01,2025-09-01,1,0.00,134.31,-134.31,0,1,0,0.000000,n/a,134.31,n/a,-134.31,0.000000,,,1,895.40,-614.98
+D,2025-09-08,2025-09-08,1,96.16,0.00,96.16,1,0,0,1.000000,96.16,n/a,n/a,96.16,inf,,,1,991.56,-518.82
+D,2025-09-10,2025-09-10,1,0.00,135.04,-135.04,0,1,0,0.000000,n/a,135.04,n/a,-135.04,0.000000,,,1,856.52,-653.86
+D,2025-09-12,2025-09-12,1,151.93,0.00,151.93,1,0,0,1.000000,151.93,n/a,n/a,151.93,inf,,,2,008.45,-501.93
+D,2025-09-15,2025-09-15,1,0.00,191.34,-191.34,0,1,0,0.000000,n/a,191.34,n/a,-191.34,0.000000,,,1,817.11,-693.27
+D,2025-09-19,2025-09-19,1,0.00,126.12,-126.12,0,1,0,0.000000,n/a,126.12,n/a,-126.12,0.000000,,,1,690.99,-819.39
+D,2025-09-22,2025-09-22,1,0.00,178.92,-178.92,0,1,0,0.000000,n/a,178.92,n/a,-178.92,0.000000,,,1,512.07,-998.31
+D,2025-09-26,2025-09-26,1,0.00,120.88,-120.88,0,1,0,0.000000,n/a,120.88,n/a,-120.88,0.000000,,,1,391.19,-1,119.19
+D,2025-09-29,2025-09-29,1,82.75,0.00,82.75,1,0,0,1.000000,82.75,n/a,n/a,82.75,inf,,,1,473.94,-1,036.44
+D,2025-10-02,2025-10-02,1,0.00,105.23,-105.23,0,1,0,0.000000,n/a,105.23,n/a,-105.23,0.000000,,,1,368.71,-1,141.67
+D,2025-10-07,2025-10-07,1,73.98,0.00,73.98,1,0,0,1.000000,73.98,n/a,n/a,73.98,inf,,,1,442.69,-1,067.69
+D,2025-10-08,2025-10-08,1,120.75,0.00,120.75,1,0,0,1.000000,120.75,n/a,n/a,120.75,inf,,,1,563.44,-946.94
+D,2025-10-13,2025-10-13,1,78.24,0.00,78.24,1,0,0,1.000000,78.24,n/a,n/a,78.24,inf,,,1,641.68,-868.70
+D,2025-10-17,2025-10-17,1,0.00,171.37,-171.37,0,1,0,0.000000,n/a,171.37,n/a,-171.37,0.000000,,,1,470.31,-1,040.07
+D,2025-10-20,2025-10-20,1,0.00,167.82,-167.82,0,1,0,0.000000,n/a,167.82,n/a,-167.82,0.000000,,,1,302.49,-1,207.89
+D,2025-10-24,2025-10-24,1,0.00,168.39,-168.39,0,1,0,0.000000,n/a,168.39,n/a,-168.39,0.000000,,,1,134.10,-1,376.28
+D,2025-10-28,2025-10-28,1,0.00,231.07,-231.07,0,1,0,0.000000,n/a,231.07,n/a,-231.07,0.000000,,,903.03,-1,607.35
+D,2025-11-03,2025-11-03,1,0.00,152.33,-152.33,0,1,0,0.000000,n/a,152.33,n/a,-152.33,0.000000,,,750.70,-1,759.68
+D,2025-11-05,2025-11-05,1,0.00,113.66,-113.66,0,1,0,0.000000,n/a,113.66,n/a,-113.66,0.000000,,,637.04,-1,873.34
+D,2025-11-10,2025-11-10,1,0.00,133.69,-133.69,0,1,0,0.000000,n/a,133.69,n/a,-133.69,0.000000,,,503.35,-2,007.03
+D,2025-11-14,2025-11-14,1,83.08,0.00,83.08,1,0,0,1.000000,83.08,n/a,n/a,83.08,inf,,,586.43,-1,923.95
+D,2025-11-17,2025-11-17,1,109.81,0.00,109.81,1,0,0,1.000000,109.81,n/a,n/a,109.81,inf,,,696.24,-1,814.14
+D,2025-11-18,2025-11-18,1,92.71,0.00,92.71,1,0,0,1.000000,92.71,n/a,n/a,92.71,inf,,,788.95,-1,721.43
+D,2025-11-20,2025-11-20,1,0.00,69.15,-69.15,0,1,0,0.000000,n/a,69.15,n/a,-69.15,0.000000,,,719.80,-1,790.58
+D,2025-11-25,2025-11-25,1,123.29,0.00,123.29,1,0,0,1.000000,123.29,n/a,n/a,123.29,inf,,,843.09,-1,667.29
+D,2025-11-26,2025-11-26,1,0.00,151.51,-151.51,0,1,0,0.000000,n/a,151.51,n/a,-151.51,0.000000,,,691.58,-1,818.80
+D,2025-12-01,2025-12-01,1,135.57,0.00,135.57,1,0,0,1.000000,135.57,n/a,n/a,135.57,inf,,,827.15,-1,683.23
+D,2025-12-03,2025-12-03,1,108.86,0.00,108.86,1,0,0,1.000000,108.86,n/a,n/a,108.86,inf,,,936.01,-1,574.37
+D,2025-12-08,2025-12-08,1,0.00,114.76,-114.76,0,1,0,0.000000,n/a,114.76,n/a,-114.76,0.000000,,,821.25,-1,689.13
+D,2025-12-10,2025-12-10,1,0.00,132.93,-132.93,0,1,0,0.000000,n/a,132.93,n/a,-132.93,0.000000,,,688.32,-1,822.06
+D,2025-12-15,2025-12-15,1,128.90,0.00,128.90,1,0,0,1.000000,128.90,n/a,n/a,128.90,inf,,,817.22,-1,693.16
+D,2025-12-18,2025-12-18,1,147.21,0.00,147.21,1,0,0,1.000000,147.21,n/a,n/a,147.21,inf,,,964.43,-1,545.95
+D,2025-12-19,2025-12-19,1,121.06,0.00,121.06,1,0,0,1.000000,121.06,n/a,n/a,121.06,inf,,,1,085.49,-1,424.89
+D,2025-12-22,2025-12-22,1,0.00,68.80,-68.80,0,1,0,0.000000,n/a,68.80,n/a,-68.80,0.000000,,,1,016.69,-1,493.69
+D,2025-12-24,2025-12-24,1,139.37,0.00,139.37,1,0,0,1.000000,139.37,n/a,n/a,139.37,inf,,,1,156.06,-1,354.32
+D,2025-12-26,2025-12-26,1,0.00,95.98,-95.98,0,1,0,0.000000,n/a,95.98,n/a,-95.98,0.000000,,,1,060.08,-1,450.30
+D,2025-12-29,2025-12-29,1,94.33,0.00,94.33,1,0,0,1.000000,94.33,n/a,n/a,94.33,inf,,,1,154.41,-1,355.97
+D,2025-12-31,2025-12-31,1,110.65,0.00,110.65,1,0,0,1.000000,110.65,n/a,n/a,110.65,inf,,,1,265.06,-1,245.32
+D,2026-01-02,2026-01-02,1,67.43,0.00,67.43,1,0,0,1.000000,67.43,n/a,n/a,67.43,inf,,,1,332.49,-1,177.89
+D,2026-01-06,2026-01-06,1,140.11,0.00,140.11,1,0,0,1.000000,140.11,n/a,n/a,140.11,inf,,,1,472.60,-1,037.78
+D,2026-01-09,2026-01-09,1,0.00,92.98,-92.98,0,1,0,0.000000,n/a,92.98,n/a,-92.98,0.000000,,,1,379.62,-1,130.76
+D,2026-01-13,2026-01-13,1,0.00,64.55,-64.55,0,1,0,0.000000,n/a,64.55,n/a,-64.55,0.000000,,,1,315.07,-1,195.31
+D,2026-01-14,2026-01-14,1,175.94,0.00,175.94,1,0,0,1.000000,175.94,n/a,n/a,175.94,inf,,,1,491.01,-1,019.37
+D,2026-01-19,2026-01-19,1,120.37,0.00,120.37,1,0,0,1.000000,120.37,n/a,n/a,120.37,inf,,,1,611.38,-899.00
+D,2026-01-21,2026-01-21,1,97.01,0.00,97.01,1,0,0,1.000000,97.01,n/a,n/a,97.01,inf,,,1,708.39,-801.99
+
+# bucket=W  ISO week  (53 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+W,2025-W04,2025-W04,2,319.42,0.00,319.42,2,0,0,1.000000,159.71,n/a,n/a,159.71,inf,,,319.42,0.00
+W,2025-W05,2025-W05,2,231.04,0.00,231.04,2,0,0,1.000000,115.52,n/a,n/a,115.52,inf,,,550.46,0.00
+W,2025-W06,2025-W06,2,157.63,90.80,66.83,1,1,0,0.500000,157.63,90.80,1.736013,33.41,1.736013,0.365495,0.134505,617.29,0.00
+W,2025-W07,2025-W07,2,0.00,162.37,-162.37,0,2,0,0.000000,n/a,81.19,n/a,-81.19,0.000000,,,454.92,-162.37
+W,2025-W08,2025-W08,4,406.47,72.42,334.05,3,1,0,0.750000,135.49,72.42,1.870892,83.51,5.612676,0.348324,0.401676,788.97,0.00
+W,2025-W09,2025-W09,3,0.00,275.24,-275.24,0,3,0,0.000000,n/a,91.75,n/a,-91.75,0.000000,,,513.73,-275.24
+W,2025-W10,2025-W10,3,278.01,0.00,278.01,3,0,0,1.000000,92.67,n/a,n/a,92.67,inf,,,791.74,0.00
+W,2025-W11,2025-W11,1,0.00,119.95,-119.95,0,1,0,0.000000,n/a,119.95,n/a,-119.95,0.000000,,,671.79,-119.95
+W,2025-W12,2025-W12,2,118.05,70.11,47.94,1,1,0,0.500000,118.05,70.11,1.683783,23.97,1.683783,0.372608,0.127392,719.73,-72.01
+W,2025-W13,2025-W13,1,165.27,0.00,165.27,1,0,0,1.000000,165.27,n/a,n/a,165.27,inf,,,885.00,0.00
+W,2025-W14,2025-W14,3,153.31,213.78,-60.47,1,2,0,0.333333,153.31,106.89,1.434278,-20.16,0.717139,0.410799,-0.077466,824.53,-60.47
+W,2025-W15,2025-W15,2,0.00,217.10,-217.10,0,2,0,0.000000,n/a,108.55,n/a,-108.55,0.000000,,,607.43,-277.57
+W,2025-W16,2025-W16,2,0.00,153.03,-153.03,0,2,0,0.000000,n/a,76.52,n/a,-76.52,0.000000,,,454.40,-430.60
+W,2025-W17,2025-W17,4,375.91,83.59,292.32,3,1,0,0.750000,125.30,83.59,1.499023,73.08,4.497069,0.400156,0.349844,746.72,-138.28
+W,2025-W18,2025-W18,2,103.11,63.20,39.91,1,1,0,0.500000,103.11,63.20,1.631487,19.95,1.631487,0.380013,0.119987,786.63,-98.37
+W,2025-W19,2025-W19,2,193.77,0.00,193.77,2,0,0,1.000000,96.88,n/a,n/a,96.88,inf,,,980.40,0.00
+W,2025-W20,2025-W20,2,86.94,78.22,8.72,1,1,0,0.500000,86.94,78.22,1.111480,4.36,1.111480,0.473601,0.026399,989.12,0.00
+W,2025-W21,2025-W21,1,156.42,0.00,156.42,1,0,0,1.000000,156.42,n/a,n/a,156.42,inf,,,1,145.54,0.00
+W,2025-W22,2025-W22,2,199.63,0.00,199.63,2,0,0,1.000000,99.81,n/a,n/a,99.81,inf,,,1,345.17,0.00
+W,2025-W23,2025-W23,4,276.36,196.23,80.13,2,2,0,0.500000,138.18,98.12,1.408347,20.03,1.408347,0.415222,0.084778,1,425.30,0.00
+W,2025-W24,2025-W24,2,278.54,0.00,278.54,2,0,0,1.000000,139.27,n/a,n/a,139.27,inf,,,1,703.84,0.00
+W,2025-W25,2025-W25,3,333.11,0.00,333.11,3,0,0,1.000000,111.04,n/a,n/a,111.04,inf,,,2,036.95,0.00
+W,2025-W26,2025-W26,3,402.50,0.00,402.50,3,0,0,1.000000,134.17,n/a,n/a,134.17,inf,,,2,439.45,0.00
+W,2025-W27,2025-W27,3,162.47,156.44,6.03,1,2,0,0.333333,162.47,78.22,2.077090,2.01,1.038545,0.324982,0.008351,2,445.48,0.00
+W,2025-W28,2025-W28,3,70.39,251.93,-181.54,1,2,0,0.333333,70.39,125.97,0.558806,-60.51,0.279403,0.641517,-0.308183,2,263.94,-181.54
+W,2025-W29,2025-W29,2,0.00,214.82,-214.82,0,2,0,0.000000,n/a,107.41,n/a,-107.41,0.000000,,,2,049.12,-396.36
+W,2025-W30,2025-W30,3,85.07,275.62,-190.55,1,2,0,0.333333,85.07,137.81,0.617299,-63.52,0.308650,0.618315,-0.284981,1,858.57,-586.91
+W,2025-W31,2025-W31,2,212.91,0.00,212.91,2,0,0,1.000000,106.45,n/a,n/a,106.45,inf,,,2,071.48,-374.00
+W,2025-W32,2025-W32,2,131.05,86.46,44.59,1,1,0,0.500000,131.05,86.46,1.515730,22.30,1.515730,0.397499,0.102501,2,116.07,-329.41
+W,2025-W33,2025-W33,2,0.00,308.00,-308.00,0,2,0,0.000000,n/a,154.00,n/a,-154.00,0.000000,,,1,808.07,-637.41
+W,2025-W34,2025-W34,2,125.06,133.34,-8.28,1,1,0,0.500000,125.06,133.34,0.937903,-4.14,0.937903,0.516022,-0.016022,1,799.79,-645.69
+W,2025-W35,2025-W35,2,229.92,0.00,229.92,2,0,0,1.000000,114.96,n/a,n/a,114.96,inf,,,2,029.71,-415.77
+W,2025-W36,2025-W36,1,0.00,134.31,-134.31,0,1,0,0.000000,n/a,134.31,n/a,-134.31,0.000000,,,1,895.40,-550.08
+W,2025-W37,2025-W37,3,248.09,135.04,113.05,2,1,0,0.666667,124.05,135.04,0.918580,37.68,1.837159,0.521219,0.145448,2,008.45,-437.03
+W,2025-W38,2025-W38,2,0.00,317.46,-317.46,0,2,0,0.000000,n/a,158.73,n/a,-158.73,0.000000,,,1,690.99,-754.49
+W,2025-W39,2025-W39,2,0.00,299.80,-299.80,0,2,0,0.000000,n/a,149.90,n/a,-149.90,0.000000,,,1,391.19,-1,054.29
+W,2025-W40,2025-W40,2,82.75,105.23,-22.48,1,1,0,0.500000,82.75,105.23,0.786373,-11.24,0.786373,0.559794,-0.059794,1,368.71,-1,076.77
+W,2025-W41,2025-W41,2,194.73,0.00,194.73,2,0,0,1.000000,97.37,n/a,n/a,97.37,inf,,,1,563.44,-882.04
+W,2025-W42,2025-W42,2,78.24,171.37,-93.13,1,1,0,0.500000,78.24,171.37,0.456556,-46.57,0.456556,0.686551,-0.186551,1,470.31,-975.17
+W,2025-W43,2025-W43,2,0.00,336.21,-336.21,0,2,0,0.000000,n/a,168.10,n/a,-168.10,0.000000,,,1,134.10,-1,311.38
+W,2025-W44,2025-W44,1,0.00,231.07,-231.07,0,1,0,0.000000,n/a,231.07,n/a,-231.07,0.000000,,,903.03,-1,542.45
+W,2025-W45,2025-W45,2,0.00,265.99,-265.99,0,2,0,0.000000,n/a,133.00,n/a,-133.00,0.000000,,,637.04,-1,808.44
+W,2025-W46,2025-W46,2,83.08,133.69,-50.61,1,1,0,0.500000,83.08,133.69,0.621438,-25.30,0.621438,0.616737,-0.116737,586.43,-1,859.05
+W,2025-W47,2025-W47,3,202.52,69.15,133.37,2,1,0,0.666667,101.26,69.15,1.464353,44.46,2.928706,0.405786,0.260881,719.80,-1,725.68
+W,2025-W48,2025-W48,2,123.29,151.51,-28.22,1,1,0,0.500000,123.29,151.51,0.813742,-14.11,0.813742,0.551346,-0.051346,691.58,-1,753.90
+W,2025-W49,2025-W49,2,244.43,0.00,244.43,2,0,0,1.000000,122.22,n/a,n/a,122.22,inf,,,936.01,-1,509.47
+W,2025-W50,2025-W50,2,0.00,247.69,-247.69,0,2,0,0.000000,n/a,123.84,n/a,-123.84,0.000000,,,688.32,-1,757.16
+W,2025-W51,2025-W51,3,397.17,0.00,397.17,3,0,0,1.000000,132.39,n/a,n/a,132.39,inf,,,1,085.49,-1,359.99
+W,2025-W52,2025-W52,3,139.37,164.78,-25.41,1,2,0,0.333333,139.37,82.39,1.691589,-8.47,0.845794,0.371528,-0.038194,1,060.08,-1,385.40
+W,2026-W01,2026-W01,3,272.41,0.00,272.41,3,0,0,1.000000,90.80,n/a,n/a,90.80,inf,,,1,332.49,-1,112.99
+W,2026-W02,2026-W02,2,140.11,92.98,47.13,1,1,0,0.500000,140.11,92.98,1.506883,23.57,1.506883,0.398902,0.101098,1,379.62,-1,065.86
+W,2026-W03,2026-W03,2,175.94,64.55,111.39,1,1,0,0.500000,175.94,64.55,2.725639,55.70,2.725639,0.268410,0.231590,1,491.01,-954.47
+W,2026-W04,2026-W04,2,217.38,0.00,217.38,2,0,0,1.000000,108.69,n/a,n/a,108.69,inf,,,1,708.39,-737.09
+
+# bucket=2W  paired ISO weeks (odd ISO week starts the pair)  (27 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+2W,2025-01-13,2025-2W02 (from 2025-01-13),2,319.42,0.00,319.42,2,0,0,1.000000,159.71,n/a,n/a,159.71,inf,,,319.42,0.00
+2W,2025-01-27,2025-2W03 (from 2025-01-27),4,388.67,90.80,297.87,3,1,0,0.750000,129.56,90.80,1.426836,74.47,4.280507,0.412059,0.337941,617.29,0.00
+2W,2025-02-10,2025-2W04 (from 2025-02-10),6,406.47,234.79,171.68,3,3,0,0.500000,135.49,78.26,1.731207,28.61,1.731207,0.366139,0.133861,788.97,0.00
+2W,2025-02-24,2025-2W05 (from 2025-02-24),6,278.01,275.24,2.77,3,3,0,0.500000,92.67,91.75,1.010064,0.46,1.010064,0.497497,0.002503,791.74,0.00
+2W,2025-03-10,2025-2W06 (from 2025-03-10),3,118.05,190.06,-72.01,1,2,0,0.333333,118.05,95.03,1.242239,-24.00,0.621120,0.445983,-0.112649,719.73,-72.01
+2W,2025-03-24,2025-2W07 (from 2025-03-24),4,318.58,213.78,104.80,2,2,0,0.500000,159.29,106.89,1.490224,26.20,1.490224,0.401570,0.098430,824.53,0.00
+2W,2025-04-07,2025-2W08 (from 2025-04-07),4,0.00,370.13,-370.13,0,4,0,0.000000,n/a,92.53,n/a,-92.53,0.000000,,,454.40,-370.13
+2W,2025-04-21,2025-2W09 (from 2025-04-21),6,479.02,146.79,332.23,4,2,0,0.666667,119.76,73.40,1.631651,55.37,3.263301,0.379990,0.286677,786.63,-37.90
+2W,2025-05-05,2025-2W10 (from 2025-05-05),4,280.71,78.22,202.49,3,1,0,0.750000,93.57,78.22,1.196241,50.62,3.588724,0.455323,0.294677,989.12,0.00
+2W,2025-05-19,2025-2W11 (from 2025-05-19),3,356.05,0.00,356.05,3,0,0,1.000000,118.68,n/a,n/a,118.68,inf,,,1,345.17,0.00
+2W,2025-06-02,2025-2W12 (from 2025-06-02),6,554.90,196.23,358.67,4,2,0,0.666667,138.72,98.12,1.413902,59.78,2.827804,0.414267,0.252400,1,703.84,0.00
+2W,2025-06-16,2025-2W13 (from 2025-06-16),6,735.61,0.00,735.61,6,0,0,1.000000,122.60,n/a,n/a,122.60,inf,,,2,439.45,0.00
+2W,2025-06-30,2025-2W14 (from 2025-06-30),6,232.86,408.37,-175.51,2,4,0,0.333333,116.43,102.09,1.140436,-29.25,0.570218,0.467194,-0.133861,2,263.94,-175.51
+2W,2025-07-14,2025-2W15 (from 2025-07-14),5,85.07,490.44,-405.37,1,4,0,0.200000,85.07,122.61,0.693826,-81.07,0.173456,0.590379,-0.390379,1,858.57,-580.88
+2W,2025-07-28,2025-2W16 (from 2025-07-28),4,343.96,86.46,257.50,3,1,0,0.750000,114.65,86.46,1.326085,64.38,3.978256,0.429907,0.320093,2,116.07,-323.38
+2W,2025-08-11,2025-2W17 (from 2025-08-11),4,125.06,441.34,-316.28,1,3,0,0.250000,125.06,147.11,0.850093,-79.07,0.283364,0.540513,-0.290513,1,799.79,-639.66
+2W,2025-08-25,2025-2W18 (from 2025-08-25),3,229.92,134.31,95.61,2,1,0,0.666667,114.96,134.31,0.855930,31.87,1.711861,0.538813,0.127853,1,895.40,-544.05
+2W,2025-09-08,2025-2W19 (from 2025-09-08),5,248.09,452.50,-204.41,2,3,0,0.400000,124.05,150.83,0.822398,-40.88,0.548265,0.548728,-0.148728,1,690.99,-748.46
+2W,2025-09-22,2025-2W20 (from 2025-09-22),4,82.75,405.03,-322.28,1,3,0,0.250000,82.75,135.01,0.612918,-80.57,0.204306,0.619994,-0.369994,1,368.71,-1,070.74
+2W,2025-10-06,2025-2W21 (from 2025-10-06),4,272.97,171.37,101.60,3,1,0,0.750000,90.99,171.37,0.530956,25.40,1.592869,0.653186,0.096814,1,470.31,-969.14
+2W,2025-10-20,2025-2W22 (from 2025-10-20),3,0.00,567.28,-567.28,0,3,0,0.000000,n/a,189.09,n/a,-189.09,0.000000,,,903.03,-1,536.42
+2W,2025-11-03,2025-2W23 (from 2025-11-03),4,83.08,399.68,-316.60,1,3,0,0.250000,83.08,133.23,0.623599,-79.15,0.207866,0.615916,-0.365916,586.43,-1,853.02
+2W,2025-11-17,2025-2W24 (from 2025-11-17),5,325.81,220.66,105.15,3,2,0,0.600000,108.60,110.33,0.984350,21.03,1.476525,0.503943,0.096057,691.58,-1,747.87
+2W,2025-12-01,2025-2W25 (from 2025-12-01),4,244.43,247.69,-3.26,2,2,0,0.500000,122.22,123.84,0.986838,-0.81,0.986838,0.503312,-0.003312,688.32,-1,751.13
+2W,2025-12-15,2025-2W26 (from 2025-12-15),6,536.54,164.78,371.76,4,2,0,0.666667,134.13,82.39,1.628050,61.96,3.256099,0.380510,0.286156,1,060.08,-1,379.37
+2W,2025-12-29,2026-2W01 (from 2025-12-29),5,412.52,92.98,319.54,4,1,0,0.800000,103.13,92.98,1.109163,63.91,4.436653,0.474122,0.325878,1,379.62,-1,059.83
+2W,2026-01-12,2026-2W02 (from 2026-01-12),4,393.32,64.55,328.77,3,1,0,0.750000,131.11,64.55,2.031087,82.19,6.093261,0.329915,0.420085,1,708.39,-731.06
+
+# bucket=M  calendar month  (13 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+M,2025-01,2025-01,4,550.46,0.00,550.46,4,0,0,1.000000,137.62,n/a,n/a,137.62,inf,,,550.46,0.00
+M,2025-02,2025-02,11,564.10,600.83,-36.73,4,7,0,0.363636,141.03,85.83,1.643019,-3.34,0.938868,0.378355,-0.014719,513.73,-36.73
+M,2025-03,2025-03,8,714.64,190.06,524.58,6,2,0,0.750000,119.11,95.03,1.253359,65.57,3.760076,0.443782,0.306218,1,038.31,0.00
+M,2025-04,2025-04,11,479.02,667.50,-188.48,4,7,0,0.363636,119.76,95.36,1.255858,-17.13,0.717633,0.443290,-0.079654,849.83,-188.48
+M,2025-05,2025-05,8,636.76,141.42,495.34,6,2,0,0.750000,106.13,70.71,1.500872,61.92,4.502616,0.399861,0.350139,1,345.17,0.00
+M,2025-06,2025-06,13,1,290.51,287.77,1,002.74,10,3,0,0.769231,129.05,95.92,1.345356,77.13,4.484519,0.426375,0.342856,2,347.91,0.00
+M,2025-07,2025-07,11,422.71,807.27,-384.56,4,7,0,0.363636,105.68,115.32,0.916351,-34.96,0.523629,0.521825,-0.158189,1,963.35,-384.56
+M,2025-08,2025-08,9,594.16,527.80,66.36,5,4,0,0.555556,118.83,131.95,0.900584,7.37,1.125729,0.526154,0.029401,2,029.71,-318.20
+M,2025-09,2025-09,9,330.84,886.61,-555.77,3,6,0,0.333333,110.28,147.77,0.746303,-61.75,0.373152,0.572638,-0.239305,1,473.94,-873.97
+M,2025-10,2025-10,8,272.97,843.88,-570.91,3,5,0,0.375000,90.99,168.78,0.539117,-71.36,0.323470,0.649723,-0.274723,903.03,-1,444.88
+M,2025-11,2025-11,9,408.89,620.34,-211.45,4,5,0,0.444444,102.22,124.07,0.823923,-23.49,0.659139,0.548269,-0.103824,691.58,-1,656.33
+M,2025-12,2025-12,12,985.95,412.47,573.48,8,4,0,0.666667,123.24,103.12,1.195178,47.79,2.390356,0.455544,0.211123,1,265.06,-1,082.85
+M,2026-01,2026-01,7,600.86,157.53,443.33,5,2,0,0.714286,120.17,78.77,1.525703,63.33,3.814258,0.395929,0.318356,1,708.39,-639.52
+
+# bucket=Q  calendar quarter  (5 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+Q,2025-Q1,2025-Q1,23,1,829.20,790.89,1,038.31,14,9,0,0.608696,130.66,87.88,1.486824,45.14,2.312837,0.402119,0.206576,1,038.31,0.00
+Q,2025-Q2,2025-Q2,32,2,406.29,1,096.69,1,309.60,20,12,0,0.625000,120.31,91.39,1.316483,40.92,2.194139,0.431689,0.193311,2,347.91,0.00
+Q,2025-Q3,2025-Q3,29,1,347.71,2,221.68,-873.97,12,17,0,0.413793,112.31,130.69,0.859375,-30.14,0.606618,0.537815,-0.124022,1,473.94,-873.97
+Q,2025-Q4,2025-Q4,29,1,667.81,1,876.69,-208.88,15,14,0,0.517241,111.19,134.05,0.829451,-7.20,0.888698,0.546612,-0.029371,1,265.06,-1,082.85
+Q,2026-Q1,2026-Q1,7,600.86,157.53,443.33,5,2,0,0.714286,120.17,78.77,1.525703,63.33,3.814258,0.395929,0.318356,1,708.39,-639.52
+
+# bucket=H  calendar half-year  (3 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+H,2025-H1,2025-H1,55,4,235.49,1,887.58,2,347.91,34,21,0,0.618182,124.57,89.88,1.385922,42.69,2.243873,0.419125,0.199057,2,347.91,0.00
+H,2025-H2,2025-H2,58,3,015.52,4,098.37,-1,082.85,27,31,0,0.465517,111.69,132.21,0.844790,-18.67,0.735785,0.542067,-0.076550,1,265.06,-1,082.85
+H,2026-H1,2026-H1,7,600.86,157.53,443.33,5,2,0,0.714286,120.17,78.77,1.525703,63.33,3.814258,0.395929,0.318356,1,708.39,-639.52
+
+# bucket=Y  calendar year  (2 period rows)
+bucket,period,period_label,n_trades,gross_profit,gross_loss,net_pnl,wins,losses,breakeven_trades,win_rate,avg_win,avg_loss,payoff_ratio,expectancy_per_trade,profit_factor,break_even_win_rate,edge,cumulative_pnl,drawdown_from_peak
+Y,2025,2025,113,7,251.01,5,985.95,1,265.06,61,52,0,0.539823,118.87,115.11,1.032616,11.20,1.211338,0.491977,0.047846,1,265.06,0.00
+Y,2026,2026,7,600.86,157.53,443.33,5,2,0,0.714286,120.17,78.77,1.525703,63.33,3.814258,0.395929,0.318356,1,708.39,0.00

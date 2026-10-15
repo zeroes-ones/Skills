@@ -28,7 +28,6 @@ type: growth
 status: stable
 version: 1.0.0
 updated: 2026-07-29
-token_budget: 3000
 chain:
   consumes_from:
   - growth-engineer

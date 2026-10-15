@@ -1,0 +1,1747 @@
+# RESULTS — trend/momentum corner on real daily prices
+
+**Every figure in this file was pasted from a real run of `study.py` on the pulled
+CSVs. Nothing here is estimated.** The complete raw stdout of that run is in
+[`run-output.txt`](run-output.txt), and the tables below are sliced verbatim out
+of it by `make-results.py`, so the two can never disagree.
+
+- Study date: **2026-10-14** (pull date, UTC).
+- Data: daily bars from the TradingView MCP tool, cross-checked against Robinhood
+  (see [the cross-check](#cross-check-against-a-second-feed)).
+- Rules: **pre-registered** before the first number was produced. No parameter
+  search was run, and none is present in the source.
+
+## Reproduce
+
+```bash
+cd skills/14-finance/equity-trading-playbook/examples/regime-study
+py -3 pull_ohlcv.py --results <session>/agents/<id>/tool-results \
+                    --wire    <session>/agents/<id>/wire.jsonl \
+                    --out data --pull-date 2026-10-14
+py -3 study.py > run-output.txt          # the analysis; deterministic
+py -3 verify_robinhood.py --wire <session>/agents/<id>/wire.jsonl --pull-date 2026-10-14
+py -3 handcheck.py SPY S1 1994           # and 2000, 2007, QQQ S1 2000
+py -3 make-results.py                    # re-slices this file from run-output.txt
+```
+
+Verified before publishing: `study.py` run twice produces **byte-identical**
+stdout and byte-identical CSV artefacts; the four hand-checks reproduce
+`per-year.csv` to 6 dp; and the Robinhood cross-check agrees with TradingView to
+**0.00 bp** on all 120 overlapping closes.
+
+## The rules, as pre-registered
+
+| id | rule |
+|---|---|
+| S1 | enter long when `close > SMA(200)`; exit when `close < SMA(200)`; stop = entry − 2×ATR(14) |
+| S2 | enter when `SMA(50) > SMA(200)` and `close > SMA(50)`; exit when `close < SMA(50)`; stop = entry − 2×ATR(14) |
+| S3 | buy & hold; one entry at the first available open, held to the end |
+| S4 | always long, sized so trailing 20-day realised vol targets 15% annualised, rebalanced monthly |
+
+Signals are evaluated on the close of day *i* and executed at the **open of day
+*i+1***. Long only. No costs, no slippage, no dividends, no borrow. S1/S2/S3 use
+100% of equity notional. S4's weight is `0.15 / trailing_20d_realised_vol` with
+**no cap**, so it levers in calm markets (observed weights below).
+
+## Headline reading
+
+- **Buy & hold wins on raw return on all four instruments**, and it wins big:
+  SPY +1651.56% vs S1's +712.24%; QQQ +1327.56% vs +427.87%; GLD +747.21% vs
+  +435.91%. Trend-following does **not** beat holding on any instrument here.
+- **Trend-following wins on risk.** SPY S1's worst peak-to-trough fall is
+  −28.60% against buy & hold's −56.47%, and its Sharpe (0.584) is *higher* than
+  buy & hold's (0.551) despite returning less. The same pattern holds on QQQ
+  (−65.75% vs −82.98%) and GLD (−33.86% vs −45.56%). The trend rule's product is
+  drawdown reduction, not return.
+- **Trend-following fails outright on long bonds.** Over 24.2 years on TLT, S1
+  returns **−7.99%** (CAGR −0.34%) and S2 returns **+3.43%** (CAGR 0.14%). On
+  TLT the sibling engine's own edge test **FAILs** for both. A 200-day price
+  trend on a mean-reverting, carry-driven instrument bought nothing.
+- **S4 (vol-targeted hold) is the best risk-adjusted line on three of the four
+  instruments** — QQQ Sharpe 0.614 vs S3's 0.493, SPY 0.559 vs 0.551, TLT 0.377
+  vs 0.058 — and just misses on GLD (0.616 vs 0.627). It does this with
+  drawdowns cut from −82.98% to −47.23% on QQQ and −56.47% to −45.03% on SPY.
+  But it does it by levering (SPY: median weight 1.13, max 3.33; 234 of 403
+  monthly rebalances above 1×), and the rule as pre-registered has no leverage
+  cap.
+- **The R-unit sample is large enough for six of the eight trend rules and
+  nowhere near large enough for the other two.** `n_req` (trades needed for a
+  2σ edge) is 28–65 for the SPY/QQQ/GLD trend rules against 83–248 actual trades;
+  for TLT S1 it is **25,706** against 121 actual trades. The TLT trend numbers
+  are not a small edge — they are an unmeasurable one.
+
+## All-weather verdict, in one line
+
+**No.** No single rule set out of S1–S4 is profitable in every year and every
+regime. The fewest losing instrument-years any strategy manages is 30 of 110
+(S4), and **no strategy has a single instrument on which every year was
+positive**. Detail in
+[§8 all-weather test](#8-all-weather-test--is-any-one-rule-set-profitable-in-every-regime-and-every-year).
+
+## Complementarity, in one line
+
+**The three trend/hold rules lose in the same years, not different ones.** All
+six pooled pairwise correlations of yearly returns are positive (0.666–0.887),
+S1 and S3 lost together in 7 of 34 pooled years and disagreed in only one year
+each way. Stacking them is not diversification. Detail in [§9](#9-complementarity).
+
+## Cross-check against a second feed
+
+`verify_robinhood.py` compared Robinhood's daily closes against the TradingView
+closes this study used, for all four instruments over a 30-session window:
+
+```
+  sym  common_days  from        to          max_abs_diff  max_rel_diff
+  --------------------------------------------------------------------
+  GLD           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+  QQQ           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+  SPY           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+  TLT           30  2026-09-01  2026-10-13        0.0000     0.0000 bp
+```
+
+Worst relative disagreement: **0.00 bp**. The full output, including five
+sampled closes per instrument side by side, is in
+[`crosscheck-output.txt`](crosscheck-output.txt).
+
+> This validates the recent window only. The pre-2004 TradingView history has no
+> second source in this study.
+
+## What to read first
+
+| question | table |
+|---|---|
+| Which instrument × rule made money, and how much risk did it take? | [§2 headline](#2-headline-metrics) |
+| Is the trade-level edge real, or is the sample too small? | [§3 R units](#3-trade-level-statistics-in-r-units-pre-registered-definitions) |
+| What does the sibling timeframe engine say about these trades? | [§4 engine verdict](#4-the-sibling-engines-own-verdict-on-these-trades) |
+| Which years lost money? | [§5 per year](#5-per-calendar-year--every-strategy-x-every-instrument-losses-included) |
+| Where in the regime grid does each rule work and fail? | [§6 regime grid](#6-regime-grid--data-derived-lagged-one-day-no-hindsight-labels) |
+| Which review timeframe can be trusted? | [§7 buckets](#7-timeframe-buckets--the-sibling-engines-own-bucketing-and-verdict) |
+| Is "always profitable" achievable? | [§8 all-weather](#8-all-weather-test--is-any-one-rule-set-profitable-in-every-regime-and-every-year) |
+| Do the rules diversify each other? | [§9 complementarity](#9-complementarity--do-the-strategies-lose-in-the-same-years) |
+
+---
+
+The tables below are the verbatim stdout of the `study.py` run recorded in
+`run-output.txt`, sliced out by `make-results.py`. Do not edit below the marker:
+edit `run-output.txt` (by re-running `study.py`) and rebuild.
+
+<!-- BEGIN TABLES (generated by make-results.py; do not edit below) -->
+
+### 1. DATA ACTUALLY USED
+
+```text
+1. DATA ACTUALLY USED
+====================================================================================================
+
+  These rows are read from the data/*_1d.csv files below. Each CSV carries
+  a # PROVENANCE: header written at pull time, reproduced in full beneath
+  the table. Every number in this report descends from those files.
+
+  instrument  first_date  last_date   rows  years  price_multiple
+  ---------------------------------------------------------------
+  GLD         2004-11-18  2026-10-14  5510  21.90          8.4721
+  QQQ         1999-03-10  2026-10-14  6943  27.60         14.2756
+  SPY         1993-01-29  2026-10-14  8485  33.71         17.5156
+  TLT         2002-07-26  2026-10-14  6094  24.22          0.9561
+
+  GLD provenance:
+    # source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # symbol=AMEX:GLD  interval=1D  fields=OHLCV
+    # pulled=2026-10-14 (UTC date of the pull)
+    # split-adjusted, regular session only
+    # tool=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # pages_merged=1  rows=5510  first=2004-11-18  last=2026-10-14
+    # rows_available_per_page_as_reported_by_source=5510
+    # date is the exchange session date, rendered as the UTC calendar date of the bar timestamp (bar times present: 13:30Z,14:30Z)
+    # volume is as reported by the source, in shares (unadjusted for splits)
+
+  QQQ provenance:
+    # source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # symbol=NASDAQ:QQQ  interval=1D  fields=OHLCV
+    # pulled=2026-10-14 (UTC date of the pull)
+    # split-adjusted, regular session only
+    # tool=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # pages_merged=1  rows=6943  first=1999-03-10  last=2026-10-14
+    # rows_available_per_page_as_reported_by_source=6943
+    # date is the exchange session date, rendered as the UTC calendar date of the bar timestamp (bar times present: 13:30Z,14:30Z)
+    # volume is as reported by the source, in shares (unadjusted for splits)
+
+  SPY provenance:
+    # source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # symbol=AMEX:SPY  interval=1D  fields=OHLCV
+    # pulled=2026-10-14 (UTC date of the pull)
+    # split-adjusted, regular session only
+    # tool=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # pages_merged=3  rows=8485  first=1993-01-29  last=2026-10-14
+    # rows_available_per_page_as_reported_by_source=8485,485
+    # date is the exchange session date, rendered as the UTC calendar date of the bar timestamp (bar times present: 13:30Z,14:30Z)
+    # volume is as reported by the source, in shares (unadjusted for splits)
+
+  TLT provenance:
+    # source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # symbol=NASDAQ:TLT  interval=1D  fields=OHLCV
+    # pulled=2026-10-14 (UTC date of the pull)
+    # split-adjusted, regular session only
+    # tool=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    # pages_merged=1  rows=6094  first=2002-07-26  last=2026-10-14
+    # rows_available_per_page_as_reported_by_source=6094
+    # date is the exchange session date, rendered as the UTC calendar date of the bar timestamp (bar times present: 13:30Z,14:30Z)
+    # volume is as reported by the source, in shares (unadjusted for splits)
+```
+
+### 2. HEADLINE METRICS
+
+```text
+2. HEADLINE METRICS
+====================================================================================================
+
+  Sharpe = mean_daily / sd_daily x sqrt(252), daily simple returns, full
+  sample per instrument, Rf = 0. Max drawdown = peak-to-trough of the
+  compounded equity curve, negative. CAGR uses 365.25-day years.
+  S3's max drawdown is the instrument's own; S4's is the vol-targeted book's.
+
+  inst  strat  total_return    CAGR   max_dd  Sharpe(ann)  n_days  mean_day_bp
+  ----------------------------------------------------------------------------
+  GLD   S1          435.91%   7.97%  -33.86%        0.590    5510        3.491
+  GLD   S2          187.04%   4.93%  -33.47%        0.450    5510        2.222
+  GLD   S3          747.21%  10.25%  -45.56%        0.627    5510        4.542
+  GLD   S4          652.78%   9.65%  -58.57%        0.616    5510        4.280
+  QQQ   S1          427.87%   6.21%  -65.75%        0.436    6943        3.004
+  QQQ   S2          187.09%   3.90%  -32.65%        0.363    6943        1.846
+  QQQ   S3         1327.56%  10.11%  -82.98%        0.493    6943        5.257
+  QQQ   S4         1200.76%   9.74%  -47.23%        0.614    6943        4.321
+  SPY   S1          712.24%   6.41%  -28.60%        0.584    8485        2.749
+  SPY   S2          156.77%   2.84%  -28.66%        0.356    8485        1.273
+  SPY   S3         1651.56%   8.87%  -56.47%        0.551    8485        4.057
+  SPY   S4         1616.42%   8.80%  -45.03%        0.559    8485        3.999
+  TLT   S1           -7.99%  -0.34%  -36.75%        0.018    6094        0.072
+  TLT   S2            3.43%   0.14%  -25.22%        0.058    6094        0.190
+  TLT   S3           -4.39%  -0.19%  -55.06%        0.058    6094        0.332
+  TLT   S4          222.02%   4.95%  -48.81%        0.377    6094        2.453
+
+  n_days = trading days in the series. A strategy that is FLAT for most of
+  the sample still pays for those flat days in the Sharpe denominator.
+
+  S4 LEVERAGE ACTUALLY USED. S4 is the only rule that can lever, because
+  'target 15% vol' has no meaning without it. The registration set NO cap
+  on the weight, so the weight is unbounded whenever trailing vol is low:
+
+  inst  rebalances  w_min  w_median  w_max  w_mean  n_months_w>1
+  --------------------------------------------------------------
+  GLD          262   0.26      1.04   2.17    1.07           144
+  QQQ          330   0.16      0.84   3.17    0.90           115
+  SPY          403   0.16      1.13   3.33    1.23           234
+  TLT          290   0.24      1.24   3.19    1.29           206
+
+  READ THIS BEFORE COMPARING S4's ROW WITH S3's. S4 is the only rule that
+  can lever, because 'target 15% vol' has no meaning without it, and the
+  registration set NO cap on the weight. In calm months S4 therefore holds
+  well over 1x exposure (see the table above), so its raw total return is
+  vol-scaled and is NOT the like-for-like comparison with S3 that it looks
+  like. The honest comparison is max drawdown and Sharpe at the price of
+  the leverage actually used. A capped, deployable version of S4 is a
+  DIFFERENT rule and was NOT tested -- see section 10.
+```
+
+### 3. TRADE-LEVEL STATISTICS IN R UNITS (pre-registered definitions)
+
+```text
+3. TRADE-LEVEL STATISTICS IN R UNITS (pre-registered definitions)
+====================================================================================================
+
+  p  = wins / (wins + losses); break-even trades excluded from the
+       denominator and reported separately
+  b  = average winning R / average losing R (both magnitudes)
+  E  = p*b - (1-p), the expectancy per trade in R
+       NOTE ON THE UNIT OF E: with b = avg_win/avg_loss, E is the
+       expectancy expressed in MULTIPLES OF THE AVERAGE LOSS, not in raw
+       R. The raw-R expectancy per trade is p*avg_win - (1-p)*avg_loss,
+       and the two are related by E = (that) / avg_loss. Both are printed
+       side by side in handcheck-output.txt so the unit is never implied.
+  p* = 1/(1+b)  the break-even win rate implied by this payoff
+  b* = (1-p)/p  the payoff needed to break even at this win rate
+  sd = sample sd (n-1) of the R multiples
+  n_req = 4*(sd/|E|)^2  trades needed for a ~2-sigma edge
+  L  = ln(N)/ln(1/(1-p))  expected longest losing streak
+
+  S3 and S4 have NO stop, so they have no risk unit and no R multiple.
+  Reporting a p, b or E for them would require inventing the risk unit
+  that the registration deliberately ties to the stop. They are n/a,
+  and their sample size appears as n_trades = 0 (S4) or 1 (S3).
+
+  inst  strat       p       b       E      p*      b*   sd(R)    n_req      L  n_trades
+  -------------------------------------------------------------------------------------
+  GLD   S1     0.2771  9.6798  1.9595  0.0936  2.6087  7.0383     51.6  13.62        83
+  GLD   S2     0.3285  4.8292  0.9147  0.1715  2.0444  3.1205     46.6  12.36       137
+  GLD   S3        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         1
+  GLD   S4        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         0
+  QQQ   S1     0.2717  7.4151  1.2867  0.1188  2.6800  3.4080     28.1  14.26        92
+  QQQ   S2     0.2809  3.9773  0.3981  0.2009  2.5600  1.6103     65.4  15.71       178
+  QQQ   S3        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         1
+  QQQ   S4        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         0
+  SPY   S1     0.3333  6.0181  1.3394  0.1425  2.0000  3.6237     29.3  11.68       114
+  SPY   S2     0.3496  3.0969  0.4323  0.2441  1.8605  1.7176     63.2  12.82       248
+  SPY   S3        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         1
+  SPY   S4        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         0
+  TLT   S1     0.2167  3.7578  0.0308  0.2102  3.6154  2.4729  25706.4  19.64       121
+  TLT   S2     0.3556  1.9694  0.0558  0.3368  1.8125  1.5374   3038.7  11.18       136
+  TLT   S3        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         1
+  TLT   S4        n/a     n/a     n/a     n/a     n/a     n/a      n/a    n/a         0
+
+  Read n_req against n_trades. Where n_req is far larger than n_trades,
+  the measured E is not yet distinguishable from noise, whatever its sign.
+```
+
+### 4. THE SIBLING ENGINE'S OWN VERDICT ON THESE TRADES
+
+```text
+4. THE SIBLING ENGINE'S OWN VERDICT ON THESE TRADES
+====================================================================================================
+
+  timeframe-performance-statistics/scripts/timeframe_stats.py was RUN as a
+  subprocess on the real trade logs in tradelogs/. Its full human output is
+  in engine-output/<inst>_<strat>.txt and its JSON in ...json. Extracted:
+
+  The pooled win_rate / break_even_win_rate / edge are bucketing-INVARIANT
+  in that engine by construction, so one row per (instrument, strategy) is
+  the whole story at trade level.
+
+  inst  strat  trades  win_rate   be_wr    edge   se_wr  beat_losses  best_bucket  verdict
+  -------------------------------------------------------------------------------------------------------------------
+  GLD   S1         83    27.71%   8.73%  18.98%  0.0491  PASS         n/a          INSUFFICIENT DATA
+  GLD   S2        137    32.85%  20.49%  12.36%  0.0401  PASS         Y            most reliable of the qualifying bu
+  QQQ   S1         92    27.17%  13.64%  13.53%  0.0464  PASS         n/a          INSUFFICIENT DATA
+  QQQ   S2        178    28.09%  19.66%   8.43%  0.0337  PASS         Y            most reliable of the qualifying bu
+  SPY   S1        114    33.33%  14.49%  18.84%  0.0442  PASS         n/a          INSUFFICIENT DATA
+  SPY   S2        248    34.96%  25.85%   9.11%  0.0304  PASS         Y            most reliable of the qualifying bu
+  TLT   S1        121    21.67%  21.67%  -0.00%  0.0376  FAIL         Y            NOT DISTINGUISHABLE FROM NOISE
+  TLT   S2        136    35.56%  33.72%   1.84%  0.0412  FAIL         Y            NOT DISTINGUISHABLE FROM NOISE
+
+  The engine's own dependence caveat, quoted from the file it lives in:
+
+    DEPENDENCE CAVEAT -- these buckets are not independent tests
+    H literally contains the M periods, Q contains the M periods, Y contains them all; the same trades are re-aggregated, not resampled
+    A t-statistic computed across a bucket series is therefore a STABILITY INDICATOR for that book, not a significance test of an edge
+    Read n_eff next to n_periods: where the period P&L series is positively autocorrelated, the effective sample is smaller than the period count suggests, and the t-statistic above is optimistic.
+```
+
+### 5. PER CALENDAR YEAR -- every strategy x every instrument, losses included
+
+```text
+5. PER CALENDAR YEAR -- every strategy x every instrument, losses included
+====================================================================================================
+
+  return  : compounded from that year's daily returns
+  maxdd   : peak-to-trough inside the year, curve rebased at the year's
+            first bar, negative
+  a trade belongs to the bucket containing its EXIT date (the sibling
+  engine's own convention), so a trade opened in December and closed in
+  January is counted in January.
+  p, b, E : in R units, from that year's trades only; n/a where the year
+            has no losing trade (b undefined) or no trade at all
+  LOSS    : which strategies lost money in that year
+
+----------------------------------------------------------------------------------------------------
+PER-YEAR -- GLD
+----------------------------------------------------------------------------------------------------
+
+  strat  year  n_days   return    maxdd  n_trades       p         b         E  LOSS
+  ---------------------------------------------------------------------------------
+  S1     2004      30    0.00%    0.00%         0     n/a       n/a       n/a
+  S1     2005     252   16.12%   -6.70%         0     n/a       n/a       n/a
+  S1     2006     251   11.67%  -21.79%         3  0.3333   27.6343    8.5448
+  S1     2007     251   24.76%   -7.59%         2  0.5000    1.2631    0.1315
+  S1     2008     253   -4.89%  -21.48%         5  0.2000   29.5642    5.1128  LOSS
+  S1     2009     252   19.07%  -12.86%         2  0.0000       n/a       n/a
+  S1     2010     252   29.27%   -7.81%         0     n/a       n/a       n/a
+  S1     2011     252   11.55%  -17.17%         1  1.0000       n/a       n/a
+  S1     2012     250   -3.76%  -11.81%         5  0.2000    1.1585   -0.5683  LOSS
+  S1     2013     252   -4.44%   -4.25%         5  0.4000    0.1942   -0.5223  LOSS
+  S1     2014     252   -9.63%  -12.93%        11  0.1818    0.3647   -0.7519  LOSS
+  S1     2015     252   -4.93%   -7.71%         3  0.0000       n/a       n/a  LOSS
+  S1     2016     252   10.71%   -8.66%         5  0.4000   20.0959    7.4384
+  S1     2017     251   -4.10%   -8.35%         6  0.1667    1.1546   -0.6409  LOSS
+  S1     2018     251    0.11%   -5.17%         3  0.6667    1.0399    0.3600
+  S1     2019     252   17.86%   -6.58%         0     n/a       n/a       n/a
+  S1     2020     253   10.51%  -15.00%         2  1.0000       n/a       n/a
+  S1     2021     252   -9.58%  -13.29%        12  0.1667    0.8855   -0.6858  LOSS
+  S1     2022     251   -7.59%  -16.84%        11  0.2727    0.7530   -0.5219  LOSS
+  S1     2023     250    7.35%   -9.14%         5  0.2000    5.7306    0.3461
+  S1     2024     252   26.66%   -8.12%         0     n/a       n/a       n/a
+  S1     2025     250   63.68%  -10.13%         0     n/a       n/a       n/a
+  S1     2026     197   -0.26%  -20.29%         2  0.5000  384.1765  191.5883  LOSS
+  S2     2004      30    0.00%    0.00%         0     n/a       n/a       n/a
+  S2     2005     252   13.19%   -6.70%         2  0.5000    5.0336    2.0168
+  S2     2006     251    9.72%  -19.51%        11  0.2727   11.4725    2.4016
+  S2     2007     251   12.93%  -13.20%        11  0.2727    0.4005   -0.6180
+  S2     2008     253   -3.40%  -21.03%         7  0.2857   10.6070    2.3163  LOSS
+  S2     2009     252    3.51%  -14.00%        10  0.5000    1.8811    0.4406
+  S2     2010     252   16.50%  -10.83%         7  0.4286    1.5762    0.1041
+  S2     2011     252    2.10%  -19.88%         7  0.4286    4.5923    1.3967
+  S2     2012     250   -9.40%  -15.50%         6  0.1667    0.2423   -0.7929  LOSS
+  S2     2013     252    0.00%    0.00%         0     n/a       n/a       n/a
+  S2     2014     252   -4.46%   -5.58%         5  0.0000       n/a       n/a  LOSS
+  S2     2015     252    0.00%    0.00%         0     n/a       n/a       n/a
+  S2     2016     252   -1.10%   -7.18%         9  0.2222    2.9117   -0.1307  LOSS
+  S2     2017     251   -0.48%   -7.71%         5  0.2000    2.1608   -0.3678  LOSS
+  S2     2018     251   -0.12%   -4.26%         6  0.5000    1.9146    0.4573  LOSS
+  S2     2019     252    9.84%   -8.26%         9  0.4444    3.4574    0.9811
+  S2     2020     253   13.81%  -11.97%         6  0.5000    3.9003    1.4501
+  S2     2021     252   -3.25%   -6.95%         4  0.0000       n/a       n/a  LOSS
+  S2     2022     251   -3.05%   -7.49%         4  0.5000    0.5748   -0.2126  LOSS
+  S2     2023     250   -2.98%  -10.47%        10  0.2000    1.4772   -0.5046  LOSS
+  S2     2024     252   10.88%  -10.63%        12  0.4167    5.0414    1.5172
+  S2     2025     250   51.14%  -10.13%         5  0.2000   36.4333    6.4867
+  S2     2026     197    6.07%  -15.23%         1  1.0000       n/a       n/a
+  S3     2004      30   -1.31%   -4.74%         0     n/a       n/a       n/a  LOSS
+  S3     2005     252   17.76%   -6.70%         0     n/a       n/a       n/a
+  S3     2006     251   22.55%  -21.79%         0     n/a       n/a       n/a
+  S3     2007     251   30.45%   -7.59%         0     n/a       n/a       n/a
+  S3     2008     253    4.92%  -29.41%         0     n/a       n/a       n/a
+  S3     2009     252   24.03%  -12.86%         0     n/a       n/a       n/a
+  S3     2010     252   29.27%   -7.81%         0     n/a       n/a       n/a
+  S3     2011     252    9.57%  -18.55%         0     n/a       n/a       n/a
+  S3     2012     250    6.60%  -13.85%         0     n/a       n/a       n/a
+  S3     2013     252  -28.33%  -29.85%         0     n/a       n/a       n/a  LOSS
+  S3     2014     252   -2.19%  -17.51%         0     n/a       n/a       n/a  LOSS
+  S3     2015     252  -10.67%  -19.75%         0     n/a       n/a       n/a  LOSS
+  S3     2016     252    8.03%  -17.76%         0     n/a       n/a       n/a
+  S3     2017     251   12.81%   -7.90%         0     n/a       n/a       n/a
+  S3     2018     251   -1.94%  -13.76%         0     n/a       n/a       n/a  LOSS
+  S3     2019     252   17.86%   -6.58%         0     n/a       n/a       n/a
+  S3     2020     253   24.81%  -14.04%         0     n/a       n/a       n/a
+  S3     2021     252   -4.15%  -13.88%         0     n/a       n/a       n/a  LOSS
+  S3     2022     251   -0.77%  -21.03%         0     n/a       n/a       n/a  LOSS
+  S3     2023     250   12.69%  -11.35%         0     n/a       n/a       n/a
+  S3     2024     252   26.66%   -8.12%         0     n/a       n/a       n/a
+  S3     2025     250   63.68%  -10.13%         0     n/a       n/a       n/a
+  S3     2026     197   -5.13%  -26.40%         0     n/a       n/a       n/a  LOSS
+  S4     2004      30    0.00%    0.00%         0     n/a       n/a       n/a
+  S4     2005     252   26.47%   -8.02%         0     n/a       n/a       n/a
+  S4     2006     251   17.21%  -11.78%         0     n/a       n/a       n/a
+  S4     2007     251   28.24%   -8.13%         0     n/a       n/a       n/a
+  S4     2008     253    9.77%  -13.21%         0     n/a       n/a       n/a
+  S4     2009     252   13.81%  -11.25%         0     n/a       n/a       n/a
+  S4     2010     252   29.40%   -6.45%         0     n/a       n/a       n/a
+  S4     2011     252   31.06%  -12.51%         0     n/a       n/a       n/a
+  S4     2012     250    0.05%  -16.05%         0     n/a       n/a       n/a
+  S4     2013     252  -34.40%  -39.26%         0     n/a       n/a       n/a  LOSS
+  S4     2014     252  -14.31%  -24.34%         0     n/a       n/a       n/a  LOSS
+  S4     2015     252  -15.34%  -23.10%         0     n/a       n/a       n/a  LOSS
+  S4     2016     252    6.05%  -18.66%         0     n/a       n/a       n/a
+  S4     2017     251   27.62%  -10.88%         0     n/a       n/a       n/a
+  S4     2018     251   -1.72%  -20.76%         0     n/a       n/a       n/a  LOSS
+  S4     2019     252   28.13%   -8.82%         0     n/a       n/a       n/a
+  S4     2020     253   18.42%  -16.28%         0     n/a       n/a       n/a
+  S4     2021     252  -12.23%  -19.51%         0     n/a       n/a       n/a  LOSS
+  S4     2022     251   -0.79%  -22.27%         0     n/a       n/a       n/a  LOSS
+  S4     2023     250    8.84%  -17.55%         0     n/a       n/a       n/a
+  S4     2024     252   25.82%  -10.18%         0     n/a       n/a       n/a
+  S4     2025     250   60.12%  -12.00%         0     n/a       n/a       n/a
+  S4     2026     197    1.87%  -16.95%         0     n/a       n/a       n/a
+
+  losing years by strategy in GLD:
+    S1   9 of 23 years   2008, 2012, 2013, 2014, 2015, 2017, 2021, 2022, 2026
+    S2   9 of 23 years   2008, 2012, 2014, 2016, 2017, 2018, 2021, 2022, 2023
+    S3   8 of 23 years   2004, 2013, 2014, 2015, 2018, 2021, 2022, 2026
+    S4   6 of 23 years   2013, 2014, 2015, 2018, 2021, 2022
+
+----------------------------------------------------------------------------------------------------
+PER-YEAR -- QQQ
+----------------------------------------------------------------------------------------------------
+
+  strat  year  n_days   return    maxdd  n_trades       p        b        E  LOSS
+  -------------------------------------------------------------------------------
+  S1     1999     207    2.45%   -1.22%         0     n/a      n/a      n/a
+  S1     2000     252  -43.08%  -53.07%        11  0.1818   0.1303  -0.7945  LOSS
+  S1     2001     248  -14.08%  -14.48%         2  0.0000      n/a      n/a  LOSS
+  S1     2002     252   -7.51%   -9.06%         4  0.0000      n/a      n/a  LOSS
+  S1     2003     252   32.59%  -10.21%         3  0.0000      n/a      n/a
+  S1     2004     252    0.19%  -15.00%         7  0.4286   5.3813   1.7348
+  S1     2005     252   -4.79%   -9.84%         4  0.2500   1.8381  -0.2905  LOSS
+  S1     2006     251    4.49%   -9.11%         3  0.6667   2.5725   1.3816
+  S1     2007     251   18.67%  -11.45%         0     n/a      n/a      n/a
+  S1     2008     253   -9.56%   -9.94%         9  0.4444   5.8536   2.0460  LOSS
+  S1     2009     252   29.39%   -7.22%         1  0.0000      n/a      n/a
+  S1     2010     252    3.70%  -19.94%         7  0.4286   4.7442   1.4618
+  S1     2011     252  -12.64%  -19.79%         8  0.1250   9.5885   0.3236  LOSS
+  S1     2012     250    2.75%  -17.10%         6  0.1667   5.4229   0.0705
+  S1     2013     252   30.89%   -6.15%         0     n/a      n/a      n/a
+  S1     2014     252   17.42%   -8.47%         1  1.0000      n/a      n/a
+  S1     2015     252  -11.25%  -22.87%         2  0.0000      n/a      n/a  LOSS
+  S1     2016     252   -3.65%   -9.95%         6  0.0000      n/a      n/a  LOSS
+  S1     2017     251   31.47%   -5.14%         0     n/a      n/a      n/a
+  S1     2018     251    4.74%  -12.63%         3  0.3333  25.0156   7.6719
+  S1     2019     252   14.94%  -10.58%         3  0.3333   0.1146  -0.6285
+  S1     2020     253   33.03%  -23.59%         2  0.5000   4.1074   1.5537
+  S1     2021     252   26.81%  -10.85%         0     n/a      n/a      n/a
+  S1     2022     251  -15.04%  -15.85%         5  0.2000  25.5042   4.3008  LOSS
+  S1     2023     250   34.73%  -10.91%         2  0.0000      n/a      n/a
+  S1     2024     252   24.84%  -13.56%         0     n/a      n/a      n/a
+  S1     2025     250   14.97%   -9.70%         1  1.0000      n/a      n/a
+  S1     2026     197   15.64%  -11.32%         2  1.0000      n/a      n/a
+  S2     1999     207    2.45%   -1.22%         0     n/a      n/a      n/a
+  S2     2000     252   -8.35%  -24.43%         7  0.1429   4.9762  -0.1463  LOSS
+  S2     2001     248    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2002     252    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2003     252   21.70%   -9.10%         6  0.5000   3.6268   1.3134
+  S2     2004     252   -5.25%  -15.27%         7  0.4286   0.3279  -0.4309  LOSS
+  S2     2005     252   -4.57%   -7.90%         7  0.2857   1.1508  -0.3855  LOSS
+  S2     2006     251   -7.61%  -14.03%        10  0.2000   2.4904  -0.3019  LOSS
+  S2     2007     251   -6.01%  -12.87%        12  0.1667   4.1607  -0.1399  LOSS
+  S2     2008     253   -1.87%    0.00%         1  0.0000      n/a      n/a  LOSS
+  S2     2009     252   17.07%   -6.92%         3  0.3333   4.4603   0.8201
+  S2     2010     252   -0.19%  -17.33%         5  0.2000   2.9171  -0.2166  LOSS
+  S2     2011     252   -2.89%  -10.88%         6  0.3333   4.7525   0.9175  LOSS
+  S2     2012     250    7.97%  -13.84%         7  0.4286   2.2340   0.3860
+  S2     2013     252   17.28%   -5.34%         6  0.5000   1.5615   0.2807
+  S2     2014     252    2.52%   -6.73%        10  0.4000   4.3721   1.1489
+  S2     2015     252  -15.85%  -15.59%        16  0.0625   0.4203  -0.9112  LOSS
+  S2     2016     252   -4.98%   -5.09%         8  0.2500   1.0963  -0.4759  LOSS
+  S2     2017     251   24.74%   -5.76%         5  0.6000   6.4433   3.4660
+  S2     2018     251    1.81%  -14.73%         5  0.4000   6.3738   1.9495
+  S2     2019     252   -2.20%  -15.62%         8  0.0000      n/a      n/a  LOSS
+  S2     2020     253   35.73%  -17.15%         7  0.2857  19.1946   4.7699
+  S2     2021     252    1.99%  -14.79%         9  0.3333   3.6868   0.5623
+  S2     2022     251   -3.88%   -4.79%         1  0.0000      n/a      n/a  LOSS
+  S2     2023     250   33.79%   -8.51%         6  0.1667  23.2936   3.0489
+  S2     2024     252   14.89%  -10.71%         5  0.6000   2.4066   1.0439
+  S2     2025     250    2.71%   -7.40%         8  0.3750   5.6323   1.4871
+  S2     2026     197    6.10%  -11.75%        13  0.2308   3.9265   0.1369
+  S3     1999     207   78.95%  -11.91%         0     n/a      n/a      n/a
+  S3     2000     252  -36.11%  -52.72%         0     n/a      n/a      n/a  LOSS
+  S3     2001     248  -33.34%  -58.40%         0     n/a      n/a      n/a  LOSS
+  S3     2002     252  -37.37%  -51.86%         0     n/a      n/a      n/a  LOSS
+  S3     2003     252   49.61%  -12.18%         0     n/a      n/a      n/a
+  S3     2004     252    9.48%  -15.86%         0     n/a      n/a      n/a
+  S3     2005     252    1.25%  -12.14%         0     n/a      n/a      n/a
+  S3     2006     251    6.80%  -17.38%         0     n/a      n/a      n/a
+  S3     2007     251   18.67%  -11.45%         0     n/a      n/a      n/a
+  S3     2008     253  -41.94%  -49.51%         0     n/a      n/a      n/a  LOSS
+  S3     2009     252   53.83%  -18.29%         0     n/a      n/a      n/a
+  S3     2010     252   19.04%  -15.93%         0     n/a      n/a      n/a
+  S3     2011     252    2.52%  -16.09%         0     n/a      n/a      n/a
+  S3     2012     250   16.66%  -11.89%         0     n/a      n/a      n/a
+  S3     2013     252   35.05%   -6.15%         0     n/a      n/a      n/a
+  S3     2014     252   17.38%   -8.47%         0     n/a      n/a      n/a
+  S3     2015     252    8.34%  -13.94%         0     n/a      n/a      n/a
+  S3     2016     252    5.92%  -12.04%         0     n/a      n/a      n/a
+  S3     2017     251   31.47%   -5.14%         0     n/a      n/a      n/a
+  S3     2018     251   -0.96%  -23.16%         0     n/a      n/a      n/a  LOSS
+  S3     2019     252   37.83%  -10.98%         0     n/a      n/a      n/a
+  S3     2020     253   47.57%  -28.56%         0     n/a      n/a      n/a
+  S3     2021     252   26.81%  -10.85%         0     n/a      n/a      n/a
+  S3     2022     251  -33.07%  -35.25%         0     n/a      n/a      n/a  LOSS
+  S3     2023     250   53.79%  -10.91%         0     n/a      n/a      n/a
+  S3     2024     252   24.84%  -13.56%         0     n/a      n/a      n/a
+  S3     2025     250   20.16%  -22.88%         0     n/a      n/a      n/a
+  S3     2026     197   18.66%  -11.83%         0     n/a      n/a      n/a
+  S4     1999     207   32.21%   -6.01%         0     n/a      n/a      n/a
+  S4     2000     252  -20.77%  -24.54%         0     n/a      n/a      n/a  LOSS
+  S4     2001     248  -11.97%  -22.90%         0     n/a      n/a      n/a  LOSS
+  S4     2002     252  -14.22%  -22.86%         0     n/a      n/a      n/a  LOSS
+  S4     2003     252   21.90%   -7.58%         0     n/a      n/a      n/a
+  S4     2004     252    8.04%  -12.69%         0     n/a      n/a      n/a
+  S4     2005     252   -7.95%  -15.16%         0     n/a      n/a      n/a  LOSS
+  S4     2006     251    5.84%  -18.43%         0     n/a      n/a      n/a
+  S4     2007     251   20.41%   -9.85%         0     n/a      n/a      n/a
+  S4     2008     253  -25.58%  -27.19%         0     n/a      n/a      n/a  LOSS
+  S4     2009     252   31.51%   -7.22%         0     n/a      n/a      n/a
+  S4     2010     252    8.94%  -14.73%         0     n/a      n/a      n/a
+  S4     2011     252    4.65%  -16.24%         0     n/a      n/a      n/a
+  S4     2012     250   17.74%  -15.16%         0     n/a      n/a      n/a
+  S4     2013     252   31.82%   -9.56%         0     n/a      n/a      n/a
+  S4     2014     252   12.15%  -12.17%         0     n/a      n/a      n/a
+  S4     2015     252    0.46%  -14.16%         0     n/a      n/a      n/a
+  S4     2016     252    9.63%  -10.17%         0     n/a      n/a      n/a
+  S4     2017     251   51.58%   -6.73%         0     n/a      n/a      n/a
+  S4     2018     251    6.47%  -20.31%         0     n/a      n/a      n/a
+  S4     2019     252   13.32%  -21.68%         0     n/a      n/a      n/a
+  S4     2020     253   14.59%  -22.06%         0     n/a      n/a      n/a
+  S4     2021     252   13.76%  -10.48%         0     n/a      n/a      n/a
+  S4     2022     251  -18.68%  -20.26%         0     n/a      n/a      n/a  LOSS
+  S4     2023     250   39.16%  -10.58%         0     n/a      n/a      n/a
+  S4     2024     252   22.48%  -12.17%         0     n/a      n/a      n/a
+  S4     2025     250   28.02%  -16.23%         0     n/a      n/a      n/a
+  S4     2026     197   17.65%   -9.26%         0     n/a      n/a      n/a
+
+  losing years by strategy in QQQ:
+    S1   9 of 28 years   2000, 2001, 2002, 2005, 2008, 2011, 2015, 2016, 2022
+    S2  12 of 28 years   2000, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2019, 2022
+    S3   6 of 28 years   2000, 2001, 2002, 2008, 2018, 2022
+    S4   6 of 28 years   2000, 2001, 2002, 2005, 2008, 2022
+
+----------------------------------------------------------------------------------------------------
+PER-YEAR -- SPY
+----------------------------------------------------------------------------------------------------
+
+  strat  year  n_days   return    maxdd  n_trades       p        b        E  LOSS
+  -------------------------------------------------------------------------------
+  S1     1993     234    0.27%   -1.60%         0     n/a      n/a      n/a
+  S1     1994     252   -9.88%  -13.03%         7  0.1429   0.0327  -0.8525  LOSS
+  S1     1995     252   33.98%   -3.19%         1  0.0000      n/a      n/a
+  S1     1996     254   14.83%  -11.31%         3  0.3333  59.2289  19.0763
+  S1     1997     253   31.44%  -11.20%         0     n/a      n/a      n/a
+  S1     1998     252   15.17%  -15.90%         4  0.2500  57.1929  13.5482
+  S1     1999     252    7.83%  -14.07%         2  0.5000   3.5456   1.2728
+  S1     2000     252  -19.86%  -21.15%        13  0.2308   0.7495  -0.5963  LOSS
+  S1     2001     248    0.00%    0.00%         0     n/a      n/a      n/a
+  S1     2002     252   -4.18%   -4.24%         4  0.2500   0.0240  -0.7440  LOSS
+  S1     2003     252   23.08%   -5.15%         1  0.0000      n/a      n/a
+  S1     2004     252    0.48%  -10.35%         5  0.2000   6.8007   0.5601
+  S1     2005     252   -0.35%   -7.94%         5  0.8000   1.2279   0.7823  LOSS
+  S1     2006     251    5.41%  -10.07%         5  0.4000   1.3040  -0.0784
+  S1     2007     251    0.72%   -8.94%         9  0.5556   4.9967   2.3315
+  S1     2008     253   -0.32%   -0.32%         1  0.0000      n/a      n/a  LOSS
+  S1     2009     252   10.43%  -10.98%         3  0.0000      n/a      n/a
+  S1     2010     252   -2.03%  -19.82%         4  0.2500   7.4174   1.1044  LOSS
+  S1     2011     252   -6.94%  -14.22%         5  0.2000   9.5373   1.1075  LOSS
+  S1     2012     250   11.54%   -9.64%         3  1.0000      n/a      n/a
+  S1     2013     252   29.69%   -6.05%         0     n/a      n/a      n/a
+  S1     2014     252    9.03%   -6.46%         1  1.0000      n/a      n/a
+  S1     2015     252  -10.33%  -13.67%         7  0.1429   2.2186  -0.5402  LOSS
+  S1     2016     252    8.76%   -6.01%         1  0.0000      n/a      n/a
+  S1     2017     251   19.38%   -3.03%         0     n/a      n/a      n/a
+  S1     2018     251   -5.39%  -13.24%         6  0.3333   6.9330   1.6443  LOSS
+  S1     2019     252   12.15%   -6.71%         2  0.5000   0.0404  -0.4798
+  S1     2020     253    7.33%  -19.95%         5  0.6000   1.0462   0.2277
+  S1     2021     252   27.04%   -5.42%         0     n/a      n/a      n/a
+  S1     2022     251  -17.31%  -17.79%         7  0.1429  19.9107   1.9872  LOSS
+  S1     2023     250    8.53%   -9.52%         6  0.1667   3.5971  -0.2338
+  S1     2024     252   23.30%   -8.41%         0     n/a      n/a      n/a
+  S1     2025     250    9.99%  -10.68%         2  0.5000  28.2647  13.6324
+  S1     2026     197    9.79%   -5.60%         2  1.0000      n/a      n/a
+  S2     1993     234   -1.07%   -2.33%         4  0.5000   0.5708  -0.2146  LOSS
+  S2     1994     252   -8.53%  -11.70%        13  0.1538   0.3546  -0.7916  LOSS
+  S2     1995     252   31.61%   -3.19%         1  1.0000      n/a      n/a
+  S2     1996     254   10.30%   -7.85%         7  0.5714   4.7082   2.2618
+  S2     1997     253   10.41%  -15.92%        10  0.3000   5.3837   0.9151
+  S2     1998     252    5.01%  -13.31%         9  0.3333   1.8394  -0.0535
+  S2     1999     252    3.22%  -12.24%        12  0.3636   2.4453   0.2528
+  S2     2000     252  -20.82%  -20.04%        14  0.2857   0.6301  -0.5343  LOSS
+  S2     2001     248    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2002     252    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2003     252   12.76%   -4.48%         7  0.5714   1.9031   0.6589
+  S2     2004     252   -1.98%   -9.37%         6  0.3333   2.3653   0.1218  LOSS
+  S2     2005     252   -1.22%   -4.90%        10  0.3000   1.9529  -0.1141  LOSS
+  S2     2006     251    6.09%   -5.83%         7  0.2857   1.8064  -0.1982
+  S2     2007     251   -7.15%  -13.92%        12  0.3333   4.1601   0.7200  LOSS
+  S2     2008     253    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2009     252   12.62%   -6.66%         3  0.3333   4.9958   0.9986
+  S2     2010     252    0.42%  -10.85%         3  0.3333   1.3929  -0.2024
+  S2     2011     252   -3.02%   -9.35%        10  0.4444   1.8124   0.2500  LOSS
+  S2     2012     250    0.72%   -9.99%         9  0.2222   3.9496   0.0999
+  S2     2013     252   17.36%   -6.12%         7  0.4286   4.0163   1.1499
+  S2     2014     252    1.17%   -4.53%         7  0.7143   6.9696   4.6926
+  S2     2015     252  -15.76%  -15.72%        21  0.0952   0.5232  -0.8549  LOSS
+  S2     2016     252   -2.79%   -6.67%         8  0.2500   0.7052  -0.5737  LOSS
+  S2     2017     251   14.70%   -3.45%         6  0.6667   1.8668   0.9112
+  S2     2018     251   -6.88%  -13.96%        10  0.3000   4.6349   0.6905  LOSS
+  S2     2019     252   -0.80%  -11.27%         6  0.0000      n/a      n/a  LOSS
+  S2     2020     253   11.51%   -9.16%         5  0.6000   8.1866   4.5120
+  S2     2021     252   16.26%   -5.25%         7  0.7143  12.8431   8.8880
+  S2     2022     251   -4.73%   -5.28%         2  0.0000      n/a      n/a  LOSS
+  S2     2023     250    9.28%   -7.13%         9  0.2222   2.7000  -0.1778
+  S2     2024     252   12.82%   -8.45%         7  0.5714   3.9730   1.8417
+  S2     2025     250    5.91%   -4.57%         4  0.2500  16.4033   3.3508
+  S2     2026     197    4.53%   -7.94%        12  0.5000   1.3605   0.1802
+  S3     1993     234    6.04%   -5.12%         0     n/a      n/a      n/a
+  S3     1994     252   -2.21%   -9.06%         0     n/a      n/a      n/a  LOSS
+  S3     1995     252   34.95%   -3.19%         0     n/a      n/a      n/a
+  S3     1996     254   20.10%   -8.11%         0     n/a      n/a      n/a
+  S3     1997     253   31.44%  -11.20%         0     n/a      n/a      n/a
+  S3     1998     252   27.04%  -19.03%         0     n/a      n/a      n/a
+  S3     1999     252   19.11%  -11.94%         0     n/a      n/a      n/a
+  S3     2000     252  -10.68%  -17.79%         0     n/a      n/a      n/a  LOSS
+  S3     2001     248  -12.87%  -29.47%         0     n/a      n/a      n/a  LOSS
+  S3     2002     252  -22.81%  -33.60%         0     n/a      n/a      n/a  LOSS
+  S3     2003     252   26.12%  -13.73%         0     n/a      n/a      n/a
+  S3     2004     252    8.62%   -8.19%         0     n/a      n/a      n/a
+  S3     2005     252    3.01%   -7.32%         0     n/a      n/a      n/a
+  S3     2006     251   13.74%   -7.59%         0     n/a      n/a      n/a
+  S3     2007     251    3.24%   -9.92%         0     n/a      n/a      n/a
+  S3     2008     253  -38.28%  -47.94%         0     n/a      n/a      n/a  LOSS
+  S3     2009     252   23.49%  -27.13%         0     n/a      n/a      n/a
+  S3     2010     252   12.84%  -16.10%         0     n/a      n/a      n/a
+  S3     2011     252   -0.20%  -19.42%         0     n/a      n/a      n/a  LOSS
+  S3     2012     250   13.47%   -9.69%         0     n/a      n/a      n/a
+  S3     2013     252   29.69%   -6.05%         0     n/a      n/a      n/a
+  S3     2014     252   11.29%   -7.70%         0     n/a      n/a      n/a
+  S3     2015     252   -0.81%  -12.29%         0     n/a      n/a      n/a  LOSS
+  S3     2016     252    9.64%   -9.19%         0     n/a      n/a      n/a
+  S3     2017     251   19.38%   -3.03%         0     n/a      n/a      n/a
+  S3     2018     251   -6.35%  -20.18%         0     n/a      n/a      n/a  LOSS
+  S3     2019     252   28.79%   -6.62%         0     n/a      n/a      n/a
+  S3     2020     253   16.16%  -34.10%         0     n/a      n/a      n/a
+  S3     2021     252   27.04%   -5.42%         0     n/a      n/a      n/a
+  S3     2022     251  -19.48%  -25.36%         0     n/a      n/a      n/a  LOSS
+  S3     2023     250   24.29%  -10.29%         0     n/a      n/a      n/a
+  S3     2024     252   23.30%   -8.41%         0     n/a      n/a      n/a
+  S3     2025     250   16.35%  -19.00%         0     n/a      n/a      n/a
+  S3     2026     197   12.86%   -9.13%         0     n/a      n/a      n/a
+  S4     1993     234    2.68%   -7.44%         0     n/a      n/a      n/a
+  S4     1994     252    4.59%  -12.28%         0     n/a      n/a      n/a
+  S4     1995     252   78.41%   -5.70%         0     n/a      n/a      n/a
+  S4     1996     254   22.65%  -15.40%         0     n/a      n/a      n/a
+  S4     1997     253   18.20%  -10.65%         0     n/a      n/a      n/a
+  S4     1998     252   14.50%  -16.24%         0     n/a      n/a      n/a
+  S4     1999     252   15.24%  -10.92%         0     n/a      n/a      n/a
+  S4     2000     252  -14.75%  -17.00%         0     n/a      n/a      n/a  LOSS
+  S4     2001     248  -14.09%  -25.87%         0     n/a      n/a      n/a  LOSS
+  S4     2002     252  -18.77%  -24.30%         0     n/a      n/a      n/a  LOSS
+  S4     2003     252   20.76%  -10.91%         0     n/a      n/a      n/a
+  S4     2004     252   10.08%  -11.10%         0     n/a      n/a      n/a
+  S4     2005     252   -4.17%  -10.74%         0     n/a      n/a      n/a  LOSS
+  S4     2006     251   23.25%  -10.39%         0     n/a      n/a      n/a
+  S4     2007     251    4.13%  -10.86%         0     n/a      n/a      n/a
+  S4     2008     253  -24.03%  -25.73%         0     n/a      n/a      n/a  LOSS
+  S4     2009     252   16.77%  -11.15%         0     n/a      n/a      n/a
+  S4     2010     252    3.39%  -14.66%         0     n/a      n/a      n/a
+  S4     2011     252    1.16%  -19.96%         0     n/a      n/a      n/a
+  S4     2012     250   17.71%  -13.22%         0     n/a      n/a      n/a
+  S4     2013     252   28.08%   -9.92%         0     n/a      n/a      n/a
+  S4     2014     252   10.88%  -13.16%         0     n/a      n/a      n/a
+  S4     2015     252   -7.09%  -17.51%         0     n/a      n/a      n/a  LOSS
+  S4     2016     252   16.11%   -9.22%         0     n/a      n/a      n/a
+  S4     2017     251   35.81%   -8.45%         0     n/a      n/a      n/a
+  S4     2018     251   -5.37%  -30.31%         0     n/a      n/a      n/a  LOSS
+  S4     2019     252    9.49%  -21.13%         0     n/a      n/a      n/a
+  S4     2020     253   -6.13%  -28.99%         0     n/a      n/a      n/a  LOSS
+  S4     2021     252   14.92%  -10.17%         0     n/a      n/a      n/a
+  S4     2022     251  -16.19%  -19.58%         0     n/a      n/a      n/a  LOSS
+  S4     2023     250   24.02%  -13.76%         0     n/a      n/a      n/a
+  S4     2024     252   28.39%  -11.18%         0     n/a      n/a      n/a
+  S4     2025     250   26.37%  -17.39%         0     n/a      n/a      n/a
+  S4     2026     197   12.41%   -9.72%         0     n/a      n/a      n/a
+
+  losing years by strategy in SPY:
+    S1  10 of 34 years   1994, 2000, 2002, 2005, 2008, 2010, 2011, 2015, 2018, 2022
+    S2  12 of 34 years   1993, 1994, 2000, 2004, 2005, 2007, 2011, 2015, 2016, 2018, 2019, 2022
+    S3   9 of 34 years   1994, 2000, 2001, 2002, 2008, 2011, 2015, 2018, 2022
+    S4   9 of 34 years   2000, 2001, 2002, 2005, 2008, 2015, 2018, 2020, 2022
+
+----------------------------------------------------------------------------------------------------
+PER-YEAR -- TLT
+----------------------------------------------------------------------------------------------------
+
+  strat  year  n_days   return    maxdd  n_trades       p        b        E  LOSS
+  -------------------------------------------------------------------------------
+  S1     2002     110    0.00%    0.00%         0     n/a      n/a      n/a
+  S1     2003     252   -1.50%   -7.86%         1  0.0000      n/a      n/a  LOSS
+  S1     2004     252   -3.77%   -7.38%         7  0.1429   1.3064  -0.6705  LOSS
+  S1     2005     252    1.42%   -7.62%         4  0.6667   7.3586   4.5724
+  S1     2006     251   -2.09%   -3.49%         5  0.0000      n/a      n/a  LOSS
+  S1     2007     251    0.17%   -6.99%         9  0.0000      n/a      n/a
+  S1     2008     253   18.32%  -11.42%         8  0.2500   2.5344  -0.1164
+  S1     2009     252  -15.32%  -13.57%         1  1.0000      n/a      n/a  LOSS
+  S1     2010     252   -2.54%  -13.87%         4  0.2500   0.9594  -0.5102  LOSS
+  S1     2011     252   20.25%  -10.91%         5  0.2000   0.3795  -0.7241
+  S1     2012     250   -9.12%  -12.41%         9  0.4444   9.4667   3.6519  LOSS
+  S1     2013     252   -2.71%   -2.48%         4  0.2500   0.1971  -0.7007  LOSS
+  S1     2014     252   15.29%   -5.25%         2  0.0000      n/a      n/a
+  S1     2015     252   -8.80%  -16.95%         5  0.2000  13.8556   1.9711  LOSS
+  S1     2016     252    5.94%   -8.62%         3  0.3333  12.4273   3.4758
+  S1     2017     251   -1.29%   -5.19%         7  0.2857   0.6640  -0.5246  LOSS
+  S1     2018     251   -4.31%   -6.13%         8  0.1250   0.6792  -0.7901  LOSS
+  S1     2019     252   11.51%   -8.72%         1  1.0000      n/a      n/a
+  S1     2020     253   17.54%  -15.73%         2  0.5000  90.3191  44.6596
+  S1     2021     252   -1.90%   -7.09%         7  0.4286   0.3523  -0.4204  LOSS
+  S1     2022     251   -3.10%   -0.49%         1  0.0000      n/a      n/a  LOSS
+  S1     2023     250   -6.71%   -8.00%        11  0.0909   1.6015  -0.7635  LOSS
+  S1     2024     252  -15.74%  -15.60%        12  0.1667   0.2493  -0.7918  LOSS
+  S1     2025     250   -4.49%   -4.79%         2  0.0000      n/a      n/a  LOSS
+  S1     2026     197   -4.52%   -4.52%         3  0.0000      n/a      n/a  LOSS
+  S2     2002     110    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2003     252    1.82%   -4.92%         1  1.0000      n/a      n/a
+  S2     2004     252   -4.64%   -8.59%         6  0.1667   0.5521  -0.7413  LOSS
+  S2     2005     252   -0.38%   -7.57%         8  0.3750   1.5416  -0.0469  LOSS
+  S2     2006     251   -2.45%   -3.48%         5  0.4000   0.2869  -0.4853  LOSS
+  S2     2007     251    1.48%   -5.40%         5  0.5000   1.6717   0.3359
+  S2     2008     253   13.95%  -11.73%        10  0.2000   0.6560  -0.6688
+  S2     2009     252  -12.29%  -10.03%         3  0.3333   8.3630   2.1210  LOSS
+  S2     2010     252    1.90%   -8.17%         4  0.5000   2.1964   0.5982
+  S2     2011     252    8.26%  -14.22%        11  0.3636   2.9633   0.4412
+  S2     2012     250   -3.15%   -9.95%        10  0.3000   2.0884  -0.0735  LOSS
+  S2     2013     252    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2014     252   11.13%   -5.81%         7  0.5714   1.1493   0.2282
+  S2     2015     252   -5.58%  -14.02%         7  0.1429  11.7576   0.8225  LOSS
+  S2     2016     252    4.67%   -6.15%         8  0.5000   2.5295   0.7647
+  S2     2017     251   -5.60%   -6.57%         9  0.3333   0.3179  -0.5607  LOSS
+  S2     2018     251   -0.41%   -0.29%         2  0.5000   0.6470  -0.1765  LOSS
+  S2     2019     252    9.30%  -10.39%        10  0.7000   2.4194   1.3936
+  S2     2020     253    4.24%  -15.73%        10  0.3000   2.2964  -0.0111
+  S2     2021     252  -10.56%  -10.91%         9  0.1111   0.0873  -0.8792  LOSS
+  S2     2022     251    0.00%    0.00%         0     n/a      n/a      n/a
+  S2     2023     250    1.00%   -0.48%         1  1.0000      n/a      n/a
+  S2     2024     252    0.41%   -4.06%         3  0.3333   2.4879   0.1626
+  S2     2025     250   -1.73%   -4.32%         4  0.2500   0.2288  -0.6928  LOSS
+  S2     2026     197   -3.53%   -3.67%         3  0.0000      n/a      n/a  LOSS
+  S3     2002     110    7.34%   -7.04%         0     n/a      n/a      n/a
+  S3     2003     252   -3.52%  -16.39%         0     n/a      n/a      n/a  LOSS
+  S3     2004     252    3.63%  -11.55%         0     n/a      n/a      n/a
+  S3     2005     252    3.78%   -8.87%         0     n/a      n/a      n/a
+  S3     2006     251   -3.78%  -10.59%         0     n/a      n/a      n/a  LOSS
+  S3     2007     251    5.22%   -9.07%         0     n/a      n/a      n/a
+  S3     2008     253   28.27%   -8.55%         0     n/a      n/a      n/a
+  S3     2009     252  -24.68%  -24.20%         0     n/a      n/a      n/a  LOSS
+  S3     2010     252    4.71%  -16.23%         0     n/a      n/a      n/a
+  S3     2011     252   28.82%  -10.91%         0     n/a      n/a      n/a
+  S3     2012     250   -0.06%  -10.49%         0     n/a      n/a      n/a  LOSS
+  S3     2013     252  -15.94%  -17.90%         0     n/a      n/a      n/a  LOSS
+  S3     2014     252   23.62%   -5.25%         0     n/a      n/a      n/a
+  S3     2015     252   -4.24%  -16.67%         0     n/a      n/a      n/a  LOSS
+  S3     2016     252   -1.20%  -18.65%         0     n/a      n/a      n/a  LOSS
+  S3     2017     251    6.49%   -5.30%         0     n/a      n/a      n/a
+  S3     2018     251   -4.22%  -11.17%         0     n/a      n/a      n/a  LOSS
+  S3     2019     252   11.50%   -8.72%         0     n/a      n/a      n/a
+  S3     2020     253   16.42%  -15.73%         0     n/a      n/a      n/a
+  S3     2021     252   -6.05%  -14.99%         0     n/a      n/a      n/a  LOSS
+  S3     2022     251  -32.82%  -35.97%         0     n/a      n/a      n/a  LOSS
+  S3     2023     250   -0.68%  -23.81%         0     n/a      n/a      n/a  LOSS
+  S3     2024     252  -11.68%  -14.04%         0     n/a      n/a      n/a  LOSS
+  S3     2025     250   -0.19%   -9.56%         0     n/a      n/a      n/a  LOSS
+  S3     2026     197   -9.49%  -15.10%         0     n/a      n/a      n/a  LOSS
+  S4     2002     110    3.94%   -9.19%         0     n/a      n/a      n/a
+  S4     2003     252    8.79%  -17.16%         0     n/a      n/a      n/a
+  S4     2004     252   14.41%  -14.79%         0     n/a      n/a      n/a
+  S4     2005     252    8.13%  -12.31%         0     n/a      n/a      n/a
+  S4     2006     251    4.33%  -15.75%         0     n/a      n/a      n/a
+  S4     2007     251    4.21%  -20.33%         0     n/a      n/a      n/a
+  S4     2008     253   22.42%   -9.12%         0     n/a      n/a      n/a
+  S4     2009     252  -21.30%  -20.20%         0     n/a      n/a      n/a  LOSS
+  S4     2010     252   17.21%  -11.43%         0     n/a      n/a      n/a
+  S4     2011     252   26.41%   -5.96%         0     n/a      n/a      n/a
+  S4     2012     250    2.24%  -10.20%         0     n/a      n/a      n/a
+  S4     2013     252  -10.92%  -15.72%         0     n/a      n/a      n/a  LOSS
+  S4     2014     252   46.85%   -6.56%         0     n/a      n/a      n/a
+  S4     2015     252   -0.51%  -13.47%         0     n/a      n/a      n/a  LOSS
+  S4     2016     252   -2.58%  -20.25%         0     n/a      n/a      n/a  LOSS
+  S4     2017     251   18.73%   -9.35%         0     n/a      n/a      n/a
+  S4     2018     251    1.88%  -13.98%         0     n/a      n/a      n/a
+  S4     2019     252   33.06%   -7.50%         0     n/a      n/a      n/a
+  S4     2020     253   17.23%  -16.68%         0     n/a      n/a      n/a
+  S4     2021     252   -3.00%  -16.85%         0     n/a      n/a      n/a  LOSS
+  S4     2022     251  -27.06%  -29.70%         0     n/a      n/a      n/a  LOSS
+  S4     2023     250   -3.51%  -19.72%         0     n/a      n/a      n/a  LOSS
+  S4     2024     252  -12.65%  -15.39%         0     n/a      n/a      n/a  LOSS
+  S4     2025     250    8.30%   -9.31%         0     n/a      n/a      n/a
+  S4     2026     197   -6.11%  -15.22%         0     n/a      n/a      n/a  LOSS
+
+  losing years by strategy in TLT:
+    S1  16 of 25 years   2003, 2004, 2006, 2009, 2010, 2012, 2013, 2015, 2017, 2018, 2021, 2022, 2023, 2024, 2025, 2026
+    S2  11 of 25 years   2004, 2005, 2006, 2009, 2012, 2015, 2017, 2018, 2021, 2025, 2026
+    S3  14 of 25 years   2003, 2006, 2009, 2012, 2013, 2015, 2016, 2018, 2021, 2022, 2023, 2024, 2025, 2026
+    S4   9 of 25 years   2009, 2013, 2015, 2016, 2021, 2022, 2023, 2024, 2026
+```
+
+### 6. REGIME GRID -- data-derived, lagged one day, no hindsight labels
+
+```text
+6. REGIME GRID -- data-derived, lagged one day, no hindsight labels
+====================================================================================================
+
+  Every trading day is labelled with the state KNOWN AT THE PREVIOUS CLOSE:
+    trend  : close vs SMA(200)
+    slope  : sign of SMA(200)[t] - SMA(200)[t-20]
+    vol    : tercile of trailing 20d realised vol, cut over the FULL sample
+  Daily returns of each strategy are then attributed to that label.
+  The one-day lag is deliberate: labelling a return with a state read off
+  its own close makes the label and the return the same fact.
+
+----------------------------------------------------------------------------------------------------
+REGIME GRID -- GLD   (vol tercile cuts: 0.1258 / 0.1724 annualised)
+----------------------------------------------------------------------------------------------------
+
+  2x3 (trend x vol tercile) -- 5310 of 5510 days classified (96.4%); the rest is warm-up
+
+    above|vol-high  n_days=1275  days/yr=58.2
+    above|vol-low  n_days=1065  days/yr=48.6
+    above|vol-mid  n_days=1283  days/yr=58.6
+    below|vol-high  n_days=553  days/yr=25.2
+    below|vol-low  n_days=612  days/yr=27.9
+    below|vol-mid  n_days=522  days/yr=23.8
+  regime          strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p       b       E  n_req
+  ---------------------------------------------------------------------------------------------------------
+  above|vol-high  S1           0.014            3.57%        0.82%          0    n/a     n/a     n/a    n/a
+  above|vol-high  S2          -0.007           -1.77%       -0.41%  YES    38  0.237   0.366  -0.677      2
+  above|vol-high  S3           0.013            3.24%        0.75%          0    n/a     n/a     n/a    n/a
+  above|vol-high  S4           0.011            2.76%        0.64%          0    n/a     n/a     n/a    n/a
+  above|vol-low   S1           0.053           13.31%        2.57%          1  0.000     n/a     n/a    n/a
+  above|vol-low   S2           0.059           14.90%        2.87%         40  0.350   4.031   0.761     51
+  above|vol-low   S3           0.057           14.31%        2.76%          0    n/a     n/a     n/a    n/a
+  above|vol-low   S4           0.083           20.92%        4.04%          0    n/a     n/a     n/a    n/a
+  above|vol-mid   S1           0.089           22.52%        5.23%          1  1.000     n/a     n/a    n/a
+  above|vol-mid   S2           0.054           13.60%        3.16%         51  0.392   6.877   2.089     17
+  above|vol-mid   S3           0.090           22.57%        5.25%          0    n/a     n/a     n/a    n/a
+  above|vol-mid   S4           0.075           18.84%        4.38%          0    n/a     n/a     n/a    n/a
+  below|vol-high  S1          -0.008           -2.09%       -0.21%  YES    18  0.278   8.525   1.646     21
+  below|vol-high  S2          -0.003           -0.74%       -0.07%  YES     2  0.000     n/a     n/a    n/a
+  below|vol-high  S3           0.078           19.71%        1.97%          0    n/a     n/a     n/a    n/a
+  below|vol-high  S4           0.051           12.76%        1.28%          0    n/a     n/a     n/a    n/a
+  below|vol-low   S1           0.007            1.87%        0.21%         31  0.258  13.164   2.655     65
+  below|vol-low   S2           0.001            0.14%        0.02%          2  0.500   0.288  -0.356      2
+  below|vol-low   S3          -0.033           -8.39%       -0.93%  YES     0    n/a     n/a     n/a    n/a
+  below|vol-low   S4          -0.040           -9.99%       -1.11%  YES     0    n/a     n/a     n/a    n/a
+  below|vol-mid   S1           0.007            1.68%        0.16%         31  0.258   4.974   0.542     62
+  below|vol-mid   S2           0.001            0.22%        0.02%          3  0.000     n/a     n/a    n/a
+  below|vol-mid   S3           0.068           17.10%        1.62%          0    n/a     n/a     n/a    n/a
+  below|vol-mid   S4           0.051           12.73%        1.20%          0    n/a     n/a     n/a    n/a
+
+  2x2 (trend x slope) -- 5290 of 5510 days classified (96.0%); the rest is warm-up
+
+    above|slope-down  n_days=464  days/yr=21.2
+    above|slope-up  n_days=3139  days/yr=143.3
+    below|slope-down  n_days=1237  days/yr=56.5
+    below|slope-up  n_days=450  days/yr=20.5
+  regime            strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p       b       E  n_req
+  -----------------------------------------------------------------------------------------------------------
+  above|slope-down  S1           0.028            7.13%        0.60%          2  0.500   0.020  -0.490     10
+  above|slope-down  S2           0.010            2.59%        0.22%         18  0.333   1.159  -0.280     32
+  above|slope-down  S3           0.032            7.96%        0.67%          0    n/a     n/a     n/a    n/a
+  above|slope-down  S4           0.018            4.59%        0.39%          0    n/a     n/a     n/a    n/a
+  above|slope-up    S1           0.055           13.75%        7.82%          0    n/a     n/a     n/a    n/a
+  above|slope-up    S2           0.036            9.15%        5.20%        111  0.333   5.285   1.095     39
+  above|slope-up    S3           0.055           13.83%        7.86%          0    n/a     n/a     n/a    n/a
+  above|slope-up    S4           0.059           14.74%        8.39%          0    n/a     n/a     n/a    n/a
+  below|slope-down  S1          -0.000           -0.09%       -0.02%  YES    41  0.244   5.004   0.464    175
+  below|slope-down  S2           0.001            0.19%        0.04%          2  0.000     n/a     n/a    n/a
+  below|slope-down  S3           0.068           17.16%        3.85%          0    n/a     n/a     n/a    n/a
+  below|slope-down  S4           0.042           10.56%        2.37%          0    n/a     n/a     n/a    n/a
+  below|slope-up    S1           0.009            2.16%        0.18%         39  0.282  16.022   3.801     25
+  below|slope-up    S2          -0.004           -0.98%       -0.08%  YES     5  0.200   0.963  -0.607      0
+  below|slope-up    S3          -0.058          -14.52%       -1.18%  YES     0    n/a     n/a     n/a    n/a
+  below|slope-up    S4          -0.048          -12.18%       -0.99%  YES     0    n/a     n/a     n/a    n/a
+
+  ann_contrib is the annualised contribution to the strategy's total
+  arithmetic return: sum of that regime's daily returns / 21.9 years.
+  n_tr counts trades ENTERED while the regime label was in force.
+  S4's cells are vol-scaled by construction: a low-vol regime earns a
+  large weight, so S4's contribution in a calm regime is amplified and
+  is not comparable with S3's in that same regime.
+
+----------------------------------------------------------------------------------------------------
+REGIME GRID -- QQQ   (vol tercile cuts: 0.1481 / 0.2339 annualised)
+----------------------------------------------------------------------------------------------------
+
+  2x3 (trend x vol tercile) -- 6743 of 6943 days classified (97.1%); the rest is warm-up
+
+    above|vol-high  n_days=775  days/yr=28.1
+    above|vol-low  n_days=2220  days/yr=80.4
+    above|vol-mid  n_days=1949  days/yr=70.6
+    below|vol-high  n_days=1363  days/yr=49.4
+    below|vol-low  n_days=88  days/yr=3.2
+    below|vol-mid  n_days=348  days/yr=12.6
+  regime          strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p      b       E  n_req
+  --------------------------------------------------------------------------------------------------------
+  above|vol-high  S1          -0.000           -0.08%       -0.01%  YES     3  0.000    n/a     n/a    n/a
+  above|vol-high  S2           0.061           15.27%        1.70%         31  0.161  4.677  -0.084    652
+  above|vol-high  S3           0.021            5.18%        0.58%          0    n/a    n/a     n/a    n/a
+  above|vol-high  S4           0.014            3.55%        0.40%          0    n/a    n/a     n/a    n/a
+  above|vol-low   S1           0.036            9.00%        2.87%          0    n/a    n/a     n/a    n/a
+  above|vol-low   S2           0.023            5.75%        1.83%         52  0.250  4.116   0.279    179
+  above|vol-low   S3           0.035            8.91%        2.84%          0    n/a    n/a     n/a    n/a
+  above|vol-low   S4           0.038            9.48%        3.03%          0    n/a    n/a     n/a    n/a
+  above|vol-mid   S1           0.074           18.59%        5.21%          0    n/a    n/a     n/a    n/a
+  above|vol-mid   S2           0.017            4.20%        1.18%         84  0.310  3.316   0.336     65
+  above|vol-mid   S3           0.074           18.76%        5.26%          0    n/a    n/a     n/a    n/a
+  above|vol-mid   S4           0.062           15.70%        4.40%          0    n/a    n/a     n/a    n/a
+  below|vol-high  S1          -0.002           -0.51%       -0.10%  YES    39  0.179  6.124   0.279    185
+  below|vol-high  S2           0.000            0.01%        0.00%          3  0.667  3.851   2.234      3
+  below|vol-high  S3           0.008            2.07%        0.41%          0    n/a    n/a     n/a    n/a
+  below|vol-high  S4           0.011            2.78%        0.54%          0    n/a    n/a     n/a    n/a
+  below|vol-low   S1           0.013            3.31%        0.04%         13  0.231  3.972   0.147    785
+  below|vol-low   S2          -0.011           -2.72%       -0.03%  YES     3  0.000    n/a     n/a    n/a
+  below|vol-low   S3           0.118           29.68%        0.38%          0    n/a    n/a     n/a    n/a
+  below|vol-low   S4           0.086           21.69%        0.27%          0    n/a    n/a     n/a    n/a
+  below|vol-mid   S1          -0.036           -9.13%       -0.46%  YES    36  0.417  8.869   3.112      9
+  below|vol-mid   S2          -0.003           -0.68%       -0.03%  YES     4  1.000    n/a     n/a    n/a
+  below|vol-mid   S3           0.129           32.39%        1.62%          0    n/a    n/a     n/a    n/a
+  below|vol-mid   S4           0.099           25.03%        1.25%          0    n/a    n/a     n/a    n/a
+
+  2x2 (trend x slope) -- 6723 of 6943 days classified (96.8%); the rest is warm-up
+
+    above|slope-down  n_days=340  days/yr=12.3
+    above|slope-up  n_days=4584  days/yr=166.1
+    below|slope-down  n_days=1284  days/yr=46.5
+    below|slope-up  n_days=515  days/yr=18.7
+  regime            strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p      b      E  n_req
+  ---------------------------------------------------------------------------------------------------------
+  above|slope-down  S1           0.026            6.57%        0.32%          0    n/a    n/a    n/a    n/a
+  above|slope-down  S2           0.055           13.82%        0.68%          8  0.375  2.806  0.427     80
+  above|slope-down  S3           0.011            2.68%        0.13%          0    n/a    n/a    n/a    n/a
+  above|slope-down  S4           0.038            9.67%        0.47%          0    n/a    n/a    n/a    n/a
+  above|slope-up    S1           0.046           11.65%        7.68%          1  0.000    n/a    n/a    n/a
+  above|slope-up    S2           0.024            6.01%        3.96%        157  0.255  3.802  0.224    171
+  above|slope-up    S3           0.050           12.48%        8.23%          0    n/a    n/a    n/a    n/a
+  above|slope-up    S4           0.044           11.06%        7.29%          0    n/a    n/a    n/a    n/a
+  below|slope-down  S1           0.006            1.40%        0.26%         34  0.353  8.504  2.354      9
+  below|slope-down  S2           0.000            0.01%        0.00%          6  0.667  8.689  5.459      1
+  below|slope-down  S3           0.012            2.90%        0.54%          0    n/a    n/a    n/a    n/a
+  below|slope-down  S4           0.021            5.29%        0.98%          0    n/a    n/a    n/a    n/a
+  below|slope-up    S1          -0.042          -10.46%       -0.77%  YES    54  0.241  7.473  1.040     44
+  below|slope-up    S2          -0.004           -0.92%       -0.07%  YES     4  0.500  2.057  0.528     82
+  below|slope-up    S3           0.100           25.21%        1.87%          0    n/a    n/a    n/a    n/a
+  below|slope-up    S4           0.059           14.77%        1.09%          0    n/a    n/a    n/a    n/a
+
+  ann_contrib is the annualised contribution to the strategy's total
+  arithmetic return: sum of that regime's daily returns / 27.6 years.
+  n_tr counts trades ENTERED while the regime label was in force.
+  S4's cells are vol-scaled by construction: a low-vol regime earns a
+  large weight, so S4's contribution in a calm regime is amplified and
+  is not comparable with S3's in that same regime.
+
+----------------------------------------------------------------------------------------------------
+REGIME GRID -- SPY   (vol tercile cuts: 0.1072 / 0.1672 annualised)
+----------------------------------------------------------------------------------------------------
+
+  2x3 (trend x vol tercile) -- 8285 of 8485 days classified (97.6%); the rest is warm-up
+
+    above|vol-high  n_days=1218  days/yr=36.1
+    above|vol-low  n_days=2634  days/yr=78.1
+    above|vol-mid  n_days=2363  days/yr=70.1
+    below|vol-high  n_days=1603  days/yr=47.6
+    below|vol-low  n_days=71  days/yr=2.1
+    below|vol-mid  n_days=396  days/yr=11.7
+  regime          strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p       b      E  n_req
+  --------------------------------------------------------------------------------------------------------
+  above|vol-high  S1           0.065           16.42%        2.35%          1  0.000     n/a    n/a    n/a
+  above|vol-high  S2           0.015            3.67%        0.53%         68  0.338   2.378  0.143    238
+  above|vol-high  S3           0.063           15.91%        2.28%          0    n/a     n/a    n/a    n/a
+  above|vol-high  S4           0.053           13.27%        1.90%          0    n/a     n/a    n/a    n/a
+  above|vol-low   S1           0.028            7.00%        2.17%          0    n/a     n/a    n/a    n/a
+  above|vol-low   S2           0.015            3.73%        1.16%         71  0.366   4.339  0.955     31
+  above|vol-low   S3           0.028            7.04%        2.18%          0    n/a     n/a    n/a    n/a
+  above|vol-low   S4           0.040           10.12%        3.14%          0    n/a     n/a    n/a    n/a
+  above|vol-mid   S1           0.036            9.10%        2.53%          1  0.000     n/a    n/a    n/a
+  above|vol-mid   S2           0.023            5.82%        1.62%        102  0.350   2.502  0.226    101
+  above|vol-mid   S3           0.036            9.01%        2.51%          0    n/a     n/a    n/a    n/a
+  above|vol-mid   S4           0.034            8.66%        2.41%          0    n/a     n/a    n/a    n/a
+  below|vol-high  S1           0.001            0.30%        0.06%         69  0.304   5.752  1.055     24
+  below|vol-high  S2          -0.001           -0.26%       -0.05%  YES     5  0.400   2.655  0.462     46
+  below|vol-high  S3           0.067           16.77%        3.17%          0    n/a     n/a    n/a    n/a
+  below|vol-high  S4           0.039            9.80%        1.85%          0    n/a     n/a    n/a    n/a
+  below|vol-low   S1           0.008            2.01%        0.02%          9  0.333  10.367  2.789     39
+  below|vol-low   S2           0.000            0.00%        0.00%          0    n/a     n/a    n/a    n/a
+  below|vol-low   S3           0.089           22.53%        0.19%          0    n/a     n/a    n/a    n/a
+  below|vol-low   S4           0.142           35.72%        0.30%          0    n/a     n/a    n/a    n/a
+  below|vol-mid   S1          -0.018           -4.54%       -0.21%  YES    33  0.424   4.984  1.539     19
+  below|vol-mid   S2          -0.004           -1.05%       -0.05%  YES     1  0.000     n/a    n/a    n/a
+  below|vol-mid   S3          -0.024           -6.13%       -0.29%  YES     0    n/a     n/a    n/a    n/a
+  below|vol-mid   S4           0.031            7.76%        0.36%          0    n/a     n/a    n/a    n/a
+
+  2x2 (trend x slope) -- 8265 of 8485 days classified (97.4%); the rest is warm-up
+
+    above|slope-down  n_days=335  days/yr=9.9
+    above|slope-up  n_days=5860  days/yr=173.9
+    below|slope-down  n_days=1502  days/yr=44.6
+    below|slope-up  n_days=568  days/yr=16.9
+  regime            strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p      b      E  n_req
+  ---------------------------------------------------------------------------------------------------------
+  above|slope-down  S1           0.013            3.38%        0.13%          1  0.000    n/a    n/a    n/a
+  above|slope-down  S2          -0.010           -2.46%       -0.10%  YES    21  0.333  6.368  1.456     36
+  above|slope-down  S3           0.009            2.39%        0.09%          0    n/a    n/a    n/a    n/a
+  above|slope-down  S4           0.046           11.51%        0.45%          0    n/a    n/a    n/a    n/a
+  above|slope-up    S1           0.040           10.02%        6.92%          1  0.000    n/a    n/a    n/a
+  above|slope-up    S2           0.020            4.98%        3.44%        218  0.352  2.724  0.310     62
+  above|slope-up    S3           0.039            9.95%        6.87%          0    n/a    n/a    n/a    n/a
+  above|slope-up    S4           0.040           10.14%        7.00%          0    n/a    n/a    n/a    n/a
+  below|slope-down  S1          -0.002           -0.61%       -0.11%  YES    37  0.297  6.618  1.265     49
+  below|slope-down  S2          -0.002           -0.43%       -0.08%  YES     3  0.000    n/a    n/a    n/a
+  below|slope-down  S3           0.034            8.53%        1.51%          0    n/a    n/a    n/a    n/a
+  below|slope-down  S4           0.017            4.24%        0.75%          0    n/a    n/a    n/a    n/a
+  below|slope-up    S1          -0.002           -0.46%       -0.03%  YES    74  0.365  6.082  1.584     17
+  below|slope-up    S2          -0.001           -0.33%       -0.02%  YES     3  0.667  7.838  4.892      0
+  below|slope-up    S3           0.093           23.32%        1.56%          0    n/a    n/a    n/a    n/a
+  below|slope-up    S4           0.104           26.33%        1.76%          0    n/a    n/a    n/a    n/a
+
+  ann_contrib is the annualised contribution to the strategy's total
+  arithmetic return: sum of that regime's daily returns / 33.7 years.
+  n_tr counts trades ENTERED while the regime label was in force.
+  S4's cells are vol-scaled by construction: a low-vol regime earns a
+  large weight, so S4's contribution in a calm regime is amplified and
+  is not comparable with S3's in that same regime.
+
+----------------------------------------------------------------------------------------------------
+REGIME GRID -- TLT   (vol tercile cuts: 0.1051 / 0.1434 annualised)
+----------------------------------------------------------------------------------------------------
+
+  2x3 (trend x vol tercile) -- 5894 of 6094 days classified (96.7%); the rest is warm-up
+
+    above|vol-high  n_days=965  days/yr=39.8
+    above|vol-low  n_days=1043  days/yr=43.1
+    above|vol-mid  n_days=859  days/yr=35.5
+    below|vol-high  n_days=1038  days/yr=42.9
+    below|vol-low  n_days=928  days/yr=38.3
+    below|vol-mid  n_days=1061  days/yr=43.8
+  regime          strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p      b       E  n_req
+  --------------------------------------------------------------------------------------------------------
+  above|vol-high  S1           0.013            3.33%        0.53%          1  1.000    n/a     n/a    n/a
+  above|vol-high  S2          -0.002           -0.58%       -0.09%  YES    49  0.327  2.626   0.184    231
+  above|vol-high  S3           0.013            3.24%        0.51%          0    n/a    n/a     n/a    n/a
+  above|vol-high  S4           0.016            3.95%        0.62%          0    n/a    n/a     n/a    n/a
+  above|vol-low   S1           0.013            3.18%        0.54%          2  0.000    n/a     n/a    n/a
+  above|vol-low   S2           0.020            4.95%        0.85%         45  0.364  1.855   0.038   9845
+  above|vol-low   S3           0.010            2.52%        0.43%          0    n/a    n/a     n/a    n/a
+  above|vol-low   S4           0.038            9.45%        1.62%          0    n/a    n/a     n/a    n/a
+  above|vol-mid   S1          -0.021           -5.28%       -0.74%  YES     0    n/a    n/a     n/a    n/a
+  above|vol-mid   S2          -0.009           -2.30%       -0.32%  YES    39  0.359  1.538  -0.089    852
+  above|vol-mid   S3          -0.029           -7.22%       -1.02%  YES     0    n/a    n/a     n/a    n/a
+  above|vol-mid   S4          -0.021           -5.35%       -0.75%  YES     0    n/a    n/a     n/a    n/a
+  below|vol-high  S1          -0.000           -0.02%       -0.00%  YES    28  0.214  1.606  -0.442      8
+  below|vol-high  S2           0.000            0.00%        0.00%          0    n/a    n/a     n/a    n/a
+  below|vol-high  S3          -0.026           -6.45%       -1.10%  YES     0    n/a    n/a     n/a    n/a
+  below|vol-high  S4          -0.008           -1.95%       -0.33%  YES     0    n/a    n/a     n/a    n/a
+  below|vol-low   S1          -0.002           -0.55%       -0.08%  YES    52  0.176  6.344   0.296    558
+  below|vol-low   S2          -0.000           -0.09%       -0.01%  YES     0    n/a    n/a     n/a    n/a
+  below|vol-low   S3           0.024            6.04%        0.92%          0    n/a    n/a     n/a    n/a
+  below|vol-low   S4           0.066           16.71%        2.54%          0    n/a    n/a     n/a    n/a
+  below|vol-mid   S1          -0.001           -0.35%       -0.06%  YES    37  0.270  2.846   0.039   6709
+  below|vol-mid   S2           0.001            0.35%        0.06%          2  0.500  0.792  -0.104    171
+  below|vol-mid   S3           0.015            3.75%        0.65%          0    n/a    n/a     n/a    n/a
+  below|vol-mid   S4           0.044           11.01%        1.91%          0    n/a    n/a     n/a    n/a
+
+  2x2 (trend x slope) -- 5874 of 6094 days classified (96.4%); the rest is warm-up
+
+    above|slope-down  n_days=629  days/yr=26.0
+    above|slope-up  n_days=2218  days/yr=91.6
+    below|slope-down  n_days=2416  days/yr=99.8
+    below|slope-up  n_days=611  days/yr=25.2
+  regime            strat  mean_day_bp  ann_if_persists  ann_contrib  NEG  n_tr      p      b       E  n_req
+  ----------------------------------------------------------------------------------------------------------
+  above|slope-down  S1           0.002            0.40%        0.04%          3  0.333  0.166  -0.611      4
+  above|slope-down  S2           0.014            3.61%        0.37%         34  0.353  1.672  -0.057   2657
+  above|slope-down  S3          -0.018           -4.62%       -0.48%  YES     0    n/a    n/a     n/a    n/a
+  above|slope-down  S4          -0.002           -0.53%       -0.05%  YES     0    n/a    n/a     n/a    n/a
+  above|slope-up    S1           0.001            0.17%        0.06%          0    n/a    n/a     n/a    n/a
+  above|slope-up    S2          -0.002           -0.46%       -0.17%  YES    99  0.347  2.118   0.082   1508
+  above|slope-up    S3           0.002            0.52%        0.19%          0    n/a    n/a     n/a    n/a
+  above|slope-up    S4           0.012            3.14%        1.14%          0    n/a    n/a     n/a    n/a
+  below|slope-down  S1          -0.003           -0.72%       -0.28%  YES    76  0.213  2.694  -0.212    249
+  below|slope-down  S2           0.000            0.12%        0.05%          2  0.500  0.792  -0.104    171
+  below|slope-down  S3           0.014            3.43%        1.36%          0    n/a    n/a     n/a    n/a
+  below|slope-down  S4           0.049           12.43%        4.92%          0    n/a    n/a     n/a    n/a
+  below|slope-up    S1           0.005            1.38%        0.14%         41  0.220  7.359   0.835     74
+  below|slope-up    S2           0.000            0.00%        0.00%          0    n/a    n/a     n/a    n/a
+  below|slope-up    S3          -0.035           -8.83%       -0.88%  YES     0    n/a    n/a     n/a    n/a
+  below|slope-up    S4          -0.032           -7.95%       -0.80%  YES     0    n/a    n/a     n/a    n/a
+
+  ann_contrib is the annualised contribution to the strategy's total
+  arithmetic return: sum of that regime's daily returns / 24.2 years.
+  n_tr counts trades ENTERED while the regime label was in force.
+  S4's cells are vol-scaled by construction: a low-vol regime earns a
+  large weight, so S4's contribution in a calm regime is amplified and
+  is not comparable with S3's in that same regime.
+```
+
+### 7. TIMEFRAME BUCKETS -- the sibling engine's own bucketing and verdict
+
+```text
+7. TIMEFRAME BUCKETS -- the sibling engine's own bucketing and verdict
+====================================================================================================
+
+  The strategy's P&L series bucketed D / W / 2W / M / Q / H / Y using the
+  sibling engine's bucket_key() -- a trade belongs to the bucket containing
+  its CLOSE date, and 2W pairs are anchored on ODD ISO weeks. The P&L unit
+  here is a percentage point of equity, summed inside the bucket (so it is
+  arithmetic, not compounded). mean / sd / t_stat / period-Sharpe / max
+  drawdown / lag-1 autocorrelation / n_eff are computed by the engine's own
+  aggregate_bucket(), not by a second implementation.
+
+  VERDICT RULE (imported from that engine, not invented here):
+    rank buckets by descending |t_stat|, but only among buckets with
+      n_periods >= 12  AND  trades_per_period >= 5
+    any bucket with |t_stat| < 2.0 is NOT DISTINGUISHABLE FROM NOISE.
+
+  trades_per_period below is the REAL count of strategy trades closed per
+  period. The engine's own figure, days_per_period, is shown next to it so
+  the difference between 'how many observations' and 'how many independent
+  trades' is visible rather than conflated.
+
+----------------------------------------------------------------------------------------------------
+TIMEFRAME BUCKETS -- GLD
+----------------------------------------------------------------------------------------------------
+
+  S1 trend-follow 200d (close>SMA200 in, close<SMA200 out, stop 2xATR14)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    5510  0.0349   0.940   2.757      0.0371  -39.01%   0.015      1.00  -0.035  5914.4  no     beyond the +/-2 noise
+  W    1144  0.1681   1.947   2.921      0.0863  -38.56%   0.073      4.82  -0.014  1176.3  no     beyond the +/-2 noise
+  2W    574  0.3351   2.836   2.831      0.1181  -37.25%   0.145      9.60  -0.029   608.3  no     beyond the +/-2 noise
+  M     264  0.7286   3.999   2.960      0.1822  -35.32%   0.314     20.87  -0.015   272.1  no     beyond the +/-2 noise
+  Q      89  2.1611   5.848   3.486      0.3695  -26.93%   0.933     61.91   0.321    45.7  no     beyond the +/-2 noise
+  H      45  4.2743   9.391   3.053      0.4551  -22.49%   1.844    122.44   0.360    21.2  no     beyond the +/-2 noise
+  Y      23  8.3627  14.842   2.702      0.5634  -22.49%   3.609    239.57   0.268    13.3  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S2 trend-follow 50/200 (SMA50>SMA200 & close>SMA50 in, close<SMA50 out, stop 2xATR14)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    5510  0.0222   0.783   2.106      0.0284  -38.44%   0.025      1.00  -0.037  5929.6  no     beyond the +/-2 noise
+  W    1144  0.1070   1.604   2.256      0.0667  -37.99%   0.120      4.82  -0.007  1159.3  no     beyond the +/-2 noise
+  2W    574  0.2133   2.331   2.192      0.0915  -36.69%   0.239      9.60   0.040   530.2  no     beyond the +/-2 noise
+  M     264  0.4637   3.534   2.132      0.1312  -34.25%   0.519     20.87   0.072   228.6  no     beyond the +/-2 noise
+  Q      89  1.3755   4.967   2.613      0.2769  -25.61%   1.539     61.91   0.139    67.3  no     beyond the +/-2 noise
+  H      45  2.7204   7.084   2.576      0.3840  -15.10%   3.044    122.44   0.261    26.4  no     beyond the +/-2 noise
+  Y      23  5.3225  10.889   2.344      0.4888  -14.69%   5.957    239.57   0.236    14.2  yes    beyond the +/-2 noise
+    VERDICT: Y is the most reliable review timeframe. highest |t_stat| (2.344) among 1 bucket(s) passing both gates
+             status: most reliable of the qualifying buckets
+
+  S3 buy & hold (enter first open, hold to end of data)
+  bk  n_per     mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  ------------------------------------------------------------------------------------------------------------------------
+  D    5510   0.0454   1.150   2.931      0.0395  -53.90%   0.000      1.00  -0.017  5697.4  no     beyond the +/-2 noise
+  W    1144   0.2188   2.397   3.087      0.0913  -52.81%   0.000      4.82  -0.005  1154.7  no     beyond the +/-2 noise
+  2W    574   0.4360   3.444   3.033      0.1266  -51.50%   0.000      9.60  -0.051   635.8  no     beyond the +/-2 noise
+  M     264   0.9480   4.942   3.117      0.1918  -49.37%   0.000     20.87  -0.061   298.1  no     beyond the +/-2 noise
+  Q      89   2.8120   7.404   3.583      0.3798  -48.11%   0.000     61.91   0.067    77.8  no     beyond the +/-2 noise
+  H      45   5.5615  10.884   3.428      0.5110  -42.35%   0.000    122.44   0.101    36.7  no     beyond the +/-2 noise
+  Y      23  10.8812  16.629   3.138      0.6544  -42.35%   0.000    239.57   0.226    14.5  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S4 vol-targeted hold (always long, 15% annualised vol target, monthly rebalance)
+  bk  n_per     mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  ------------------------------------------------------------------------------------------------------------------------
+  D    5510   0.0428   1.103   2.880      0.0388  -78.93%   0.000      1.00   0.013  5371.8  no     beyond the +/-2 noise
+  W    1144   0.2062   2.338   2.983      0.0882  -74.70%   0.000      4.82   0.029  1079.2  no     beyond the +/-2 noise
+  2W    574   0.4109   3.512   2.803      0.1170  -74.10%   0.000      9.60  -0.080   673.3  no     beyond the +/-2 noise
+  M     264   0.8934   4.935   2.941      0.1810  -73.77%   0.000     20.87  -0.008   268.2  no     beyond the +/-2 noise
+  Q      89   2.6500   8.240   3.034      0.3216  -73.77%   0.000     61.91   0.137    67.6  no     beyond the +/-2 noise
+  H      45   5.2410  12.230   2.875      0.4285  -66.87%   0.000    122.44   0.050    40.7  no     beyond the +/-2 noise
+  Y      23  10.2542  18.927   2.598      0.5418  -66.87%   0.000    239.57   0.335    11.5  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+----------------------------------------------------------------------------------------------------
+TIMEFRAME BUCKETS -- QQQ
+----------------------------------------------------------------------------------------------------
+
+  S1 trend-follow 200d (close>SMA200 in, close<SMA200 out, stop 2xATR14)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    6943  0.0300   1.094   2.289      0.0275  -97.77%   0.013      1.00  -0.007  7038.2  no     beyond the +/-2 noise
+  W    1441  0.1448   2.509   2.190      0.0577  -96.63%   0.064      4.82  -0.057  1615.2  no     beyond the +/-2 noise
+  2W    723  0.2885   3.376   2.298      0.0855  -96.13%   0.127      9.60  -0.018   749.3  no     beyond the +/-2 noise
+  M     332  0.6283   4.700   2.436      0.1337  -90.57%   0.277     20.91   0.091   276.7  no     beyond the +/-2 noise
+  Q     112  1.8625   8.938   2.205      0.2084  -90.57%   0.821     61.99   0.014   109.0  no     beyond the +/-2 noise
+  H      56  3.7250  11.355   2.455      0.3280  -67.16%   1.643    123.98   0.200    37.4  no     beyond the +/-2 noise
+  Y      28  7.4499  18.488   2.132      0.4029  -67.16%   3.286    247.96   0.108    22.5  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S2 trend-follow 50/200 (SMA50>SMA200 & close>SMA50 in, close<SMA50 out, stop 2xATR14)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    6943  0.0185   0.807   1.906      0.0229  -35.42%   0.026      1.00  -0.027  7331.9  no     NOT DISTINGUISHABLE FR
+  W    1441  0.0890   1.727   1.956      0.0515  -34.56%   0.124      4.82  -0.004  1452.1  no     NOT DISTINGUISHABLE FR
+  2W    723  0.1773   2.503   1.905      0.0708  -33.26%   0.246      9.60   0.015   702.2  no     NOT DISTINGUISHABLE FR
+  M     332  0.3861   3.618   1.945      0.1067  -29.21%   0.536     20.91   0.002   330.4  no     NOT DISTINGUISHABLE FR
+  Q     112  1.1446   6.211   1.950      0.1843  -25.72%   1.589     61.99  -0.107   138.7  no     NOT DISTINGUISHABLE FR
+  H      56  2.2892   7.509   2.281      0.3049  -23.97%   3.179    123.98   0.049    50.7  no     beyond the +/-2 noise
+  Y      28  4.5784  11.789   2.055      0.3884  -23.97%   6.357    247.96  -0.005    28.3  yes    beyond the +/-2 noise
+    VERDICT: Y is the most reliable review timeframe. highest |t_stat| (2.055) among 1 bucket(s) passing both gates
+             status: most reliable of the qualifying buckets
+
+  S3 buy & hold (enter first open, hold to end of data)
+  bk  n_per     mean      sd  t_stat  per_Sharpe    max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -------------------------------------------------------------------------------------------------------------------------
+  D    6943   0.0526   1.691   2.590      0.0311  -142.33%   0.000      1.00  -0.056  7772.0  no     beyond the +/-2 noise
+  W    1441   0.2533   3.381   2.844      0.0749  -140.90%   0.000      4.82  -0.045  1577.9  no     beyond the +/-2 noise
+  2W    723   0.5049   4.824   2.814      0.1047  -140.90%   0.000      9.60  -0.030   767.7  no     beyond the +/-2 noise
+  M     332   1.0994   6.646   3.014      0.1654  -132.17%   0.000     20.91   0.037   308.1  no     beyond the +/-2 noise
+  Q     112   3.2590  12.894   2.675      0.2527  -132.17%   0.000     61.99   0.009   110.1  no     beyond the +/-2 noise
+  H      56   6.5180  16.445   2.966      0.3964  -103.42%   0.000    123.98   0.202    37.2  no     beyond the +/-2 noise
+  Y      28  13.0360  27.209   2.535      0.4791   -92.43%   0.000    247.96  -0.167    39.3  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S4 vol-targeted hold (always long, 15% annualised vol target, monthly rebalance)
+  bk  n_per     mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  ------------------------------------------------------------------------------------------------------------------------
+  D    6943   0.0432   1.116   3.225      0.0387  -60.52%   0.000      1.00  -0.049  7660.8  no     beyond the +/-2 noise
+  W    1441   0.2082   2.268   3.485      0.0918  -59.89%   0.000      4.82  -0.043  1569.3  no     beyond the +/-2 noise
+  2W    723   0.4149   3.291   3.390      0.1261  -59.89%   0.000      9.60  -0.091   867.4  no     beyond the +/-2 noise
+  M     332   0.9035   4.418   3.727      0.2045  -55.82%   0.000     20.91   0.007   327.3  no     beyond the +/-2 noise
+  Q     112   2.6784   7.901   3.588      0.3390  -55.82%   0.000     61.99  -0.000   112.1  no     beyond the +/-2 noise
+  H      56   5.3567  11.228   3.570      0.4771  -47.64%   0.000    123.98   0.132    42.9  no     beyond the +/-2 noise
+  Y      28  10.7135  17.496   3.240      0.6123  -46.92%   0.000    247.96  -0.092    33.7  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+----------------------------------------------------------------------------------------------------
+TIMEFRAME BUCKETS -- SPY
+----------------------------------------------------------------------------------------------------
+
+  S1 trend-follow 200d (close>SMA200 in, close<SMA200 out, stop 2xATR14)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    8485  0.0275   0.747   3.390      0.0368  -31.33%   0.013      1.00  -0.026  8936.2  no     beyond the +/-2 noise
+  W    1760  0.1325   1.581   3.517      0.0838  -31.10%   0.065      4.82  -0.066  2010.4  no     beyond the +/-2 noise
+  2W    883  0.2641   2.235   3.511      0.1181  -31.10%   0.129      9.61  -0.036   949.5  no     beyond the +/-2 noise
+  M     406  0.5744   3.124   3.705      0.1839  -27.07%   0.281     20.90   0.043   372.2  no     beyond the +/-2 noise
+  Q     136  1.7148   5.707   3.504      0.3005  -27.07%   0.838     62.39   0.001   135.7  no     beyond the +/-2 noise
+  H      68  3.4296   8.319   3.400      0.4123  -27.04%   1.676    124.78   0.080    57.9  no     beyond the +/-2 noise
+  Y      34  6.8592  12.635   3.166      0.5429  -24.57%   3.353    249.56  -0.030    36.1  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S2 trend-follow 50/200 (SMA50>SMA200 & close>SMA50 in, close<SMA50 out, stop 2xATR14)
+  bk  n_per    mean     sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  ----------------------------------------------------------------------------------------------------------------------
+  D    8485  0.0127  0.567   2.068      0.0224  -30.84%   0.029      1.00  -0.012  8697.2  no     beyond the +/-2 noise
+  W    1760  0.0614  1.207   2.132      0.0508  -27.93%   0.141      4.82  -0.016  1817.4  no     beyond the +/-2 noise
+  2W    883  0.1223  1.739   2.090      0.0703  -26.68%   0.281      9.61  -0.012   905.1  no     beyond the +/-2 noise
+  M     406  0.2660  2.527   2.121      0.1052  -27.03%   0.611     20.90   0.014   394.5  no     beyond the +/-2 noise
+  Q     136  0.7940  4.336   2.136      0.1831  -23.84%   1.824     62.39   0.019   130.9  no     beyond the +/-2 noise
+  H      68  1.5880  6.339   2.066      0.2505  -23.84%   3.647    124.78   0.136    51.7  no     beyond the +/-2 noise
+  Y      34  3.1760  9.890   1.872      0.3211  -22.58%   7.294    249.56  -0.009    34.6  yes    NOT DISTINGUISHABLE FR
+    VERDICT: Y is the most reliable review timeframe. highest |t_stat| (1.872) among 1 bucket(s) passing both gates
+             status: NOT DISTINGUISHABLE FROM NOISE
+
+  S3 buy & hold (enter first open, hold to end of data)
+  bk  n_per     mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1    n_eff  gates  noise
+  -------------------------------------------------------------------------------------------------------------------------
+  D    8485   0.0406   1.168   3.200      0.0347  -72.93%   0.000      1.00  -0.082  10000.5  no     beyond the +/-2 noise
+  W    1760   0.1956   2.356   3.483      0.0830  -71.66%   0.000      4.82  -0.094   2126.9  no     beyond the +/-2 noise
+  2W    883   0.3899   3.249   3.565      0.1200  -71.35%   0.000      9.61  -0.028    932.9  no     beyond the +/-2 noise
+  M     406   0.8479   4.180   4.087      0.2028  -63.85%   0.000     20.90  -0.018    420.5  no     beyond the +/-2 noise
+  Q     136   2.5313   7.615   3.877      0.3324  -54.16%   0.000     62.39   0.004    134.8  no     beyond the +/-2 noise
+  H      68   5.0626   9.368   4.456      0.5404  -42.87%   0.000    124.78   0.278     38.4  no     beyond the +/-2 noise
+  Y      34  10.1253  16.265   3.630      0.6225  -42.30%   0.000    249.56   0.009     33.4  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S4 vol-targeted hold (always long, 15% annualised vol target, monthly rebalance)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    8485  0.0400   1.136   3.243      0.0352  -56.21%   0.000      1.00  -0.057  9515.0  no     beyond the +/-2 noise
+  W    1760  0.1928   2.284   3.541      0.0844  -53.60%   0.000      4.82  -0.077  2055.6  no     beyond the +/-2 noise
+  2W    883  0.3842   3.226   3.539      0.1191  -53.60%   0.000      9.61  -0.064  1003.0  no     beyond the +/-2 noise
+  M     406  0.8357   4.329   3.890      0.1930  -51.33%   0.000     20.90  -0.034   434.5  no     beyond the +/-2 noise
+  Q     136  2.4947   7.506   3.876      0.3323  -50.95%   0.000     62.39  -0.015   140.3  no     beyond the +/-2 noise
+  H      68  4.9894  10.072   4.085      0.4954  -47.41%   0.000    124.78   0.294    37.1  no     beyond the +/-2 noise
+  Y      34  9.9788  16.913   3.440      0.5900  -47.41%   0.000    249.56   0.099    27.8  no     beyond the +/-2 noise
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+----------------------------------------------------------------------------------------------------
+TIMEFRAME BUCKETS -- TLT
+----------------------------------------------------------------------------------------------------
+
+  S1 trend-follow 200d (close>SMA200 in, close<SMA200 out, stop 2xATR14)
+  bk  n_per    mean     sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  ----------------------------------------------------------------------------------------------------------------------
+  D    6094  0.0007  0.646   0.087      0.0011  -44.48%   0.020      1.00   0.007  6014.3  no     NOT DISTINGUISHABLE FR
+  W    1265  0.0035  1.361   0.091      0.0025  -44.14%   0.096      4.82  -0.067  1445.6  no     NOT DISTINGUISHABLE FR
+  2W    635  0.0069  1.763   0.099      0.0039  -43.50%   0.191      9.60   0.120   498.9  no     NOT DISTINGUISHABLE FR
+  M     292  0.0150  2.857   0.090      0.0053  -44.14%   0.414     20.87  -0.008   296.4  no     NOT DISTINGUISHABLE FR
+  Q      98  0.0447  5.453   0.081      0.0082  -40.19%   1.235     62.18  -0.152   133.0  no     NOT DISTINGUISHABLE FR
+  H      49  0.0895  7.739   0.081      0.0116  -39.88%   2.469    124.37  -0.209    74.8  no     NOT DISTINGUISHABLE FR
+  Y      25  0.1754  9.780   0.090      0.0179  -37.15%   4.840    243.76  -0.132    32.6  no     NOT DISTINGUISHABLE FR
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S2 trend-follow 50/200 (SMA50>SMA200 & close>SMA50 in, close<SMA50 out, stop 2xATR14)
+  bk  n_per    mean     sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  ----------------------------------------------------------------------------------------------------------------------
+  D    6094  0.0019  0.519   0.286      0.0037  -27.19%   0.022      1.00   0.005  6034.9  no     NOT DISTINGUISHABLE FR
+  W    1265  0.0092  1.118   0.291      0.0082  -24.48%   0.108      4.82  -0.013  1297.4  no     NOT DISTINGUISHABLE FR
+  2W    635  0.0182  1.586   0.290      0.0115  -24.48%   0.214      9.60   0.038   588.7  no     NOT DISTINGUISHABLE FR
+  M     292  0.0397  2.556   0.265      0.0155  -21.46%   0.466     20.87  -0.139   386.0  no     NOT DISTINGUISHABLE FR
+  Q      98  0.1182  4.181   0.280      0.0283  -20.27%   1.388     62.18  -0.276   172.8  no     NOT DISTINGUISHABLE FR
+  H      49  0.2363  4.996   0.331      0.0473  -16.68%   2.776    124.37  -0.311    93.2  no     NOT DISTINGUISHABLE FR
+  Y      25  0.4632  6.312   0.367      0.0734  -14.56%   5.440    243.76  -0.349    51.8  yes    NOT DISTINGUISHABLE FR
+    VERDICT: Y is the most reliable review timeframe. highest |t_stat| (0.367) among 1 bucket(s) passing both gates
+             status: NOT DISTINGUISHABLE FROM NOISE
+
+  S3 buy & hold (enter first open, hold to end of data)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    6094  0.0033   0.900   0.287      0.0037  -72.89%   0.000      1.00  -0.031  6479.7  no     NOT DISTINGUISHABLE FR
+  W    1265  0.0160   1.872   0.303      0.0085  -72.07%   0.000      4.82  -0.080  1484.2  no     NOT DISTINGUISHABLE FR
+  2W    635  0.0318   2.506   0.320      0.0127  -71.43%   0.000      9.60   0.092   528.0  no     NOT DISTINGUISHABLE FR
+  M     292  0.0692   3.860   0.306      0.0179  -71.68%   0.000     20.87   0.044   267.6  no     NOT DISTINGUISHABLE FR
+  Q      98  0.2062   7.430   0.275      0.0277  -67.73%   0.000     62.18  -0.093   118.1  no     NOT DISTINGUISHABLE FR
+  H      49  0.4123  10.335   0.279      0.0399  -65.99%   0.000    124.37  -0.113    61.4  no     NOT DISTINGUISHABLE FR
+  Y      25  0.8082  14.780   0.273      0.0547  -62.48%   0.000    243.76  -0.166    34.9  no     NOT DISTINGUISHABLE FR
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  S4 vol-targeted hold (always long, 15% annualised vol target, monthly rebalance)
+  bk  n_per    mean      sd  t_stat  per_Sharpe   max_dd  tr/per  days/per    lag1   n_eff  gates  noise
+  -----------------------------------------------------------------------------------------------------------------------
+  D    6094  0.0245   1.033   1.854      0.0237  -61.22%   0.000      1.00  -0.028  6447.2  no     NOT DISTINGUISHABLE FR
+  W    1265  0.1182   2.144   1.960      0.0551  -59.49%   0.000      4.82  -0.071  1459.6  no     NOT DISTINGUISHABLE FR
+  2W    635  0.2354   2.922   2.030      0.0806  -59.49%   0.000      9.60   0.031   596.2  no     beyond the +/-2 noise
+  M     292  0.5119   4.365   2.004      0.1173  -55.68%   0.000     20.87   0.009   287.1  no     beyond the +/-2 noise
+  Q      98  1.5253   7.791   1.938      0.1958  -52.08%   0.000     62.18  -0.058   110.0  no     NOT DISTINGUISHABLE FR
+  H      49  3.0507  11.078   1.928      0.2754  -51.02%   0.000    124.37  -0.080    57.5  no     NOT DISTINGUISHABLE FR
+  Y      25  5.9793  15.755   1.898      0.3795  -46.49%   0.000    243.76  -0.096    30.3  no     NOT DISTINGUISHABLE FR
+    VERDICT: INSUFFICIENT DATA -- no bucket has n_periods >= 12 AND trades_per_period >= 5
+
+  Which bucket gives the most trustworthy statistics, and why -- the
+  engine's verdict bucket per (instrument, strategy):
+
+  inst  strat  best_bucket  status                                   n_periods  t_stat  trades_per_period
+  -------------------------------------------------------------------------------------------------------
+  GLD   S1     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  GLD   S2     Y            most reliable of the qualifying buckets         23   2.344              5.957
+  GLD   S3     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  GLD   S4     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  QQQ   S1     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  QQQ   S2     Y            most reliable of the qualifying buckets         28   2.055              6.357
+  QQQ   S3     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  QQQ   S4     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  SPY   S1     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  SPY   S2     Y            NOT DISTINGUISHABLE FROM NOISE                  34   1.872              7.294
+  SPY   S3     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  SPY   S4     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  TLT   S1     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  TLT   S2     Y            NOT DISTINGUISHABLE FROM NOISE                  25   0.367              5.440
+  TLT   S3     n/a          INSUFFICIENT DATA                                      n/a                n/a
+  TLT   S4     n/a          INSUFFICIENT DATA                                      n/a                n/a
+
+  WHY, in the engine's own terms:
+
+    * Y wins for S2 on all four instruments, and it is the ONLY bucket that
+      wins anywhere. It is not that yearly P&L has more information than
+      daily P&L -- the engine's dependence caveat says the opposite, since Y
+      literally contains every smaller bucket. Y wins because it is the one
+      bucket where the SECOND gate can be met: a book that trades a few
+      times a year needs a bucket big enough to contain >= 5 trades.
+    * S1 fails BOTH gates on every instrument. Its trades_per_period never
+      reaches 5 even at Y, so the rule returns INSUFFICIENT DATA and names
+      that constraint rather than picking a bucket anyway.
+    * S3 and S4 have NO trades, so trades_per_period = 0 and no bucket can
+      ever qualify. For them this engine's verdict machinery simply does not
+      apply: their P&L is one continuous position, and bucketing a single
+      position does not manufacture independent observations. The right
+      review frequency for S3/S4 is NOT answerable from this test.
+    * Where Y does qualify but |t_stat| < 2.0 -- SPY S2 and TLT S2 -- the
+      engine's own words are 'NOT DISTINGUISHABLE FROM NOISE'. Read that as
+      the headline: 1.9 is not 2.0, and 0.37 is nowhere near it.
+    * The practical consequence is the engine's: MORE PERIODS WILL NOT FIX
+      THIS. MORE INDEPENDENT TRADES WILL. Moving the review timeframe cannot
+      create trades that did not happen.
+```
+
+### 8. ALL-WEATHER TEST -- is any one rule set profitable in every regime and every year?
+
+```text
+8. ALL-WEATHER TEST -- is any one rule set profitable in every regime
+   and every year?
+====================================================================================================
+
+  Losing years, per strategy per instrument, counted from table 5:
+
+  strat  inst  losing_years  years  worst_year
+  ---------------------------------------------------
+  S1     GLD              9     23  2014 -9.63%
+  S1     QQQ              9     28  2000 -43.08%
+  S1     SPY             10     34  2000 -19.86%
+  S1     TLT             16     25  2024 -15.74%
+  S1     ALL             44    110  worst QQQ -43.08%
+  S2     GLD              9     23  2012 -9.40%
+  S2     QQQ             12     28  2015 -15.85%
+  S2     SPY             12     34  2000 -20.82%
+  S2     TLT             11     25  2009 -12.29%
+  S2     ALL             44    110  worst SPY -20.82%
+  S3     GLD              8     23  2013 -28.33%
+  S3     QQQ              6     28  2008 -41.94%
+  S3     SPY              9     34  2008 -38.28%
+  S3     TLT             14     25  2022 -32.82%
+  S3     ALL             37    110  worst QQQ -41.94%
+  S4     GLD              6     23  2013 -34.40%
+  S4     QQQ              6     28  2008 -25.58%
+  S4     SPY              9     34  2008 -24.03%
+  S4     TLT              9     25  2022 -27.06%
+  S4     ALL             30    110  worst GLD -34.40%
+
+  Regime cells (2x3 grid) where the strategy's annualised contribution
+  was NEGATIVE:
+
+  inst  strat  neg_cells  cells
+  ---------------------------------------------------------------------------------------------------------------
+  GLD   S1             1  below|vol-high -0.21%
+  GLD   S2             2  above|vol-high -0.41%, below|vol-high -0.07%
+  GLD   S3             1  below|vol-low -0.93%
+  GLD   S4             1  below|vol-low -1.11%
+  QQQ   S1             3  above|vol-high -0.01%, below|vol-high -0.10%, below|vol-mid -0.46%
+  QQQ   S2             2  below|vol-low -0.03%, below|vol-mid -0.03%
+  QQQ   S3             0  (none)
+  QQQ   S4             0  (none)
+  SPY   S1             1  below|vol-mid -0.21%
+  SPY   S2             2  below|vol-high -0.05%, below|vol-mid -0.05%
+  SPY   S3             1  below|vol-mid -0.29%
+  SPY   S4             0  (none)
+  TLT   S1             4  above|vol-mid -0.74%, below|vol-high -0.00%, below|vol-low -0.08%, below|vol-mid -0.06%
+  TLT   S2             3  above|vol-high -0.09%, above|vol-mid -0.32%, below|vol-low -0.01%
+  TLT   S3             2  above|vol-mid -1.02%, below|vol-high -1.10%
+  TLT   S4             2  above|vol-mid -0.75%, below|vol-high -0.33%
+
+  VERDICT ON THE ALL-WEATHER QUESTION, from the numbers above:
+
+    losing instrument-years / total instrument-years available:
+      S1    44 / 110 = 40%
+      S2    44 / 110 = 40%
+      S3    37 / 110 = 34%
+      S4    30 / 110 = 27%
+
+    strategies with at least one instrument on which every year was positive: NONE
+    instrument-years in which a strategy was negative in EVERY regime cell at once: not counted here; see the per-regime table in section 6.
+
+    On this evidence there is NO single rule set among S1-S4 that is
+    profitable in every year and every regime. The fewest losing
+    instrument-years any strategy manages is 30 of 110.
+    strategies that have at least one instrument with NO negative regime
+    cell: S3, S4
+    (an instrument with no negative regime cell can still have losing
+    YEARS -- the grid and the calendar disagree, which is the point of
+    running both.)
+
+    'Profitable every time in every market condition' is not a property a
+    single long-only rule set has exhibited on this data. That is a
+    statement about the evidence, not a theorem: it is what 4 instruments
+    x 23-34 years of daily bars can show.
+```
+
+### 9. COMPLEMENTARITY -- do the strategies lose in the SAME years?
+
+```text
+9. COMPLEMENTARITY -- do the strategies lose in the SAME years?
+====================================================================================================
+
+  Pearson correlation of YEARLY returns, over the years common to both
+  series. Computed per instrument, and on the cross-instrument mean yearly
+  return (the pooled row) so a single instrument cannot carry the answer.
+
+  GLD -- correlation of yearly returns
+         S1     S2     S3     S4
+  ------------------------------
+  S1  1.000  0.909  0.893  0.823
+  S2  0.909  1.000  0.804  0.739
+  S3  0.893  0.804  1.000  0.917
+  S4  0.823  0.739  0.917  1.000
+
+  GLD -- which strategies lost in which year
+  year  S1    S2    S3    S4    LOSERS
+  --------------------------------------------
+  2004  -     -     LOSS  -     S3
+  2005  -     -     -     -     (none)
+  2006  -     -     -     -     (none)
+  2007  -     -     -     -     (none)
+  2008  LOSS  LOSS  -     -     S1, S2
+  2009  -     -     -     -     (none)
+  2010  -     -     -     -     (none)
+  2011  -     -     -     -     (none)
+  2012  LOSS  LOSS  -     -     S1, S2
+  2013  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2014  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2015  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2016  -     LOSS  -     -     S2
+  2017  LOSS  LOSS  -     -     S1, S2
+  2018  -     LOSS  LOSS  LOSS  S2, S3, S4
+  2019  -     -     -     -     (none)
+  2020  -     -     -     -     (none)
+  2021  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2022  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2023  -     LOSS  -     -     S2
+  2024  -     -     -     -     (none)
+  2025  -     -     -     -     (none)
+  2026  LOSS  -     LOSS  -     S1, S3
+
+  QQQ -- correlation of yearly returns
+         S1     S2     S3     S4
+  ------------------------------
+  S1  1.000  0.761  0.767  0.814
+  S2  0.761  1.000  0.580  0.636
+  S3  0.767  0.580  1.000  0.866
+  S4  0.814  0.636  0.866  1.000
+
+  QQQ -- which strategies lost in which year
+  year  S1    S2    S3    S4    LOSERS
+  --------------------------------------------
+  1999  -     -     -     -     (none)
+  2000  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2001  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2002  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2003  -     -     -     -     (none)
+  2004  -     LOSS  -     -     S2
+  2005  LOSS  LOSS  -     LOSS  S1, S2, S4
+  2006  -     LOSS  -     -     S2
+  2007  -     LOSS  -     -     S2
+  2008  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2009  -     -     -     -     (none)
+  2010  -     LOSS  -     -     S2
+  2011  LOSS  LOSS  -     -     S1, S2
+  2012  -     -     -     -     (none)
+  2013  -     -     -     -     (none)
+  2014  -     -     -     -     (none)
+  2015  LOSS  LOSS  -     -     S1, S2
+  2016  LOSS  LOSS  -     -     S1, S2
+  2017  -     -     -     -     (none)
+  2018  -     -     LOSS  -     S3
+  2019  -     LOSS  -     -     S2
+  2020  -     -     -     -     (none)
+  2021  -     -     -     -     (none)
+  2022  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2023  -     -     -     -     (none)
+  2024  -     -     -     -     (none)
+  2025  -     -     -     -     (none)
+  2026  -     -     -     -     (none)
+
+  SPY -- correlation of yearly returns
+         S1     S2     S3     S4
+  ------------------------------
+  S1  1.000  0.877  0.800  0.776
+  S2  0.877  1.000  0.674  0.761
+  S3  0.800  0.674  1.000  0.806
+  S4  0.776  0.761  0.806  1.000
+
+  SPY -- which strategies lost in which year
+  year  S1    S2    S3    S4    LOSERS
+  --------------------------------------------
+  1993  -     LOSS  -     -     S2
+  1994  LOSS  LOSS  LOSS  -     S1, S2, S3
+  1995  -     -     -     -     (none)
+  1996  -     -     -     -     (none)
+  1997  -     -     -     -     (none)
+  1998  -     -     -     -     (none)
+  1999  -     -     -     -     (none)
+  2000  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2001  -     -     LOSS  LOSS  S3, S4
+  2002  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2003  -     -     -     -     (none)
+  2004  -     LOSS  -     -     S2
+  2005  LOSS  LOSS  -     LOSS  S1, S2, S4
+  2006  -     -     -     -     (none)
+  2007  -     LOSS  -     -     S2
+  2008  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2009  -     -     -     -     (none)
+  2010  LOSS  -     -     -     S1
+  2011  LOSS  LOSS  LOSS  -     S1, S2, S3
+  2012  -     -     -     -     (none)
+  2013  -     -     -     -     (none)
+  2014  -     -     -     -     (none)
+  2015  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2016  -     LOSS  -     -     S2
+  2017  -     -     -     -     (none)
+  2018  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2019  -     LOSS  -     -     S2
+  2020  -     -     -     LOSS  S4
+  2021  -     -     -     -     (none)
+  2022  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2023  -     -     -     -     (none)
+  2024  -     -     -     -     (none)
+  2025  -     -     -     -     (none)
+  2026  -     -     -     -     (none)
+
+  TLT -- correlation of yearly returns
+         S1     S2     S3     S4
+  ------------------------------
+  S1  1.000  0.788  0.798  0.734
+  S2  0.788  1.000  0.681  0.631
+  S3  0.798  0.681  1.000  0.897
+  S4  0.734  0.631  0.897  1.000
+
+  TLT -- which strategies lost in which year
+  year  S1    S2    S3    S4    LOSERS
+  --------------------------------------------
+  2002  -     -     -     -     (none)
+  2003  LOSS  -     LOSS  -     S1, S3
+  2004  LOSS  LOSS  -     -     S1, S2
+  2005  -     LOSS  -     -     S2
+  2006  LOSS  LOSS  LOSS  -     S1, S2, S3
+  2007  -     -     -     -     (none)
+  2008  -     -     -     -     (none)
+  2009  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2010  LOSS  -     -     -     S1
+  2011  -     -     -     -     (none)
+  2012  LOSS  LOSS  LOSS  -     S1, S2, S3
+  2013  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2014  -     -     -     -     (none)
+  2015  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2016  -     -     LOSS  LOSS  S3, S4
+  2017  LOSS  LOSS  -     -     S1, S2
+  2018  LOSS  LOSS  LOSS  -     S1, S2, S3
+  2019  -     -     -     -     (none)
+  2020  -     -     -     -     (none)
+  2021  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2022  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2023  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2024  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2025  LOSS  LOSS  LOSS  -     S1, S2, S3
+  2026  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+
+  POOLED across instruments -- correlation of the mean yearly return
+
+         S1     S2     S3     S4
+  ------------------------------
+  S1  1.000  0.887  0.800  0.780
+  S2  0.887  1.000  0.666  0.808
+  S3  0.800  0.666  1.000  0.786
+  S4  0.780  0.808  0.786  1.000
+
+  POOLED -- losing years per strategy (mean yearly return < 0)
+  year  S1    S2    S3    S4    LOSERS
+  --------------------------------------------
+  1993  -     LOSS  -     -     S2
+  1994  LOSS  LOSS  LOSS  -     S1, S2, S3
+  1995  -     -     -     -     (none)
+  1996  -     -     -     -     (none)
+  1997  -     -     -     -     (none)
+  1998  -     -     -     -     (none)
+  1999  -     -     -     -     (none)
+  2000  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2001  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2002  LOSS  -     LOSS  LOSS  S1, S3, S4
+  2003  -     -     -     -     (none)
+  2004  LOSS  LOSS  -     -     S1, S2
+  2005  -     -     -     -     (none)
+  2006  -     -     -     -     (none)
+  2007  -     -     -     -     (none)
+  2008  -     -     LOSS  LOSS  S3, S4
+  2009  -     -     -     -     (none)
+  2010  -     -     -     -     (none)
+  2011  -     -     -     -     (none)
+  2012  -     LOSS  -     -     S2
+  2013  -     -     -     -     (none)
+  2014  -     -     -     -     (none)
+  2015  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2016  -     LOSS  -     -     S2
+  2017  -     -     -     -     (none)
+  2018  LOSS  LOSS  LOSS  -     S1, S2, S3
+  2019  -     -     -     -     (none)
+  2020  -     -     -     -     (none)
+  2021  -     -     -     -     (none)
+  2022  LOSS  LOSS  LOSS  LOSS  S1, S2, S3, S4
+  2023  -     -     -     -     (none)
+  2024  -     -     -     -     (none)
+  2025  -     -     -     -     (none)
+  2026  -     -     -     -     (none)
+
+  VERDICT ON COMPLEMENTARITY, from the numbers above:
+
+    pooled pairwise correlations of yearly returns:
+      corr(S1,S2) = 0.887
+      corr(S1,S3) = 0.800
+      corr(S2,S3) = 0.666
+      corr(S1,S4) = 0.780
+      corr(S2,S4) = 0.808
+      corr(S3,S4) = 0.786
+    years where S1 and S3 BOTH lost : 7
+    years where S1 lost and S3 did not: 1
+    years where S3 lost and S1 did not: 1
+    years where S1, S2 and S3 ALL lost: 5
+
+    ALL SIX pairwise correlations are positive, and every one lies between
+    0.666 and 0.887. On this data the four rules are not four bets: they are
+    one bet -- long this instrument -- taken with three different exits
+    and one different position size.
+
+    The three trend/hold rules also lose in the SAME years, not different
+    ones: S1 and S3 both lost in 7 of the 34 pooled years, and the two
+    disagreed in only one year each way. S2 does dodge some years that S1
+    and S3 lose -- its faster 50-day exit leaves earlier -- which is why
+    S2's worst year is milder while its COUNT of losing years is higher.
+
+    S4 is not the exception it looks like. corr(S1,S4)=0.780 and corr(S3,S4)=0.786:
+    vol-scaling changes the SIZE of the same long position, not its
+    direction. S4 is a position-sizing policy applied to the S3 bet, not a
+    second bet, and it cannot diversify a book on its own.
+
+    The honest route to an all-weather BOOK is therefore not a better
+    long-only equity rule. On this evidence it is a set of sleeves whose
+    losing years do not coincide -- a short or a defensive sleeve, or an
+    instrument whose bad years fall elsewhere. This study did not test one.
+```

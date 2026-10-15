@@ -1,0 +1,13 @@
+  SPY  n= 8485 1993-01-29..2026-10-14  <- copied from ../weather-test/data
+  TLT  n= 6094 2002-07-26..2026-10-14  <- copied from ../weather-test/data
+  GLD  n= 5510 2004-11-18..2026-10-14  <- copied from ../weather-test/data
+  EEM  n= 5915 2003-04-11..2026-10-14  <- copied from ../weather-test/data
+  VIX  n= 9283 1990-01-03..2026-10-14  <- copied from ../weather-test/data
+  DBC  n= 5206 2006-02-03..2026-10-14  <- AMEX:DBC (1 page(s), dup=0)
+  EFA  n= 6326 2001-08-17..2026-10-14  <- AMEX:EFA (1 page(s), dup=0)
+  HYG  n= 4910 2007-04-11..2026-10-14  <- AMEX:HYG (1 page(s), dup=0)
+  IWM  n= 6635 2000-05-26..2026-10-14  <- AMEX:IWM (1 page(s), dup=0)
+  VNQ  n= 5546 2004-09-29..2026-10-14  <- AMEX:VNQ (1 page(s), dup=0)
+  IEF  n= 6094 2002-07-26..2026-10-14  <- NASDAQ:IEF (1 page(s), dup=0)
+  QQQ  n= 6943 1999-03-10..2026-10-14  <- NASDAQ:QQQ (1 page(s), dup=0)
+wrote 12 file(s) into data

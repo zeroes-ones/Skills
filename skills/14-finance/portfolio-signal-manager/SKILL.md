@@ -53,6 +53,7 @@ chain:
     - volatility-arbitrage-engineer
   feeds_into:
     - options-risk-engineer
+    - equity-position-lifecycle
     - algorithmic-trader
     - data-scientist
     - observability-engineer
@@ -440,7 +441,7 @@ Every message: {message_id, source_skill, target_skill, message_type, timestamp,
 |----------------|------------------|-----------------|
 | `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
 | `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
-| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+| `options-risk-engineer` for the options book, `equity-risk-and-capital-engineer` for the equity book | Limits and exposure context | When sizing positions or setting guards |
 
 ## Production Checklist
 - [ ] CR1: All data sources verified and updated within last trading day

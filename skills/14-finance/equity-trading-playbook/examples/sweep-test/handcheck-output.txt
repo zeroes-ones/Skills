@@ -1,0 +1,167 @@
+================================================================================================
+handcheck.py -- an independent re-derivation (does not import study.py)
+================================================================================================
+  re-read from disk : data/<SYM>_1d.csv for 8 instruments
+  bars per instrument: SPY=8485, QQQ=6943, IWM=6635, EEM=5915, TLT=6094, GLD=5510, EFA=6326, VNQ=5546
+  common calendar   : 5510 sessions, 2004-11-18 .. 2026-10-14
+  window            : 5261 sessions, 2005-11-14 .. 2026-10-14  (20.9144 years)
+  complete years    : 2006 .. 2025 (20)
+  the moving average is computed over each instrument's FULL history, so the
+  rule is live on the window's first session (a naive window-only SMA would
+  leave every sleeve flat for the first N-1 sessions of the window).
+
+-- CHECK 0: the declared grid size, enumerated from scratch ----------------------------------------
+    1/2/3/4-subsets of 8 instruments, enumerated by recursion = 162 books
+    x 5 moving averages x 2 rebalance modes                     = 1620 declared
+    rows actually present in out/grid_P.csv                     = 1620
+    -> MATCH
+
+-- CHECK 1: full-window statistics, recomputed in dollars -----------------------------------------
+  N200-monthly-SPY
+    CAGR      hand    0.083457   grid    0.083457   gap 7.310e-08
+    Sharpe    hand    0.717426   grid    0.717426   gap 1.769e-07
+    maxDD     hand   -0.258495   grid   -0.258495   gap 4.881e-08
+    pos years hand    0.800000   grid    0.800000   gap 0.000e+00  (16 of 20)
+    t         hand    3.277705   grid    3.277705   gap 3.252e-07
+  N50-daily-TLT+GLD
+    CAGR      hand    0.028405   grid    0.028405   gap 5.402e-08
+    Sharpe    hand    0.348107   grid    0.348107   gap 4.330e-07
+    maxDD     hand   -0.283586   grid   -0.283586   gap 3.924e-07
+    pos years hand    0.550000   grid    0.550000   gap 0.000e+00  (11 of 20)
+    t         hand    1.590394   grid    1.590394   gap 3.271e-07
+  N250-daily-SPY+QQQ+IWM+EEM
+    CAGR      hand    0.063297   grid    0.063297   gap 4.183e-07
+    Sharpe    hand    0.559870   grid    0.559870   gap 4.776e-07
+    maxDD     hand   -0.213918   grid   -0.213918   gap 2.825e-07
+    pos years hand    0.750000   grid    0.750000   gap 0.000e+00  (15 of 20)
+    t         hand    2.557880   grid    2.557880   gap 1.708e-08
+  N200-monthly-SPY+QQQ+IWM+EEM
+    CAGR      hand    0.072075   grid    0.072075   gap 4.000e-07
+    Sharpe    hand    0.592011   grid    0.592011   gap 1.351e-07
+    maxDD     hand   -0.201759   grid   -0.201759   gap 1.387e-07
+    pos years hand    0.800000   grid    0.800000   gap 0.000e+00  (16 of 20)
+    t         hand    2.704720   grid    2.704720   gap 2.087e-07
+  N150-monthly-SPY+GLD
+    CAGR      hand    0.099326   grid    0.099326   gap 2.384e-07
+    Sharpe    hand    1.006013   grid    1.006013   gap 2.141e-07
+    maxDD     hand   -0.134278   grid   -0.134278   gap 7.333e-08
+    pos years hand    0.850000   grid    0.850000   gap 0.000e+00  (17 of 20)
+    t         hand    4.596170   grid    4.596170   gap 1.945e-07
+
+-- CHECK 2: Bonferroni critical |t| by bisection on the normal CDF ----------------------------
+    m                 : 1620  (from out/bonferroni.csv)
+    per-test alpha    : 0.000030864198 (from out/bonferroni.csv)
+    critical |t| hand : 4.16699448
+    critical |t| file : 4.16699400   gap 4.750e-07
+    cross-check m=1     -> 1.9600  (published reference 1.9600, gap 1.55e-08)
+    cross-check m=12    -> 2.8653  (published reference 2.8650, gap 2.89e-04)
+    cross-check m=30    -> 3.1440  (published reference 3.1436, gap 3.69e-04)
+    cross-check m=56    -> 3.3223  (published reference 3.3223, gap 4.61e-05)
+
+-- CHECK 3: the pre-registered default over 2015, computed by hand ----------------------------
+    the book is 4 equal sleeves, 25.0000% each, N=200, monthly rebalance.
+    a sleeve holds the bar-to-bar price move on every session it is long and
+    holds cash on every session it is flat; the book is the sum of the sleeves.
+    the year runs 2015-01-02 .. 2015-12-31 (252 sessions).
+    convention: a calendar-year return is the product of the returns EARNED on
+    the year's sessions, i.e. measured from the prior session's close -- the same
+    convention study.py uses, so the base is the session before 2015-01-02.
+    equity on the session before the year = 180.9889515776  (2014-12-31)
+    equity on the last  2015 session       = 175.0496629630  (2015-12-31)
+    year return by hand = (175.0496629630 / 180.9889515776) - 1
+                        = -0.0328157524 = -3.281575%
+    the grid's own year list for this configuration contains 20 complete years
+    recomputed calendar-year returns, all years present in the window:
+      2005    +1.8651%  (incomplete, excluded from positivity)
+      2006   +14.5650%
+      2007   +10.7061%
+      2008   -12.7901%
+      2009   +30.4841%
+      2010    +1.5521%
+      2011    -5.6248%
+      2012    +3.1048%
+      2013   +21.1811%
+      2014    +2.8061%
+      2015    -3.2816%
+      2016    +5.0724%
+      2017   +22.5408%
+      2018    +1.6226%
+      2019    +2.9013%
+      2020   +18.0952%
+      2021   +14.8630%
+      2022    -9.3958%
+      2023    +4.7096%
+      2024   +14.5635%
+      2025   +13.7764%
+      2026    +8.4321%  (incomplete, excluded from positivity)
+    the 2015 value above must also be recoverable from the grid's own stats.
+    grid worst_year=-0.127901, and 2015's return is -3.281575% (by hand -3.281575%, gap 1.78e-15)
+
+-- CHECK 4: the max-positivity configurations, recomputed ------------------------------------------
+    Y  N100-monthly-QQQ+TLT+GLD
+      positive years    hand  18/ 20 = 0.900000   file 18/20    = 0.900000   gap 0.000e+00
+      worst year     hand -0.077698   grid worst_year -0.077698   gap 4.000e-07
+      CAGR hand 0.067903   file 0.067903   gap 3.634e-07
+    Q  N150-monthly-SPY+GLD
+      positive quarters hand  62/ 83 = 0.746988   file 62/83    = 0.746988   gap 4.819e-08
+      worst quarter  hand -0.069659
+      CAGR hand 0.099326   file 0.099326   gap 2.384e-07
+    M  N150-monthly-QQQ+IWM+GLD+EFA
+      positive months   hand 157/250 = 0.628000   file 157/250  = 0.628000   gap 0.000e+00
+      worst month    hand -0.072420
+      CAGR hand 0.081073   file 0.081073   gap 3.015e-07
+
+-- CHECK 5: the rule is live on the window's first session ----------------------------------------
+    the window's first session is 2005-11-14; a sleeve with a live signal there is
+    NOT flat on day one. First ten sessions of the default's equity curve:
+      2005-11-14  equity 100.000000   day return +0.000000%
+      2005-11-15  equity  99.285201   day return -0.714799%
+      2005-11-16  equity  99.707255   day return +0.425092%
+      2005-11-17  equity 101.066398   day return +1.363133%
+      2005-11-18  equity 101.515421   day return +0.444285%
+      2005-11-21  equity 101.975498   day return +0.453209%
+      2005-11-22  equity 102.301235   day return +0.319427%
+      2005-11-23  equity 102.809544   day return +0.496875%
+      2005-11-25  equity 102.847997   day return +0.037402%
+      2005-11-28  equity 101.947933   day return -0.875140%
+
+-- CHECK 6: the 70/30 split boundary, rebuilt independently ----------------------------------------
+    split index = floor(0.70 x (n-1)) = floor(0.70 x 5260) = 3681
+    in-sample  : 2005-11-14 .. 2020-07-01  (3682 sessions)
+    held out   : 2020-07-01 .. 2026-10-14  (1580 sessions, first is a base day)
+    N200-monthly-SPY
+      IS  Sharpe hand   0.680007  file   0.680007  gap 4.107e-07
+      IS  CAGR   hand   0.077551  file   0.077551  gap 2.300e-07
+      IS  pos yrs hand  11/14  0.785714  file  11/14  0.785714  (sub-period positivity)
+      OOS Sharpe hand   0.801137  file   0.801137  gap 7.211e-08
+      OOS CAGR   hand   0.097326  file   0.097326  gap 1.156e-07
+      OOS pos yrs hand   4/5   0.800000  file   4/5   0.800000  (sub-period positivity)
+    N150-monthly-SPY+GLD
+      IS  Sharpe hand   0.956913  file   0.956913  gap 4.224e-07
+      IS  CAGR   hand   0.090429  file   0.090429  gap 2.874e-07
+      IS  pos yrs hand  12/14  0.857143  file  12/14  0.857143  (sub-period positivity)
+      OOS Sharpe hand   1.112159  file   1.112159  gap 2.448e-07
+      OOS CAGR   hand   0.120312  file   0.120312  gap 3.934e-08
+      OOS pos yrs hand   4/5   0.800000  file   4/5   0.800000  (sub-period positivity)
+    N250-daily-SPY+QQQ+IWM+EEM
+      IS  Sharpe hand   0.404517  file   0.404517  gap 2.353e-07
+      IS  CAGR   hand   0.042398  file   0.042398  gap 1.523e-07
+      IS  pos yrs hand  10/14  0.714286  file  10/14  0.714286  (sub-period positivity)
+      OOS Sharpe hand   0.899519  file   0.899519  gap 1.684e-07
+      OOS CAGR   hand   0.113569  file   0.113569  gap 1.659e-07
+      OOS pos yrs hand   4/5   0.800000  file   4/5   0.800000  (sub-period positivity)
+    N200-monthly-SPY+QQQ+IWM+EEM
+      IS  Sharpe hand   0.476424  file   0.476424  gap 4.318e-08
+      IS  CAGR   hand   0.056456  file   0.056456  gap 2.781e-07
+      IS  pos yrs hand  11/14  0.785714  file  11/14  0.785714  (sub-period positivity)
+      OOS Sharpe hand   0.874344  file   0.874344  gap 8.415e-08
+      OOS CAGR   hand   0.109322  file   0.109322  gap 3.078e-07
+      OOS pos yrs hand   4/5   0.800000  file   4/5   0.800000  (sub-period positivity)
+
+================================================================================================
+  WORST GAP ACROSS EVERY CHECK: 4.776e-07
+  A gap at 1e-10 or below is the CSV's own 6-decimal rounding. Above that, one
+  of the two files is wrong. The independent implementation is the one that is
+  allowed to be wrong; if they disagree, the hand arithmetic in CHECK 3 is the
+  tie-breaker, because it is printed and can be followed line by line.
+================================================================================================

@@ -1,0 +1,170 @@
+==============================================================================
+HANDCHECK -- INDEPENDENT re-derivation of the tenor test
+==============================================================================
+
+This file imports nothing from study.py.  It shares no code with it:
+  N(x)          : 0.5*erfc(-x/sqrt2)   vs study.py's 0.5*(1+erf(x/sqrt2))
+  strike solve  : 200-iteration bisection, 1e-15 relative stop
+  R             : direct payoff scan over [0, 3S] and the strike set
+A gap between the two is therefore an implementation gap.
+
+  window: 2001-03-13 ... 2026-10-14  (6436 sessions)
+  cells re-derived independently: 63
+
+==============================================================================
+GAP TABLE -- handcheck vs study.py, all 63 BASE cells
+==============================================================================
+
+  id   DTE   n (own)  n (study) max |gap|        max rel gap    worst field     
+  --------------------------------------------------------------------------------
+  S1   7     3300     3300     0.000000000001   0.0000000000   n_req           
+  S1   14    1809     1809     0.000000000000   0.0000000000   n_req           
+  S1   30    882      882      0.000000000002   0.0000000000   n_req           
+  S1   45    597      597      0.000000000028   0.0000000000   n_req           
+  S1   60    444      444      0.000000000002   0.0000000000   n_req           
+  S1   90    306      306      0.000000005995   0.0000000000   n_req           
+  S1   180   153      153      0.000000000000   0.0000000000   n_req           
+  S1   365   75       75       0.000000000000   0.0000000000   n_req           
+  S1   730   36       36       0.000000000002   0.0000000000   R_dollars_med   
+  S2   7     3300     3300     0.000000000003   0.0000000000   n_req           
+  S2   14    1809     1809     0.000000000001   0.0000000000   credit_med      
+  S2   30    882      882      0.000000000002   0.0000000000   R_dollars_med   
+  S2   45    597      597      0.000000000004   0.0000000000   n_req           
+  S2   60    444      444      0.000000000002   0.0000000000   R_dollars_med   
+  S2   90    306      306      0.000000000002   0.0000000000   R_dollars_med   
+  S2   180   153      153      0.000000000002   0.0000000000   R_dollars_med   
+  S2   365   75       75       0.000000000002   0.0000000000   R_dollars_med   
+  S2   730   36       36       0.000000000001   0.0000000000   credit_med      
+  S3   7     3300     3300     0.000000000001   0.0000000000   credit_med      
+  S3   14    1809     1809     0.000000000003   0.0000000000   R_dollars_med   
+  S3   30    882      882      0.000000000001   0.0000000000   R_dollars_med   
+  S3   45    597      597      0.000000000004   0.0000000000   R_dollars_med   
+  S3   60    444      444      0.000000000001   0.0000000000   n_req           
+  S3   90    306      306      0.000000000002   0.0000000000   R_dollars_med   
+  S3   180   153      153      0.000000000002   0.0000000000   credit_med      
+  S3   365   75       75       0.000000000001   0.0000000000   R_dollars_med   
+  S3   730   36       36       0.000000000001   0.0000000000   n_req           
+  S4   7     3300     3300     0.000000000005   0.0000000000   n_req           
+  S4   14    1809     1809     0.000000000006   0.0000000000   n_req           
+  S4   30    882      882      0.000000000002   0.0000000000   R_dollars_med   
+  S4   45    597      597      0.000000000001   0.0000000000   R_dollars_med   
+  S4   60    444      444      0.000000000001   0.0000000000   R_dollars_med   
+  S4   90    306      306      0.000000000000   0.0000000000   R_dollars_med   
+  S4   180   153      153      0.000000000001   0.0000000000   R_dollars_med   
+  S4   365   75       75       0.000000000000   0.0000000000   R_dollars_med   
+  S4   730   36       36       0.000000000002   0.0000000000   R_dollars_med   
+  S5   7     3300     3300     0.000000000001   0.0000000000   credit_med      
+  S5   14    1809     1809     0.000000000002   0.0000000000   R_dollars_med   
+  S5   30    882      882      0.000000000002   0.0000000000   R_dollars_med   
+  S5   45    597      597      0.000000000000   0.0000000000   credit_med      
+  S5   60    444      444      0.000000000002   0.0000000000   R_dollars_med   
+  S5   90    306      306      0.000000000000   0.0000000000   credit_med      
+  S5   180   153      153      0.000000000002   0.0000000000   R_dollars_med   
+  S5   365   75       75       0.000000000000   0.0000000000   n_req           
+  S5   730   36       36       0.000000000002   0.0000000000   R_dollars_med   
+  S6   7     3300     3300     0.000000000001   0.0000000000   credit_med      
+  S6   14    1809     1809     0.000000000004   0.0000000000   credit_med      
+  S6   30    882      882      0.000000000002   0.0000000000   R_dollars_med   
+  S6   45    597      597      0.000000000002   0.0000000000   R_dollars_med   
+  S6   60    444      444      0.000000000001   0.0000000000   credit_med      
+  S6   90    306      306      0.000000000002   0.0000000000   credit_med      
+  S6   180   153      153      0.000000000002   0.0000000000   credit_med      
+  S6   365   75       75       0.000000000002   0.0000000000   R_dollars_med   
+  S6   730   36       36       0.000000000036   0.0000000000   n_req           
+  S7   7     3300     3300     0.000000000018   0.0000000000   n_req           
+  S7   14    1809     1809     0.000000000038   0.0000000000   n_req           
+  S7   30    882      882      0.000000000218   0.0000000000   n_req           
+  S7   45    597      597      0.000000003329   0.0000000000   n_req           
+  S7   60    444      444      0.000000000150   0.0000000000   n_req           
+  S7   90    306      306      0.000000002744   0.0000000000   n_req           
+  S7   180   153      153      0.000000000205   0.0000000000   n_req           
+  S7   365   75       75       0.000000012327   0.0000000000   n_req           
+  S7   730   36       36       0.000000026619   0.0000000000   n_req           
+
+  worst absolute gap per field, across all cells:
+    n_available       0.000000000000
+    p_gross           0.000000000000
+    b                 0.000000000004
+    E_gross           0.000000000000
+    sd                0.000000000001
+    n_req             0.000000026619
+    c_R               0.000000000000
+    E_net             0.000000000000
+    theta_pd_R        0.000000000000
+    R_dollars_med     0.000000000006
+    credit_med        0.000000000006
+
+==============================================================================
+H1. BY HAND -- one leg, three tenors, Black-Scholes from stated inputs
+==============================================================================
+
+  Inputs: S=100.00  K=100.00  r=0.0425 (4.25%)  sigma=0.20  q=0
+
+  T (days)      T (years)           d1           d2       call $   N(x) simpson
+  7            0.01917808     0.043277     0.015580     1.145680   0.5172594571
+  90           0.24657534     0.155176     0.055863     4.482865   0.5616587569
+  730          2.00000000     0.441942     0.159099    15.342400   0.6707343168
+
+  The Simpson column is an independent quadrature of the standard
+  normal density; agreement with N(d1) to ~1e-10 validates the CDF
+  both files use.  The closed forms for d1 and d2 are printed so the
+  arithmetic can be repeated with a calculator.
+
+  PUT, same inputs (put-call parity check: C - P = S - K e^-rT):
+  T (days)          put $        C - P    S - K e^-rT
+  7              1.064206     0.081474   0.0814736415
+  90             3.440391     1.042473   1.0424733903
+  730            7.193628     8.148772   8.1487715599
+
+==============================================================================
+H2. BY HAND -- theta-per-day per unit of R, one cell
+==============================================================================
+
+  Cell S3 (short put spread ~16d / 5-wide) at DTE 30, pooled over
+  SPY+QQQ+IWM, 882 trades:
+  median credit        = $49.0044 per contract
+  median R (max loss)  = $450.9956 per contract
+  tenor                = 30 days
+
+  theta/day/R = credit / (tenor x R)
+              = 49.0044 / (30 x 450.9956)
+              = 49.0044 / 13529.8693
+              = +0.00362194  (fraction of R earned per calendar day)
+  study.py reports        0.003621938646111902
+  reciprocal reading: the position collects 1R in 276.1 days at this
+  rate, against a 30-day hold -- i.e. 9.20x the holding period.
+
+  And the ratio to the same cell at DTE 7:
+    theta/day/R @7 = +0.00838047 ; @30 = +0.00362194 ; ratio = 2.31x
+
+==============================================================================
+H3. BY HAND -- one LONG-tenor structure settled on the REAL path
+==============================================================================
+
+  S3 at DTE 730 on SPY, trade #1 of the sequential programme
+  signal close 2001-03-13 = 120.0200
+  entry  OPEN  2001-03-14 = 117.0500
+  expiry CLOSE 2003-03-14 = 84.1300
+  holding period  = 730 days = 2.000000 years
+  iv (3-lag VIX x kappa) = 0.275500 ; r = 0.045400
+
+  kind       strike    qty   entry $/sh    intrinsic      leg P&L $
+  P         96.2455     -1    -5.258521   -12.115489      -685.6968
+  P         91.2455      1     4.018285     7.115489       309.7204
+
+  sum of leg P&L (= the trade's terminal P&L)   = -375.9764
+  R = max loss per share 3.759764 -> $375.9764 per contract
+  R_mult (gross) = -1.00000000
+  credit = +124.0236 ; cost = 6.3000 ; c_R = 0.01675637
+
+  cross-check against out/cells_summary.csv for cell (S3, 730):
+    n_available  study=36  handcheck=36
+    E_gross      study=0.11272563940154495  handcheck=0.11272564
+    c_R          study=0.01631958466654311  handcheck=0.01631958
+    E_net        study=0.09640605473500184  handcheck=0.09640605
+
+  NOTE: the printed single trade is trade #1 of the S3/730 programme,
+  not the median, so it is NOT expected to equal the cell's E; it is
+  there so a reader can reproduce one settlement by hand.
+
+Done.  handcheck.py imports nothing from study.py.

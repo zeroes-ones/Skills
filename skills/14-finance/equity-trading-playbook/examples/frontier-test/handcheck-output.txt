@@ -1,0 +1,66 @@
+==============================================================================
+HANDCHECK -- independent re-derivation, no import of study.py
+==============================================================================
+
+(1) R4 rebuilt from data/*.csv: 5311 book dates, 2005-09-02..2026-10-14
+    comparing 21 lambda rows x 7 buckets against out/frontier_R4_rt0.csv
+    max absolute gap across the strict frontier: 4.932e-07
+
+(2) R2L rebuilt: 6744 book dates, 1999-12-21..2026-10-14
+    max absolute gap across both strict frontiers: 4.932e-07
+
+(3) CASH IDENTITY -- r(0) must be r_cash exactly
+    independent cash CAGR   0.0178090448
+    independent r(0) CAGR   0.0178090448
+    gap                     0.000e+00
+
+(4) ENDPOINT -- largest lambda with every complete year positive
+    independent bisection: 0.008
+    study.py reported    : 0.008
+    gap                  : 0.000000
+
+(5) WORKED EXAMPLE -- the arithmetic, day by day
+    Four consecutive book dates around 2015's largest book move, at
+    lambda = 0.25.
+    The book is 25% each; cost is 0 bps here, so r_risky is gross.
+
+    column 1 is the sleeve return on that session; the four weight
+    columns are the weights ACTUALLY HELD through it, which drift away
+    from 25% between rebalances.
+
+    date       EEM_ret    GLD_ret    SPY_ret    TLT_ret    EEM_w      GLD_w      SPY_w      TLT_w      gross      risky_ret  cash_ret   r(0.25)
+    2015-02-04 -0.000000  0.004378   -0.003808  0.001709   0.251209   0.246325   0.257997   0.244469   0.00051392 0.00051392 0.00000100 0.0001292320
+    2015-02-05 0.000000   0.001727   0.010095   -0.010979  0.251080   0.247276   0.256883   0.244761   0.00033308 0.00033308 0.00000050 0.0000836470
+    2015-02-06 -0.000000  -0.025864  -0.002765  -0.017702  0.250996   0.247621   0.259390   0.241993   -0.01140553 -0.01140553 0.00000060 -0.0028509311
+    2015-02-09 -0.000000  0.000000   -0.004476  -0.001604  0.253892   0.243999   0.261657   0.240452   -0.00155670 -0.00155670 0.00000101 -0.0003884185
+
+    2015-02-04  study book_ret 0.00051392 vs hand 0.00051392   |gap| 3.889e-09
+              study cash_ret 0.00000100 vs hand 0.00000100   |gap| 3.968e-09
+    2015-02-05  study book_ret 0.00033308 vs hand 0.00033308   |gap| 3.958e-09
+              study cash_ret 0.00000050 vs hand 0.00000050   |gap| 3.968e-09
+    2015-02-06  study book_ret -0.01140553 vs hand -0.01140553   |gap| 3.796e-09
+              study cash_ret 0.00000060 vs hand 0.00000060   |gap| 3.175e-09
+    2015-02-09  study book_ret -0.00155670 vs hand -0.00155670   |gap| 2.054e-09
+              study cash_ret 0.00000101 vs hand 0.00000101   |gap| 2.063e-09
+
+(6) ONE YEAR AT ONE LAMBDA, COMPOUNDED BY HAND
+    hand: prod over 2015's 252 book dates of (1 + 0.25*r_risky + 0.75*r_cash)
+    hand  -0.0134072270
+    study -0.0134070000   (out/yearly_R4_rt0.csv, lam_0.25, year 2015)
+    gap   2.270e-07
+    (that gap is the 6-decimal rounding of the yearly CSV.)
+    and recomputed from study's 8-decimal daily trail over 252 sessions:
+      -0.013407288446   |gap vs hand 6.146e-08
+
+    the sleeve returns that built it (unweighted), first and last
+    session of the year, with the book's own return at lambda=1:
+      2015-01-02  EEM -0.000000  GLD 0.000000  SPY -0.000535  TLT 0.011118   risky 0.00264575  cash 0.00000161  r(0.25) 0.00066265
+      2015-12-31  EEM -0.000000  GLD 0.000000  SPY -0.000000  TLT 0.000000   risky 0.00000000  cash 0.00000669  r(0.25) 0.00000502
+
+==============================================================================
+HANDCHECK PASSED: two independent implementations agree on every cell
+  max absolute gap over both frontier tables: 4.932e-07
+  that gap is the 6-decimal rounding of out/*.csv, not a disagreement;
+  the CSV tolerance is 5.1e-07 (half a unit in the last written place).
+  the exact checks (cash identity, endpoint bisection) held to 1e-09;
+  the 8-decimal-trail recomputation of 2015 at lambda=0.25 held to 1.3e-06.

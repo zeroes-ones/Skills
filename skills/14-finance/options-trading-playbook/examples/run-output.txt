@@ -1,0 +1,1108 @@
+# ============================================================================
+# run-output.txt -- every documented command in examples/, run twice and diffed.
+# ============================================================================
+# Captured by running the commands below with `py -3` (Python 3.10) on the
+# author's checkout, PYTHONIOENCODING=utf-8. This file is a transcript, not a
+# result: the numbers are the engine's arithmetic on the inputs, and
+# examples/logs/synthetic-options-log.csv is SYNTHETIC / ILLUSTRATIVE.
+#
+# Reproduce with:
+#   cd skills/14-finance/options-trading-playbook
+#   export PYTHONIOENCODING=utf-8
+#   bash scripts/verify-skill.sh
+#
+# Every command is run TWICE and the two outputs diffed. A blank DIFF line means
+# the engine is deterministic. `-` prefixes would mean it is not.
+# ============================================================================
+
+$ py -3 scripts/payoff_check.py --version
+payoff_check.py 1.0.0
+
+# ----------------------------------------------------------------------------
+# COMMAND 1 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --tp 2.5 --sl 1.0 --p 0.35 --cost-r 0.02
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : TP/SL
+  tp / sl         : 2.5000 / 1.0000  (both in R)
+  p (win rate)    : 35.00%
+  cost            : 0.0200 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 2.5000
+  E       = p*b - (1-p)            : 0.2250 R per trade
+  E_net   = E - c_R                : 0.2050 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 1.8571
+  p*      = 1/(1+b)                : 28.57%
+  edge    = p - p*                 : 6.43%
+
+SIZE
+  f*      = E/b                    : 9.00% of capital
+  half-Kelly                       : 4.50% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 1.6694 R
+  se_E    = sd/sqrt(n)                   : 0.1056 R
+  n_req   = 4*(sd/|E|)^2                 : 220.20  (ceil: 221)
+  years_at_pace = n_req / trades_per_year: 0.88 years
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 13 trades  (raw: 12.82)
+  R_max   = d_tol/(L*safety)             : 1.03% of equity per trade
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 30.0%                          0.0500       0.0300
+  p +5pp -> 40.0%                          0.4000       0.3800
+  b -0.25 -> 2.250                         0.1375       0.1175
+  b +0.25 -> 2.750                         0.3125       0.2925
+  cost x0.5 -> 0.0100 R                    0.2250       0.2150
+  cost x2.0 -> 0.0400 R                    0.2250       0.1850
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  POSITIVE: E_net = 0.2050 >= se_E = 0.1056: positive expectancy separable from zero at n = 250.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 2 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --tp 0.5 --sl 2.0 --p 0.70
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : TP/SL
+  tp / sl         : 0.5000 / 2.0000  (both in R)
+  p (win rate)    : 70.00%
+  cost            : 0.0000 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 0.2500
+  E       = p*b - (1-p)            : -0.1250 R per trade
+  E_net   = E - c_R                : -0.1250 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 0.4286
+  p*      = 1/(1+b)                : 80.00%
+  edge    = p - p*                 : -10.00%
+
+SIZE
+  f*      = E/b                    : -50.00% of capital
+  half-Kelly                       : -25.00% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 0.5728 R
+  se_E    = sd/sqrt(n)                   : 0.0362 R
+  n_req   = 4*(sd/|E|)^2                 : n/a  (ceil: n/a)
+  years_at_pace = n_req / trades_per_year: n/a
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 5 trades  (raw: 4.59)
+  R_max   = d_tol/(L*safety)             : 2.67% of equity per trade
+  NOTE f*            : f* is negative: the Kelly criterion says do not bet this corner at this p and b. A negative fraction is information, not a sizing instruction -- it is reported un-clipped.
+  NOTE n_req         : n/a: E = -0.1250 <= 0. You cannot see an edge that is not there, and no trade count creates one.
+  NOTE years_at_pace : n/a: n_req is undefined
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 65.0%                         -0.1875      -0.1875
+  p +5pp -> 75.0%                         -0.0625      -0.0625
+  b -0.25 -> 0.000                        -0.3000      -0.3000
+  b +0.25 -> 0.500                         0.0500       0.0500
+  cost x0.5 -> 0.0000 R                   -0.1250      -0.1250
+  cost x2.0 -> 0.0000 R                   -0.1250      -0.1250
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  NEGATIVE: E_net = -0.1250 <= -se_E = -0.0362: negative expectancy separable from zero at n = 250.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 3 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --credit 1.00 --width 5.00 --tp-money 50 --sl-money 200 --p 0.80
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  structural: 1R = the structure's max loss (W - C) x multiplier = 400.00
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : CREDIT/WIDTH
+  credit          : 1.00 (per share)   width: 5.00 (per share)   multiplier: 100
+  per spread      : credit 100.00   width 500.00   max loss (W-C): 400.00
+  target          : 50.00 (50.00% of credit)   stop: 200.00 (2.00 x credit)
+  p (win rate)    : 80.00%
+  cost            : 0.0000 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 0.2500
+  E       = p*b - (1-p)            : 0.0000 R per trade
+  E_net   = E - c_R                : 0.0000 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 0.2500
+  p*      = 1/(1+b)                : 80.00%
+  edge    = p - p*                 : 0.00%
+
+SIZE
+  f*      = E/b                    : 0.00% of capital
+  half-Kelly                       : 0.00% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 0.5000 R
+  se_E    = sd/sqrt(n)                   : 0.0316 R
+  n_req   = 4*(sd/|E|)^2                 : n/a  (ceil: n/a)
+  years_at_pace = n_req / trades_per_year: n/a
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 4 trades  (raw: 3.43)
+  R_max   = d_tol/(L*safety)             : 3.33% of equity per trade
+  NOTE n_req         : n/a: E = 0.0000 <= 0. You cannot see an edge that is not there, and no trade count creates one.
+  NOTE years_at_pace : n/a: n_req is undefined
+  INPUT NOTE      : quote units: credit 1.00 and width 5.00 are PER SHARE; x multiplier 100 gives 100.00 credit and 500.00 width per spread
+  INPUT NOTE      : R basis: max loss = (width - credit) x multiplier = (5.00 - 1.00) x 100 = 400.00
+  INPUT NOTE      : target is 50.00% of the credit; stop is 2.00 x the credit
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 75.0%                         -0.0625      -0.0625
+  p +5pp -> 85.0%                          0.0625       0.0625
+  b -0.25 -> 0.000                        -0.2000      -0.2000
+  b +0.25 -> 0.500                         0.2000       0.2000
+  cost x0.5 -> 0.0000 R                    0.0000       0.0000
+  cost x2.0 -> 0.0000 R                    0.0000       0.0000
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  MARGINAL: |E_net| = 0.0000 < se_E = 0.0316: the expectancy is within one standard error of zero at n = 250, so it is not separable from noise at this sample.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 4 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --scaling-check --legs 4 --fee-per-contract 0.65 --rung-split 3 --position-value 5.00
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+==============================================================================
+SCALING CHECK  (multi-rung fee threshold)
+==============================================================================
+  fee_per_rung   = legs * fee_per_contract = 4 * 0.65 = 2.60
+  banked_per_rung= position_value / rung_split = 5.00 / 3 = 1.67
+  total_fee      = rung_split * fee_per_rung = 3 * 2.60 = 7.80
+  single close   = 2.60 (one rung's worth of tickets)
+  extra_fee      = (rung_split - 1) * legs * fee = 2 * 4 * 0.65 = 5.20
+
+  THRESHOLD (derived, not asserted):
+    a rung is fee-negative when  position_value / rung_split
+    < legs * fee_per_contract. Solving for the whole position:
+
+      fee_negative  iff  position_value < rung_split * legs * fee_per_contract = 3 * 4 * 0.65 = 7.80
+
+    threshold = 7.80 per spread. At position_value = 5.00 the split is
+    FEE-NEGATIVE: each rung banks 1.67 and pays 2.60, a shortfall of
+    0.93 per rung, 2.80 across 3 rungs.
+
+  Note the shape of this: the threshold is paid per SPREAD, so a
+  small structure crosses it never. Scaling rungs multiplies a fixed
+  per-spread fee by the rung count while dividing the banked cash by
+  the same count -- the fee ratio worsens by rung_split^2.
+
+==============================================================================
+VERDICT
+==============================================================================
+  No card was supplied, so there is no verdict. A scaling check or
+  a realised-cohort table answers a different question.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 5 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --tp 0.5 --sl 1.0 --p 0.68
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : TP/SL
+  tp / sl         : 0.5000 / 1.0000  (both in R)
+  p (win rate)    : 68.00%
+  cost            : 0.0000 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 0.5000
+  E       = p*b - (1-p)            : 0.0200 R per trade
+  E_net   = E - c_R                : 0.0200 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 0.4706
+  p*      = 1/(1+b)                : 66.67%
+  edge    = p - p*                 : 1.33%
+
+SIZE
+  f*      = E/b                    : 4.00% of capital
+  half-Kelly                       : 2.00% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 0.6997 R
+  se_E    = sd/sqrt(n)                   : 0.0443 R
+  n_req   = 4*(sd/|E|)^2                 : 4896.00  (ceil: 4896)
+  years_at_pace = n_req / trades_per_year: 19.58 years
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 5 trades  (raw: 4.85)
+  R_max   = d_tol/(L*safety)             : 2.67% of equity per trade
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 63.0%                         -0.0550      -0.0550
+  p +5pp -> 73.0%                          0.0950       0.0950
+  b -0.25 -> 0.250                        -0.1500      -0.1500
+  b +0.25 -> 0.750                         0.1900       0.1900
+  cost x0.5 -> 0.0000 R                    0.0200       0.0200
+  cost x2.0 -> 0.0000 R                    0.0200       0.0200
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  MARGINAL: |E_net| = 0.0200 < se_E = 0.0443: the expectancy is within one standard error of zero at n = 250, so it is not separable from noise at this sample.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 6 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --tp 2.5 --sl 1.0 --p 0.35 --fee-per-contract 0.65 --legs 4 --r-dollars 15
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : TP/SL
+  tp / sl         : 2.5000 / 1.0000  (both in R)
+  p (win rate)    : 35.00%
+  cost            : 0.3467 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 2.5000
+  E       = p*b - (1-p)            : 0.2250 R per trade
+  E_net   = E - c_R                : -0.1217 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 1.8571
+  p*      = 1/(1+b)                : 28.57%
+  edge    = p - p*                 : 6.43%
+
+SIZE
+  f*      = E/b                    : 9.00% of capital
+  half-Kelly                       : 4.50% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 1.6694 R
+  se_E    = sd/sqrt(n)                   : 0.1056 R
+  n_req   = 4*(sd/|E|)^2                 : 220.20  (ceil: 221)
+  years_at_pace = n_req / trades_per_year: 0.88 years
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 13 trades  (raw: 12.82)
+  R_max   = d_tol/(L*safety)             : 1.03% of equity per trade
+  NOTE cost          : cost 0.3467 R >= gross E 0.2250 R: after cost this corner pays nothing or loses. Cost is not a rounding term here; it is the whole result.
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 30.0%                          0.0500      -0.2967
+  p +5pp -> 40.0%                          0.4000       0.0533
+  b -0.25 -> 2.250                         0.1375      -0.2092
+  b +0.25 -> 2.750                         0.3125      -0.0342
+  cost x0.5 -> 0.1733 R                    0.2250       0.0517
+  cost x2.0 -> 0.6933 R                    0.2250      -0.4683
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+==============================================================================
+COST DERIVATION  (per contract, per leg, round trip)
+==============================================================================
+  cost_per_trade = fee_per_contract * legs * 2
+                 = 0.65 * 4 * 2 = 5.20
+  tickets per round trip = legs * 2 = 8
+  c_R            = cost_per_trade / R_dollars
+                 = 5.20 / 15.00 = 0.3467 R
+
+  The x2 is the round trip: an OPENING ticket and a CLOSING ticket
+  for every leg. A four-leg structure pays eight tickets, not four.
+  Cost scales with legs AND with tickets; R does not.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  NEGATIVE: E_net = -0.1217 <= -se_E = -0.1056: negative expectancy separable from zero at n = 250.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 7 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --from-log examples/logs/synthetic-options-log.csv
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+PROVENANCE
+  input file      : examples/logs/synthetic-options-log.csv
+  trade rows      : 80
+  comment lines   : 21
+  declared        : SYNTHETIC / ILLUSTRATIVE -- invented options log. NOT market data. NOT a backtest. NOT a result. It carries no market information whatsoever and must never be quoted as a finding about any instrument, strategy, volatility regime or period.
+  declared        : generated by examples/logs/generate_synthetic_log.py at fixed seed SEED=20261014, stdlib only, byte-identical on every run.
+  declared        : 80 invented closed option positions across two invented cohorts and four invented symbols; close dates 2025-01-15 .. 2025-06-27.
+  declared        : invented by the skill author so that payoff_check.py --from-log has a log whose arithmetic a reader can check on paper. The two cohorts are chosen to sit on DIFFERENT sides of the break-even line: one profitable corner and one negative corner. That contrast is the point.
+  declared        : pnl is invented currency in units of an invented risk unit (200.00 per trade); it is not dollars earned by anyone. cost is an invented commission estimate at 0.65 per contract per ticket.
+
+==============================================================================
+REALISED  (from the log, by cohort)
+==============================================================================
+  R MODE: yes -- risk column is the planned per-trade risk
+  break-even trades (pnl = 0) are counted in n and EXCLUDED from the
+  win-rate denominator: p = wins / (wins + losses).
+
+  setup                            n   win   los   be        p  avg_win  avg_los         b         E      E_net
+  -------------------------------------------------------------------------------------------------------------
+  credit-condor-50-2x             40    31     9    0   77.50%    0.250    1.000     0.250   -0.0312    -0.0572
+  debit-spread-2.5R               40    14    26    0   35.00%    2.470    1.000     2.470    0.2145     0.2015
+  (ALL COHORTS)                   80    45    35    0   56.25%    0.941    1.000     0.941    0.0916     0.0721
+
+  per cohort, with the sample the realised edge would need:
+
+  [credit-condor-50-2x]
+    se_p = sqrt(p(1-p)/n)          : 0.0660  (p = 77.50%, n_wl = 40)
+    sd   = two-point sd            : 0.5220 R
+    se_E = sd/sqrt(n)              : 0.0825 R
+    n_req                          : n/a: realised E = -0.0312 <= 0. There is no edge here to see, and no trade count creates one.
+    net P&L (pnl - cost)           : -458.00
+
+  [debit-spread-2.5R]
+    se_p = sqrt(p(1-p)/n)          : 0.0754  (p = 35.00%, n_wl = 40)
+    sd   = two-point sd            : 1.6551 R
+    se_E = sd/sqrt(n)              : 0.2617 R
+    n_req                          : 239 trades to see it at 2 sigma
+    net P&L (pnl - cost)           : 1,612.00
+
+  [(ALL COHORTS)]
+    se_p = sqrt(p(1-p)/n)          : 0.0555  (p = 56.25%, n_wl = 80)
+    sd   = two-point sd            : 0.9627 R
+    se_E = sd/sqrt(n)              : 0.1076 R
+    n_req                          : 442 trades to see it at 2 sigma
+    net P&L (pnl - cost)           : 1,154.00
+
+==============================================================================
+VERDICT
+==============================================================================
+  No card was supplied, so there is no verdict. A scaling check or
+  a realised-cohort table answers a different question.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 8 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --from-log examples/logs/synthetic-options-log.csv --setup debit-spread-2.5R --tp 2.5 --sl 1.0 --p 0.35
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : TP/SL
+  tp / sl         : 2.5000 / 1.0000  (both in R)
+  p (win rate)    : 35.00%
+  cost            : 0.0000 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 2.5000
+  E       = p*b - (1-p)            : 0.2250 R per trade
+  E_net   = E - c_R                : 0.2250 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 1.8571
+  p*      = 1/(1+b)                : 28.57%
+  edge    = p - p*                 : 6.43%
+
+SIZE
+  f*      = E/b                    : 9.00% of capital
+  half-Kelly                       : 4.50% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 1.6694 R
+  se_E    = sd/sqrt(n)                   : 0.1056 R
+  n_req   = 4*(sd/|E|)^2                 : 220.20  (ceil: 221)
+  years_at_pace = n_req / trades_per_year: 0.88 years
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 13 trades  (raw: 12.82)
+  R_max   = d_tol/(L*safety)             : 1.03% of equity per trade
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 30.0%                          0.0500       0.0500
+  p +5pp -> 40.0%                          0.4000       0.4000
+  b -0.25 -> 2.250                         0.1375       0.1375
+  b +0.25 -> 2.750                         0.3125       0.3125
+  cost x0.5 -> 0.0000 R                    0.2250       0.2250
+  cost x2.0 -> 0.0000 R                    0.2250       0.2250
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+PROVENANCE
+  input file      : examples/logs/synthetic-options-log.csv
+  trade rows      : 80
+  comment lines   : 21
+  declared        : SYNTHETIC / ILLUSTRATIVE -- invented options log. NOT market data. NOT a backtest. NOT a result. It carries no market information whatsoever and must never be quoted as a finding about any instrument, strategy, volatility regime or period.
+  declared        : generated by examples/logs/generate_synthetic_log.py at fixed seed SEED=20261014, stdlib only, byte-identical on every run.
+  declared        : 80 invented closed option positions across two invented cohorts and four invented symbols; close dates 2025-01-15 .. 2025-06-27.
+  declared        : invented by the skill author so that payoff_check.py --from-log has a log whose arithmetic a reader can check on paper. The two cohorts are chosen to sit on DIFFERENT sides of the break-even line: one profitable corner and one negative corner. That contrast is the point.
+  declared        : pnl is invented currency in units of an invented risk unit (200.00 per trade); it is not dollars earned by anyone. cost is an invented commission estimate at 0.65 per contract per ticket.
+
+==============================================================================
+REALISED  (from the log, by cohort)
+==============================================================================
+  R MODE: yes -- risk column is the planned per-trade risk
+  break-even trades (pnl = 0) are counted in n and EXCLUDED from the
+  win-rate denominator: p = wins / (wins + losses).
+
+  setup                            n   win   los   be        p  avg_win  avg_los         b         E      E_net
+  -------------------------------------------------------------------------------------------------------------
+  debit-spread-2.5R               40    14    26    0   35.00%    2.470    1.000     2.470    0.2145     0.2015
+
+  per cohort, with the sample the realised edge would need:
+
+  [debit-spread-2.5R]
+    se_p = sqrt(p(1-p)/n)          : 0.0754  (p = 35.00%, n_wl = 40)
+    sd   = two-point sd            : 1.6551 R
+    se_E = sd/sqrt(n)              : 0.2617 R
+    n_req                          : 239 trades to see it at 2 sigma
+    net P&L (pnl - cost)           : 1,612.00
+
+==============================================================================
+PROPOSED CARD vs REALISED
+==============================================================================
+  field              proposed     realised
+  p                    0.3500       0.3500
+  b                    2.5000       2.4700
+  E                    0.2250       0.2145
+  E_net                0.2250       0.2015
+  sd                   1.6694       1.6551
+
+  A gap between these two columns is the whole point of running
+  --from-log: a card is a prediction, and this is the score.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  POSITIVE: E_net = 0.2250 >= se_E = 0.1056: positive expectancy separable from zero at n = 250.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 9 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --json --tp 0.5 --sl 2.0 --p 0.80
+--- output ---
+{
+  "algebra": {
+    "E": "p*b - (1-p)",
+    "E_net": "E - c_R",
+    "L": "ceil(ln(n)/ln(1/(1-p)))",
+    "R_max": "d_tol/(L*safety)",
+    "b_star": "(1-p)/p",
+    "cost_per_trade": "fee_per_contract * legs * 2",
+    "kelly": "E/b",
+    "n_req": "4*(sd/|E|)^2",
+    "p_star": "1/(1+b)",
+    "sd": "sqrt(p*(b-E)^2 + (1-p)*(-1-E)^2)"
+  },
+  "card": {
+    "E": 0.0,
+    "E_net": 0.0,
+    "L_streak": 4,
+    "L_streak_note": null,
+    "L_streak_raw": 3.4306765580733924,
+    "R_max": 0.03333333333333333,
+    "R_max_note": null,
+    "b": 0.25,
+    "b_star": 0.24999999999999994,
+    "b_star_note": null,
+    "cost_note": null,
+    "cost_r": 0.0,
+    "d_tol_frac": 0.2,
+    "edge": 0.0,
+    "half_kelly": 0.0,
+    "input_mode": "TP/SL",
+    "kelly": 0.0,
+    "kelly_negative_note": null,
+    "kelly_note": null,
+    "n": 250,
+    "n_req": null,
+    "n_req_int": null,
+    "n_req_note": "n/a: E = 0.0000 <= 0. You cannot see an edge that is not there, and no trade count creates one.",
+    "p": 0.8,
+    "p_star": 0.8,
+    "r_basis": "numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it",
+    "safety": 1.5,
+    "sd": 0.49999999999999994,
+    "se_E": 0.03162277660168379,
+    "sl": 2.0,
+    "tp": 0.5,
+    "verdict": "MARGINAL",
+    "verdict_reason": "|E_net| = 0.0000 < se_E = 0.0316: the expectancy is within one standard error of zero at n = 250, so it is not separable from noise at this sample.",
+    "years_at_pace": null,
+    "years_at_pace_note": "n/a: n_req is undefined"
+  },
+  "cost": null,
+  "engine": "payoff_check.py",
+  "engine_version": "1.0.0",
+  "from_log": null,
+  "r_basis": "numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it",
+  "scaling": null,
+  "sensitivity": [
+    {
+      "E": -0.0625,
+      "E_net": -0.0625,
+      "scenario": "p -5pp -> 75.0%"
+    },
+    {
+      "E": 0.06250000000000011,
+      "E_net": 0.06250000000000011,
+      "scenario": "p +5pp -> 85.0%"
+    },
+    {
+      "E": -0.19999999999999996,
+      "E_net": -0.19999999999999996,
+      "scenario": "b -0.25 -> 0.000"
+    },
+    {
+      "E": 0.20000000000000007,
+      "E_net": 0.20000000000000007,
+      "scenario": "b +0.25 -> 0.500"
+    },
+    {
+      "E": 5.551115123125783e-17,
+      "E_net": 5.551115123125783e-17,
+      "scenario": "cost x0.5 -> 0.0000 R"
+    },
+    {
+      "E": 5.551115123125783e-17,
+      "E_net": 5.551115123125783e-17,
+      "scenario": "cost x2.0 -> 0.0000 R"
+    }
+  ]
+}
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 10 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --tp 0.5 --sl 1.5 --p 0.80
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : TP/SL
+  tp / sl         : 0.5000 / 1.5000  (both in R)
+  p (win rate)    : 80.00%
+  cost            : 0.0000 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 0.3333
+  E       = p*b - (1-p)            : 0.0667 R per trade
+  E_net   = E - c_R                : 0.0667 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 0.2500
+  p*      = 1/(1+b)                : 75.00%
+  edge    = p - p*                 : 5.00%
+
+SIZE
+  f*      = E/b                    : 20.00% of capital
+  half-Kelly                       : 10.00% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 0.5333 R
+  se_E    = sd/sqrt(n)                   : 0.0337 R
+  n_req   = 4*(sd/|E|)^2                 : 256.00  (ceil: 256)
+  years_at_pace = n_req / trades_per_year: 1.02 years
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 4 trades  (raw: 3.43)
+  R_max   = d_tol/(L*safety)             : 3.33% of equity per trade
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 75.0%                          0.0000       0.0000
+  p +5pp -> 85.0%                          0.1333       0.1333
+  b -0.25 -> 0.083                        -0.1333      -0.1333
+  b +0.25 -> 0.583                         0.2667       0.2667
+  cost x0.5 -> 0.0000 R                    0.0667       0.0667
+  cost x2.0 -> 0.0000 R                    0.0667       0.0667
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  POSITIVE: E_net = 0.0667 >= se_E = 0.0337: positive expectancy separable from zero at n = 250.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+
+# ----------------------------------------------------------------------------
+# COMMAND 11 of 11
+# ----------------------------------------------------------------------------
+
+$ py -3 scripts/payoff_check.py --tp 0.5 --sl 1.0 --p 0.80
+--- output ---
+==============================================================================
+OPTIONS PAYOFF CHECK  --  payoff_check.py 1.0.0
+==============================================================================
+
+R BASIS
+  numeraire: 1R is the money lost when the stop fires; --tp and --sl share a unit and b = tp/sl re-bases it
+
+ALGEBRA  (formulas are literal; substitute and check)
+ALL QUANTITIES ARE IN R, where 1R is the money lost when the stop fires.
+  b     = tp / sl                     the payoff ratio (win / loss)
+  E     = p*b - (1-p)                 gross expectancy per trade, in R
+  E_net = E - c_R                     expectancy after cost, in R
+  b*    = (1-p) / p                   break-even payoff at this p
+  p*    = 1 / (1+b)                   break-even win rate at this b
+  edge  = p - p*                      win rate above the break-even rate
+  f*    = E / b                       Kelly fraction of capital
+  sd^2  = p*(b-E)^2 + (1-p)*(-1-E)^2  two-point std deviation, in R
+  n_req = 4 * (sd / |E|)^2            trades needed to see the edge at 2 sigma
+  L     = ceil( ln(N) / ln(1/(1-p)) ) expected longest losing streak in N
+  R_max = D_tol / (L * safety)        largest risk per trade a streak survives
+
+INPUTS
+  input mode      : TP/SL
+  tp / sl         : 0.5000 / 1.0000  (both in R)
+  p (win rate)    : 80.00%
+  cost            : 0.0000 R per trade (round trip)
+  n (planned)     : 250
+  d-tol / safety  : 20.00% of equity / 1.50 x
+
+PAYOFF
+  b       = tp/sl                  : 0.5000
+  E       = p*b - (1-p)            : 0.2000 R per trade
+  E_net   = E - c_R                : 0.2000 R per trade
+
+BREAK-EVEN
+  b*      = (1-p)/p                : 0.2500
+  p*      = 1/(1+b)                : 66.67%
+  edge    = p - p*                 : 13.33%
+
+SIZE
+  f*      = E/b                    : 40.00% of capital
+  half-Kelly                       : 20.00% of capital
+
+SAMPLE AND SURVIVAL
+  sd      = sqrt(p(b-E)^2+(1-p)(-1-E)^2) : 0.6000 R
+  se_E    = sd/sqrt(n)                   : 0.0379 R
+  n_req   = 4*(sd/|E|)^2                 : 36.00  (ceil: 36)
+  years_at_pace = n_req / trades_per_year: 0.14 years
+  L       = ceil(ln(n)/ln(1/(1-p)))      : 4 trades  (raw: 3.43)
+  R_max   = d_tol/(L*safety)             : 3.33% of equity per trade
+
+SENSITIVITY  (the cost of being wrong about an input)
+  scenario                                      E        E_net
+  p -5pp -> 75.0%                          0.1250       0.1250
+  p +5pp -> 85.0%                          0.2750       0.2750
+  b -0.25 -> 0.250                         0.0000       0.0000
+  b +0.25 -> 0.750                         0.4000       0.4000
+  cost x0.5 -> 0.0000 R                    0.2000       0.2000
+  cost x2.0 -> 0.0000 R                    0.2000       0.2000
+
+  dE/dp = b + 1 and dE/db = p, so a win-rate improvement is worth
+  (b+1)/p times a payoff improvement. Payoff is a rules change you
+  can make today; a win rate needs a signal. Fix the payoff first.
+
+==============================================================================
+VERDICT
+==============================================================================
+  RULE (this is the rule; argue with it if you disagree):
+    |E_net| <  se_E  ->  MARGINAL  (not separable from zero)
+    E_net   >= se_E  ->  POSITIVE
+    E_net   <= -se_E ->  NEGATIVE
+    se_E = sd / sqrt(n), with n the PLANNED sample.
+
+  POSITIVE: E_net = 0.2000 >= se_E = 0.0379: positive expectancy separable from zero at n = 250.
+
+  This is arithmetic on YOUR inputs, not a forecast and not a
+  backtest. It says what the corner pays if p and b are what you
+  think they are. It cannot tell you whether they are.
+
+==============================================================================
+PROVENANCE AND LIMITS
+==============================================================================
+  This output is arithmetic on the inputs above. It is NOT market data,
+  NOT a backtest, and NOT a forecast. No result here says a strategy is
+  profitable; it says what a corner pays IF p and b are what you think
+  they are, and p is an estimate with sampling error you have not
+  measured. Sourced from CBOE and OCC exchange rules only for the
+  mechanics of ticket counts and contract multipliers; no vendor, no
+  network, no third-party dependency anywhere in this engine.
+--- end output ---
+
+DIFF (run 1 vs run 2): byte-identical
+

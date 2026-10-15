@@ -1,0 +1,11 @@
+WROTE data\BIL_1d.csv  rows=4876  2007-05-30 .. 2026-10-14
+WROTE data\EEM_1d.csv  rows=5915  2003-04-11 .. 2026-10-14
+WROTE data\GLD_1d.csv  rows=5510  2004-11-18 .. 2026-10-14
+WROTE data\IWM_1d.csv  rows=6635  2000-05-26 .. 2026-10-14
+WROTE data\QQQ_1d.csv  rows=6943  1999-03-10 .. 2026-10-14
+WROTE data\SPY_1d.csv  rows=8485  1993-01-29 .. 2026-10-14
+WROTE data\TLT_1d.csv  rows=6094  2002-07-26 .. 2026-10-14
+WROTE data\US03M_1d.csv  rows=18197  1954-01-04 .. 2026-10-14
+WROTE data\VIX_1d.csv  rows=9283  1990-01-03 .. 2026-10-14
+
+DONE: 9 reused series

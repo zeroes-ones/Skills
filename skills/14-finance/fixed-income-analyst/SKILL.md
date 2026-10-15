@@ -11,7 +11,7 @@ description: >
   carry/roll-down strategies, or repo markets. Handles rate risk quantification,
   curve trade construction, credit analysis, inflation-linked products, and
   central bank policy path pricing. Do NOT use for equity valuation (route to
-  quantitative-analyst), FX forward pricing (route to forex-trader),
+  fundamental-analyst), FX forward pricing (route to forex-trader),
   mortgage underwriting (route to accountant), or corporate credit ratings
   (route to financial-security).
 token_budget: 6000

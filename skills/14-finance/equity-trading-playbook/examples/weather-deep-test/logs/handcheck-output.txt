@@ -1,0 +1,101 @@
+==============================================================================
+HANDCHECK -- independent re-derivation.  Imports nothing from study.py.
+==============================================================================
+  book calendar from out/book_daily_div_5bps.csv: 5292 days, 2005-09-30..2026-10-14
+
+[1] SPY buy-and-hold monthly returns from raw closes vs the `B` column
+  max |recomputed B - study B| over 252 months               gap = 4.995e-11              worst month 2006-10
+
+[2] BOOK daily series re-simulated from sleeve daily returns and the fixed targets
+  fixed targets taken from out/book_weights.csv: C=0.1500, CASH=0.1000, H=0.1000, T=0.4000, V=0.1000, X=0.1500
+  max |re-simulated BOOK daily - study BOOK daily|           gap = 8.899e-11              over 5292 days
+
+[3] BOOK monthly returns compounded from the re-simulated daily series
+  max |daily-compounded BOOK month - study BOOK month|       gap = 2.232e-10              worst month 2010-06
+
+[4] THE BY-HAND BOOK MONTH: sum_s w_s * r_s(month), fixed weights and sleeve monthly returns ONLY
+  month 2013-06 by hand:
+      w_C    = 0.1500  x  r = +0.335719%
+      w_CASH = 0.1000  x  r = +0.004012%
+      w_H    = 0.1000  x  r = -1.341493%
+      w_T    = 0.4000  x  r = -0.294799%
+      w_V    = 0.1000  x  r = +6.764123%
+      w_X    = 0.1500  x  r = -0.385246%
+      hand total             = +0.417316%
+      study BOOK month       = +0.416960%
+      difference             = +0.000356 pp  (intra-month weight drift + the monthly rebalance cost)
+  [4a] hand-month vs daily-re-simulated month                gap = 3.558e-06              the drift/cost gap, reported not hidden
+  [4b] daily-re-simulated month vs study BOOK month          gap = 3.714e-11
+
+[5] ONE PAIRWISE YEARLY CORRELATION, recomputed by hand from out/years.csv
+  corr(T, B) over 20 years: hand vs corr_yearly.csv          gap = 1.928e-10              hand=0.468046 study=0.468046
+
+[6] corr_yearly.csv is symmetric with a diagonal of exactly 1
+  max |C[i][j] - C[j][i]|                                    gap = 0.000e+00
+  max |C[i][i] - 1|                                          gap = 0.000e+00
+
+[7] CAGR and maximum drawdown recomputed from out/book_daily_div_5bps.csv vs out/summary.csv
+  CAGR hand vs summary.csv                                   gap = 9.629e-11              hand=0.086762 study=0.086762
+  maxDD hand vs summary.csv                                  gap = 5.310e-11              hand=-0.285909 study=-0.285909
+
+[8] positivity for Y and Q recomputed from the daily series vs out/horizon.csv
+  positive-year fraction hand vs horizon.csv                 gap = 0.000e+00              hand=0.850000 study=0.850000 (17/20)
+  positive-quarter fraction hand vs horizon.csv              gap = 3.333e-11              hand=0.833333 study=0.833333 (70/84)
+
+[9] THE TREND SLEEVE, month 2013-06, rebuilt from raw prices
+  instruments live at 1928: 31 of 31
+  hand T month, method B (daily weighted sum, as the study does it) = -0.255035%
+  [9b] |hand T month method B - study T month at 0 bps|      gap = 5.214e-11              method B reproduces the engine's own compounding order
+  [9c] method A vs method B (the within-month rebalancing effect) gap = 1.891e-04
+  long weight this month: 0.1880 ; the rest earns cash (0.004012%)
+  hand T month, method A (fixed weights, each instrument compounded then weighted) = -0.273947%
+  study T month at 0 bps                          = -0.255035%
+  study T month at 5 bps                          = -0.294799%
+  => the study's 5 bps rebalance cost for this month is 3.9764 bp
+  [9a] |hand T month method A - study T month at 0 bps|      gap = 1.891e-04              method A deliberately does NOT reproduce the engine's daily rebalancing, so a residual here is expected
+
+[10] CASH accrual, month 2013-06, from data/US03M_1d.csv
+  [10] |hand cash month - study cash month|                  gap = 5.238e-11              hand=0.00401198%
+
+[11] THE [MODELED] VRP SLEEVE, roll at the start of 2013-06, from VIX and SPY prices
+    SPY=163.4450  VIX(t-3)=14.4800  iv=0.1448  r=0.0003  q=0.0180
+    K1=156.1027  K2=148.2976  width=7.8051  credit=0.5593  credit/width=7.1655%
+    the study's own credit/width for the whole run is in out/summary.csv's [MODELED] V row context; this single-roll value is the check
+    expiry 2013-07-01  S_T=161.3600  intrinsic payoff=0.0000
+    hand V total-to-expiry P&L = +7.165512% of the posted width
+    window 2013-06-03..2013-06-28 (the session before settlement)
+    hand mark-to-market over that window = +6.817532% of width
+    study, 0 bps   = +6.817532%    study, 5 bps = +6.764123%
+    the 0-to-5 bps difference is exactly the roll cost: (5/2)/10000 * turnover 2.0 = 0.050000% per roll
+    at 2013-06-28: S=160.4200 T_rem=0.008219 r=0.000560 q=0.0180  put(K1)=0.027161 put(K2)=0.00000017  L=0.027160
+    implied study mark at 2013-06-28: L=0.027160   (hand L=0.027160, difference 6.24e-10 in price)
+  [11] |hand V mark-to-market - compounded study V, same window| gap = 7.998e-11              hand=0.068175 study=0.068175
+
+==============================================================================
+HANDCHECK SUMMARY -- 17 checks
+==============================================================================
+  gap >= 1e-9 : [4a] hand-month vs daily-re-simulated month                3.557689e-06
+  gap >= 1e-9 : [9c] method A vs method B (the within-month rebalancing effect) 1.891182e-04
+  gap >= 1e-9 : [9a] |hand T month method A - study T month at 0 bps|      1.891181e-04
+  largest gap across every check: 1.891e-04
+  checks agreeing to < 1e-12      : 3 of 17
+
+  THE THREE NON-ZERO GAPS, NAMED:
+   [4a] 3.6e-06  the by-hand fixed-weight book month vs the
+                 engine's monthly return.  The by-hand arithmetic
+                 cannot see the intra-month weight drift or the
+                 monthly rebalance cost; both are inside the
+                 engine's number.  Reported, not hidden.  Check
+                 [4b] proves the engine's own book is reproduced
+                 exactly (3.7e-11).
+   [9a]/[9c] 1.89e-04  fixed weights, each instrument compounded and
+                 then weighted, vs the engine's fixed weights with
+                 the DAILY weighted sum compounded.  These differ by
+                 the within-month rebalancing effect and by nothing
+                 else: check [9b] rebuilds the sleeve the engine's
+                 way and lands within 5.2e-11, and [9c] is exactly
+                 the same number as [9a].
+   [11] is now 8.0e-11.  Its earlier 5.3e-04 was ENTIRELY the 5 bps
+                 roll cost ((5/2)/10000 x turnover 2.0 = 0.05% a
+                 roll), which the check now removes by using the
+                 0 bps sleeve series.

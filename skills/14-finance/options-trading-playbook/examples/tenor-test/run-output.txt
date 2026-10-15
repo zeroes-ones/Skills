@@ -1,0 +1,1367 @@
+
+==============================================================================
+TENOR TEST -- does tenor buy edge, or only change the clock?
+==============================================================================
+Pre-registered.  Deterministic.  No RNG, no clock, no network.
+
+READ THIS BEFORE ANY NUMBER: every option price below is [MODELED].
+Historical option quotes are not available from the sources used.
+Legs are priced with Black-Scholes on a VIX-derived implied vol and
+settled against the REAL index close on the expiry session.  The
+model has: no quote spread, NO SKEW, NO TERM STRUCTURE (one vol for
+every strike AND every tenor), NO EARLY EXERCISE AND NO ASSIGNMENT
+(SPY/QQQ/IWM options are American and physically settled; they are
+priced here as European and cash-settled), no pin risk, no dividends,
+no margin, no liquidity limit, NO LEGGING RISK, unrounded strikes.
+A flat per-contract cost IS charged; the QUOTE is still a mid.
+
+
+==============================================================================
+0. DATA -- provenance echoed verbatim from data/*.csv
+==============================================================================
+  SPY    rows=8485   first=1993-01-29 last=2026-10-14
+  QQQ    rows=6943   first=1999-03-10 last=2026-10-14
+  IWM    rows=6635   first=2000-05-26 last=2026-10-14
+  VIX    rows=9283   first=1990-01-03 last=2026-10-14
+  US03M  rows=18197  first=1954-01-04 last=2026-10-14
+
+  Provenance of SPY (verbatim; the other four carry the same chain):
+    source=TradingView MCP tool mcp__tradingview__mcp-tv-get-ohlcv
+    symbol=AMEX:SPY  interval=1D  fields=OHLCV
+    pulled=2026-10-14 (UTC date of the sibling pull)
+    CARRIED from ../frontier-test/data/SPY_1d.csv -- same tool, same pull date
+    carried_by=pull_data.py  carried=2026-10-15
+    VERIFIED before carry: the sibling header's own rows/first/last claims were re-checked against its body and matched
+    sha256(body of the carried file)=e104ae01aefea7444b25011c2aedd558793d24f7659f703ec54dfee5390149af
+    rows=8485  first=1993-01-29  last=2026-10-14
+    date is the exchange session date, rendered as the UTC calendar date of the bar timestamp
+    split-adjusted, regular session only
+    volume is as reported by the source, in shares (unadjusted for splits)
+    PRICE-ONLY series. No dividends or distributions. Not a total-return series.
+    carried_by=carry_data.py  carried=2026-10-15  from=C:\Users\sande\Documents\Projects\Skills\skills\14-finance\options-trading-playbook\examples\index-options-test\data\SPY_1d.csv
+    CARRIED, not re-pulled. The five series are the same 1D series the sibling study already pulled on 2026-10-14; re-pulling returns raw bars through a tool result for no gain.
+    VERIFIED at carry: the source header's own rows/first/last claims were re-checked against the body it sits above and matched.
+    sha256(body of the carried file)=8c9fd9d9cc75fc7430e64df2a2b17218e73a6522bb0381fc7df7c4c32008a596
+    carried_by=carry_data.py  carried=2026-10-15  from=C:\Users\sande\Documents\Projects\Skills\skills\14-finance\options-trading-playbook\examples\leg-count-test\data\SPY_1d.csv
+    CARRIED, not re-pulled. These are the same 1D series pulled on 2026-10-14; a re-pull would return the same bars through a tool result.
+    VERIFIED at carry: the source header's own rows/first/last claims were re-checked against the body it sits above and matched.
+    sha256(body of the carried file)=8c9fd9d9cc75fc7430e64df2a2b17218e73a6522bb0381fc7df7c4c32008a596
+
+  COMMON WINDOW (identical construction to the sibling studies:
+  the intersection of the five series, from the first session on
+  which every index has a 200-session SMA):
+    2001-03-13 ... 2026-10-14   6436 sessions   25.59 years
+    complete months=306  complete quarters=102  complete years=24
+
+==============================================================================
+1. PRE-REGISTRATION -- declared before the first number was computed
+==============================================================================
+
+TENOR GRID (DTE at entry).  The bucket labels are
+`options-risk-engineer`'s EXACT partition, not this study's:
+  0DTE (same session) . weeklies 1-7 . gamma shoulder 8-20 .
+  monthlies 21-60 . quarterlies 60-120 . annuals 121-365 .
+  LEAPS >365
+
+  tenor DTE  skill bucket
+  ---------  --------------
+  7          weeklies
+  14         gamma shoulder
+  30         monthlies
+  45         monthlies
+  60         quarterlies
+  90         quarterlies
+  180        annuals
+  365        annuals
+  730        LEAPS
+BOUNDARY CALLS MADE HERE, DECLARED BEFORE THE RUN (the skill's own
+labels overlap at two places and an assignment had to be chosen):
+  * 60 DTE is inside 'monthlies 21-60' AND 'quarterlies 60-120'.
+    Assigned to QUARTERLIES -- the later bucket, following the
+    skill's rule to assign by the position's own gamma and never to
+    round down to the gentler bucket.
+  * 365 DTE is inside 'annuals 121-365' and abuts 'LEAPS >365'.
+    Assigned to ANNUALS, because >365 excludes 365.
+  0DTE is NOT a backtested tenor here.  Daily bars cannot see the
+  intraday path that decides 0DTE P&L; the 0DTE answer is ANALYTIC
+  (section 10) plus one clearly-labelled [ILLUSTRATIVE] computation
+  (section 11) that CANNOT be extrapolated.
+
+STRUCTURES -- the brief enumerates SEVEN, not six (2 one-leg, 3
+two-leg, 2 four-leg).  All seven are run; see README section 3.
+  id  structure                                        option legs  declared width W
+  --  -----------------------------------------------  -----------  ----------------
+  S1  long call ~50d                                   1            n/a
+  S2  cash-secured put ~16d                            1            R/share
+  S3  short put spread ~16d / 5-wide                   2            5.0
+  S4  bull call debit spread ~50d/25d                  2            5.0
+  S5  covered call: long underlying + short ~30d call  2            S_entry
+  S6  iron condor ~16d shorts / 5-wide wings           4            5.0
+  S7  iron butterfly ATM short / 5-wide wings          4            5.0
+W is DECLARED, not derived per trade: $5.00 for the four wing
+structures; for the cash-secured put W is the short strike K (the
+cash actually secured); for the covered call W is the underlying
+entry price (the notional the call is written against).  A naked
+long call has NO width at all -- only its debit/notional is
+meaningful, and its 'credit' is a DEBIT.
+
+ENTRY PROGRAMME: sequential and non-overlapping.  The first trade
+opens on the second session of the window, exits on the first
+session on or after entry + tenor days, and the next trade opens on
+the session after that expiry.  The sleeve is always in the market.
+Entry is at the OPEN, strikes are solved from the SIGNAL close (the
+prior session), and settlement is at INTRINSIC against the expiry
+session's REAL close.  Nothing is managed: no stop, no target, no
+roll.
+
+R = the structure's own modelled MAXIMUM LOSS per contract (exact
+piecewise-linear minimum, not a grid).  Every structure here is
+BOUNDED: the covered call's short call is covered by stock, so no
+stated-stop normalisation is needed anywhere in this study.
+
+COST (headline LOW) = ($0.65 + $0.025 x 100) per ticket per
+contract-leg, one ticket per leg: $3.15 per leg, so $3.15 / $6.30 /
+$12.60 per unit for 1 / 2 / 4 legs.  The covered call also pays 5 bps
+round trip on its stock leg.  HIGH doubles the spread widening;
+RT_LOW doubles every ticket (the round-trip convention of
+`cost-drag-per-leg-and-per-rung.md`).  A LEG THAT EXPIRES HAS NO
+CLOSING TICKET, which is why one ticket per leg is the headline.
+
+E is the GROSS expectancy in R (settlement P&L / R, before cost), so
+that the brief's identity E_net = E - c_R holds exactly.  p and b are
+computed on the same gross series; p_net is reported beside them.
+
+n_available = trades POOLED over SPY+QQQ+IWM (the sibling studies'
+convention); n_per_index = n_available / 3.  n_req = 4 (sd/|E|)^2.
+
+THE EXPECTED SAMPLE SIZES, computed from the schedule itself BEFORE
+any P&L:
+  DTE  bucket          trades / index  n_available (pooled)
+  ---  --------------  --------------  --------------------
+  7    weeklies        1100            3300
+  14   gamma shoulder  603             1809
+  30   monthlies       294             882
+  45   monthlies       199             597
+  60   quarterlies     148             444
+  90   quarterlies     102             306
+  180  annuals         51              153
+  365  annuals         25              75
+  730  LEAPS           12              36
+Read the bottom row against the top: a 730-day tenor over a 25.6-year
+window yields about 13 non-overlapping trades per index.  Every
+long-tenor cell below is graded against that, not against 1000.
+
+
+==============================================================================
+2. THE RUN
+==============================================================================
+
+  7 structures x 9 tenors = 63 cells per index
+  x 3 indexes = 189 sleeves, x 3 variants = 567 simulated sleeves.
+
+  CELLS ACTUALLY STATISTICISED (variant BASE): 63
+  (reported grid = 7 structures x 9 tenors = 63; matches: YES)
+
+==============================================================================
+3. TEST 1 -- is anything monotone in tenor?
+==============================================================================
+
+Cells ordered by DTE.  E is GROSS (settlement P&L / R); c_R is the
+headline LOW cost / R; E_net = E - c_R; cr/W is the net premium per
+share as a fraction of the structure's declared width W; theta/day/R
+is the credit divided by the tenor in days divided by R -- the daily
+yield on the risk actually carried; ann_R_net is the annualised
+return on one unit of R continuously committed.  Everything is
+[MODELED].
+
+--- S1  long call ~50d  (1 option legs, 1 contract-legs per unit)
+  DTE  bucket          n_avail  n_req  E        c_R     E_net    cr/W  theta/day/R  ann_R_net
+  ---  --------------  -------  -----  -------  ------  -------  ----  -----------  ---------
+  7    weeklies        3300     532    -0.1045  0.0276  -0.1321  n/a   -0.14286     -17.036
+  14   gamma shoulder  1809     395    -0.1144  0.0193  -0.1337  n/a   -0.07143     -9.451
+  30   monthlies       882      574    -0.0894  0.0132  -0.1027  n/a   -0.03333     -3.539
+  45   monthlies       597      2026   -0.0487  0.0107  -0.0594  n/a   -0.02222     -1.386
+  60   quarterlies     444      704    -0.0804  0.0095  -0.0899  n/a   -0.01667     -1.560
+  90   quarterlies     306      76077  -0.0078  0.0078  -0.0156  n/a   -0.01111     -0.187
+  180  annuals         153      275    +0.1518  0.0057  +0.1461  n/a   -0.00556     +0.874
+  365  annuals         75       77     +0.3435  0.0044  +0.3392  n/a   -0.00274     +0.994
+  730  LEAPS           36       17     +1.0748  0.0034  +1.0714  n/a   -0.00137     +1.507
+  MONOTONE IN TENOR?  NOT monotone (3 sign changes).  Peak E_net = +1.0714 at DTE 730 (AT AN ENDPOINT).
+
+--- S2  cash-secured put ~16d  (1 option legs, 1 contract-legs per unit)
+  DTE  bucket          n_avail  n_req  E        c_R     E_net    cr/W     theta/day/R  ann_R_net
+  ---  --------------  -------  -----  -------  ------  -------  -------  -----------  ---------
+  7    weeklies        3300     302    +0.0010  0.0003  +0.0007  +0.0026  +0.00034     +0.090
+  14   gamma shoulder  1809     273    +0.0016  0.0004  +0.0012  +0.0037  +0.00025     +0.087
+  30   monthlies       882      400    +0.0022  0.0004  +0.0019  +0.0056  +0.00017     +0.065
+  45   monthlies       597      756    +0.0018  0.0004  +0.0014  +0.0069  +0.00014     +0.033
+  60   quarterlies     444      60     +0.0055  0.0004  +0.0051  +0.0085  +0.00013     +0.088
+  90   quarterlies     306      164    +0.0046  0.0004  +0.0043  +0.0103  +0.00010     +0.051
+  180  annuals         153      228    +0.0079  0.0004  +0.0075  +0.0158  +0.00008     +0.045
+  365  annuals         75       32     +0.0177  0.0004  +0.0172  +0.0215  +0.00006     +0.050
+  730  LEAPS           36       100    +0.0212  0.0006  +0.0206  +0.0380  +0.00005     +0.029
+  MONOTONE IN TENOR?  NOT monotone (4 sign changes).  Peak E_net = +0.0206 at DTE 730 (AT AN ENDPOINT).
+
+--- S3  short put spread ~16d / 5-wide  (2 option legs, 2 contract-legs per unit)
+  DTE  bucket          n_avail  n_req  E        c_R     E_net    cr/W     theta/day/R  ann_R_net
+  ---  --------------  -------  -----  -------  ------  -------  -------  -----------  ---------
+  7    weeklies        3300     143    +0.0307  0.0136  +0.0172  +0.0554  +0.00838     +2.212
+  14   gamma shoulder  1809     122    +0.0384  0.0138  +0.0247  +0.0753  +0.00582     +1.743
+  30   monthlies       882      79     +0.0535  0.0141  +0.0394  +0.0980  +0.00362     +1.358
+  45   monthlies       597      136    +0.0453  0.0142  +0.0311  +0.1076  +0.00268     +0.726
+  60   quarterlies     444      38     +0.0796  0.0144  +0.0652  +0.1218  +0.00231     +1.132
+  90   quarterlies     306      75     +0.0661  0.0145  +0.0516  +0.1333  +0.00171     +0.617
+  180  annuals         153      11     +0.1426  0.0150  +0.1277  +0.1533  +0.00101     +0.763
+  365  annuals         75       26     +0.1288  0.0155  +0.1133  +0.1768  +0.00059     +0.332
+  730  LEAPS           36       65     +0.1127  0.0163  +0.0964  +0.2111  +0.00037     +0.136
+  MONOTONE IN TENOR?  NOT monotone (5 sign changes).  Peak E_net = +0.1277 at DTE 180 (INTERIOR).
+
+--- S4  bull call debit spread ~50d/25d  (2 option legs, 2 contract-legs per unit)
+  DTE  bucket          n_avail  n_req  E        c_R     E_net    cr/W     theta/day/R  ann_R_net
+  ---  --------------  -------  -----  -------  ------  -------  -------  -----------  ---------
+  7    weeklies        3300     1284   +0.0683  0.0877  -0.0194  -0.1685  -0.14286     -2.502
+  14   gamma shoulder  1809     711    +0.0893  0.0616  +0.0277  -0.2376  -0.07143     +1.957
+  30   monthlies       882      161    +0.1922  0.0425  +0.1497  -0.3421  -0.03333     +5.160
+  45   monthlies       597      120    +0.2261  0.0345  +0.1916  -0.4214  -0.02222     +4.470
+  60   quarterlies     444      138    +0.2070  0.0305  +0.1765  -0.4831  -0.01667     +3.063
+  90   quarterlies     306      57     +0.3324  0.0252  +0.3071  -0.5652  -0.01111     +3.673
+  180  annuals         153      33     +0.4808  0.0184  +0.4625  -0.8219  -0.00556     +2.765
+  365  annuals         75       24     +0.6547  0.0142  +0.6404  -0.9529  -0.00274     +1.877
+  730  LEAPS           36       10     +1.1285  0.0112  +1.1173  -1.3633  -0.00137     +1.572
+  MONOTONE IN TENOR?  NOT monotone (2 sign changes).  Peak E_net = +1.1173 at DTE 730 (AT AN ENDPOINT).
+
+--- S5  covered call: long underlying + short ~30d call  (2 option legs, 1 contract-legs per unit)
+  DTE  bucket          n_avail  n_req  E        c_R     E_net    cr/W     theta/day/R  ann_R_net
+  ---  --------------  -------  -----  -------  ------  -------  -------  -----------  ---------
+  7    weeklies        3300     139    +0.0042  0.0008  +0.0033  +0.0057  +0.00076     +0.430
+  14   gamma shoulder  1809     83     +0.0074  0.0008  +0.0066  +0.0080  +0.00053     +0.467
+  30   monthlies       882      47     +0.0152  0.0008  +0.0143  +0.0115  +0.00036     +0.494
+  45   monthlies       597      49     +0.0181  0.0008  +0.0173  +0.0144  +0.00030     +0.403
+  60   quarterlies     444      25     +0.0260  0.0009  +0.0251  +0.0162  +0.00025     +0.436
+  90   quarterlies     306      24     +0.0344  0.0009  +0.0335  +0.0191  +0.00020     +0.401
+  180  annuals         153      16     +0.0639  0.0009  +0.0630  +0.0268  +0.00015     +0.377
+  365  annuals         75       12     +0.1156  0.0009  +0.1147  +0.0349  +0.00009     +0.336
+  730  LEAPS           36       10     +0.2114  0.0009  +0.2104  +0.0512  +0.00007     +0.296
+  MONOTONE IN TENOR?  INCREASING (8 up, 0 flat).  Peak E_net = +0.2104 at DTE 730 (AT AN ENDPOINT).
+
+--- S6  iron condor ~16d shorts / 5-wide wings  (4 option legs, 4 contract-legs per unit)
+  DTE  bucket          n_avail  n_req  E        c_R     E_net    cr/W     theta/day/R  ann_R_net
+  ---  --------------  -------  -----  -------  ------  -------  -------  -----------  ---------
+  7    weeklies        3300     57     +0.0697  0.0294  +0.0403  +0.1189  +0.01928     +5.201
+  14   gamma shoulder  1809     38     +0.0953  0.0303  +0.0650  +0.1521  +0.01281     +4.594
+  30   monthlies       882      22     +0.1366  0.0314  +0.1052  +0.1900  +0.00782     +3.626
+  45   monthlies       597      37     +0.1192  0.0320  +0.0873  +0.2088  +0.00586     +2.036
+  60   quarterlies     444      13     +0.1788  0.0324  +0.1463  +0.2229  +0.00478     +2.539
+  90   quarterlies     306      21     +0.1629  0.0329  +0.1300  +0.2351  +0.00341     +1.555
+  180  annuals         153      10     +0.2319  0.0340  +0.1979  +0.2637  +0.00199     +1.183
+  365  annuals         75       33     +0.1739  0.0349  +0.1391  +0.2779  +0.00105     +0.408
+  730  LEAPS           36       648    -0.0547  0.0363  -0.0910  +0.2953  +0.00057     -0.128
+  MONOTONE IN TENOR?  NOT monotone (5 sign changes).  Peak E_net = +0.1979 at DTE 180 (INTERIOR).
+
+--- S7  iron butterfly ATM short / 5-wide wings  (4 option legs, 4 contract-legs per unit)
+  DTE  bucket          n_avail  n_req  E        c_R     E_net    cr/W     theta/day/R  ann_R_net
+  ---  --------------  -------  -----  -------  ------  -------  -------  -----------  ---------
+  7    weeklies        3300     186    +0.1656  0.0778  +0.0878  +0.5142  +0.15122     +11.326
+  14   gamma shoulder  1809     257    +0.1737  0.1036  +0.0701  +0.6293  +0.12126     +4.955
+  30   monthlies       882      572    +0.1399  0.1438  -0.0039  +0.7356  +0.09275     -0.133
+  45   monthlies       597      4802   +0.0531  0.1701  -0.1169  +0.7794  +0.07850     -2.728
+  60   quarterlies     444      805    +0.1368  0.1939  -0.0571  +0.8085  +0.07037     -0.990
+  90   quarterlies     306      4227   -0.0587  0.2145  -0.2733  +0.8372  +0.05715     -3.268
+  180  annuals         153      526    -0.1652  0.2743  -0.4395  +0.8891  +0.04455     -2.628
+  365  annuals         75       5657   -0.0907  0.3353  -0.4260  +0.9045  +0.02595     -1.249
+  730  LEAPS           36       11785  -0.0995  0.3806  -0.4801  +0.8980  +0.01206     -0.675
+  MONOTONE IN TENOR?  NOT monotone (4 sign changes).  Peak E_net = +0.0878 at DTE 7 (AT AN ENDPOINT).
+
+--- the whole grid in one view: E_net by structure x DTE
+  E_net  7        14       30       45       60       90       180      365      730
+  -----  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1     -0.1321  -0.1337  -0.1027  -0.0594  -0.0899  -0.0156  +0.1461  +0.3392  +1.0714
+  S2     +0.0007  +0.0012  +0.0019  +0.0014  +0.0051  +0.0043  +0.0075  +0.0172  +0.0206
+  S3     +0.0172  +0.0247  +0.0394  +0.0311  +0.0652  +0.0516  +0.1277  +0.1133  +0.0964
+  S4     -0.0194  +0.0277  +0.1497  +0.1916  +0.1765  +0.3071  +0.4625  +0.6404  +1.1173
+  S5     +0.0033  +0.0066  +0.0143  +0.0173  +0.0251  +0.0335  +0.0630  +0.1147  +0.2104
+  S6     +0.0403  +0.0650  +0.1052  +0.0873  +0.1463  +0.1300  +0.1979  +0.1391  -0.0910
+  S7     +0.0878  +0.0701  -0.0039  -0.1169  -0.0571  -0.2733  -0.4395  -0.4260  -0.4801
+--- the same grid at HIGH cost
+  E_net HIGH  7        14       30       45       60       90       180      365      730
+  ----------  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1          -0.1540  -0.1490  -0.1132  -0.0679  -0.0975  -0.0218  +0.1416  +0.3357  +1.0687
+  S2          +0.0004  +0.0010  +0.0016  +0.0011  +0.0048  +0.0040  +0.0072  +0.0169  +0.0202
+  S3          +0.0064  +0.0137  +0.0282  +0.0199  +0.0538  +0.0401  +0.1158  +0.1010  +0.0835
+  S4          -0.0890  -0.0212  +0.1160  +0.1642  +0.1523  +0.2871  +0.4479  +0.6292  +1.1084
+  S5          +0.0016  +0.0048  +0.0125  +0.0155  +0.0233  +0.0317  +0.0612  +0.1128  +0.2085
+  S6          +0.0170  +0.0409  +0.0803  +0.0619  +0.1206  +0.1039  +0.1709  +0.1114  -0.1197
+  S7          +0.0261  -0.0122  -0.1180  -0.2519  -0.2110  -0.4435  -0.6572  -0.6921  -0.7821
+--- the same grid at round-trip cost (2 tickets per leg)
+  E_net RT  7        14       30       45       60       90       180      365      730
+  --------  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1        -0.1597  -0.1529  -0.1159  -0.0701  -0.0994  -0.0234  +0.1404  +0.3348  +1.0680
+  S2        +0.0004  +0.0009  +0.0015  +0.0010  +0.0047  +0.0039  +0.0071  +0.0168  +0.0201
+  S3        +0.0036  +0.0109  +0.0253  +0.0169  +0.0508  +0.0371  +0.1127  +0.0979  +0.0801
+  S4        -0.1071  -0.0340  +0.1073  +0.1571  +0.1460  +0.2819  +0.4441  +0.6262  +1.1060
+  S5        +0.0025  +0.0058  +0.0135  +0.0164  +0.0243  +0.0327  +0.0621  +0.1138  +0.2095
+  S6        +0.0109  +0.0347  +0.0738  +0.0553  +0.1139  +0.0971  +0.1639  +0.1042  -0.1272
+  S7        +0.0100  -0.0336  -0.1476  -0.2870  -0.2510  -0.4878  -0.7138  -0.7613  -0.8606
+
+  id  monotone in tenor?             peak DTE  peak E_net  where     cr/W @7  cr/W @730  theta/day/R @7  theta/day/R @730
+  --  -----------------------------  --------  ----------  --------  -------  ---------  --------------  ----------------
+  S1  NOT monotone (3 sign changes)  730       +1.0714     ENDPOINT  n/a      n/a        -0.14286        -0.00137
+  S2  NOT monotone (4 sign changes)  730       +0.0206     ENDPOINT  +0.003   +0.038     +0.00034        +0.00005
+  S3  NOT monotone (5 sign changes)  180       +0.1277     INTERIOR  +0.055   +0.211     +0.00838        +0.00037
+  S4  NOT monotone (2 sign changes)  730       +1.1173     ENDPOINT  -0.168   -1.363     -0.14286        -0.00137
+  S5  INCREASING (8 up, 0 flat)      730       +0.2104     ENDPOINT  +0.006   +0.051     +0.00076        +0.00007
+  S6  NOT monotone (5 sign changes)  180       +0.1979     INTERIOR  +0.119   +0.295     +0.01928        +0.00057
+  S7  NOT monotone (4 sign changes)  7         +0.0878     ENDPOINT  +0.514   +0.898     +0.15122        +0.01206
+
+==============================================================================
+4. TEST 2 -- the risk-efficiency curve: theta per day per unit of R
+==============================================================================
+
+The pre-registered hypothesis: SHORT tenor is better paid per day but
+carries the fatter tail and the worse execution assumption, so E_net
+peaks at an INTERIOR tenor.  The first half of that is a measurement,
+the second half is what the tail and cost sections test.
+
+theta/day/R = median credit (dollars) / (tenor days x median R).  It
+is the fraction of the risk budget the position earns (or pays) each
+calendar day.  Ordered by DTE across the columns.
+  theta/day/R  7         14        30        45        60        90        180       365       730
+  -----------  --------  --------  --------  --------  --------  --------  --------  --------  --------
+  S1           -0.14286  -0.07143  -0.03333  -0.02222  -0.01667  -0.01111  -0.00556  -0.00274  -0.00137
+  S2           +0.00034  +0.00025  +0.00017  +0.00014  +0.00013  +0.00010  +0.00008  +0.00006  +0.00005
+  S3           +0.00838  +0.00582  +0.00362  +0.00268  +0.00231  +0.00171  +0.00101  +0.00059  +0.00037
+  S4           -0.14286  -0.07143  -0.03333  -0.02222  -0.01667  -0.01111  -0.00556  -0.00274  -0.00137
+  S5           +0.00076  +0.00053  +0.00036  +0.00030  +0.00025  +0.00020  +0.00015  +0.00009  +0.00007
+  S6           +0.01928  +0.01281  +0.00782  +0.00586  +0.00478  +0.00341  +0.00199  +0.00105  +0.00057
+  S7           +0.15122  +0.12126  +0.09275  +0.07850  +0.07037  +0.05715  +0.04455  +0.02595  +0.01206
+THE SAME NUMBER MULTIPLIED BY sqrt(DTE) -- the test of whether the
+daily yield really scales as 1/sqrt(T), which is what a fixed-moneyness
+credit would give.  A FLAT row means 1/sqrt(T) holds; a FALLING row
+means the yield decays FASTER than 1/sqrt(T), which is what a fixed
+DOLLAR wing does: the wing is a shrinking fraction of one sigma, so
+the credit does not keep up with sqrt(T).
+  theta/day/R x sqrt(DTE)  7         14        30        45        60        90        180       365       730
+  -----------------------  --------  --------  --------  --------  --------  --------  --------  --------  --------
+  S1                       -0.37796  -0.26726  -0.18257  -0.14907  -0.12910  -0.10541  -0.07454  -0.05234  -0.03701
+  S2                       +0.00091  +0.00093  +0.00096  +0.00096  +0.00102  +0.00098  +0.00113  +0.00112  +0.00137
+  S3                       +0.02217  +0.02177  +0.01984  +0.01797  +0.01791  +0.01621  +0.01349  +0.01125  +0.00991
+  S4                       -0.37796  -0.26726  -0.18257  -0.14907  -0.12910  -0.10541  -0.07454  -0.05234  -0.03701
+  S5                       +0.00202  +0.00200  +0.00198  +0.00203  +0.00197  +0.00192  +0.00199  +0.00172  +0.00179
+  S6                       +0.05100  +0.04794  +0.04282  +0.03934  +0.03703  +0.03239  +0.02670  +0.02014  +0.01551
+  S7                       +0.40009  +0.45371  +0.50800  +0.52662  +0.54508  +0.54213  +0.59776  +0.49582  +0.32574
+--- and the reason, printed as a column: the wing as a fraction of
+one standard deviation of the terminal distribution, W/(S sigma sqrt(T))
+  W / sigma*sqrt(T)  7        14       30       45       60       90      180     365     730
+  -----------------  -------  -------  -------  -------  -------  ------  ------  ------  ------
+  S1                 n/a      n/a      n/a      n/a      n/a      n/a     n/a     n/a     n/a
+  S2                 32.7411  22.8409  15.2149  11.9899  10.4162  8.5175  5.7048  4.2802  2.5829
+  S3                 1.4434   1.0136   0.6919   0.5656   0.4867   0.4114  0.2713  0.2160  0.1545
+  S4                 1.4434   1.0136   0.6919   0.5656   0.4867   0.4114  0.2713  0.2160  0.1545
+  S5                 33.6466  23.7522  16.1656  12.8395  11.3600  9.3989  6.5652  5.0198  3.1791
+  S6                 1.4434   1.0136   0.6919   0.5656   0.4867   0.4114  0.2713  0.2160  0.1545
+  S7                 1.4434   1.0136   0.6919   0.5656   0.4867   0.4114  0.2713  0.2160  0.1545
+
+WHERE THE PEAK ACTUALLY IS:
+  id  peak theta/day/R @DTE  value     peak E_net @DTE  value    peak ann_R_net @DTE  value
+  --  ---------------------  --------  ---------------  -------  -------------------  -------
+  S1  730                    -0.00137  730              +1.0714  730                  +1.507
+  S2  7                      +0.00034  730              +0.0206  7                    +0.090
+  S3  7                      +0.00838  180              +0.1277  7                    +2.212
+  S4  730                    -0.00137  730              +1.1173  30                   +5.160
+  S5  7                      +0.00076  730              +0.2104  30                   +0.494
+  S6  7                      +0.01928  180              +0.1979  7                    +5.201
+  S7  7                      +0.15122  7                +0.0878  7                    +11.326
+
+  THE SHAPE OF THIS CURVE IS THE CLEANEST RESULT IN THE STUDY, and it
+  splits the grid in two:
+    * the two DEBIT structures (S1 long call, S4 debit spread) have
+      theta/day/R = -1/D EXACTLY, at every tenor.  That is not a
+      modelled accident: their credit IS -1 x their R, so the ratio is
+      the reciprocal of the day count and nothing else.  A fully-debit
+      position bleeds one day's worth of its own maximum loss per day,
+      and only the tenor sets how big that is.
+    * the five CREDIT structures are all monotone DECREASING in tenor,
+      by 6.8x (S2) to 32.4x (S6) between 7 DTE and 730 DTE.
+    S1   INCREASING (8 up, 0 flat)     ratio @7 / @730 = 104.3x
+    S2   DECREASING (8 down, 0 flat)   ratio @7 / @730 = 6.8x
+    S3   DECREASING (8 down, 0 flat)   ratio @7 / @730 = 22.9x
+    S4   INCREASING (8 up, 0 flat)     ratio @7 / @730 = 104.3x
+    S5   DECREASING (8 down, 0 flat)   ratio @7 / @730 = 11.5x
+    S6   DECREASING (8 down, 0 flat)   ratio @7 / @730 = 33.6x
+    S7   DECREASING (8 down, 0 flat)   ratio @7 / @730 = 12.5x
+
+  Spearman(tenor, theta/day/R) per structure: S1=1.00, S2=-1.00, S3=-1.00, S4=1.00, S5=-1.00, S6=-1.00, S7=-1.00
+  pooled Spearman over the 45 CREDIT cells = -0.36 ; over the 18 DEBIT
+  cells = 1.00.  A pooled number across both families would be
+  meaningless -- the two families have opposite signs -- so it is not
+  reported as a headline.
+
+  A NOTE ON THE W/sigma*sqrt(T) COLUMN: it is the wing as a fraction of
+  one standard deviation ONLY where W is a WING (the four 5-wide
+  structures, S3/S4/S6/S7: 1.44 sigma at 7 DTE against 0.15 sigma at
+  730 DTE).  For S2 and S5 the declared W is the notional (the cash
+  secured / the stock), so their entry is 1/(sigma sqrt(T)) and is not
+  comparable with the wing rows.  For S1 there is no W at all.
+
+==============================================================================
+5. TEST 3 -- sample adequacy by tenor: is the edge measurable at all?
+==============================================================================
+
+n_req = 4 (sd/|E|)^2 is the number of trades a two-sigma verdict on
+this cell's own mean needs.  n_available is what the window actually
+produced.  A cell with n_req > n_available has an E that is
+INDISTINGUISHABLE FROM ZERO at two sigma and is flagged UNMEASURABLE
+-- it is reported, but it is not a result.
+
+
+--- S1  long call ~50d
+  DTE  bucket          n/index  n_avail  n_req  measurable?   shortfall
+  ---  --------------  -------  -------  -----  ------------  -----------
+  7    weeklies        1100.0   3300     532    yes
+  14   gamma shoulder  603.0    1809     395    yes
+  30   monthlies       294.0    882      574    yes
+  45   monthlies       199.0    597      2026   UNMEASURABLE  0.29x short
+  60   quarterlies     148.0    444      704    UNMEASURABLE  0.63x short
+  90   quarterlies     102.0    306      76077  UNMEASURABLE  0.00x short
+  180  annuals         51.0     153      275    UNMEASURABLE  0.56x short
+  365  annuals         25.0     75       77     UNMEASURABLE  0.97x short
+  730  LEAPS           12.0     36       17     yes
+
+--- S2  cash-secured put ~16d
+  DTE  bucket          n/index  n_avail  n_req  measurable?   shortfall
+  ---  --------------  -------  -------  -----  ------------  -----------
+  7    weeklies        1100.0   3300     302    yes
+  14   gamma shoulder  603.0    1809     273    yes
+  30   monthlies       294.0    882      400    yes
+  45   monthlies       199.0    597      756    UNMEASURABLE  0.79x short
+  60   quarterlies     148.0    444      60     yes
+  90   quarterlies     102.0    306      164    yes
+  180  annuals         51.0     153      228    UNMEASURABLE  0.67x short
+  365  annuals         25.0     75       32     yes
+  730  LEAPS           12.0     36       100    UNMEASURABLE  0.36x short
+
+--- S3  short put spread ~16d / 5-wide
+  DTE  bucket          n/index  n_avail  n_req  measurable?   shortfall
+  ---  --------------  -------  -------  -----  ------------  -----------
+  7    weeklies        1100.0   3300     143    yes
+  14   gamma shoulder  603.0    1809     122    yes
+  30   monthlies       294.0    882      79     yes
+  45   monthlies       199.0    597      136    yes
+  60   quarterlies     148.0    444      38     yes
+  90   quarterlies     102.0    306      75     yes
+  180  annuals         51.0     153      11     yes
+  365  annuals         25.0     75       26     yes
+  730  LEAPS           12.0     36       65     UNMEASURABLE  0.56x short
+
+--- S4  bull call debit spread ~50d/25d
+  DTE  bucket          n/index  n_avail  n_req  measurable?  shortfall
+  ---  --------------  -------  -------  -----  -----------  ---------
+  7    weeklies        1100.0   3300     1284   yes
+  14   gamma shoulder  603.0    1809     711    yes
+  30   monthlies       294.0    882      161    yes
+  45   monthlies       199.0    597      120    yes
+  60   quarterlies     148.0    444      138    yes
+  90   quarterlies     102.0    306      57     yes
+  180  annuals         51.0     153      33     yes
+  365  annuals         25.0     75       24     yes
+  730  LEAPS           12.0     36       10     yes
+
+--- S5  covered call: long underlying + short ~30d call
+  DTE  bucket          n/index  n_avail  n_req  measurable?  shortfall
+  ---  --------------  -------  -------  -----  -----------  ---------
+  7    weeklies        1100.0   3300     139    yes
+  14   gamma shoulder  603.0    1809     83     yes
+  30   monthlies       294.0    882      47     yes
+  45   monthlies       199.0    597      49     yes
+  60   quarterlies     148.0    444      25     yes
+  90   quarterlies     102.0    306      24     yes
+  180  annuals         51.0     153      16     yes
+  365  annuals         25.0     75       12     yes
+  730  LEAPS           12.0     36       10     yes
+
+--- S6  iron condor ~16d shorts / 5-wide wings
+  DTE  bucket          n/index  n_avail  n_req  measurable?   shortfall
+  ---  --------------  -------  -------  -----  ------------  -----------
+  7    weeklies        1100.0   3300     57     yes
+  14   gamma shoulder  603.0    1809     38     yes
+  30   monthlies       294.0    882      22     yes
+  45   monthlies       199.0    597      37     yes
+  60   quarterlies     148.0    444      13     yes
+  90   quarterlies     102.0    306      21     yes
+  180  annuals         51.0     153      10     yes
+  365  annuals         25.0     75       33     yes
+  730  LEAPS           12.0     36       648    UNMEASURABLE  0.06x short
+
+--- S7  iron butterfly ATM short / 5-wide wings
+  DTE  bucket          n/index  n_avail  n_req  measurable?   shortfall
+  ---  --------------  -------  -------  -----  ------------  -----------
+  7    weeklies        1100.0   3300     186    yes
+  14   gamma shoulder  603.0    1809     257    yes
+  30   monthlies       294.0    882      572    yes
+  45   monthlies       199.0    597      4802   UNMEASURABLE  0.12x short
+  60   quarterlies     148.0    444      805    UNMEASURABLE  0.55x short
+  90   quarterlies     102.0    306      4227   UNMEASURABLE  0.07x short
+  180  annuals         51.0     153      526    UNMEASURABLE  0.29x short
+  365  annuals         25.0     75       5657   UNMEASURABLE  0.01x short
+  730  LEAPS           12.0     36       11785  UNMEASURABLE  0.00x short
+
+  UNMEASURABLE CELLS: 16 of 63 (25%)
+  bucket          unmeasurable cells  cells  share
+  --------------  ------------------  -----  -----
+  weeklies        0                   7      0%
+  gamma shoulder  0                   7      0%
+  monthlies       3                   14     21%
+  quarterlies     4                   14     29%
+  annuals         5                   14     36%
+  LEAPS           4                   7      57%
+
+==============================================================================
+6. TEST 4 -- cost by tenor, and where cost consumes the edge
+==============================================================================
+
+c_R = cost / R in dollars.  The pre-registered expectation was that
+credit/width and R move in OPPOSITE directions as tenor extends, so
+c_R falls with tenor.  Both columns are printed, so the expectation
+can be checked rather than asserted.
+
+--- c_R at the headline LOW cost (one ticket per contract-leg)
+  c_R  7       14      30      45      60      90      180     365     730
+  ---  ------  ------  ------  ------  ------  ------  ------  ------  ------
+  S1   0.0276  0.0193  0.0132  0.0107  0.0095  0.0078  0.0057  0.0044  0.0034
+  S2   0.0003  0.0004  0.0004  0.0004  0.0004  0.0004  0.0004  0.0004  0.0006
+  S3   0.0136  0.0138  0.0141  0.0142  0.0144  0.0145  0.0150  0.0155  0.0163
+  S4   0.0877  0.0616  0.0425  0.0345  0.0305  0.0252  0.0184  0.0142  0.0112
+  S5   0.0008  0.0008  0.0008  0.0008  0.0009  0.0009  0.0009  0.0009  0.0009
+  S6   0.0294  0.0303  0.0314  0.0320  0.0324  0.0329  0.0340  0.0349  0.0363
+  S7   0.0778  0.1036  0.1438  0.1701  0.1939  0.2145  0.2743  0.3353  0.3806
+--- cost in DOLLARS per trade (flat in tenor by construction -- a
+ticket costs what it costs -- so any c_R movement is R moving)
+  cost $  7      14     30     45     60     90     180    365    730
+  ------  -----  -----  -----  -----  -----  -----  -----  -----  -----
+  S1      3.15   3.15   3.15   3.15   3.15   3.15   3.15   3.15   3.15
+  S2      3.15   3.15   3.15   3.15   3.15   3.15   3.15   3.15   3.15
+  S3      6.30   6.30   6.30   6.30   6.30   6.30   6.30   6.30   6.30
+  S4      6.30   6.30   6.30   6.30   6.30   6.30   6.30   6.30   6.30
+  S5      9.34   9.34   9.35   9.31   9.31   9.34   9.31   9.09   9.06
+  S6      12.60  12.60  12.60  12.60  12.60  12.60  12.60  12.60  12.60
+  S7      12.60  12.60  12.60  12.60  12.60  12.60  12.60  12.60  12.60
+--- R in DOLLARS per contract (median over the window).  This is the
+quantity that moves.
+  R $  7         14        30        45        60        90        180       365       730
+  ---  --------  --------  --------  --------  --------  --------  --------  --------  --------
+  S1   135.99    191.59    274.76    341.45    389.18    457.35    668.40    769.64    1112.65
+  S2   12028.79  11882.03  11735.26  11451.95  11460.20  11361.84  10856.16  9892.10   8955.83
+  S3   472.29    462.34    451.00    446.21    439.10    433.34    423.37    411.58    394.43
+  S4   84.23     118.80    171.04    210.68    241.55    282.58    410.95    476.46    681.64
+  S5   12314.09  12284.38  12233.47  12170.28  12131.82  12179.10  12064.98  11440.92  11302.63
+  S6   440.55    423.96    405.02    395.61    388.55    382.47    368.15    361.07    352.33
+  S7   242.89    185.35    132.19    110.31    95.75     81.39     55.43     47.74     51.02
+--- credit per share, dollars (negative = a net DEBIT)
+  credit $/share  7       14      30      45      60      90      180     365     730
+  --------------  ------  ------  ------  ------  ------  ------  ------  ------  -------
+  S1              -1.360  -1.916  -2.748  -3.414  -3.892  -4.574  -6.684  -7.696  -11.126
+  S2              +0.289  +0.413  +0.616  +0.737  +0.905  +1.054  +1.640  +2.117  +3.304
+  S3              +0.277  +0.377  +0.490  +0.538  +0.609  +0.667  +0.766  +0.884  +1.056
+  S4              -0.842  -1.188  -1.710  -2.107  -2.416  -2.826  -4.109  -4.765  -6.816
+  S5              +0.659  +0.920  +1.327  +1.660  +1.854  +2.219  +3.215  +3.759  +5.460
+  S6              +0.594  +0.760  +0.950  +1.044  +1.115  +1.175  +1.319  +1.389  +1.477
+  S7              +2.571  +3.147  +3.678  +3.897  +4.043  +4.186  +4.446  +4.523  +4.490
+--- break-even cost c_R* = E per cell (the cost, in R units, at which
+the GROSS edge is exactly consumed)
+  c_R* = E  7        14       30       45       60       90       180      365      730
+  --------  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1        -0.1045  -0.1144  -0.0894  -0.0487  -0.0804  -0.0078  +0.1518  +0.3435  +1.0748
+  S2        +0.0010  +0.0016  +0.0022  +0.0018  +0.0055  +0.0046  +0.0079  +0.0177  +0.0212
+  S3        +0.0307  +0.0384  +0.0535  +0.0453  +0.0796  +0.0661  +0.1426  +0.1288  +0.1127
+  S4        +0.0683  +0.0893  +0.1922  +0.2261  +0.2070  +0.3324  +0.4808  +0.6547  +1.1285
+  S5        +0.0042  +0.0074  +0.0152  +0.0181  +0.0260  +0.0344  +0.0639  +0.1156  +0.2114
+  S6        +0.0697  +0.0953  +0.1366  +0.1192  +0.1788  +0.1629  +0.2319  +0.1739  -0.0547
+  S7        +0.1656  +0.1737  +0.1399  +0.0531  +0.1368  -0.0587  -0.1652  -0.0907  -0.0995
+--- the SAME break-even expressed in DOLLARS per trade, against the
+actual cost column above (c_R* x R$/med)
+  c_R* $  7       14      30      45      60      90      180     365      730
+  ------  ------  ------  ------  ------  ------  ------  ------  -------  -------
+  S1      -14.21  -21.92  -24.57  -16.64  -31.30  -3.56   101.45  264.41   1195.90
+  S2      12.57   18.82   26.33   20.50   62.54   52.79   86.28   174.63   189.90
+  S3      14.52   17.77   24.12   20.22   34.96   28.66   60.39   53.00    44.46
+  S4      5.75    10.61   32.87   47.63   50.00   93.92   197.60  311.92   769.24
+  S5      51.35   91.48   185.70  220.54  315.41  418.80  770.42  1322.01  2389.17
+  S6      30.72   40.38   55.31   47.18   69.46   62.32   85.39   62.81    -19.27
+  S7      40.22   32.20   18.49   5.86    13.10   -4.78   -9.15   -4.33    -5.08
+--- c_R / c_R* : > 1 means COST EXCEEDS THE GROSS EDGE in that cell
+  c_R / |c_R*|  7     14    30    45    60    90    180   365   730
+  ------------  ----  ----  ----  ----  ----  ----  ----  ----  ----
+  S1            0.26  0.17  0.15  0.22  0.12  1.00  0.04  0.01  0.00
+  S2            0.33  0.22  0.16  0.21  0.07  0.08  0.05  0.03  0.03
+  S3            0.44  0.36  0.26  0.31  0.18  0.22  0.11  0.12  0.14
+  S4            1.28  0.69  0.22  0.15  0.15  0.08  0.04  0.02  0.01
+  S5            0.20  0.11  0.06  0.05  0.03  0.02  0.01  0.01  0.00
+  S6            0.42  0.32  0.23  0.27  0.18  0.20  0.15  0.20  0.66
+  S7            0.47  0.60  1.03  3.20  1.42  3.65  1.66  3.70  3.82
+
+  WHERE COST CONSUMES THE EDGE (c_R > |E|), at LOW cost:
+    S1  DTE 90  (quarterlies    ): c_R=0.0078  vs  E=-0.0078
+    S4  DTE 7   (weeklies       ): c_R=0.0877  vs  E=+0.0683
+    S7  DTE 30  (monthlies      ): c_R=0.1438  vs  E=+0.1399
+    S7  DTE 45  (monthlies      ): c_R=0.1701  vs  E=+0.0531
+    S7  DTE 60  (quarterlies    ): c_R=0.1939  vs  E=+0.1368
+    S7  DTE 90  (quarterlies    ): c_R=0.2145  vs  E=-0.0587
+    S7  DTE 180 (annuals        ): c_R=0.2743  vs  E=-0.1652
+    S7  DTE 365 (annuals        ): c_R=0.3353  vs  E=-0.0907
+    S7  DTE 730 (LEAPS          ): c_R=0.3806  vs  E=-0.0995
+
+  At HIGH cost (double the spread widening):
+    S1   first DTE where cost exceeds the gross edge: 90
+    S2   first DTE where cost exceeds the gross edge: none
+    S3   first DTE where cost exceeds the gross edge: none
+    S4   first DTE where cost exceeds the gross edge: 7
+    S5   first DTE where cost exceeds the gross edge: none
+    S6   first DTE where cost exceeds the gross edge: 730
+    S7   first DTE where cost exceeds the gross edge: 14
+  At round-trip cost (2 tickets per contract-leg):
+    S1   first DTE where cost exceeds the gross edge: 90
+    S2   first DTE where cost exceeds the gross edge: none
+    S3   first DTE where cost exceeds the gross edge: none
+    S4   first DTE where cost exceeds the gross edge: 7
+    S5   first DTE where cost exceeds the gross edge: none
+    S6   first DTE where cost exceeds the gross edge: 730
+    S7   first DTE where cost exceeds the gross edge: 14
+
+  MONOTONE IN TENOR?
+    c_R (LOW)        S1=DECREASING  S2=INCREASING  S3=INCREASING  S4=DECREASING  S5=INCREASING  S6=INCREASING  S7=INCREASING
+    cr/W             S1=n/a  S2=INCREASING  S3=INCREASING  S4=DECREASING  S5=INCREASING  S6=INCREASING  S7=NOT monotone
+    R $              S1=INCREASING  S2=NOT monotone  S3=DECREASING  S4=INCREASING  S5=NOT monotone  S6=DECREASING  S7=NOT monotone
+    W/sigma sqrt(T)  S1=n/a  S2=DECREASING  S3=DECREASING  S4=DECREASING  S5=DECREASING  S6=DECREASING  S7=DECREASING
+
+  HOW TO READ THAT TABLE.  The grid splits cleanly, and the split is
+  NOT the one the brief anticipated:
+    * for the four 5-WIDE structures (S3, S4, S6, S7) the credit RISES
+      with tenor as a fraction of the width (S3: 0.055 -> 0.211; S6:
+      0.119 -> 0.303) while R = width - credit FALLS (S3: $472 -> $394;
+      S6: $441 -> $349).  The brief's mechanism -- credit/width and R
+      moving in OPPOSITE directions -- is CONFIRMED.  Its implied
+      conclusion is CONTRADICTED: c_R RISES with tenor (S3: 0.0136 ->
+      0.0163; S6: 0.0294 -> 0.0379), because the credit grows faster
+      than R shrinks.  The mechanism is the fixed-dollar wing: at 7 DTE
+      a $5 wing is 1.44 sigma of the terminal distribution and sits far
+      out in the tail where density is low; at 730 DTE it is 0.15 sigma
+      and sits near the money where density is high, so the same $5
+      captures far more premium per dollar of width.
+    * for the structures whose R is NOT a wing and DOES scale with the
+      index and with sqrt(T) -- S1 and S4 (R = the debit) and weakly S2
+      and S5 (R = the cash secured / the notional) -- c_R FALLS with
+      tenor, by up to 8.5x (S4: 0.0877 -> 0.0140; S1: 0.0276 ->
+      0.0034), because the ticket cost is a constant $3.15-$6.30 while
+      R grows.
+  Cost is NOT flat in tenor.  It rises for the width-defined structures
+  and falls for the index-scaled ones, and the reason is the same in
+  both cases: cost is a fixed dollar amount and R is not.
+
+==============================================================================
+7. TEST 5 -- skew sensitivity by tenor (SOLD strikes +-1.5 vol points)
+==============================================================================
+
+Strikes are HELD FIXED; only the pricing vol of the SOLD legs moves.
+dE is the change in the GROSS E_R; and both directions are reported
+because the model cannot say which is right -- the sibling studies
+established that, and this study does not contradict it.  dDD is the
+change in the fixed-budget drawdown (R units, negative = worse).
+
+--- dE (R units): SOLD +1.5 vol points minus BASE.  The seller
+collects MORE in this direction.
+  dE (+1.5)  7        14       30       45       60       90       180      365      730
+  ---------  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1         +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000
+  S2         +0.0005  +0.0008  +0.0012  +0.0014  +0.0017  +0.0021  +0.0031  +0.0048  +0.0074
+  S3         +0.0225  +0.0325  +0.0519  +0.0620  +0.0795  +0.0980  +0.1638  +0.2322  +0.3264
+  S4         +0.1137  +0.1172  +0.1311  +0.1344  +0.1351  +0.1534  +0.1721  +0.2019  +0.2933
+  S5         +0.0007  +0.0010  +0.0016  +0.0019  +0.0023  +0.0028  +0.0041  +0.0062  +0.0097
+  S6         +0.0561  +0.0875  +0.1527  +0.1916  +0.2702  +0.3726  +1.8430  +1.7209  +1.5467
+  S7         +0.7402  +0.6934  +1.4351  +1.0349  +1.9087  +4.1202  +0.6532  +0.8160  +0.2682
+--- dE (R units): SOLD -1.5 vol points minus BASE.  The conservative
+direction -- a real seller of an OTM option collects LESS than the
+flat-vol value.
+  dE (-1.5)  7        14       30       45       60       90       180      365      730
+  ---------  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1         +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000
+  S2         -0.0005  -0.0007  -0.0011  -0.0013  -0.0016  -0.0020  -0.0029  -0.0045  -0.0070
+  S3         -0.0194  -0.0271  -0.0412  -0.0475  -0.0590  -0.0693  -0.1033  -0.1327  -0.1629
+  S4         -0.0884  -0.0911  -0.1015  -0.1041  -0.1044  -0.1178  -0.1321  -0.1513  -0.2133
+  S5         -0.0007  -0.0010  -0.0015  -0.0019  -0.0022  -0.0027  -0.0039  -0.0060  -0.0093
+  S6         -0.0437  -0.0627  -0.0947  -0.1086  -0.1351  -0.1563  -0.2215  -0.2702  -0.2529
+  S7         -0.1935  -0.2703  -0.3583  -0.3808  -0.4725  -0.4177  -0.4513  -0.6820  -0.8876
+--- dDD (R units): fixed-budget worst drawdown, BASE -> SOLD -1.5
+  dDD (-1.5)  7       14      30      45      60      90      180     365    730
+  ----------  ------  ------  ------  ------  ------  ------  ------  -----  -----
+  S1          +0.00   +0.00   +0.00   +0.00   +0.00   +0.00   +0.00   +0.00  +0.00
+  S2          -0.04   -0.04   -0.02   -0.01   -0.00   -0.01   -0.01   +0.00  +0.00
+  S3          -2.65   -1.82   -0.36   -0.67   -0.53   -0.69   +0.02   -0.02  -0.13
+  S4          -58.19  -14.88  -3.23   -4.32   -2.32   -1.80   -0.66   +0.07  +0.14
+  S5          -0.01   -0.03   -0.02   -0.02   -0.01   -0.01   -0.01   -0.01  -0.00
+  S6          -6.28   -3.15   -1.98   -3.83   -1.77   -0.91   -0.93   -1.94  -1.65
+  S7          -79.87  -78.70  -46.68  -48.58  -40.48  -20.96  -10.21  -7.61  +2.09
+--- E_net under the conservative direction (E from SOLD -1.5, cost at
+the same headline LOW setting)
+  E_net (-1.5)  7        14       30       45       60       90       180      365      730
+  ------------  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1            -0.1321  -0.1337  -0.1027  -0.0594  -0.0899  -0.0156  +0.1461  +0.3392  +1.0714
+  S2            +0.0002  +0.0005  +0.0008  +0.0001  +0.0035  +0.0023  +0.0046  +0.0127  +0.0136
+  S3            -0.0020  -0.0021  -0.0013  -0.0158  +0.0070  -0.0168  +0.0257  -0.0176  -0.0642
+  S4            -0.1003  -0.0581  +0.0520  +0.0905  +0.0748  +0.1915  +0.3320  +0.4905  +0.9050
+  S5            +0.0026  +0.0056  +0.0128  +0.0154  +0.0229  +0.0308  +0.0590  +0.1087  +0.2012
+  S6            -0.0021  +0.0041  +0.0132  -0.0181  +0.0150  -0.0219  -0.0176  -0.1235  -0.3346
+  S7            -0.0833  -0.1582  -0.2856  -0.3974  -0.4064  -0.5474  -0.6864  -0.8369  -1.0469
+
+  THE BAND OF MODEL AMBIGUITY, in E_net units (SOLD +1.5 minus SOLD
+  -1.5).  This is how much of the answer lives INSIDE the skew the
+  model cannot see:
+  E_net band (P15 - M15)  7        14       30       45       60       90       180      365      730
+  ----------------------  -------  -------  -------  -------  -------  -------  -------  -------  -------
+  S1                      +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000  +0.0000
+  S2                      +0.0010  +0.0015  +0.0023  +0.0027  +0.0033  +0.0041  +0.0061  +0.0093  +0.0144
+  S3                      +0.0414  +0.0588  +0.0919  +0.1080  +0.1367  +0.1650  +0.2637  +0.3601  +0.4826
+  S4                      +0.1848  +0.1961  +0.2241  +0.2316  +0.2334  +0.2661  +0.3006  +0.3501  +0.5041
+  S5                      +0.0014  +0.0021  +0.0031  +0.0038  +0.0045  +0.0055  +0.0080  +0.0122  +0.0190
+  S6                      +0.0969  +0.1459  +0.2404  +0.2913  +0.3942  +0.5142  +2.0116  +1.9397  +1.7418
+  S7                      +0.7846  +0.8965  +1.6301  +1.2904  +2.1498  +4.1734  +1.0415  +1.4211  +0.9810
+
+  DOES SKEW SENSITIVITY RISE WITH TENOR?  |dE| in R against DTE,
+  pooled over every structure x tenor cell:
+    Pearson(DTE, |dE| +1.5) = 0.066
+    Pearson(DTE, |dE| -1.5) = 0.278
+    Spearman(DTE, max|dE|)   = 0.253
+
+  Mean max|dE| by bucket (R units), which is the readable form:
+  bucket          mean max|dE|  max max|dE|  cells
+  --------------  ------------  -----------  -----
+  weeklies        0.1334        0.7402       7
+  gamma shoulder  0.1332        0.6934       7
+  monthlies       0.2286        1.4351       14
+  quarterlies     0.5105        4.1202       14
+  annuals         0.4158        1.8430       14
+  LEAPS           0.4387        1.5467       7
+
+==============================================================================
+8. TEST 6 -- the tail by tenor
+==============================================================================
+
+Did a longer tenor buy tail protection?  All figures in R units,
+comparable across structures because R is the structure's own maximum
+loss.  WorstM / WorstY are the SUM of fixed-budget returns inside the
+period.  2008 / 2020 / 2022 are the total return in R over the
+pre-registered stress windows.
+
+READ THE 'worst trade' COLUMN CAREFULLY: for every defined-risk
+structure it is the STRUCTURAL MAXIMUM LOSS, i.e. exactly -1.000R at
+every tenor, because a 7-DTE move and a 730-DTE move both eventually
+cross a 5-wide wing.  It is a statement about the structure, not about
+the tenor.  The columns that DO move are '% at -1R' (how often the tail
+is actually realised) and '5th pct' (the ordinary bad trade).
+
+--- S1  long call ~50d
+  DTE  bucket          worst trade  % at -1R  5th pct  25th pct  dd (R)   worst M  worst Y  worst Y year  2008    2020   2022
+  ---  --------------  -----------  --------  -------  --------  -------  -------  -------  ------------  ------  -----  -----
+  7    weeklies        -1.000       44.8%     -1.000   -1.000    -149.35  -0.420   -1.917   2002          -20.60  +6.30  -3.95
+  14   gamma shoulder  -1.000       43.3%     -1.000   -1.000    -83.37   -0.328   -1.306   2008          -15.41  +4.63  -7.47
+  30   monthlies       -1.000       40.8%     -1.000   -1.000    -35.88   -0.229   -0.766   2022          -9.20   +1.03  -7.66
+  45   monthlies       -1.000       39.2%     -1.000   -1.000    -21.00   -0.220   -0.600   2002          -4.37   +1.37  -1.87
+  60   quarterlies     -1.000       39.6%     -1.000   -1.000    -16.03   -0.186   -0.496   2008          -6.31   +0.53  -4.75
+  90   quarterlies     -1.000       34.3%     -1.000   -1.000    -11.39   -0.187   -0.359   2022          -1.85   +1.41  -3.59
+  180  annuals         -1.000       34.6%     -1.000   -1.000    -7.10    -0.096   -0.276   2022          -1.64   +2.15  -2.76
+  365  annuals         -1.000       37.3%     -1.000   -1.000    -3.73    -0.141   -0.214   2022          -2.02   +0.33  -2.14
+  730  LEAPS           -1.000       30.6%     -1.000   -1.000    -3.37    -0.128   -0.147   2022          -1.00   +3.18  -1.47
+
+--- S2  cash-secured put ~16d
+  DTE  bucket          worst trade  % at -1R  5th pct  25th pct  dd (R)  worst M  worst Y  worst Y year  2008   2020   2022
+  ---  --------------  -----------  --------  -------  --------  ------  -------  -------  ------------  -----  -----  -----
+  7    weeklies        -0.216       0.0%      -0.011   +0.002    -0.23   -0.013   -0.007   2018          -0.02  -0.07  -0.06
+  14   gamma shoulder  -0.249       0.0%      -0.015   +0.002    -0.30   -0.016   -0.013   2020          -0.06  -0.13  -0.08
+  30   monthlies       -0.254       0.0%      -0.019   +0.004    -0.35   -0.018   -0.022   2008          -0.19  -0.05  +0.02
+  45   monthlies       -0.202       0.0%      -0.040   +0.005    -0.37   -0.012   -0.030   2008          -0.33  -0.06  -0.11
+  60   quarterlies     -0.182       0.0%      -0.018   +0.006    -0.28   -0.012   -0.009   2008          -0.07  +0.04  -0.00
+  90   quarterlies     -0.242       0.0%      -0.029   +0.007    -0.41   -0.013   -0.024   2008          -0.24  +0.04  +0.02
+  180  annuals         -0.431       0.0%      +0.007   +0.011    -0.37   -0.015   -0.018   2008          -0.32  +0.03  +0.01
+  365  annuals         -0.225       0.0%      -0.102   +0.015    -0.34   -0.014   -0.012   2008          -0.13  +0.03  +0.02
+  730  LEAPS           -0.352       0.0%      -0.336   +0.020    -0.42   -0.018   -0.023   2008          -0.27  +0.00  +0.00
+
+--- S3  short put spread ~16d / 5-wide
+  DTE  bucket          worst trade  % at -1R  5th pct  25th pct  dd (R)  worst M  worst Y  worst Y year  2008   2020   2022
+  ---  --------------  -----------  --------  -------  --------  ------  -------  -------  ------------  -----  -----  -----
+  7    weeklies        -1.000       1.5%      -0.262   +0.029    -4.03   -0.150   -0.359   2022          -1.05  +2.03  -3.59
+  14   gamma shoulder  -1.000       2.4%      -0.350   +0.043    -4.61   -0.096   -0.427   2022          -1.34  +0.75  -4.27
+  30   monthlies       -1.000       2.9%      -0.542   +0.067    -2.59   -0.094   -0.151   2008          -1.25  +0.77  -0.71
+  45   monthlies       -1.000       4.4%      -0.769   +0.076    -3.41   -0.087   -0.263   2008          -3.11  -0.00  -1.21
+  60   quarterlies     -1.000       3.6%      -0.580   +0.099    -1.63   -0.085   -0.141   2022          -0.22  +0.26  -1.41
+  90   quarterlies     -1.000       5.2%      -1.000   +0.107    -2.02   -0.081   -0.164   2008          -1.87  +0.30  -0.45
+  180  annuals         -1.000       3.9%      +0.080   +0.152    -1.23   -0.040   -0.087   2002          -0.78  +0.38  +0.02
+  365  annuals         -1.000       6.7%      -1.000   +0.167    -1.25   -0.048   -0.056   2008          -0.84  -0.04  -0.02
+  730  LEAPS           -1.000       11.1%     -1.000   +0.193    -1.36   -0.036   -0.090   2008          -1.00  +0.04  -0.02
+
+--- S4  bull call debit spread ~50d/25d
+  DTE  bucket          worst trade  % at -1R  5th pct  25th pct  dd (R)  worst M  worst Y  worst Y year  2008    2020    2022
+  ---  --------------  -----------  --------  -------  --------  ------  -------  -------  ------------  ------  ------  -----
+  7    weeklies        -1.000       44.7%     -1.000   -1.000    -55.76  -0.455   -2.003   2002          -16.23  +13.20  -0.31
+  14   gamma shoulder  -1.000       43.2%     -1.000   -1.000    -32.76  -0.326   -1.112   2008          -13.55  +11.32  -5.68
+  30   monthlies       -1.000       40.6%     -1.000   -1.000    -10.64  -0.230   -0.594   2008          -8.28   +4.71   -5.20
+  45   monthlies       -1.000       39.2%     -1.000   -1.000    -9.38   -0.174   -0.521   2002          -2.24   +3.65   -2.11
+  60   quarterlies     -1.000       39.4%     -1.000   -1.000    -8.00   -0.191   -0.462   2008          -5.97   +2.61   -3.86
+  90   quarterlies     -1.000       34.3%     -1.000   -1.000    -4.79   -0.183   -0.329   2002          -1.39   +2.44   -3.05
+  180  annuals         -1.000       34.6%     -1.000   -1.000    -3.94   -0.104   -0.304   2022          -1.55   +2.18   -3.04
+  365  annuals         -1.000       37.3%     -1.000   -1.000    -2.99   -0.095   -0.217   2022          -2.09   +1.03   -2.17
+  730  LEAPS           -1.000       30.6%     -1.000   -1.000    -2.04   -0.091   -0.155   2022          -1.05   +1.45   -1.55
+
+--- S5  covered call: long underlying + short ~30d call
+  DTE  bucket          worst trade  % at -1R  5th pct  25th pct  dd (R)  worst M  worst Y  worst Y year  2008   2020   2022
+  ---  --------------  -----------  --------  -------  --------  ------  -------  -------  ------------  -----  -----  -----
+  7    weeklies        -0.244       0.0%      -0.041   -0.007    -0.53   -0.016   -0.027   2002          -0.29  +0.30  -0.11
+  14   gamma shoulder  -0.290       0.0%      -0.054   -0.009    -0.48   -0.016   -0.023   2022          -0.25  +0.33  -0.23
+  30   monthlies       -0.305       0.0%      -0.073   -0.008    -0.48   -0.011   -0.024   2008          -0.27  +0.36  -0.11
+  45   monthlies       -0.304       0.0%      -0.095   -0.013    -0.59   -0.017   -0.035   2008          -0.38  +0.25  -0.23
+  60   quarterlies     -0.250       0.0%      -0.099   -0.005    -0.55   -0.017   -0.031   2008          -0.35  +0.27  -0.14
+  90   quarterlies     -0.325       0.0%      -0.130   +0.001    -0.59   -0.016   -0.034   2008          -0.44  +0.22  -0.16
+  180  annuals         -0.513       0.0%      -0.131   +0.008    -0.58   -0.017   -0.037   2008          -0.39  +0.19  -0.21
+  365  annuals         -0.369       0.0%      -0.237   +0.031    -0.58   -0.017   -0.037   2008          -0.42  +0.33  -0.19
+  730  LEAPS           -0.440       0.0%      -0.412   +0.062    -0.61   -0.020   -0.039   2008          -0.43  +0.11  -0.23
+
+--- S6  iron condor ~16d shorts / 5-wide wings
+  DTE  bucket          worst trade  % at -1R  5th pct  25th pct  dd (R)  worst M  worst Y  worst Y year  2008   2020   2022
+  ---  --------------  -----------  --------  -------  --------  ------  -------  -------  ------------  -----  -----  -----
+  7    weeklies        -1.000       2.7%      -0.489   +0.052    -5.01   -0.172   -0.388   2022          +1.06  +3.75  -3.88
+  14   gamma shoulder  -1.000       3.9%      -0.681   +0.079    -5.13   -0.109   -0.442   2022          -0.14  +1.59  -4.42
+  30   monthlies       -1.000       4.2%      -0.869   +0.126    -2.56   -0.118   -0.085   2008          -0.42  +1.27  +1.00
+  45   monthlies       -1.000       6.4%      -1.000   +0.129    -2.96   -0.134   -0.224   2008          -2.60  +0.23  -1.62
+  60   quarterlies     -1.000       4.3%      -0.778   +0.182    -1.65   -0.094   -0.070   2022          +0.41  +0.58  -0.70
+  90   quarterlies     -1.000       6.5%      -1.000   +0.188    -2.69   -0.091   -0.145   2008          -1.79  +0.46  +0.15
+  180  annuals         -1.000       6.5%      -1.000   +0.275    -1.31   -0.052   -0.074   2002          -0.69  -0.03  +0.37
+  365  annuals         -1.000       13.3%     -1.000   +0.284    -1.44   -0.048   -0.049   2002          -0.78  +0.05  +0.32
+  730  LEAPS           -1.000       30.6%     -1.000   -1.000    -2.56   -0.049   -0.091   2008          -1.04  -0.62  +0.18
+
+--- S7  iron butterfly ATM short / 5-wide wings
+  DTE  bucket          worst trade  % at -1R  5th pct  25th pct  dd (R)  worst M  worst Y  worst Y year  2008   2020    2022
+  ---  --------------  -----------  --------  -------  --------  ------  -------  -------  ------------  -----  ------  ------
+  7    weeklies        -1.000       20.6%     -1.000   -0.564    -25.16  -0.471   -1.310   2024          +3.69  +16.74  -10.19
+  14   gamma shoulder  -1.000       28.8%     -1.000   -1.000    -30.10  -0.309   -1.470   2022          +6.00  -9.77   -14.70
+  30   monthlies       -1.000       41.0%     -1.000   -1.000    -38.75  -0.264   -1.178   2022          +5.74  -6.16   -11.78
+  45   monthlies       -1.000       51.6%     -1.000   -1.000    -33.96  -0.271   -1.031   2024          -4.63  -7.15   -8.48
+  60   quarterlies     -1.000       52.9%     -1.000   -1.000    -21.13  -0.268   -0.725   2021          +3.95  -3.27   -1.93
+  90   quarterlies     -1.000       64.1%     -1.000   -1.000    -35.55  -0.295   -0.610   2022          -4.65  -3.17   -6.10
+  180  annuals         -1.000       73.9%     -1.000   -1.000    -25.21  -0.280   -0.440   2022          -0.37  -2.27   -4.40
+  365  annuals         -1.000       82.7%     -1.000   -1.000    -13.32  -0.215   -0.277   2020          -1.33  -2.77   +6.55
+  730  LEAPS           -1.000       97.2%     -1.000   -1.000    -14.65  -0.230   -0.411   2013          -1.09  -0.60   +0.95
+
+  WORST TRADE and 2008, ordered by DTE -- the tail question in two
+  columns:
+  worst single trade (R)  7      14     30     45     60     90     180    365    730
+  ----------------------  -----  -----  -----  -----  -----  -----  -----  -----  -----
+  S1                      -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00
+  S2                      -0.22  -0.25  -0.25  -0.20  -0.18  -0.24  -0.43  -0.23  -0.35
+  S3                      -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00
+  S4                      -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00
+  S5                      -0.24  -0.29  -0.31  -0.30  -0.25  -0.32  -0.51  -0.37  -0.44
+  S6                      -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00
+  S7                      -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00  -1.00
+  2008 GFC total (R)  7       14      30     45     60     90     180    365    730
+  ------------------  ------  ------  -----  -----  -----  -----  -----  -----  -----
+  S1                  -20.60  -15.41  -9.20  -4.37  -6.31  -1.85  -1.64  -2.02  -1.00
+  S2                  -0.02   -0.06   -0.19  -0.33  -0.07  -0.24  -0.32  -0.13  -0.27
+  S3                  -1.05   -1.34   -1.25  -3.11  -0.22  -1.87  -0.78  -0.84  -1.00
+  S4                  -16.23  -13.55  -8.28  -2.24  -5.97  -1.39  -1.55  -2.09  -1.05
+  S5                  -0.29   -0.25   -0.27  -0.38  -0.35  -0.44  -0.39  -0.42  -0.43
+  S6                  +1.06   -0.14   -0.42  -2.60  +0.41  -1.79  -0.69  -0.78  -1.04
+  S7                  +3.69   +6.00   +5.74  -4.63  +3.95  -4.65  -0.37  -1.33  -1.09
+  2020 COVID total (R)  7       14      30     45     60     90     180    365    730
+  --------------------  ------  ------  -----  -----  -----  -----  -----  -----  -----
+  S1                    +6.30   +4.63   +1.03  +1.37  +0.53  +1.41  +2.15  +0.33  +3.18
+  S2                    -0.07   -0.13   -0.05  -0.06  +0.04  +0.04  +0.03  +0.03  +0.00
+  S3                    +2.03   +0.75   +0.77  -0.00  +0.26  +0.30  +0.38  -0.04  +0.04
+  S4                    +13.20  +11.32  +4.71  +3.65  +2.61  +2.44  +2.18  +1.03  +1.45
+  S5                    +0.30   +0.33   +0.36  +0.25  +0.27  +0.22  +0.19  +0.33  +0.11
+  S6                    +3.75   +1.59   +1.27  +0.23  +0.58  +0.46  -0.03  +0.05  -0.62
+  S7                    +16.74  -9.77   -6.16  -7.15  -3.27  -3.17  -2.27  -2.77  -0.60
+
+  Does the WORST TRADE get shallower as tenor extends?  (A tail that
+  is genuinely bought by time must show |worst trade| falling.)
+    S1   Spearman(DTE, |worst trade|) = n/a ; @7=-1.00  @730=-1.00
+    S2   Spearman(DTE, |worst trade|) = 0.35 ; @7=-0.22  @730=-0.35
+    S3   Spearman(DTE, |worst trade|) = -0.73 ; @7=-1.00  @730=-1.00
+    S4   Spearman(DTE, |worst trade|) = -0.55 ; @7=-1.00  @730=-1.00
+    S5   Spearman(DTE, |worst trade|) = 0.83 ; @7=-0.24  @730=-0.44
+    S6   Spearman(DTE, |worst trade|) = -0.64 ; @7=-1.00  @730=-1.00
+    S7   Spearman(DTE, |worst trade|) = 0.44 ; @7=-1.00  @730=-1.00
+
+==============================================================================
+9. TEST 7 -- positivity by tenor and horizon (M / Q / Y)
+==============================================================================
+
+`law` is the normal null Phi(Sharpe_annual x sqrt(period in years)).
+A POSITIVE gap (law - observed) is the signature of negative skew: the
+normal law says the horizon should be positive more often than it is.
+The sibling study found premium selling at 89% of months against 79%
+of years -- the INVERTED order.  The question here is whether TENOR
+changes that inversion.
+
+
+--- S1  long call ~50d
+  DTE  bucket          M      M_law  M_gap   Q      Q_law  Q_gap   Y      Y_law  Y_gap   Sharpe  M>Y?
+  ---  --------------  -----  -----  ------  -----  -----  ------  -----  -----  ------  ------  --------
+  7    weeklies        37.9%  41.5%  +0.036  30.4%  35.4%  +0.051  25.0%  22.8%  -0.022  -0.75   INVERTED
+  14   gamma shoulder  40.5%  43.2%  +0.027  40.2%  38.4%  -0.018  25.0%  27.8%  +0.028  -0.59   INVERTED
+  30   monthlies       43.5%  46.4%  +0.029  46.1%  43.8%  -0.023  33.3%  37.7%  +0.044  -0.31   INVERTED
+  45   monthlies       46.1%  48.3%  +0.022  43.1%  47.1%  +0.039  54.2%  44.1%  -0.100  -0.15
+  60   quarterlies     46.4%  47.9%  +0.015  46.1%  46.4%  +0.003  45.8%  42.8%  -0.031  -0.18   INVERTED
+  90   quarterlies     50.0%  49.7%  -0.003  48.0%  49.5%  +0.015  50.0%  49.0%  -0.010  -0.03
+  180  annuals         51.6%  51.6%  +0.000  53.9%  52.8%  -0.011  58.3%  55.7%  -0.027  0.14
+  365  annuals         52.6%  52.2%  -0.004  50.0%  53.8%  +0.038  62.5%  57.5%  -0.050  0.19
+  730  LEAPS           52.0%  53.4%  +0.014  52.0%  55.8%  +0.039  62.5%  61.5%  -0.010  0.29
+
+--- S2  cash-secured put ~16d
+  DTE  bucket          M      M_law  M_gap   Q      Q_law  Q_gap   Y      Y_law  Y_gap   Sharpe  M>Y?
+  ---  --------------  -----  -----  ------  -----  -----  ------  -----  -----  ------  ------  --------
+  7    weeklies        74.5%  54.7%  -0.198  72.5%  58.2%  -0.144  66.7%  66.0%  -0.007  0.41    INVERTED
+  14   gamma shoulder  80.4%  54.4%  -0.260  77.5%  57.5%  -0.199  79.2%  64.8%  -0.144  0.38    INVERTED
+  30   monthlies       78.4%  53.1%  -0.253  78.4%  55.4%  -0.230  83.3%  60.7%  -0.226  0.27
+  45   monthlies       76.1%  51.7%  -0.245  76.5%  52.9%  -0.236  79.2%  55.8%  -0.233  0.15
+  60   quarterlies     76.1%  54.3%  -0.219  83.3%  57.4%  -0.260  83.3%  64.5%  -0.189  0.37
+  90   quarterlies     70.9%  52.3%  -0.186  77.5%  54.0%  -0.235  83.3%  57.9%  -0.255  0.20
+  180  annuals         71.2%  51.9%  -0.193  76.5%  53.3%  -0.232  83.3%  56.6%  -0.267  0.17
+  365  annuals         65.4%  52.0%  -0.134  73.5%  53.4%  -0.201  87.5%  56.8%  -0.307  0.17
+  730  LEAPS           57.5%  51.0%  -0.066  62.7%  51.7%  -0.111  83.3%  53.3%  -0.300  0.08
+
+--- S3  short put spread ~16d / 5-wide
+  DTE  bucket          M      M_law  M_gap   Q      Q_law  Q_gap   Y      Y_law  Y_gap   Sharpe  M>Y?
+  ---  --------------  -----  -----  ------  -----  -----  ------  -----  -----  ------  ------  --------
+  7    weeklies        72.2%  56.4%  -0.158  67.6%  61.0%  -0.067  62.5%  71.1%  +0.086  0.56    INVERTED
+  14   gamma shoulder  78.1%  56.2%  -0.219  73.5%  60.6%  -0.129  83.3%  70.5%  -0.128  0.54
+  30   monthlies       75.5%  56.0%  -0.195  74.5%  60.4%  -0.142  75.0%  70.0%  -0.050  0.53    INVERTED
+  45   monthlies       73.5%  53.6%  -0.199  73.5%  56.3%  -0.172  70.8%  62.4%  -0.084  0.32    INVERTED
+  60   quarterlies     74.8%  56.4%  -0.184  81.4%  61.0%  -0.204  83.3%  71.2%  -0.122  0.56
+  90   quarterlies     68.6%  53.9%  -0.148  74.5%  56.7%  -0.178  79.2%  63.1%  -0.160  0.34
+  180  annuals         69.6%  56.7%  -0.129  76.5%  61.4%  -0.150  87.5%  71.9%  -0.156  0.58
+  365  annuals         63.7%  53.1%  -0.106  71.6%  55.4%  -0.162  75.0%  60.7%  -0.143  0.27
+  730  LEAPS           57.5%  51.5%  -0.061  59.8%  52.5%  -0.073  79.2%  55.0%  -0.241  0.13
+
+--- S4  bull call debit spread ~50d/25d
+  DTE  bucket          M      M_law  M_gap   Q      Q_law  Q_gap   Y      Y_law  Y_gap   Sharpe  M>Y?
+  ---  --------------  -----  -----  ------  -----  -----  ------  -----  -----  ------  ------  --------
+  7    weeklies        50.0%  48.6%  -0.014  51.0%  47.5%  -0.034  45.8%  45.1%  -0.007  -0.12   INVERTED
+  14   gamma shoulder  57.2%  51.5%  -0.056  54.9%  52.7%  -0.022  62.5%  55.3%  -0.072  0.13
+  30   monthlies       56.5%  55.7%  -0.008  56.9%  59.9%  +0.030  75.0%  69.2%  -0.058  0.50
+  45   monthlies       54.9%  56.1%  +0.012  58.8%  60.4%  +0.016  66.7%  70.1%  +0.035  0.53
+  60   quarterlies     54.2%  54.5%  +0.003  56.9%  57.8%  +0.009  62.5%  65.2%  +0.027  0.39
+  90   quarterlies     56.5%  56.4%  -0.001  60.8%  61.0%  +0.002  75.0%  71.2%  -0.038  0.56
+  180  annuals         56.9%  56.3%  -0.006  61.8%  60.8%  -0.009  66.7%  70.9%  +0.042  0.55
+  365  annuals         55.9%  55.5%  -0.004  58.8%  59.4%  +0.006  70.8%  68.4%  -0.025  0.48
+  730  LEAPS           52.6%  55.7%  +0.030  52.9%  59.7%  +0.068  66.7%  68.9%  +0.022  0.49
+
+--- S5  covered call: long underlying + short ~30d call
+  DTE  bucket          M      M_law  M_gap   Q      Q_law  Q_gap   Y      Y_law  Y_gap   Sharpe  M>Y?
+  ---  --------------  -----  -----  ------  -----  -----  ------  -----  -----  ------  ------  ----
+  7    weeklies        68.0%  59.9%  -0.081  76.5%  66.8%  -0.097  83.3%  80.7%  -0.026  0.87
+  14   gamma shoulder  69.6%  60.7%  -0.090  75.5%  68.0%  -0.075  87.5%  82.5%  -0.050  0.94
+  30   monthlies       68.6%  61.2%  -0.074  75.5%  68.9%  -0.066  83.3%  83.7%  +0.004  0.98
+  45   monthlies       70.6%  59.2%  -0.113  74.5%  65.7%  -0.088  83.3%  79.1%  -0.042  0.81
+  60   quarterlies     68.6%  59.8%  -0.088  76.5%  66.7%  -0.098  83.3%  80.6%  -0.027  0.86
+  90   quarterlies     66.3%  59.3%  -0.071  76.5%  65.8%  -0.107  83.3%  79.1%  -0.042  0.81
+  180  annuals         68.0%  58.6%  -0.093  72.5%  64.7%  -0.078  83.3%  77.5%  -0.058  0.76
+  365  annuals         63.1%  57.3%  -0.058  70.6%  62.5%  -0.081  83.3%  73.8%  -0.095  0.64
+  730  LEAPS           58.5%  55.8%  -0.027  62.7%  60.0%  -0.028  75.0%  69.3%  -0.057  0.50
+
+--- S6  iron condor ~16d shorts / 5-wide wings
+  DTE  bucket          M      M_law  M_gap   Q      Q_law  Q_gap   Y      Y_law  Y_gap   Sharpe  M>Y?
+  ---  --------------  -----  -----  ------  -----  -----  ------  -----  -----  ------  ------  ----
+  7    weeklies        72.2%  61.9%  -0.103  77.5%  70.0%  -0.075  87.5%  85.3%  -0.022  1.05
+  14   gamma shoulder  77.1%  62.8%  -0.143  80.4%  71.5%  -0.089  87.5%  87.2%  -0.003  1.14
+  30   monthlies       77.1%  62.9%  -0.142  81.4%  71.6%  -0.097  95.8%  87.4%  -0.085  1.14
+  45   monthlies       74.2%  57.8%  -0.164  74.5%  63.4%  -0.111  87.5%  75.3%  -0.122  0.68
+  60   quarterlies     73.9%  61.0%  -0.128  79.4%  68.6%  -0.108  87.5%  83.4%  -0.041  0.97
+  90   quarterlies     69.0%  57.3%  -0.117  80.4%  62.5%  -0.179  83.3%  73.8%  -0.096  0.64
+  180  annuals         66.7%  56.9%  -0.098  73.5%  61.8%  -0.117  75.0%  72.6%  -0.024  0.60
+  365  annuals         51.6%  52.5%  +0.009  61.8%  54.4%  -0.074  70.8%  58.7%  -0.122  0.22
+  730  LEAPS           46.4%  49.1%  +0.027  51.0%  48.4%  -0.025  54.2%  46.9%  -0.073  -0.08
+
+--- S7  iron butterfly ATM short / 5-wide wings
+  DTE  bucket          M      M_law  M_gap   Q      Q_law  Q_gap   Y      Y_law  Y_gap   Sharpe  M>Y?
+  ---  --------------  -----  -----  ------  -----  -----  ------  -----  -----  ------  ------  --------
+  7    weeklies        61.1%  57.8%  -0.033  70.6%  63.3%  -0.073  83.3%  75.1%  -0.082  0.68
+  14   gamma shoulder  54.2%  54.1%  -0.001  61.8%  57.1%  -0.046  62.5%  64.0%  +0.015  0.36
+  30   monthlies       48.0%  49.9%  +0.018  51.0%  49.8%  -0.012  58.3%  49.6%  -0.088  -0.01
+  45   monthlies       41.8%  47.1%  +0.053  43.1%  45.0%  +0.018  45.8%  40.0%  -0.058  -0.25
+  60   quarterlies     50.7%  48.8%  -0.019  40.2%  47.9%  +0.077  37.5%  45.7%  +0.082  -0.11   INVERTED
+  90   quarterlies     49.3%  45.0%  -0.044  33.3%  41.4%  +0.080  41.7%  33.1%  -0.085  -0.44   INVERTED
+  180  annuals         45.1%  45.6%  +0.005  44.1%  42.4%  -0.017  25.0%  35.2%  +0.102  -0.38   INVERTED
+  365  annuals         37.6%  47.3%  +0.097  32.4%  45.3%  +0.130  16.7%  40.7%  +0.240  -0.24   INVERTED
+  730  LEAPS           34.3%  47.8%  +0.135  32.4%  46.2%  +0.138  25.0%  42.4%  +0.174  -0.19   INVERTED
+
+  THE INVERSION COUNTED BY BUCKET -- cells where monthly positivity
+  exceeds yearly positivity:
+  bucket          inverted cells  cells  mean M  mean Y  mean M - Y
+  --------------  --------------  -----  ------  ------  ----------
+  weeklies        4               7      62.3%   64.9%   -2.6 pp
+  gamma shoulder  2               7      65.3%   69.6%   -4.3 pp
+  monthlies       3               14     63.2%   70.8%   -7.6 pp
+  quarterlies     3               14     62.5%   69.9%   -7.4 pp
+  annuals         2               14     58.5%   67.6%   -9.1 pp
+  LEAPS           1               7      51.3%   63.7%   -12.4 pp
+
+  Mean yearly gap (law - observed) by bucket -- how far from the
+  normal law each tenor's yearly positivity sits:
+  bucket          mean M gap  mean Y gap
+  --------------  ----------  ----------
+  weeklies        -0.0789     -0.0116
+  gamma shoulder  -0.1060     -0.0505
+  monthlies       -0.0899     -0.0761
+  quarterlies     -0.0850     -0.0703
+  annuals         -0.0510     -0.0636
+  LEAPS           0.0076      -0.0692
+
+==============================================================================
+10. TEST 8 -- the verdict: which tenor, for which structure
+==============================================================================
+
+edge_per_tail = E_net / |mean of the worst 1% of trades (R)|, the
+pre-registered selection metric -- expectancy per unit of realised
+tail.  The highest-E_net tenor is named separately, because the two
+rules can disagree and the reader should see when they do.
+
+  id  best DTE by edge/tail  edge/tail  E_net    worst 1%  dd (R)  best DTE by E_net  E_net    ann_R_net  n_avail
+  --  ---------------------  ---------  -------  --------  ------  -----------------  -------  ---------  -------
+  S1  730                    +1.0714    +1.0714  -1.000    -3.37   730                +1.0714  +1.507     36
+  S2  365                    +0.0764    +0.0172  -0.225    -0.34   730                +0.0206  +0.050     75
+  S3  180                    +0.1277    +0.1277  -1.000    -1.23   180                +0.1277  +0.763     153
+  S4  730                    +1.1173    +1.1173  -1.000    -2.04   730                +1.1173  +1.572     36
+  S5  730                    +0.4787    +0.2104  -0.440    -0.61   730                +0.2104  +0.296     36
+  S6  180                    +0.1979    +0.1979  -1.000    -1.31   180                +0.1979  +1.183     153
+  S7  7                      +0.0878    +0.0878  -1.000    -25.16  7                  +0.0878  +11.326    3300
+
+  The same ranking restricted to cells whose edge is MEASURABLE
+  (n_req <= n_available), so a verdict is never awarded to a cell the
+  window cannot resolve:
+  id  best measurable DTE  edge/tail  E_net    ann_R_net  measurable tenors
+  --  -------------------  ---------  -------  ---------  -----------------
+  S1  730                  +1.0714    +1.0714  +1.5073    4
+  S2  365                  +0.0764    +0.0172  +0.0504    6
+  S3  180                  +0.1277    +0.1277  +0.7633    8
+  S4  730                  +1.1173    +1.1173  +1.5719    9
+  S5  730                  +0.4787    +0.2104  +0.2961    9
+  S6  180                  +0.1979    +0.1979  +1.1835    8
+  S7  7                    +0.0878    +0.0878  +11.3258   3
+
+==============================================================================
+11. TEST 9 -- reconciliation with `options-risk-engineer`'s calendar
+==============================================================================
+
+The owning skill's partition and force, quoted from its own files
+(`SKILL.md` Phase 8 / DT6 and `references/dte-close-roll-calendar.md`
+section 2).  Its bucket boundaries are the boundaries used above,
+verbatim:
+  0DTE (same session) . weeklies 1-7 . gamma shoulder 8-20 .
+  monthlies 21-60 . quarterlies 60-120 . annuals 121-365 . LEAPS >365
+
+  bucket          DTE zone  default action window                          roll window  hard deadline
+  --------------  --------  ---------------------------------------------  -----------  ---------------------------------
+  weeklies        1-7       close at 50% of max profit or 3 DTE            T-7 -> T-5   T-0 15:00 ET
+  gamma shoulder  8-20      hold; resting orders at 50% of max profit      14-21        7 DTE
+  monthlies       21-60     roll expiring monthlies into the next monthly  21-30        21 short premium / 7 defined-risk
+  quarterlies     60-120    hold; harvest 50-75%                           60-75        45 DTE
+  annuals         121-365   hold; manage by delta and vega, not theta      120-150      90 DTE
+  LEAPS           >365      hold as a capital-efficient stock substitute   120-90       60 DTE
+
+WHAT THIS STUDY CAN AND CANNOT SAY ABOUT IT.  It is important to be
+precise here: this study ENTERS at a DTE and HOLDS TO EXPIRY, with no
+stop, no target and no roll.  It therefore cannot test any rule whose
+content is an EXIT trigger or a roll window.  It can test the
+QUANTITATIVE claims the calendar's boundaries rest on.
+
+  claim in the owning skill                                                  verdict                                   why
+  -------------------------------------------------------------------------  ----------------------------------------  --------------------------------------------------------------------------------------------------------------------------
+  0DTE: close by 14:45 ET, hard stop 15:00 ET                                CANNOT TEST                               daily bars have no intraday path; the close is the only 0DTE moment this data sees
+  weeklies: close at 50% of max profit or 3 DTE                              CANNOT TEST                               there is no profit target in this design -- every trade runs to expiry, so the 3-DTE exit is never taken
+  weeklies: 'theta is large but no longer compensates the gamma you accept'  SUPPORTS (direction)                      theta/day/R is highest at 7 DTE by a wide margin in every structure (Test 2)
+  gamma shoulder 8-20: 'hold; add no new credit'                             CANNOT TEST                               a hold/no-add instruction is a portfolio rule, not a payoff
+  monthlies 21-60: 'the open and scale zone'                                 TESTABLE -- see below                     the 30/45-DTE cells are the un-managed counterpart of that claim
+  quarterlies 60-120: 'vega is the only live Greek of size'                  SUPPORTS (direction)                      the modelled entry vega is the largest relative to R in this band for the credit structures
+  quarterlies: 'this bucket has no other owner'                              NO EVIDENCE EITHER WAY                    an ownership convention is not a measurable claim
+  annuals 121-365: 'manage by delta and vega, not theta'                     SUPPORTS (direction)                      theta/day/R at 180-365 DTE is 1-2 orders of magnitude below the weeklies band
+  LEAPS >365: 'capital-efficient stock substitute'                           SUPPORTS (direction), with a cost caveat  the 730-DTE long call's R is a fraction of the underlying notional; but its c_R and its E_net are measured below
+  Gamma_ATM ~ 1/sqrt(T); 45 DTE -> 21/11/6/3 double-ladder                   SUPPORTS (analytically)                   verifiable directly against this study's own pricer -- see section 12
+  roll windows and hard deadlines as FORCING DATES                           CANNOT TEST                               untested evidence: the study never rolls, never closes early, and never observes a broker's margin or assignment behaviour
+
+  WHICH CLAIMS REMAIN UNTESTED EVIDENCE, stated plainly: every roll
+  window (T-7->T-5, 14-21, 21-30, 60-75, 120-150, 120-90); every hard
+  deadline (T-0 15:00, 7, 21, 45, 90, 60); the 0DTE 14:45/15:00
+  clock; the expiry-week T-5..T+1 rungs; the 'two rolls per cycle'
+  cap; the 'credit-or-flat' roll rule (owned by
+  `options-position-lifecycle`); and every assignment, ex-dividend
+  and pin-risk consequence of holding an American short option,
+  because this model is European, cash-settled and dividend-free.
+
+  THE ONE THING THIS STUDY ADDS TO THAT CALENDAR, and it is a
+  boundary finding rather than a rule finding: the skill's own labels
+  overlap at 60 DTE (monthlies 21-60 / quarterlies 60-120) and abut at
+  365 DTE.  A position at exactly 60 DTE therefore resolves to two
+  different buckets under the skill's own two tables, and the two
+  buckets carry different hard deadlines (21 DTE vs 45 DTE) and
+  different roll windows (21-30 vs 60-75).  This is a real ambiguity
+  in the owning skill, not in this study; section 1 declares the
+  assignment used here (60 -> quarterlies).
+
+==============================================================================
+12. THE 0DTE QUESTION -- ANALYTIC, NOT BACKTESTED
+==============================================================================
+
+NO multi-year 0DTE backtest is reported from these bars, and none
+should be believed from daily bars: 0DTE P&L is decided by the
+INTRADAY PATH, and a daily open/high/low/close cannot see it.  What
+CAN be derived exactly is the scaling.
+
+Stated inputs for the analytic block only: S = K = 100 (at the money), sigma = 20%, r = q = 0 (the reduced form the owning skill derives its ladder from).  T_long = 30 days, T_short = 0.25 days.
+
+  quantity                 30 DTE    0.25 DTE  ratio     derived expectation
+  -----------------------  --------  --------  --------  -----------------------
+  gamma (dDelta per $1)    0.069548  0.762176  10.959x   sqrt(30/0.25) = 10.954
+  |theta| per DAY ($)      0.038109  0.417630  10.959x   same 1/sqrt(T)
+  ATM option value ($)     2.2872    0.2088    0.091x    1/sqrt(T) the other way
+  |theta| per day / value  0.016662  1.999995  120.033x  T_long/T_short = 120.0
+
+  [COMPUTED]  Gamma_ATM ~ 1/sqrt(T), so moving from 30 DTE to 0.25 DTE
+  multiplies the ATM gamma by sqrt(30/0.25) = 10.954.  The model returns
+  10.959 -- an exact match, because the pricer IS Black-Scholes.
+  [COMPUTED]  |theta| per day carries the same 1/sqrt(T), so the same
+  10.959 multiplies the DAILY DECAY IN DOLLARS.  But the position's VALUE
+  falls by the same factor, so the daily decay as a FRACTION OF THE
+  PREMIUM scales as 1/T: 120.0x, i.e. 1.666% per day at 30 DTE against
+  200.0% per day at 0.25 DTE.  A 0.25-DTE option that is worth anything
+  at all is worth it for hours, not days.  That is the honest 0DTE
+  statement: it is not 'more theta', it is 'the same theta in a tenth
+  of the time, at ten times the gamma'.
+
+  [COMPUTED]  The same identity fixes the shape of the risk: one 1% move in the underlying
+  changes the position's delta by 0.76 at 0.25 DTE against 0.07 at
+  30 DTE -- the same move re-writes ten times as much of the hedge at
+  0.25 DTE.  A delta band that is wide enough at 30 DTE is crossed by
+  an ordinary morning move at 0.25 DTE.
+
+THE COST-PER-TICKET ARITHMETIC AGAINST A SMALL CREDIT.  A 0DTE ticket
+is the same ticket as any other -- the fee does not shrink with the
+credit.  At the headline LOW setting a 2-leg ticket costs
+2 x ($0.65 + $0.025 x 100) = $6.30, and a sub-$0.20 credit is the
+regime a 0DTE trader is actually in whenever the strikes are far enough
+out to have any room:
+
+  credit $/sh  wing $  credit $  R $  cost $ LOW  cost / credit  c_R LOW  c_R HIGH
+  -----------  ------  --------  ---  ----------  -------------  -------  --------
+  0.05         1.00    5.00      95   6.30        126.0%         0.0663   0.1189
+  0.05         5.00    5.00      495  6.30        126.0%         0.0127   0.0228
+  0.10         1.00    10.00     90   6.30        63.0%          0.0700   0.1256
+  0.10         5.00    10.00     490  6.30        63.0%          0.0129   0.0231
+  0.20         1.00    20.00     80   6.30        31.5%          0.0788   0.1413
+  0.20         5.00    20.00     480  6.30        31.5%          0.0131   0.0235
+
+  [COMPUTED]  Read the 'cost / credit' column: on a $0.05 credit the
+  round-trip ticket is 126% of the ENTIRE premium at LOW prices and
+  226% at HIGH prices.  On a $0.20 credit it is 32% / 56%.
+  [COMPUTED]  The c_R column is much kinder (1.3% to 7.9% of R) because
+  a 1-to-5-wide wing makes R large relative to the cost.  BOTH views
+  are true and they answer different questions: cost as a share of
+  PREMIUM is what a high-frequency 0DTE seller pays; cost as a share
+  of R is what a risk-budget comparison pays.
+
+  [MODELED]  And what the model itself says the credit is at 16 delta
+  0.25 DTE, so the $0.05-$0.20 band above is not a straw man: on a
+  $770 index at sigma=20%, the 0.25-DTE 16-delta put is at
+  $766.02 and the 5-wide wing at $761.02, for a credit of $0.32 per share
+  = $32.39 per contract on a $468 R.  A CREDIT THAT SMALL IS THE
+  MODEL'S OWN ARTEFACT: the model has no skew, so an OTM put is priced
+  at the same vol as the ATM one.  A real 0DTE 16-delta put carries a
+  much higher implied vol.  Nothing in this section should be used to
+  price a real 0DTE ticket.
+
+  [ESTIMATED -- UNDATED VENDOR MARKETING PAGE]  The widely quoted
+  '0DTE = 59% of SPX volume' figure has NO AS-OF DATE.  Per
+  `trading-decision-data-catalogue` (SKILL.md line 163 and
+  `references/options-positioning-data.md` section 3.1): an undated
+  market-share statistic is not a statistic, it can be neither right
+  nor wrong, and it must NOT be put in a chart -- with the reason
+  stated when asked.  This study therefore reports NO 0DTE
+  share-of-volume number at all, dated or not.
+
+==============================================================================
+13. 0DTE, [ILLUSTRATIVE] ONLY -- and it CANNOT BE EXTRAPOLATED
+==============================================================================
+
+This section exists because leaving 0DTE out entirely would hide what
+the data CAN and CANNOT say.  It is NOT a result:
+
+  * it enters at the session OPEN and settles at the session CLOSE.
+    A real 0DTE trader's P&L is dominated by the INTRADAY PATH -- the
+    open, the lunchtime drift, whether the strike was touched at 11:00
+    or at 15:55 -- and NONE of that is in these bars;
+  * there is no intraday stop, no profit target, no roll, and no
+    intraday marking, so the daily high and low are never used;
+  * strikes are solved from the OPEN with a vol built from the 3-session
+    lagged VIX, which is a ~30-day vol.  A real 0DTE chain is priced off
+    an intraday, term-structured surface this study does not have;
+  * strikes are unrounded, and at 0DTE the listing grid ($1 on SPY) is
+    the same size as the whole modelled move;
+  * the model's own 0.25-DTE credit is an artefact of flat-vol pricing.
+
+It is printed once, it is not carried into any verdict, and nothing in
+it may be scaled up, annualised or compared with a real 0DTE book.
+
+  id  structure                               n_avail  p       b       E        c_R     E_net    credit $  R $     n_req  worst trade  measurable?
+  --  --------------------------------------  -------  ------  ------  -------  ------  -------  --------  ------  -----  -----------  -----------
+  S3  short put spread ~16d / 5-wide          19308    0.7761  +0.085  -0.0329  0.0128  -0.0458  5.52      494.48  83     -1.000       yes
+  S6  iron condor ~16d shorts / 5-wide wings  19308    0.5651  +0.189  -0.0614  0.0261  -0.0875  11.01     488.99  38     -1.000       yes
+
+  [ILLUSTRATIVE]  Read the credit column in the right units: $5.52 PER
+  CONTRACT is 5.5 CENTS PER SHARE on a $5-wide, at a window-median
+  index price near $130.  Against that 5.5-cent credit the round-trip
+  ticket is $6.30 -- 114% of the entire premium at LOW prices, before
+  any spread widening at all.  That is the analytic cost arithmetic of
+  section 12 arriving as a measurement, and it is the one 0DTE number
+  here that would survive a real intraday simulator.
+
+  [ILLUSTRATIVE]  The gross E is NEGATIVE for both structures
+  (-0.0201R for S3 gross, -0.0353R for S6 gross), which says the flat
+  VIX vol used to price a 0.25-day option is too rich for the open-to-
+  close move actually realised -- but that is a statement about the
+  pricing model at 0.25 DTE, not about 0DTE trading.
+
+  [ILLUSTRATIVE]  Even taken at face value this table is a 0DTE
+  HELD-TO-SETTLEMENT result, which is a different instrument from the
+  0DTE strategies the owning skills describe.  It is reported so that
+  the absence of a 0DTE column everywhere else in this study is a
+  stated gap rather than a hidden one.
+
+==============================================================================
+14. APPENDIX A -- the scale control: is the tenor effect real, or the
+==============================================================================
+    fixed-dollar-wing convention? (limitation N2)
+
+A $5.00 wing is 1.44 standard deviations of the terminal
+distribution at 7 DTE and 0.15 at 730 DTE (at the window-median index
+price), because sigma*sqrt(T) grows as sqrt(T) while the wing does
+not.  The control below re-runs the
+short put spread (S3) and the iron condor (S6) with the wing
+RE-SOLVED AT EVERY TRADE so it holds 0.15 sigma, rounded to the
+nearest dollar with a $1 floor.  Everything else -- delta rules, entry
+programme, vol, cost, settlement -- is unchanged.
+
+--- FIXED $5.00 wing (the pre-registered grid, repeated here)
+  id  DTE  W $   cr/W    E        c_R     E_net    n_req  n_avail
+  --  ---  ----  ------  -------  ------  -------  -----  -------
+  S3  7    5.00  0.0554  +0.0307  0.0136  +0.0172  143    3300
+  S3  14   5.00  0.0753  +0.0384  0.0138  +0.0247  122    1809
+  S3  30   5.00  0.0980  +0.0535  0.0141  +0.0394  79     882
+  S3  45   5.00  0.1076  +0.0453  0.0142  +0.0311  136    597
+  S3  60   5.00  0.1218  +0.0796  0.0144  +0.0652  38     444
+  S3  90   5.00  0.1333  +0.0661  0.0145  +0.0516  75     306
+  S3  180  5.00  0.1533  +0.1426  0.0150  +0.1277  11     153
+  S3  365  5.00  0.1768  +0.1288  0.0155  +0.1133  26     75
+  S3  730  5.00  0.2111  +0.1127  0.0163  +0.0964  65     36
+  S6  7    5.00  0.1189  +0.0697  0.0294  +0.0403  57     3300
+  S6  14   5.00  0.1521  +0.0953  0.0303  +0.0650  38     1809
+  S6  30   5.00  0.1900  +0.1366  0.0314  +0.1052  22     882
+  S6  45   5.00  0.2088  +0.1192  0.0320  +0.0873  37     597
+  S6  60   5.00  0.2229  +0.1788  0.0324  +0.1463  13     444
+  S6  90   5.00  0.2351  +0.1629  0.0329  +0.1300  21     306
+  S6  180  5.00  0.2637  +0.2319  0.0340  +0.1979  10     153
+  S6  365  5.00  0.2779  +0.1739  0.0349  +0.1391  33     75
+  S6  730  5.00  0.2953  -0.0547  0.0363  -0.0910  648    36
+--- ADAPTIVE 0.15-sigma wing (the scale control)
+  id  DTE  W $   cr/W    E        c_R     E_net    n_req  n_avail
+  --  ---  ----  ------  -------  ------  -------  -----  -------
+  S3  7    1.00  0.1251  +0.0550  0.0661  -0.0111  132    3300
+  S3  14   1.00  0.1372  +0.0706  0.0626  +0.0079  76     1809
+  S3  30   1.00  0.1488  +0.0759  0.0579  +0.0180  74     882
+  S3  45   1.00  0.1511  +0.0581  0.0539  +0.0041  148    597
+  S3  60   2.00  0.1595  +0.1098  0.0498  +0.0599  30     444
+  S3  90   2.00  0.1649  +0.0880  0.0442  +0.0439  58     306
+  S3  180  3.00  0.1757  +0.1668  0.0345  +0.1323  9      153
+  S3  365  3.00  0.1875  +0.1359  0.0258  +0.1101  26     75
+  S3  730  5.00  0.2066  +0.1166  0.0204  +0.0961  61     36
+  S6  7    1.00  0.2631  +0.1252  0.1540  -0.0288  57     3300
+  S6  14   1.00  0.2771  +0.1548  0.1466  +0.0082  37     1809
+  S6  30   1.00  0.2841  +0.1956  0.1359  +0.0597  22     882
+  S6  45   1.00  0.2856  +0.1392  0.1271  +0.0122  56     597
+  S6  60   2.00  0.2857  +0.2262  0.1165  +0.1097  15     444
+  S6  90   2.00  0.2861  +0.1936  0.1033  +0.0903  23     306
+  S6  180  3.00  0.2891  +0.2584  0.0797  +0.1787  11     153
+  S6  365  3.00  0.2906  +0.1815  0.0590  +0.1225  33     75
+  S6  730  5.00  0.2965  -0.0666  0.0456  -0.1123  452    36
+
+  What the control is FOR: if tenor's apparent advantage were purely
+  the shrinking wing, the adaptive rows would flatten.  Compare the
+  E_net columns row by row.
+
+  S3: E_net peaks at DTE 180 with the fixed wing.
+      adaptive 0.15-sigma wing: E_net peaks at DTE 180 (+0.1323).
+
+  S6: E_net peaks at DTE 180 with the fixed wing.
+      adaptive 0.15-sigma wing: E_net peaks at DTE 180 (+0.1787).
+
+  [MODELED]  Both series are reported; neither is privileged.  The
+  fixed wing is the pre-registered grid and every headline uses it.
+
+==============================================================================
+15. WHAT THIS STUDY CANNOT SEE, STATED PLAINLY
+==============================================================================
+
+  1. NO TERM STRUCTURE.  One vol -- the 3-session-lagged VIX, a ~30-day
+     vol -- prices 7 DTE and 730 DTE alike.  A real 730-DTE option has
+     its own implied vol, its own skew and its own dividend assumptions.
+     This is the single largest weakness of a study whose subject IS
+     tenor, and it is not repairable from these feeds.
+  2. NO SKEW SURFACE, and a skew surface is itself a function of tenor.
+     Test 5 sizes the direction-ambiguous part of it (+-1.5 vol points
+     on the sold legs).  It cannot size the tenor-dependent part.
+  3. FIXED DOLLAR WING (N2).  Appendix A is the control; read every
+     5-wide number beside it.
+  4. NO ASSIGNMENT, NO EARLY EXERCISE, NO DIVIDENDS.  SPY/QQQ/IWM are
+     American and physically settled; every leg here is European and
+     cash-settled.  This omits an EXERCISE EVENT whose annual
+     probability is roughly proportional to the holding period, so a
+     730-DTE short call's real risk is understated by far more than a
+     7-DTE one's.  The model also pays no dividend, so a 730-DTE
+     modelled call is too expensive and a 730-DTE modelled put too
+     cheap -- and the covered call's whole economics turn on dividends.
+  5. NO INTRADAY PATH, so no 0DTE result and no intra-trade stop.
+  6. NO VEGA P&L PATH.  Vol is a function of the lagged VIX close, so a
+     position does experience some mark-to-market vol movement -- but
+     this is a 3-session-lagged series, not a live surface, and the
+     long-tenor cells' vega exposure is therefore not measured.
+  7. NO ROLL, NO MARGIN, NO BUYING-POWER CONSTRAINT, NO LEVERAGE LIMIT.
+     The 730-DTE cells would in reality tie up margin for two years.
+  8. THE ENTRY CALENDAR DIFFERS BY TENOR (N3).  The 7-DTE programme
+     enters ~1300 times and the 730-DTE programme ~12 times, at
+     different dates.  A tenor difference is a difference in holding
+     period AND in which dates were sampled.
+  9. ONE WINDOW.  25.6 years, 306 complete months, 24 complete years,
+     and two crashes.  That is enough to see a tail, not enough to
+     grade every corner -- which is exactly what Test 3 measures.
+ 10. SEVEN STRUCTURES, PRE-REGISTERED, AND NO OTHERS.  In particular
+     nothing here speaks to calendars, diagonals, ratios, jade lizards
+     or any 3-leg structure.
+
+
+==============================================================================
+16. THE ONE-PARAGRAPH ANSWER
+==============================================================================
+
+  Every number in this study is [MODELED], and the tenor axis is the
+  worst axis to study without a term structure.  Within those limits
+  the measured answer is below; the narrative is in FINDINGS.md.
+
+  id  best-paid DTE (theta/R)  peak E_net DTE  peak E_net  best MEASURABLE DTE  E_net there  E_net vs DTE
+  --  -----------------------  --------------  ----------  -------------------  -----------  -----------------------------
+  S1  730                      730             +1.0714     730                  +1.0714      NOT monotone (3 sign changes)
+  S2  7                        730             +0.0206     365                  +0.0172      NOT monotone (4 sign changes)
+  S3  7                        180             +0.1277     180                  +0.1277      NOT monotone (5 sign changes)
+  S4  730                      730             +1.1173     730                  +1.1173      NOT monotone (2 sign changes)
+  S5  7                        730             +0.2104     730                  +0.2104      INCREASING (8 up, 0 flat)
+  S6  7                        180             +0.1979     180                  +0.1979      NOT monotone (5 sign changes)
+  S7  7                        7               +0.0878     7                    +0.0878      NOT monotone (4 sign changes)
+
+  Tables written to out/ as CSV; RESULTS.md written beside this file.
+  Run `py -3 handcheck.py` for the independent re-derivation, which
+  imports NOTHING from this file.

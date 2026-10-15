@@ -1,0 +1,34 @@
+==============================================================================
+STEP 1 -- CARRY: verify then copy the long series from the sibling study
+==============================================================================
+Sibling directory: C:/Users/sande/Documents/Projects/Skills/skills/14-finance/equity-trading-playbook/examples/frontier-test/data
+  SPY    AMEX:SPY    rows=8485   first=1993-01-29 last=2026-10-14  header_claim_matches=True  sha256(body)=e104ae01aefea744
+  QQQ    NASDAQ:QQQ  rows=6943   first=1999-03-10 last=2026-10-14  header_claim_matches=True  sha256(body)=e8d96a6255a99926
+  IWM    AMEX:IWM    rows=6635   first=2000-05-26 last=2026-10-14  header_claim_matches=True  sha256(body)=b9095ffd1a56e530
+  VIX    TVC:VIX     rows=9283   first=1990-01-03 last=2026-10-14  header_claim_matches=True  sha256(body)=318b7b02f0b949be
+  US03M  TVC:US03M   rows=18197  first=1954-01-04 last=2026-10-14  header_claim_matches=True  sha256(body)=482d44b9f01f8ca4
+
+==============================================================================
+STEP 2 -- FRESH PULL (2026-10-15) and OVERLAP CHECK against the carried files
+==============================================================================
+  payload mcp__tradingview__mcp-tv-get-ohlcv-call_9bmi2o7x-f4353b27-71c1-4d8f-8093-f92d6151561f.txt symbol=AMEX:SPY    bars=1500  interval=1D  has_more=True
+  payload mcp__tradingview__mcp-tv-get-ohlcv-call_mo8gy3or-44dc357e-790f-4c34-a46d-204f7d0a06da.txt symbol=NASDAQ:QQQ  bars=1500  interval=1D  has_more=True
+  payload mcp__tradingview__mcp-tv-get-ohlcv-call_sbvxtxc8-917d9629-11fa-43a6-8360-fcf9c8d1f063.txt symbol=AMEX:IWM    bars=1500  interval=1D  has_more=True
+  payload mcp__tradingview__mcp-tv-get-ohlcv-call_8l6s34eu-8a89ccff-e196-4386-919d-224dbf3e2d93.txt symbol=TVC:VIX     bars=1500  interval=1D  has_more=True
+
+  series fresh  shared identical note
+  IWM    1500   1500   1500      0 OHLC mismatch(es)
+  QQQ    1500   1500   1500      0 OHLC mismatch(es)
+  SPY    1500   1500   1500      0 OHLC mismatch(es)
+  VIX    1500   1500   1500      0 OHLC mismatch(es)
+
+==============================================================================
+STEP 3 -- WRITE data/*.csv
+==============================================================================
+  SPY    -> SPY_1d.csv                   rows=8485    body_sha256_unchanged=True
+  QQQ    -> QQQ_1d.csv                   rows=6943    body_sha256_unchanged=True
+  IWM    -> IWM_1d.csv                   rows=6635    body_sha256_unchanged=True
+  VIX    -> VIX_1d.csv                   rows=9283    body_sha256_unchanged=True
+  US03M  -> US03M_1d.csv                 rows=18197   body_sha256_unchanged=True
+
+DONE. 5 carried series + 4 validation fixtures in data

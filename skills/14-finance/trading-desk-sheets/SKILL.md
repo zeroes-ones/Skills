@@ -308,7 +308,7 @@ Conflict?
 |---------------|----------------|----------------------|
 | `trade-sizing-recovery` | Rules text, triage dispositions, WHY lines | Why/Falsifier notes rendered onto holdings rows |
 | `trade-performance-analyst` | Netted trade record, expectancy by class | Learnings rollups and realized-P&L columns |
-| `position-risk-engineer` | Portfolio-level risk views | Dashboard risk lines that must stay consistent with source reads |
+| `options-risk-engineer` | Portfolio-level risk views | Dashboard risk lines that must stay consistent with source reads |
 
 (Venue read tools - broker APIs / MCP servers - are infrastructure, not skills; they feed the snapshot.)
 

@@ -289,7 +289,7 @@ Max_Position_Size = min(Kelly_vol_size, 5% × 20d_avg_dollar_vol, 5% × open_int
 - Normal: SPY-QQQ r ≈ 0.85
 - Crash: r → 0.95–1.0
 - Every hedging analysis must include a correlation→1.0 scenario
-- Crash VaR is 2–3× normal VaR
+- Crash VaR is **1.4–2.5×** normal VaR for a short-gamma book — a 30–60% understatement of the true loss — and can exceed **3×** in a genuine 3σ+ tail. This is the same figure as `stress-testing-tail-risk.md` and `SKILL.md`; it is one number in three places, so change all three together or none.
 
 ---
 

@@ -1,0 +1,103 @@
+==============================================================================
+HANDCHECK -- independent re-derivation, no import of study.py
+==============================================================================
+  read SPY    rows=8485   first=1993-01-29 last=2026-10-14
+  read QQQ    rows=6943   first=1999-03-10 last=2026-10-14
+  read IWM    rows=6635   first=2000-05-26 last=2026-10-14
+  read VIX    rows=9283   first=1990-01-03 last=2026-10-14
+  read US03M  rows=18197  first=1954-01-04 last=2026-10-14
+
+  own window: 6436 sessions, 2001-03-13 .. 2026-10-14
+  own cash CAGR = 0.017974  (20 of 6436 sessions non-positive)
+  own S2 book: CAGR 0.02971104   maxDD -0.26748379   Sharpe 0.40678300
+
+==============================================================================
+A. TRADE-LEVEL GAP vs out/s2_structure.csv (S2 rows)
+==============================================================================
+  study.py S2 trades: 918
+  handcheck spread records: 918
+  matched on (index, expiry): 918
+  S2 short strike K1 (handcheck vs study.py artefact)        gap=4.996e-07      tol=5.1e-04    OK
+  S2 long strike K2                                          gap=4.996e-07      tol=5.1e-04    OK
+  S2 credit  (handcheck vs study.py, max abs gap)            gap=4.995e-07      tol=5.1e-04    OK
+  S2 settlement intrinsic vs the real expiry close           gap=4.996e-07      tol=5.1e-04    OK
+
+==============================================================================
+B. HEADLINE GAP vs out/headline.csv (S2)
+==============================================================================
+  S2 CAGR                                                    gap=0.000e+00      tol=2.0e-06    OK
+  S2 maxDD                                                   gap=-3.331e-16     tol=2.0e-06    OK
+  S2 Sharpe (raw, daily x sqrt252)                           gap=-5.551e-17     tol=2.0e-06    OK
+  S2 fraction of positive complete YEARS                     gap=0.000e+00      tol=1.0e-09    OK
+  S2 fraction of positive complete QUARTERS                  gap=0.000e+00      tol=1.0e-09    OK
+  S2 fraction of positive complete MONTHS                    gap=0.000e+00      tol=1.0e-09    OK
+  own counts: Y 19/24  Q 81/102  M 271/306 ; study: Y 19/24 Q 81/102 M 271/306
+
+==============================================================================
+C. CORRELATION GAP vs out/correlation.csv
+==============================================================================
+  SPY/QQQ yearly corr                                        gap=0.000e+00      tol=5.1e-04    OK
+  SPY/QQQ daily corr                                         gap=0.000e+00      tol=5.1e-04    OK
+  SPY/IWM yearly corr                                        gap=0.000e+00      tol=5.1e-04    OK
+  SPY/IWM daily corr                                         gap=0.000e+00      tol=5.1e-04    OK
+  QQQ/IWM yearly corr                                        gap=0.000e+00      tol=5.1e-04    OK
+  QQQ/IWM daily corr                                         gap=0.000e+00      tol=5.1e-04    OK
+
+==============================================================================
+D. VRP RE-DERIVED FROM THE RAW SPY AND VIX CSVS
+==============================================================================
+  2008  n=253  mean VRP =   -2.33 vol pts   share VIX>forward RV =  60.1%   mean E_R_fair = +0.0577   total = +14.6R
+  2020  n=253  mean VRP =   +2.60 vol pts   share VIX>forward RV =  75.1%   mean E_R_fair = -0.0289   total = -7.3R
+  ALL  n=8464 mean VRP =   +3.64 vol pts   share VIX>forward RV =  83.0%   fair-strike E_R = +0.1160
+  worst window: 2020-02-20  VIX=15.6  R=-3.07  R_fair=-3.98
+
+  SIBLING STUDY's published finding, for sign/size comparison:
+    mean VRP +3.62 vol pts, VIX above forward RV in 82.9% of windows,
+    VRP negative in exactly one year (2008, -2.33 vol pts);
+    fair-strike E_R = +0.1158R, 2020 the one losing year (-7.3R),
+    worst window R = -3.98 starting 2020-02-20.
+
+==============================================================================
+E. BY HAND -- one Black-Scholes price, every intermediate shown
+==============================================================================
+  INPUTS (round numbers, nothing to do with the study's data):
+    S = 100.00   K = 95.00   days = 30   T = 0.08219178   r = 0.0400   sigma = 0.2000
+    sigma*sqrt(T)            = 0.0573382179
+    ln(S/K)                  = 0.0512932944
+    (r + sigma^2/2)*T        = 0.0049315068
+    d1                       = 0.9805815962
+    d2 = d1 - sigma*sqrt(T)  = 0.9232433782
+    Phi(-d1)                 = 0.1633995568
+    Phi(-d2)                 = 0.1779401939
+    e^{-rT}                  = 0.9967177272
+    K*e^{-rT}*Phi(-d2)       = 16.8488338359
+    S*Phi(-d1)               = 16.3399556785
+    PUT = K e^{-rT}N(-d2) - S N(-d1) = 0.5088781574
+    put delta = e^{-qT}(N(d1)-1) = -0.1633995568
+  This is handcheck.py's own pricer.  It is checked against study.py's
+  pricer indirectly, through the whole trade ledger in section A.
+
+==============================================================================
+F. BY HAND -- one month's put spread settled against the real path
+==============================================================================
+  trade: S2 SPY entered 2001-04-02 expiring 2001-04-30
+    S at entry (open)          = 116.300000
+    short strike K1            = 108.9730
+    long  strike K2 = K1 - 5   = 103.9730
+    real close on expiry       = 124.9100
+    short put intrinsic        = max(0, K1 - S) = 0.000000
+    long  put intrinsic        = max(0, K2 - S) = 0.000000
+    SPREAD intrinsic           = 0.000000
+    credit collected           = 0.606128
+    gross per share            = credit - intrinsic = 0.606128
+    costs (2 legs x 3.15)      = 6.3000 $/contract
+    net P&L per contract       = 0.606128 * 100 - 6.3000 = 54.3128
+    study.py pnl_dollars       = 54.312811   gap = -0.000011
+  by-hand net P&L per contract                               gap=-1.100e-05     tol=5.1e-04    OK
+    R = (width - credit) * 100 = (5.0000 - 0.606128) * 100 = 439.3872
+    study.py R_dollars         = 439.387189   gap = 0.000011
+  by-hand R unit                                             gap=1.100e-05      tol=5.1e-04    OK
+
+==============================================================================
+HANDCHECK PASSED -- every gap above is inside its stated tolerance.
+==============================================================================

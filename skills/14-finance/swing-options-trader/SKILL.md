@@ -252,7 +252,7 @@ Half-Kelly sizing with volatility + regime adjustments. 4-exit system. Weekend g
 |----------------|------------------|-----------------|
 | `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
 | `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
-| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+| `options-risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
 
 ## What Good Looks Like
 

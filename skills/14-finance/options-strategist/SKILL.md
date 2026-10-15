@@ -2,16 +2,16 @@
 name: options-strategist
 description: >
   Use when the user asks which options strategy fits their market outlook, IV environment,
-  directional conviction, or capital constraints; when the user has a thesis (bullish/
-  bearish/neutral/volatile) and needs it translated into a specific options structure; or
-  when the user needs to compare strategy candidates against market regime, risk tolerance,
-  and account size. Handles strategy selection across 17+ structures (covered calls, CSPs,
-  vertical spreads, iron condors, butterflies, calendars, diagonals, straddles, strangles,
-  collars, ratio spreads, backspreads, jade lizards, broken wing butterflies, synthetics,
-  long calls/puts, debit spreads, protective puts), risk-first leg construction with delta
-  and IV-skew-based strike selection, UOA-informed strategy decisions, adjustment and exit
-  rule design, and payoff analysis. Do NOT use for options pricing model implementation,
-  Greeks computation, trade execution, or portfolio-level risk monitoring.
+  directional conviction or capital constraints; when the user has a thesis (bullish / bearish /
+  neutral / volatile) and needs it turned into a specific options structure; or to compare strategy
+  candidates against market regime and risk tolerance. Handles strategy selection across 17+
+  structures (covered calls, CSPs, vertical spreads, iron condors, butterflies, calendars, diagonals,
+  straddles, strangles, collars, long calls/puts, debit spreads, protective puts), risk-first leg
+  construction with delta and IV-skew strike selection, UOA-informed decisions, adjustment and
+  exit-rule design, and payoff analysis. Do NOT use to manage a position you already hold — hold /
+  trim / roll / close (options-position-lifecycle), leg repair (options-leg-management), contract
+  counts or exit levels (trade-sizing-recovery), or the book's Greeks and buying power
+  (options-risk-engineer); nor for pricing models (options-quant-engineer).
 license: MIT
 tags:
   - options-strategist
@@ -39,6 +39,7 @@ chain:
   feeds_into:
     - algorithmic-trader
     - portfolio-signal-manager
+    - options-trading-playbook
     - options-risk-engineer
     - advanced-options-structures
     - leaps-strategist
@@ -51,8 +52,6 @@ chain:
     - algorithmic-trader
   examples:
     - examples/uoa-options-trading/06-strategy-backtest/
-  examples:
-  - skills/14-finance/options-strategist/examples/backtest
 
 ---
 # Options Strategist
@@ -410,7 +409,7 @@ This skill operates in a domain where fabricated numbers lose real money. A hall
 |----------------|------------------|-----------------|
 | `data-engineer` / market-data sources | Clean price/volume and fundamentals | Before any model or strategy work |
 | `quantitative-analyst` or analytics | Model outputs and statistical baselines | When validating signals or calibrating |
-| `risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
+| `options-risk-engineer` / risk tooling | Limits and exposure context | When sizing positions or setting guards |
 
 ## Core Workflow
 
